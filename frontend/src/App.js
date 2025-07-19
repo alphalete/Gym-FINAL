@@ -4,82 +4,82 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Components from './Components';
 
 const {
-  Header,
-  Hero,
-  Features,
-  MembershipPlans,
-  About,
-  Trainers,
-  Footer,
-  LoginModal,
-  SignupModal,
-  MemberDashboard
+  Sidebar,
+  Dashboard,
+  ClientManagement,
+  PaymentTracking,
+  MembershipManagement,
+  Reports,
+  Settings,
+  LoginForm
 } = Components;
 
 function App() {
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [isSignupOpen, setIsSignupOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [user, setUser] = useState(null);
+
+  // Mock login check
+  useEffect(() => {
+    const savedUser = localStorage.getItem('gymAdminUser');
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+      setIsLoggedIn(true);
+    }
+  }, []);
 
   const handleLogin = (userData) => {
     setUser(userData);
     setIsLoggedIn(true);
-    setIsLoginOpen(false);
+    localStorage.setItem('gymAdminUser', JSON.stringify(userData));
   };
 
   const handleLogout = () => {
     setUser(null);
     setIsLoggedIn(false);
+    localStorage.removeItem('gymAdminUser');
+    setActiveTab('dashboard');
   };
 
-  const LandingPage = () => (
-    <div className="min-h-screen bg-black">
-      <Header 
-        onLoginClick={() => setIsLoginOpen(true)}
-        onSignupClick={() => setIsSignupOpen(true)}
-        isLoggedIn={isLoggedIn}
-        user={user}
-        onLogout={handleLogout}
-      />
-      <Hero onGetStarted={() => setIsSignupOpen(true)} />
-      <Features />
-      <MembershipPlans onSelectPlan={() => setIsSignupOpen(true)} />
-      <About />
-      <Trainers />
-      <Footer />
-      
-      <LoginModal 
-        isOpen={isLoginOpen}
-        onClose={() => setIsLoginOpen(false)}
-        onLogin={handleLogin}
-        onSwitchToSignup={() => {
-          setIsLoginOpen(false);
-          setIsSignupOpen(true);
-        }}
-      />
-      
-      <SignupModal 
-        isOpen={isSignupOpen}
-        onClose={() => setIsSignupOpen(false)}
-        onSignup={handleLogin}
-        onSwitchToLogin={() => {
-          setIsSignupOpen(false);
-          setIsLoginOpen(true);
-        }}
-      />
-    </div>
-  );
+  if (!isLoggedIn) {
+    return <LoginForm onLogin={handleLogin} />;
+  }
+
+  const renderActiveComponent = () => {
+    switch (activeTab) {
+      case 'dashboard':
+        return <Dashboard />;
+      case 'clients':
+        return <ClientManagement />;
+      case 'payments':
+        return <PaymentTracking />;
+      case 'memberships':
+        return <MembershipManagement />;
+      case 'reports':
+        return <Reports />;
+      case 'settings':
+        return <Settings user={user} />;
+      default:
+        return <Dashboard />;
+    }
+  };
 
   return (
     <div className="App">
       <BrowserRouter>
-        <Routes>
-          <Route 
-            path="/" 
-            element={isLoggedIn ? <MemberDashboard user={user} onLogout={handleLogout} /> : <LandingPage />} 
+        <div className="flex h-screen bg-gray-100">
+          <Sidebar 
+            activeTab={activeTab} 
+            setActiveTab={setActiveTab}
+            user={user}
+            onLogout={handleLogout}
           />
-        </Routes>
+          <div className="flex-1 overflow-hidden">
+            <main className="h-full overflow-y-auto">
+              {renderActiveComponent()}
+            </main>
+          </div>
+        </div>
       </BrowserRouter>
     </div>
   );
