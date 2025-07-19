@@ -659,7 +659,7 @@ const ClientManagement = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {filteredClients.map((client) => (
+              {paginatedClients.map((client) => (
                 <tr key={client.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4">
                     <div>
