@@ -50,6 +50,14 @@ const LoginForm = ({ onLogin }) => {
             </div>
             <h1 className="text-2xl font-bold text-gray-900">Alphalete Athletics</h1>
             <p className="text-gray-600">Management System</p>
+            <div className="mt-4 text-sm text-gray-600 bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p className="font-medium text-blue-800 mb-2">Login Credentials:</p>
+              <div className="text-left space-y-1">
+                <p><span className="font-medium">Admin:</span> admin / admin123</p>
+                <p><span className="font-medium">Manager:</span> manager / manager123</p>
+                <p><span className="font-medium">Staff:</span> staff / staff123</p>
+              </div>
+            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
