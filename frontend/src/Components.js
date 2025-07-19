@@ -150,7 +150,9 @@ const LoginForm = ({ onLogin }) => {
 };
 
 // Sidebar Component
-const Sidebar = ({ activeTab, setActiveTab, user, onLogout }) => {
+const Sidebar = ({ activeTab, setActiveTab, user, onLogout, collapsed, onToggle }) => {
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: '📊' },
     { id: 'clients', label: 'Client Management', icon: '👥' },
@@ -160,66 +162,131 @@ const Sidebar = ({ activeTab, setActiveTab, user, onLogout }) => {
     { id: 'settings', label: 'Settings', icon: '⚙️' }
   ];
 
+  // Close mobile menu when tab changes
+  useEffect(() => {
+    setIsMobileOpen(false);
+  }, [activeTab]);
+
   return (
-    <div className="w-64 bg-gray-900 text-white flex flex-col">
-      {/* Logo */}
-      <div className="p-6 border-b border-gray-700">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gradient-to-r from-red-500 to-orange-500 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-lg">A</span>
+    <>
+      {/* Mobile Overlay */}
+      {isMobileOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div className={`
+        fixed lg:relative inset-y-0 left-0 z-50 bg-gray-900 text-white flex flex-col transition-all duration-300 ease-in-out
+        ${collapsed ? 'w-16' : 'w-64'}
+        ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
+        
+        {/* Logo Section */}
+        <div className={`p-6 border-b border-gray-700 ${collapsed ? 'px-4' : ''}`}>
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-r from-red-500 to-orange-500 rounded-lg flex items-center justify-center flex-shrink-0">
+              <span className="text-white font-bold text-lg">A</span>
+            </div>
+            {!collapsed && (
+              <div className="overflow-hidden">
+                <h1 className="font-bold text-lg whitespace-nowrap">Alphalete Athletics</h1>
+                <p className="text-gray-400 text-sm whitespace-nowrap">Management System</p>
+              </div>
+            )}
           </div>
-          <div>
-            <h1 className="font-bold text-lg">Alphalete Athletics</h1>
-            <p className="text-gray-400 text-sm">Management System</p>
+          
+          {/* Desktop Toggle Button */}
+          <button
+            onClick={onToggle}
+            className={`hidden lg:block absolute top-6 -right-3 bg-gray-800 border border-gray-600 rounded-full p-1 hover:bg-gray-700 transition-colors ${
+              collapsed ? 'rotate-180' : ''
+            }`}
+          >
+            <svg className="w-4 h-4 text-white transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+        </div>
+
+        {/* User Info */}
+        {!collapsed && (
+          <div className="p-4 border-b border-gray-700">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center flex-shrink-0">
+                <span className="text-sm">👤</span>
+              </div>
+              <div className="overflow-hidden">
+                <p className="font-medium whitespace-nowrap">{user?.name}</p>
+                <p className="text-gray-400 text-sm whitespace-nowrap">{user?.role}</p>
+              </div>
+            </div>
           </div>
+        )}
+
+        {/* Navigation */}
+        <nav className="flex-1 p-4 overflow-y-auto">
+          <ul className="space-y-2">
+            {menuItems.map((item) => (
+              <li key={item.id}>
+                <button
+                  onClick={() => setActiveTab(item.id)}
+                  className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors group relative ${
+                    activeTab === item.id
+                      ? 'bg-red-500 text-white'
+                      : 'text-gray-300 hover:bg-gray-800'
+                  } ${collapsed ? 'justify-center' : 'space-x-3'}`}
+                  title={collapsed ? item.label : ''}
+                >
+                  <span className="text-xl flex-shrink-0">{item.icon}</span>
+                  {!collapsed && <span className="whitespace-nowrap">{item.label}</span>}
+                  
+                  {/* Tooltip for collapsed state */}
+                  {collapsed && (
+                    <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
+                      {item.label}
+                    </div>
+                  )}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        {/* Logout */}
+        <div className="p-4 border-t border-gray-700">
+          <button
+            onClick={onLogout}
+            className={`w-full flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors group relative ${
+              collapsed ? 'justify-center' : 'space-x-3'
+            }`}
+            title={collapsed ? 'Logout' : ''}
+          >
+            <span className="text-xl flex-shrink-0">🚪</span>
+            {!collapsed && <span className="whitespace-nowrap">Logout</span>}
+            
+            {/* Tooltip for collapsed state */}
+            {collapsed && (
+              <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
+                Logout
+              </div>
+            )}
+          </button>
         </div>
       </div>
 
-      {/* User Info */}
-      <div className="p-4 border-b border-gray-700">
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
-            <span className="text-sm">👤</span>
-          </div>
-          <div>
-            <p className="font-medium">{user?.name}</p>
-            <p className="text-gray-400 text-sm">{user?.role}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Navigation */}
-      <nav className="flex-1 p-4">
-        <ul className="space-y-2">
-          {menuItems.map((item) => (
-            <li key={item.id}>
-              <button
-                onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                  activeTab === item.id
-                    ? 'bg-red-500 text-white'
-                    : 'text-gray-300 hover:bg-gray-800'
-                }`}
-              >
-                <span>{item.icon}</span>
-                <span>{item.label}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      </nav>
-
-      {/* Logout */}
-      <div className="p-4 border-t border-gray-700">
-        <button
-          onClick={onLogout}
-          className="w-full flex items-center space-x-3 px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors"
-        >
-          <span>🚪</span>
-          <span>Logout</span>
-        </button>
-      </div>
-    </div>
+      {/* Mobile Toggle Button - Floating */}
+      <button
+        onClick={() => setIsMobileOpen(true)}
+        className="lg:hidden fixed bottom-6 left-6 z-30 bg-red-500 text-white p-3 rounded-full shadow-lg hover:bg-red-600 transition-colors"
+      >
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    </>
   );
 };
 
