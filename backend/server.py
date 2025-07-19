@@ -36,73 +36,10 @@ class GymMember(BaseModel):
 
 # In-memory storage
 status_checks_store = []
-gym_members_store = [
-    {
-        "id": "1",
-        "name": "John Smith",
-        "email": "john.smith@email.com",
-        "phone": "(555) 123-4567",
-        "membership_type": "Monthly",
-        "join_date": "2024-01-15",
-        "last_payment": "2025-01-01",
-        "next_due": "2025-02-01",
-        "status": "Active",
-        "amount": 59.0,
-        "overdue": 0
-    },
-    {
-        "id": "2",
-        "name": "Sarah Johnson",
-        "email": "sarah.j@email.com",
-        "phone": "(555) 234-5678",
-        "membership_type": "Student",
-        "join_date": "2024-03-10",
-        "last_payment": "2024-12-15",
-        "next_due": "2025-01-15",
-        "status": "Overdue",
-        "amount": 29.0,
-        "overdue": 5
-    },
-    {
-        "id": "3",
-        "name": "Mike Wilson",
-        "email": "mike.wilson@email.com",
-        "phone": "(555) 345-6789",
-        "membership_type": "Custom",
-        "join_date": "2024-06-20",
-        "last_payment": "2025-01-10",
-        "next_due": "2025-02-10",
-        "status": "Active",
-        "amount": 99.0,
-        "overdue": 0
-    },
-    {
-        "id": "4",
-        "name": "Emily Davis",
-        "email": "emily.davis@email.com",
-        "phone": "(555) 456-7890",
-        "membership_type": "Monthly",
-        "join_date": "2024-08-05",
-        "last_payment": "2024-12-05",
-        "next_due": "2025-01-05",
-        "status": "Overdue",
-        "amount": 59.0,
-        "overdue": 15
-    },
-    {
-        "id": "5",
-        "name": "David Brown",
-        "email": "david.brown@email.com",
-        "phone": "(555) 567-8901",
-        "membership_type": "Monthly",
-        "join_date": "2024-11-12",
-        "last_payment": "2025-01-12",
-        "next_due": "2025-02-12",
-        "status": "Active",
-        "amount": 59.0,
-        "overdue": 0
-    }
-]
+gym_members_store = []
+
+# Initial system setup with empty database
+# Use the frontend interface to add your first gym members
 
 # API Routes
 @api_router.get("/")
