@@ -1571,10 +1571,99 @@ const Settings = ({ user }) => {
     lateFeeAmount: 10
   });
 
-  const handleSaveSettings = (e) => {
+  const [storageStats, setStorageStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadSettings();
+    loadStorageStats();
+  }, []);
+
+  const loadSettings = async () => {
+    try {
+      const savedSettings = await gymStorage.getSetting('gymSettings', settings);
+      setSettings(savedSettings);
+    } catch (error) {
+      console.error('Error loading settings:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadStorageStats = async () => {
+    try {
+      const stats = await gymStorage.getStorageStats();
+      setStorageStats(stats);
+    } catch (error) {
+      console.error('Error loading storage stats:', error);
+    }
+  };
+
+  const handleSaveSettings = async (e) => {
     e.preventDefault();
-    // In a real app, this would save to backend
-    alert('Settings saved successfully!');
+    try {
+      await gymStorage.saveSetting('gymSettings', settings);
+      alert('Settings saved successfully on your phone!');
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      alert('Error saving settings. Please try again.');
+    }
+  };
+
+  const handleExportData = async () => {
+    try {
+      const exportData = await gymStorage.exportData();
+      const blob = new Blob([exportData], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `gym-backup-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      alert('Data exported successfully! Save this file as your backup.');
+    } catch (error) {
+      console.error('Error exporting data:', error);
+      alert('Error exporting data. Please try again.');
+    }
+  };
+
+  const handleImportData = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const success = await gymStorage.importData(e.target.result);
+        if (success) {
+          alert('Data imported successfully! Please refresh the page to see your data.');
+          window.location.reload();
+        } else {
+          alert('Error importing data. Please check the file format.');
+        }
+      } catch (error) {
+        console.error('Error importing data:', error);
+        alert('Error importing data. Please check the file format.');
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleClearAllData = async () => {
+    if (window.confirm('⚠️ WARNING: This will delete ALL your gym data permanently. Are you sure?')) {
+      if (window.confirm('This cannot be undone. Are you absolutely sure?')) {
+        try {
+          await gymStorage.clearAllData();
+          alert('All data cleared successfully.');
+          window.location.reload();
+        } catch (error) {
+          console.error('Error clearing data:', error);
+          alert('Error clearing data. Please try again.');
+        }
+      }
+    }
   };
 
   return (
