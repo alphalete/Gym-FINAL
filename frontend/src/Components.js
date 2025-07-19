@@ -257,14 +257,46 @@ const Sidebar = ({ activeTab, setActiveTab, user, onLogout, collapsed, onToggle 
 
 // Dashboard Component
 const Dashboard = () => {
-  const totalClients = mockClients.length;
-  const activeClients = mockClients.filter(c => c.status === 'Active').length;
-  const overdueClients = mockClients.filter(c => c.status === 'Overdue').length;
-  const monthlyRevenue = mockClients.reduce((sum, client) => sum + client.amount, 0);
-  const overdueAmount = mockClients.reduce((sum, client) => sum + client.overdue * client.amount, 0);
+  const [clients, setClients] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Load clients from phone storage
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
+
+  const loadDashboardData = async () => {
+    try {
+      const savedClients = await gymStorage.getAllMembers();
+      setClients(savedClients);
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const totalClients = clients.length;
+  const activeClients = clients.filter(c => c.status === 'Active').length;
+  const overdueClients = clients.filter(c => c.status === 'Overdue').length;
+  const monthlyRevenue = clients.reduce((sum, client) => sum + client.amount, 0);
+  const overdueAmount = clients.reduce((sum, client) => sum + client.overdue * client.amount, 0);
 
   const recentPayments = [];
-  const overduePayments = mockClients.filter(c => c.status === 'Overdue');
+  const overduePayments = clients.filter(c => c.status === 'Overdue');
+
+  if (loading) {
+    return (
+      <div className="p-6 bg-gray-50 min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <span className="text-white font-bold text-2xl">📱</span>
+          </div>
+          <p className="text-gray-600">Loading your gym data from phone...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Empty state for new gym
   if (totalClients === 0) {
