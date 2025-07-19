@@ -1419,33 +1419,16 @@ const Settings = ({ user }) => {
   );
 };
 
-// Install Prompt Component
-const InstallPrompt = ({ onInstall, onDismiss }) => {
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 text-center">
-        <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-orange-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-          <span className="text-white font-bold text-2xl">📱</span>
-        </div>
-        <h3 className="text-xl font-bold text-gray-900 mb-2">Install Gym Management App</h3>
-        <p className="text-gray-600 mb-6">
-          Add Alphalete Athletics to your home screen for quick access and a better experience!
-        </p>
-        <div className="flex space-x-3">
-          <button
-            onClick={onInstall}
-            className="flex-1 bg-gradient-to-r from-red-500 to-orange-500 text-white py-3 rounded-lg font-semibold hover:from-red-600 hover:to-orange-600 transition-all"
-          >
-            Install App
-          </button>
-          <button
-            onClick={onDismiss}
-            className="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
-          >
-            Later
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+const Components = {
+  Sidebar,
+  Dashboard,
+  ClientManagement,
+  PaymentTracking,
+  MembershipManagement,
+  Reports,
+  Settings,
+  LoginForm,
+  InstallPrompt
 };
+
+export default Components;
