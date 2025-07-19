@@ -250,13 +250,67 @@ const Dashboard = () => {
   const monthlyRevenue = mockClients.reduce((sum, client) => sum + client.amount, 0);
   const overdueAmount = mockClients.reduce((sum, client) => sum + client.overdue * client.amount, 0);
 
-  const recentPayments = [
-    { client: 'John Smith', amount: 59, date: '2025-01-20', status: 'Completed' },
-    { client: 'David Brown', amount: 59, date: '2025-01-19', status: 'Completed' },
-    { client: 'Mike Wilson', amount: 99, date: '2025-01-18', status: 'Completed' }
-  ];
-
+  const recentPayments = [];
   const overduePayments = mockClients.filter(c => c.status === 'Overdue');
+
+  // Empty state for new gym
+  if (totalClients === 0) {
+    return (
+      <div className="p-6 bg-gray-50 min-h-screen">
+        <div className="max-w-4xl mx-auto text-center py-20">
+          <div className="w-24 h-24 bg-gradient-to-r from-red-500 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-8">
+            <span className="text-white font-bold text-4xl">🏋️</span>
+          </div>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Welcome to Alphalete Athletics!</h1>
+          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+            Your gym management system is ready. Start by adding your first members to track payments, 
+            manage memberships, and grow your fitness business.
+          </p>
+          <div className="bg-white rounded-xl p-8 shadow-sm border max-w-2xl mx-auto">
+            <h3 className="text-2xl font-semibold text-gray-900 mb-6">Quick Start Guide</h3>
+            <div className="grid md:grid-cols-2 gap-6 text-left">
+              <div className="flex items-start space-x-3">
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-blue-600 font-bold">1</span>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-900">Add Members</h4>
+                  <p className="text-gray-600 text-sm">Go to Client Management to add your first gym members</p>
+                </div>
+              </div>
+              <div className="flex items-start space-x-3">
+                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-green-600 font-bold">2</span>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-900">Track Payments</h4>
+                  <p className="text-gray-600 text-sm">Monitor due dates and record payments easily</p>
+                </div>
+              </div>
+              <div className="flex items-start space-x-3">
+                <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-purple-600 font-bold">3</span>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-900">Set Memberships</h4>
+                  <p className="text-gray-600 text-sm">Configure your membership plans and pricing</p>
+                </div>
+              </div>
+              <div className="flex items-start space-x-3">
+                <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-orange-600 font-bold">4</span>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-900">View Reports</h4>
+                  <p className="text-gray-600 text-sm">Analyze your gym's performance and growth</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
