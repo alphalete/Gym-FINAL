@@ -455,10 +455,27 @@ const ClientManagement = () => {
     'Custom': 99
   };
 
-  const filteredClients = clients.filter(client =>
-    client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    client.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredClients = clients.filter(client => {
+    const matchesSearch = client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         client.phone.includes(searchTerm);
+    
+    const matchesStatus = statusFilter === 'all' || client.status.toLowerCase() === statusFilter.toLowerCase();
+    
+    const matchesMembership = membershipFilter === 'all' || client.membershipType === membershipFilter;
+    
+    return matchesSearch && matchesStatus && matchesMembership;
+  });
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredClients.length / clientsPerPage);
+  const startIndex = (currentPage - 1) * clientsPerPage;
+  const paginatedClients = filteredClients.slice(startIndex, startIndex + clientsPerPage);
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter, membershipFilter]);
 
   const handleAddClient = (e) => {
     e.preventDefault();
