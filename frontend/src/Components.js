@@ -652,7 +652,22 @@ const ClientManagement = () => {
 
       {/* Clients Table */}
       <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-        <div className="overflow-x-auto">
+        {filteredClients.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-gray-400 text-2xl">👥</span>
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No members yet</h3>
+            <p className="text-gray-500 mb-6">Start building your gym community by adding your first member</p>
+            <button
+              onClick={() => setIsAddingClient(true)}
+              className="bg-gradient-to-r from-red-500 to-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:from-red-600 hover:to-orange-600 transition-all"
+            >
+              Add First Member
+            </button>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
