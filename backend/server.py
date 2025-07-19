@@ -19,27 +19,6 @@ app = FastAPI(title="Alphalete Athletics API", version="1.0.0")
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
-# Initialize MongoDB connection as optional
-mongo_client = None
-db = None
-
-# Try to connect to MongoDB, but don't fail if it's not available
-try:
-    from motor.motor_asyncio import AsyncIOMotorClient
-    mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
-    db_name = os.environ.get('DB_NAME', 'alphalete_athletics')
-    
-    if mongo_url and mongo_url != 'mongodb://localhost:27017':
-        mongo_client = AsyncIOMotorClient(mongo_url)
-        db = mongo_client[db_name]
-        logging.info("Connected to MongoDB successfully")
-    else:
-        logging.info("MongoDB connection skipped - using mock data mode")
-except Exception as e:
-    logging.warning(f"MongoDB connection failed: {e}. Running in mock mode.")
-    mongo_client = None
-    db = None
-
 # Define Models
 class StatusCheck(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -62,9 +41,9 @@ class GymMember(BaseModel):
     amount: float
     overdue: int = 0
 
-# Mock data for when database is not available
-mock_status_checks = []
-mock_gym_members = [
+# In-memory storage for demo purposes
+status_checks_store = []
+gym_members_store = [
     {
         "id": "1",
         "name": "John Smith",
@@ -90,19 +69,32 @@ mock_gym_members = [
         "status": "Overdue",
         "amount": 29.0,
         "overdue": 5
+    },
+    {
+        "id": "3",
+        "name": "Mike Wilson",
+        "email": "mike.wilson@email.com",
+        "phone": "(555) 345-6789",
+        "membership_type": "Custom",
+        "join_date": "2024-06-20",
+        "last_payment": "2025-01-10",
+        "next_due": "2025-02-10",
+        "status": "Active",
+        "amount": 99.0,
+        "overdue": 0
     }
 ]
 
-# Add your routes to the router instead of directly to app
+# API Routes
 @api_router.get("/")
 async def root():
-    return {"message": "Alphalete Athletics Club API", "status": "running", "database": "connected" if db else "mock_mode"}
+    return {"message": "Alphalete Athletics Club API", "status": "running", "mode": "production"}
 
 @api_router.get("/health")
 async def health_check():
     return {
         "status": "healthy",
-        "database_connected": db is not None,
+        "mode": "production",
         "timestamp": datetime.utcnow().isoformat()
     }
 
@@ -110,62 +102,37 @@ async def health_check():
 async def create_status_check(input: StatusCheckCreate):
     status_dict = input.dict()
     status_obj = StatusCheck(**status_dict)
-    
-    if db:
-        try:
-            await db.status_checks.insert_one(status_obj.dict())
-        except Exception as e:
-            logging.error(f"Database insert failed: {e}")
-            # Fall back to mock storage
-            mock_status_checks.append(status_obj.dict())
-    else:
-        # Use mock storage
-        mock_status_checks.append(status_obj.dict())
-    
+    status_checks_store.append(status_obj.dict())
     return status_obj
 
 @api_router.get("/status", response_model=List[StatusCheck])
 async def get_status_checks():
-    if db:
-        try:
-            status_checks = await db.status_checks.find().to_list(1000)
-            return [StatusCheck(**status_check) for status_check in status_checks]
-        except Exception as e:
-            logging.error(f"Database query failed: {e}")
-            # Fall back to mock data
-            return [StatusCheck(**check) for check in mock_status_checks]
-    else:
-        # Use mock data
-        return [StatusCheck(**check) for check in mock_status_checks]
+    return [StatusCheck(**check) for check in status_checks_store]
 
 @api_router.get("/members", response_model=List[GymMember])
 async def get_gym_members():
-    if db:
-        try:
-            members = await db.gym_members.find().to_list(1000)
-            return [GymMember(**member) for member in members]
-        except Exception as e:
-            logging.error(f"Database query failed: {e}")
-            # Fall back to mock data
-            return [GymMember(**member) for member in mock_gym_members]
-    else:
-        # Use mock data
-        return [GymMember(**member) for member in mock_gym_members]
+    return [GymMember(**member) for member in gym_members_store]
 
 @api_router.post("/members", response_model=GymMember)
 async def create_gym_member(member: GymMember):
-    if db:
-        try:
-            await db.gym_members.insert_one(member.dict())
-        except Exception as e:
-            logging.error(f"Database insert failed: {e}")
-            # Fall back to mock storage
-            mock_gym_members.append(member.dict())
-    else:
-        # Use mock storage
-        mock_gym_members.append(member.dict())
-    
+    gym_members_store.append(member.dict())
     return member
+
+@api_router.put("/members/{member_id}", response_model=GymMember)
+async def update_gym_member(member_id: str, member: GymMember):
+    for i, existing_member in enumerate(gym_members_store):
+        if existing_member["id"] == member_id:
+            gym_members_store[i] = member.dict()
+            return member
+    raise HTTPException(status_code=404, detail="Member not found")
+
+@api_router.delete("/members/{member_id}")
+async def delete_gym_member(member_id: str):
+    for i, existing_member in enumerate(gym_members_store):
+        if existing_member["id"] == member_id:
+            gym_members_store.pop(i)
+            return {"message": "Member deleted successfully"}
+    raise HTTPException(status_code=404, detail="Member not found")
 
 # Include the router in the main app
 app.include_router(api_router)
@@ -185,7 +152,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    if mongo_client:
-        mongo_client.close()
+# Startup event
+@app.on_event("startup")
+async def startup_event():
+    logger.info("Alphalete Athletics Club API starting up...")
+    logger.info("Running in production mode with in-memory storage")
+
+# No MongoDB dependency or cleanup needed
