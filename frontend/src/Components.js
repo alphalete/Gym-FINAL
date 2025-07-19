@@ -531,15 +531,47 @@ const ClientManagement = () => {
         </div>
       </div>
 
-      {/* Search */}
-      <div className="mb-6">
-        <input
-          type="text"
-          placeholder="Search clients by name or email..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full max-w-md px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-        />
+      {/* Search and Filters */}
+      <div className="mb-6 grid md:grid-cols-4 gap-4">
+        <div className="md:col-span-2">
+          <input
+            type="text"
+            placeholder="Search by name, email, or phone..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+          />
+        </div>
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+        >
+          <option value="all">All Status</option>
+          <option value="active">Active</option>
+          <option value="overdue">Overdue</option>
+        </select>
+        <select
+          value={membershipFilter}
+          onChange={(e) => setMembershipFilter(e.target.value)}
+          className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+        >
+          <option value="all">All Memberships</option>
+          <option value="Student">Student</option>
+          <option value="Monthly">Monthly</option>
+          <option value="Custom">Custom</option>
+        </select>
+      </div>
+
+      {/* Results Summary */}
+      <div className="mb-4 flex items-center justify-between">
+        <p className="text-gray-600">
+          Showing {paginatedClients.length} of {filteredClients.length} clients
+          {searchTerm && ` matching "${searchTerm}"`}
+        </p>
+        <div className="text-sm text-gray-500">
+          Page {currentPage} of {totalPages}
+        </div>
       </div>
 
       {/* Add/Edit Client Modal */}
