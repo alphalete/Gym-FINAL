@@ -11,7 +11,8 @@ const {
   MembershipManagement,
   Reports,
   Settings,
-  LoginForm
+  LoginForm,
+  InstallPrompt
 } = Components;
 
 function App() {
@@ -19,6 +20,36 @@ function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [user, setUser] = useState(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+
+  // Register Service Worker for PWA
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('SW registered: ', registration);
+          })
+          .catch((registrationError) => {
+            console.log('SW registration failed: ', registrationError);
+          });
+      });
+    }
+
+    // Handle PWA install prompt
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowInstallPrompt(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
 
   // Mock login check
   useEffect(() => {
@@ -46,8 +77,28 @@ function App() {
     setSidebarCollapsed(!sidebarCollapsed);
   };
 
+  const handleInstallClick = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log(`User response to the install prompt: ${outcome}`);
+      setDeferredPrompt(null);
+      setShowInstallPrompt(false);
+    }
+  };
+
   if (!isLoggedIn) {
-    return <LoginForm onLogin={handleLogin} />;
+    return (
+      <>
+        <LoginForm onLogin={handleLogin} />
+        {showInstallPrompt && (
+          <InstallPrompt 
+            onInstall={handleInstallClick}
+            onDismiss={() => setShowInstallPrompt(false)}
+          />
+        )}
+      </>
+    );
   }
 
   const renderActiveComponent = () => {
@@ -103,6 +154,14 @@ function App() {
             </main>
           </div>
         </div>
+        
+        {/* Install Prompt for logged in users */}
+        {showInstallPrompt && (
+          <InstallPrompt 
+            onInstall={handleInstallClick}
+            onDismiss={() => setShowInstallPrompt(false)}
+          />
+        )}
       </BrowserRouter>
     </div>
   );
