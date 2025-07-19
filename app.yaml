@@ -1,0 +1,21 @@
+app:
+  name: alphalete-athletics-standalone
+  type: frontend-backend
+  storage: memory
+  services:
+    - frontend
+    - backend
+  external_deps: none
+  
+frontend:
+  framework: react
+  build_command: npm run build
+  
+backend:
+  framework: fastapi
+  runtime: python
+  storage: memory
+  
+deployment:
+  mode: standalone
+  requires_setup: false
