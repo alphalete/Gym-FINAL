@@ -1,5 +1,5 @@
 {
-  "name": "alphalete-athletics-frontend",
+  "name": "alphalete-athletics-standalone",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
