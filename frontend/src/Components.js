@@ -451,14 +451,43 @@ const Dashboard = () => {
 
 // Client Management Component
 const ClientManagement = () => {
-  const [clients, setClients] = useState(mockClients);
+  const [clients, setClients] = useState([]);
   const [isAddingClient, setIsAddingClient] = useState(false);
   const [editingClient, setEditingClient] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState('all');
   const [membershipFilter, setMembershipFilter] = useState('all');
+  const [loading, setLoading] = useState(true);
   const clientsPerPage = 10;
+
+  // Load clients from phone storage when component mounts
+  useEffect(() => {
+    loadClientsFromPhone();
+  }, []);
+
+  const loadClientsFromPhone = async () => {
+    try {
+      setLoading(true);
+      const savedClients = await gymStorage.getAllMembers();
+      setClients(savedClients);
+    } catch (error) {
+      console.error('Error loading clients from phone:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Save client to phone storage
+  const saveClientToPhone = async (client) => {
+    try {
+      await gymStorage.saveMembers(client);
+      await loadClientsFromPhone(); // Reload to get fresh data
+    } catch (error) {
+      console.error('Error saving client to phone:', error);
+      alert('Error saving client data. Please try again.');
+    }
+  };
 
   const [newClient, setNewClient] = useState({
     name: '',
