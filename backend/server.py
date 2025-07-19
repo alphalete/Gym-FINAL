@@ -1,19 +1,12 @@
 from fastapi import FastAPI, APIRouter, HTTPException
-from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
-import os
 import logging
-from pathlib import Path
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import List
 import uuid
 from datetime import datetime
 
-
-ROOT_DIR = Path(__file__).parent
-load_dotenv(ROOT_DIR / '.env')
-
-# Create the main app without a prefix
+# Create the main app
 app = FastAPI(title="Alphalete Athletics API", version="1.0.0")
 
 # Create a router with the /api prefix
@@ -41,7 +34,7 @@ class GymMember(BaseModel):
     amount: float
     overdue: int = 0
 
-# In-memory storage for demo purposes
+# In-memory storage
 status_checks_store = []
 gym_members_store = [
     {
@@ -82,6 +75,32 @@ gym_members_store = [
         "status": "Active",
         "amount": 99.0,
         "overdue": 0
+    },
+    {
+        "id": "4",
+        "name": "Emily Davis",
+        "email": "emily.davis@email.com",
+        "phone": "(555) 456-7890",
+        "membership_type": "Monthly",
+        "join_date": "2024-08-05",
+        "last_payment": "2024-12-05",
+        "next_due": "2025-01-05",
+        "status": "Overdue",
+        "amount": 59.0,
+        "overdue": 15
+    },
+    {
+        "id": "5",
+        "name": "David Brown",
+        "email": "david.brown@email.com",
+        "phone": "(555) 567-8901",
+        "membership_type": "Monthly",
+        "join_date": "2024-11-12",
+        "last_payment": "2025-01-12",
+        "next_due": "2025-02-12",
+        "status": "Active",
+        "amount": 59.0,
+        "overdue": 0
     }
 ]
 
@@ -95,7 +114,8 @@ async def health_check():
     return {
         "status": "healthy",
         "mode": "production",
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.utcnow().isoformat(),
+        "members_count": len(gym_members_store)
     }
 
 @api_router.post("/status", response_model=StatusCheck)
@@ -115,15 +135,19 @@ async def get_gym_members():
 
 @api_router.post("/members", response_model=GymMember)
 async def create_gym_member(member: GymMember):
-    gym_members_store.append(member.dict())
-    return member
+    member_dict = member.dict()
+    member_dict["id"] = str(uuid.uuid4())
+    gym_members_store.append(member_dict)
+    return GymMember(**member_dict)
 
 @api_router.put("/members/{member_id}", response_model=GymMember)
 async def update_gym_member(member_id: str, member: GymMember):
     for i, existing_member in enumerate(gym_members_store):
         if existing_member["id"] == member_id:
-            gym_members_store[i] = member.dict()
-            return member
+            member_dict = member.dict()
+            member_dict["id"] = member_id
+            gym_members_store[i] = member_dict
+            return GymMember(**member_dict)
     raise HTTPException(status_code=404, detail="Member not found")
 
 @api_router.delete("/members/{member_id}")
@@ -134,9 +158,24 @@ async def delete_gym_member(member_id: str):
             return {"message": "Member deleted successfully"}
     raise HTTPException(status_code=404, detail="Member not found")
 
+@api_router.get("/dashboard-stats")
+async def get_dashboard_stats():
+    total_members = len(gym_members_store)
+    active_members = len([m for m in gym_members_store if m["status"] == "Active"])
+    overdue_members = len([m for m in gym_members_store if m["status"] == "Overdue"])
+    total_revenue = sum(m["amount"] for m in gym_members_store)
+    
+    return {
+        "total_members": total_members,
+        "active_members": active_members,
+        "overdue_members": overdue_members,
+        "total_revenue": total_revenue
+    }
+
 # Include the router in the main app
 app.include_router(api_router)
 
+# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
@@ -155,7 +194,10 @@ logger = logging.getLogger(__name__)
 # Startup event
 @app.on_event("startup")
 async def startup_event():
-    logger.info("Alphalete Athletics Club API starting up...")
-    logger.info("Running in production mode with in-memory storage")
+    logger.info("🏋️ Alphalete Athletics Club API starting up...")
+    logger.info(f"📊 Loaded {len(gym_members_store)} gym members")
+    logger.info("🚀 Running in production mode with in-memory storage")
 
-# No MongoDB dependency or cleanup needed
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
