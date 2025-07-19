@@ -832,6 +832,7 @@ const ClientManagement = () => {
             </div>
           </div>
         )}
+        )}
       </div>
     </div>
   );
