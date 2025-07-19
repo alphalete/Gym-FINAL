@@ -1,0 +1,15 @@
+version: '1.0'
+services:
+  - name: frontend
+    type: static
+    build:
+      command: npm run build
+      output: build/
+  - name: backend  
+    type: api
+    runtime: python
+    command: uvicorn server:app --host 0.0.0.0 --port 8000
+
+database: false
+migrations: false
+setup_scripts: false
