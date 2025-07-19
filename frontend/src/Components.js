@@ -1,73 +1,66 @@
 import React, { useState, useEffect } from 'react';
 
-// Mock Data
-const mockClients = [
-  {
-    id: 1,
-    name: 'John Smith',
-    email: 'john.smith@email.com',
-    phone: '(555) 123-4567',
-    membershipType: 'Monthly',
-    joinDate: '2024-01-15',
-    lastPayment: '2025-01-01',
-    nextDue: '2025-02-01',
-    status: 'Active',
-    amount: 59,
-    overdue: 0
-  },
-  {
-    id: 2,
-    name: 'Sarah Johnson',
-    email: 'sarah.j@email.com',
-    phone: '(555) 234-5678',
-    membershipType: 'Student',
-    joinDate: '2024-03-10',
-    lastPayment: '2024-12-15',
-    nextDue: '2025-01-15',
-    status: 'Overdue',
-    amount: 29,
-    overdue: 5
-  },
-  {
-    id: 3,
-    name: 'Mike Wilson',
-    email: 'mike.wilson@email.com',
-    phone: '(555) 345-6789',
-    membershipType: 'Custom',
-    joinDate: '2024-06-20',
-    lastPayment: '2025-01-10',
-    nextDue: '2025-02-10',
-    status: 'Active',
-    amount: 99,
-    overdue: 0
-  },
-  {
-    id: 4,
-    name: 'Emily Davis',
-    email: 'emily.davis@email.com',
-    phone: '(555) 456-7890',
-    membershipType: 'Monthly',
-    joinDate: '2024-08-05',
-    lastPayment: '2024-12-05',
-    nextDue: '2025-01-05',
-    status: 'Overdue',
-    amount: 59,
-    overdue: 15
-  },
-  {
-    id: 5,
-    name: 'David Brown',
-    email: 'david.brown@email.com',
-    phone: '(555) 567-8901',
-    membershipType: 'Monthly',
-    joinDate: '2024-11-12',
-    lastPayment: '2025-01-12',
-    nextDue: '2025-02-12',
-    status: 'Active',
-    amount: 59,
-    overdue: 0
-  }
-];
+// Mock Data - Extended for 100+ clients
+const generateMockClients = () => {
+  const names = [
+    'John Smith', 'Sarah Johnson', 'Mike Wilson', 'Emily Davis', 'David Brown',
+    'Jessica Miller', 'Chris Garcia', 'Amanda Rodriguez', 'Ryan Martinez', 'Lisa Anderson',
+    'Kevin Taylor', 'Maria Gonzalez', 'Brandon Lee', 'Nicole White', 'Tyler Harris',
+    'Ashley Clark', 'Jonathan Lewis', 'Stephanie Robinson', 'Daniel Walker', 'Rachel Hall',
+    'Anthony Young', 'Michelle Allen', 'Matthew King', 'Kimberly Wright', 'Joshua Lopez',
+    'Amy Hill', 'Andrew Scott', 'Laura Green', 'Nicholas Adams', 'Christina Baker',
+    'Joseph Nelson', 'Elizabeth Carter', 'Thomas Mitchell', 'Jennifer Perez', 'Brian Roberts',
+    'Melissa Turner', 'Christopher Phillips', 'Susan Campbell', 'William Parker', 'Angela Evans',
+    'James Edwards', 'Mary Collins', 'Robert Stewart', 'Patricia Sanchez', 'Michael Morris',
+    'Linda Rogers', 'Richard Reed', 'Barbara Cook', 'Charles Bailey', 'Nancy Cooper',
+    'Jason Richardson', 'Karen Cox', 'Paul Ward', 'Helen Torres', 'Mark Peterson',
+    'Sandra Gray', 'Steven Ramirez', 'Donna James', 'Kenneth Watson', 'Carol Brooks',
+    'Frank Kelly', 'Ruth Sanders', 'Gregory Price', 'Sharon Bennett', 'Raymond Wood',
+    'Michelle Barnes', 'Samuel Ross', 'Betty Henderson', 'Peter Coleman', 'Alice Jenkins',
+    'Harold Perry', 'Anna Powell', 'Douglas Long', 'Judith Patterson', 'Arthur Hughes',
+    'Marie Flores', 'Jerry Washington', 'Gloria Butler', 'Carl Simmons', 'Teresa Foster',
+    'Alan Gonzales', 'Frances Bryant', 'Henry Alexander', 'Diana Russell', 'Walter Griffin',
+    'Julie Diaz', 'Ralph Hayes', 'Sara Myers', 'Gerald Ford', 'Janet Hamilton',
+    'Howard Graham', 'Catherine Sullivan', 'Philip Wallace', 'Deborah Woods', 'Louis Knight',
+    'Victoria McDonald', 'Scott Hunter', 'Carolyn Palmer', 'Albert Ellis', 'Jean Black'
+  ];
+
+  const membershipTypes = ['Student', 'Monthly', 'Custom'];
+  const membershipPrices = { Student: 29, Monthly: 59, Custom: 99 };
+  const domains = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'company.com'];
+
+  return names.map((name, index) => {
+    const membershipType = membershipTypes[index % 3];
+    const isOverdue = Math.random() < 0.15; // 15% chance of being overdue
+    const email = name.toLowerCase().replace(' ', '.') + '@' + domains[index % domains.length];
+    const phone = `(555) ${String(Math.floor(Math.random() * 900) + 100)}-${String(Math.floor(Math.random() * 9000) + 1000)}`;
+    
+    // Generate random dates
+    const joinDate = new Date(2024, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1);
+    const lastPayment = isOverdue 
+      ? new Date(Date.now() - (Math.floor(Math.random() * 30) + 10) * 24 * 60 * 60 * 1000)
+      : new Date(Date.now() - Math.floor(Math.random() * 20) * 24 * 60 * 60 * 1000);
+    
+    const nextDue = new Date(lastPayment);
+    nextDue.setMonth(nextDue.getMonth() + 1);
+    
+    return {
+      id: index + 1,
+      name,
+      email,
+      phone,
+      membershipType,
+      joinDate: joinDate.toISOString().split('T')[0],
+      lastPayment: lastPayment.toISOString().split('T')[0],
+      nextDue: nextDue.toISOString().split('T')[0],
+      status: isOverdue ? 'Overdue' : 'Active',
+      amount: membershipPrices[membershipType],
+      overdue: isOverdue ? Math.floor(Math.random() * 20) + 1 : 0
+    };
+  });
+};
+
+const mockClients = generateMockClients();
 
 // Login Form Component
 const LoginForm = ({ onLogin }) => {
