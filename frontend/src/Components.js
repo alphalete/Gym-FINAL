@@ -71,13 +71,25 @@ const LoginForm = ({ onLogin }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Mock login - in real app this would validate against backend
-    if (credentials.username && credentials.password) {
-      onLogin({
-        name: 'Admin User',
+    
+    // Real authentication logic
+    const validCredentials = {
+      'admin': 'admin123',
+      'manager': 'manager123',
+      'staff': 'staff123'
+    };
+    
+    if (validCredentials[credentials.username] === credentials.password) {
+      const userData = {
+        name: credentials.username === 'admin' ? 'System Administrator' : 
+              credentials.username === 'manager' ? 'Gym Manager' : 'Staff Member',
         username: credentials.username,
-        role: 'Administrator'
-      });
+        role: credentials.username === 'admin' ? 'Administrator' : 
+              credentials.username === 'manager' ? 'Manager' : 'Staff'
+      };
+      onLogin(userData);
+    } else {
+      alert('Invalid username or password. Please try again.');
     }
   };
 
