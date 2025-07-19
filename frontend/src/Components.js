@@ -131,9 +131,12 @@ const LoginForm = ({ onLogin }) => {
             </button>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Demo Access: Use any username/password
+          <div className="text-center mt-6">
+            <p className="text-gray-400">
+              Don't have an account?{' '}
+              <button onClick={onSwitchToSignup} className="text-red-500 hover:underline">
+                Sign up
+              </button>
             </p>
           </div>
         </div>
