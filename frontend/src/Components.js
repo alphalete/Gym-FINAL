@@ -525,21 +525,27 @@ const ClientManagement = () => {
     setCurrentPage(1);
   }, [searchTerm, statusFilter, membershipFilter]);
 
-  const handleAddClient = (e) => {
+  const handleAddClient = async (e) => {
     e.preventDefault();
-    const client = {
-      ...newClient,
-      id: Date.now(),
-      joinDate: new Date().toISOString().split('T')[0],
-      lastPayment: new Date().toISOString().split('T')[0],
-      nextDue: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      status: 'Active',
-      overdue: 0,
-      amount: membershipPricing[newClient.membershipType] || newClient.amount
-    };
-    setClients([...clients, client]);
-    setNewClient({ name: '', email: '', phone: '', membershipType: 'Monthly', amount: 59 });
-    setIsAddingClient(false);
+    try {
+      const client = {
+        ...newClient,
+        id: Date.now().toString(),
+        joinDate: new Date().toISOString().split('T')[0],
+        lastPayment: new Date().toISOString().split('T')[0],
+        nextDue: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        status: 'Active',
+        overdue: 0,
+        amount: membershipPricing[newClient.membershipType] || newClient.amount
+      };
+      
+      await saveClientToPhone(client);
+      setNewClient({ name: '', email: '', phone: '', membershipType: 'Monthly', amount: 59 });
+      setIsAddingClient(false);
+    } catch (error) {
+      console.error('Error adding client:', error);
+      alert('Error adding client. Please try again.');
+    }
   };
 
   const handleEditClient = (client) => {
@@ -548,17 +554,34 @@ const ClientManagement = () => {
     setIsAddingClient(true);
   };
 
-  const handleUpdateClient = (e) => {
+  const handleUpdateClient = async (e) => {
     e.preventDefault();
-    setClients(clients.map(c => c.id === editingClient.id ? { ...newClient, amount: membershipPricing[newClient.membershipType] || newClient.amount } : c));
-    setNewClient({ name: '', email: '', phone: '', membershipType: 'Monthly', amount: 59 });
-    setIsAddingClient(false);
-    setEditingClient(null);
+    try {
+      const updatedClient = {
+        ...newClient,
+        id: editingClient.id,
+        amount: membershipPricing[newClient.membershipType] || newClient.amount
+      };
+      
+      await saveClientToPhone(updatedClient);
+      setNewClient({ name: '', email: '', phone: '', membershipType: 'Monthly', amount: 59 });
+      setIsAddingClient(false);
+      setEditingClient(null);
+    } catch (error) {
+      console.error('Error updating client:', error);
+      alert('Error updating client. Please try again.');
+    }
   };
 
-  const handleDeleteClient = (clientId) => {
+  const handleDeleteClient = async (clientId) => {
     if (window.confirm('Are you sure you want to delete this client?')) {
-      setClients(clients.filter(c => c.id !== clientId));
+      try {
+        await gymStorage.deleteMember(clientId);
+        await loadClientsFromPhone();
+      } catch (error) {
+        console.error('Error deleting client:', error);
+        alert('Error deleting client. Please try again.');
+      }
     }
   };
 
