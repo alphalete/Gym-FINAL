@@ -436,6 +436,10 @@ const ClientManagement = () => {
   const [isAddingClient, setIsAddingClient] = useState(false);
   const [editingClient, setEditingClient] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [membershipFilter, setMembershipFilter] = useState('all');
+  const clientsPerPage = 10;
 
   const [newClient, setNewClient] = useState({
     name: '',
