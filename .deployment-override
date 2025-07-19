@@ -1,0 +1,5 @@
+DEPLOYMENT_TYPE=standalone
+SKIP_DATABASE_SETUP=true
+SKIP_USER_CREATION=true
+SKIP_MIGRATION=true
+APP_TYPE=frontend_backend_only
