@@ -843,6 +843,7 @@ const ClientManagement = () => {
             )}
           </>
         )}
+      </div>
     </div>
   );
 };
