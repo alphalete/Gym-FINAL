@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import gymStorage from './storage';
 
-const generateMockClients = () => {
-  // This function returns an empty array for production use
-  // Add real gym members through the admin interface
-  return [];
+// Mock data generator - now loads from phone storage
+const generateMockClients = async () => {
+  try {
+    // Load saved data from phone storage
+    const savedMembers = await gymStorage.getAllMembers();
+    return savedMembers;
+  } catch (error) {
+    console.error('Error loading data from phone:', error);
+    return [];
+  }
 };
-
-const mockClients = generateMockClients();
 
 // Login Form Component
 const LoginForm = ({ onLogin }) => {
