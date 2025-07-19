@@ -1578,8 +1578,7 @@ const Components = {
   MembershipManagement,
   Reports,
   Settings,
-  LoginForm,
-  InstallPrompt
+  LoginForm
 };
 
 export default Components;
