@@ -1775,6 +1775,72 @@ const Settings = ({ user }) => {
             Save Settings
           </button>
         </form>
+
+        {/* Phone Storage Management */}
+        <div className="bg-white rounded-xl shadow-sm border p-6 mt-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-6">📱 Phone Storage Management</h3>
+          
+          {storageStats && (
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <div className="text-2xl font-bold text-blue-600">{storageStats.members}</div>
+                <div className="text-sm text-blue-800">Gym Members</div>
+              </div>
+              <div className="bg-green-50 p-4 rounded-lg">
+                <div className="text-2xl font-bold text-green-600">{storageStats.totalRecords}</div>
+                <div className="text-sm text-green-800">Total Records</div>
+              </div>
+            </div>
+          )}
+          
+          <div className="space-y-4">
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-2">📤 Backup Your Data</h4>
+              <p className="text-sm text-gray-600 mb-3">Download a backup file of all your gym data to keep safe.</p>
+              <button
+                onClick={handleExportData}
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                Download Backup
+              </button>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-2">📥 Restore Data</h4>
+              <p className="text-sm text-gray-600 mb-3">Import data from a backup file.</p>
+              <input
+                type="file"
+                accept=".json"
+                onChange={handleImportData}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
+              />
+            </div>
+            
+            <div className="border-t pt-4">
+              <h4 className="font-semibold text-red-600 mb-2">⚠️ Danger Zone</h4>
+              <p className="text-sm text-gray-600 mb-3">Permanently delete all data from your phone.</p>
+              <button
+                onClick={handleClearAllData}
+                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
+              >
+                Clear All Data
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Storage Info */}
+        <div className="bg-green-50 border border-green-200 rounded-xl p-4 mt-6">
+          <div className="flex items-center">
+            <span className="text-2xl mr-3">📱</span>
+            <div>
+              <h4 className="font-semibold text-green-800">Data Saved on Your Phone</h4>
+              <p className="text-sm text-green-700">
+                All your gym data is securely stored on your device. Works offline and loads instantly!
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
