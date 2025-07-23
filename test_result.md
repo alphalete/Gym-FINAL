@@ -245,3 +245,5 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: "User reported 404 error when sending payment reminders and requested automatic invoice emailing. Fixed duplicate route definitions in server.py that were causing 404 errors. Implemented automatic invoice email functionality in payment recording endpoint with new send_payment_invoice method in EmailService. Need to test both fixes."
+  - agent: "testing"
+    message: "CRITICAL TESTING COMPLETED: ✅ Email Payment Reminder 404 Error - FIXED and verified working. Individual payment reminders now send successfully without 404 errors. ✅ Email Service - Fully functional with Gmail SMTP. ⚠️ Automatic Invoice Email - Implementation verified in code (lines 507-515 in server.py with invoice_sent/invoice_message fields) but payment recording endpoint had timeout issues during testing. ❌ Route Conflicts - Mostly resolved (2/3 test attempts successful). The user's main 404 error issue is confirmed RESOLVED."
