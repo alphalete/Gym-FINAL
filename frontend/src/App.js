@@ -1940,17 +1940,17 @@ const Payments = () => {
                   </p>
                 </div>
               ) : (
-                <div className="divide-y divide-gray-700">
-                  {filteredClients.map((client) => {
-                    const paymentStatus = getPaymentStatus(client.next_payment_date);
-                    const nextPaymentDate = new Date(client.next_payment_date);
-                    const daysUntilDue = Math.ceil((nextPaymentDate - new Date()) / (1000 * 60 * 60 * 24));
-                    const isInactive = client.status !== 'Active';
-                    
-                    return (
-                      <div key={client.id} className={`p-4 hover:bg-gray-750 ${isInactive ? 'bg-gray-900 border-l-4 border-l-red-500' : ''}`}>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-4">
+                <div className="overflow-x-auto">
+                  <div className="min-w-full divide-y divide-gray-700" style={{ minWidth: '800px' }}>
+                    {filteredClients.map((client) => {
+                      const paymentStatus = getPaymentStatus(client.next_payment_date);
+                      const nextPaymentDate = new Date(client.next_payment_date);
+                      const daysUntilDue = Math.ceil((nextPaymentDate - new Date()) / (1000 * 60 * 60 * 24));
+                      const isInactive = client.status !== 'Active';
+                      
+                      return (
+                        <div key={client.id} className={`p-4 hover:bg-gray-750 flex items-center justify-between ${isInactive ? 'bg-gray-900 border-l-4 border-l-red-500' : ''}`} style={{ minWidth: '800px' }}>
+                          <div className="flex items-center space-x-4 flex-shrink-0" style={{ minWidth: '300px' }}>
                             <div className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold ${
                               isInactive ? 'bg-gray-600' : 'bg-red-600'
                             }`}>
@@ -1972,8 +1972,8 @@ const Payments = () => {
                             </div>
                           </div>
                           
-                          <div className="flex items-center space-x-4">
-                            <div className="text-right">
+                          <div className="flex items-center space-x-4 flex-shrink-0">
+                            <div className="text-right" style={{ minWidth: '120px' }}>
                               <p className={`font-semibold text-lg ${isInactive ? 'text-gray-400' : ''}`}>
                                 ${client.monthly_fee}
                               </p>
@@ -1992,14 +1992,14 @@ const Payments = () => {
                             
                             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                               isInactive ? 'bg-gray-800 text-gray-400' : paymentStatus.class
-                            }`}>
+                            }`} style={{ minWidth: '80px', textAlign: 'center' }}>
                               {isInactive ? 'Inactive' : paymentStatus.label}
                             </span>
                             
-                            <div className="flex space-x-2">
+                            <div className="flex space-x-2 flex-shrink-0" style={{ minWidth: '200px' }}>
                               <button
                                 onClick={() => sendPaymentReminder(client)}
-                                className={`px-3 py-2 rounded text-sm font-semibold ${
+                                className={`px-3 py-2 rounded text-sm font-semibold whitespace-nowrap ${
                                   isInactive 
                                     ? 'bg-gray-600 hover:bg-gray-700 text-gray-300' 
                                     : 'bg-blue-600 hover:bg-blue-700'
@@ -2011,7 +2011,7 @@ const Payments = () => {
                               </button>
                               <button
                                 onClick={() => markAsPaid(client)}
-                                className={`px-3 py-2 rounded text-sm font-semibold ${
+                                className={`px-3 py-2 rounded text-sm font-semibold whitespace-nowrap ${
                                   isInactive 
                                     ? 'bg-green-600 hover:bg-green-700 text-white font-bold' 
                                     : 'bg-green-600 hover:bg-green-700'
@@ -2023,9 +2023,9 @@ const Payments = () => {
                             </div>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </div>
