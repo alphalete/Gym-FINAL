@@ -352,7 +352,63 @@ async def test_email():
         "message": "Email configuration is working!" if success else "Email configuration failed!"
     }
 
-@api_router.post("/email/payment-reminder", response_model=EmailResponse)
+@api_router.get("/email/templates")
+async def get_email_templates():
+    """Get available email templates"""
+    templates = {
+        "default": {
+            "name": "Default",
+            "description": "Professional standard template with gym branding"
+        },
+        "professional": {
+            "name": "Professional",
+            "description": "Clean, business-style template for formal communications"
+        },
+        "friendly": {
+            "name": "Friendly",
+            "description": "Casual, fun template with emojis and vibrant colors"
+        }
+    }
+    return {"templates": templates}
+
+@api_router.post("/email/custom-reminder", response_model=EmailResponse)
+async def send_custom_payment_reminder(reminder_request: CustomEmailRequest):
+    """Send customized payment reminder to a specific client"""
+    # Get client details
+    client = await db.clients.find_one({"id": reminder_request.client_id})
+    if not client:
+        raise HTTPException(status_code=404, detail="Client not found")
+    
+    # Convert date strings back to date objects if needed
+    if 'start_date' in client and isinstance(client['start_date'], str):
+        client['start_date'] = datetime.fromisoformat(client['start_date']).date()
+    if 'next_payment_date' in client and isinstance(client['next_payment_date'], str):
+        client['next_payment_date'] = datetime.fromisoformat(client['next_payment_date']).date()
+    
+    client_obj = Client(**client)
+    
+    # Use custom amount or client's monthly fee
+    amount = reminder_request.custom_amount or client_obj.monthly_fee
+    
+    # Use custom due date or client's next payment date
+    due_date = reminder_request.custom_due_date or client_obj.next_payment_date.strftime("%B %d, %Y")
+    
+    # Send email with customization
+    success = email_service.send_payment_reminder(
+        client_email=client_obj.email,
+        client_name=client_obj.name,
+        amount=amount,
+        due_date=due_date,
+        template_name=reminder_request.template_name or "default",
+        custom_subject=reminder_request.custom_subject,
+        custom_message=reminder_request.custom_message
+    )
+    
+    return EmailResponse(
+        success=success,
+        message="Custom payment reminder sent successfully!" if success else "Failed to send custom payment reminder",
+        client_email=client_obj.email
+    )
 async def send_payment_reminder(reminder_request: CustomEmailRequest):
     """Send payment reminder to a specific client"""
     # Get client details
