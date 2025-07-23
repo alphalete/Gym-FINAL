@@ -305,7 +305,7 @@ class AlphaleteAPITester:
         return success
 
     def test_send_individual_payment_reminder(self):
-        """Test sending individual payment reminder"""
+        """Test sending individual payment reminder (CRITICAL - 404 Error Fix Test)"""
         if not self.created_client_id:
             print("❌ Send Individual Payment Reminder - SKIPPED (No client ID available)")
             return False
@@ -314,8 +314,12 @@ class AlphaleteAPITester:
             "client_id": self.created_client_id
         }
         
+        print(f"   🔍 TESTING 404 ERROR FIX: Individual payment reminder endpoint")
+        print(f"   📧 Endpoint: /api/email/payment-reminder")
+        print(f"   🎯 Expected: 200 OK (not 404)")
+        
         success, response = self.run_test(
-            "Send Individual Payment Reminder",
+            "Send Individual Payment Reminder (404 Fix Test)",
             "POST",
             "email/payment-reminder",
             200,
@@ -323,9 +327,12 @@ class AlphaleteAPITester:
         )
         
         if success:
-            print(f"   Email sent to: {response.get('client_email')}")
-            print(f"   Success: {response.get('success')}")
-            print(f"   Message: {response.get('message')}")
+            print(f"   ✅ 404 ERROR FIX: SUCCESSFUL - Endpoint responding correctly")
+            print(f"   📧 Email sent to: {response.get('client_email')}")
+            print(f"   ✅ Success: {response.get('success')}")
+            print(f"   📝 Message: {response.get('message')}")
+        else:
+            print(f"   ❌ 404 ERROR FIX: FAILED - Endpoint still returning errors")
         
         return success
 
