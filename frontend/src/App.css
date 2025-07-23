@@ -532,6 +532,10 @@ tbody tr:hover {
   scroll-behavior: smooth;
   padding: 0;
   margin-left: 0;
+  /* Enhanced mobile scrolling */
+  overscroll-behavior: contain;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 /* Page Container Classes */
@@ -547,6 +551,8 @@ tbody tr:hover {
   padding: 1.5rem;
   border-bottom: 1px solid #374151;
   background-color: #111827;
+  position: relative;
+  z-index: 1;
 }
 
 .pwa-search-section {
@@ -557,6 +563,8 @@ tbody tr:hover {
   display: flex;
   gap: 1rem;
   align-items: center;
+  position: relative;
+  z-index: 1;
 }
 
 .pwa-scrollable-section {
@@ -567,9 +575,18 @@ tbody tr:hover {
   scroll-behavior: smooth;
   touch-action: pan-y;
   padding: 1.5rem;
+  /* Enhanced mobile scrolling performance */
+  overscroll-behavior: contain;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  will-change: scroll-position;
+  /* Better momentum scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
+  -webkit-transform: translate3d(0,0,0);
+  transform: translate3d(0,0,0);
 }
 
-/* Smooth scrolling for all scrollable elements */
+/* Enhanced scrollbar styling */
 .pwa-scrollable-section::-webkit-scrollbar {
   width: 8px;
 }
@@ -587,6 +604,21 @@ tbody tr:hover {
 
 .pwa-scrollable-section::-webkit-scrollbar-thumb:hover {
   background: #b91c1c;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .pwa-scrollable-section {
+    /* Better mobile scrolling */
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y pinch-zoom;
+    overscroll-behavior-y: contain;
+  }
+  
+  /* Improve touch responsiveness */
+  .pwa-scrollable-section * {
+    touch-action: manipulation;
+  }
 }
 
 /* Desktop navigation spacing */
