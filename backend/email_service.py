@@ -27,7 +27,9 @@ class EmailService:
         if template_name == "default" or not template_name:
             subject = custom_subject or "Payment Reminder - Alphalete Athletics Club"
             
-            return subject, """
+            custom_message_section = f"<p><em>{custom_message}</em></p>" if custom_message else "<p>We hope you're crushing your fitness goals! This is a friendly reminder about your upcoming payment:</p>"
+            
+            return subject, f"""
             <!DOCTYPE html>
             <html>
             <head>
@@ -74,15 +76,15 @@ class EmailService:
                 </div>
             </body>
             </html>
-            """.format(
-                custom_message_section=f"<p><em>{custom_message}</em></p>" if custom_message else "<p>We hope you're crushing your fitness goals! This is a friendly reminder about your upcoming payment:</p>"
-            )
+            """
         
         # Professional template
         elif template_name == "professional":
             subject = custom_subject or "Payment Due Notice - Alphalete Athletics Club"
             
-            return subject, """
+            custom_message_section = f"<p><em>{custom_message}</em></p>" if custom_message else "<p>This is a reminder regarding your upcoming membership payment:</p>"
+            
+            return subject, f"""
             <!DOCTYPE html>
             <html>
             <head>
@@ -127,15 +129,15 @@ class EmailService:
                 </div>
             </body>
             </html>
-            """.format(
-                custom_message_section=f"<p><em>{custom_message}</em></p>" if custom_message else "<p>This is a reminder regarding your upcoming membership payment:</p>"
-            )
+            """
         
         # Friendly template
         elif template_name == "friendly":
             subject = custom_subject or "Hey! Your Payment is Coming Up 💪 - Alphalete Athletics"
             
-            return subject, """
+            custom_message_section = f"<p><em>Special message: {custom_message}</em></p>" if custom_message else "<p>Hope you're smashing those fitness goals! 🎯 Just a friendly heads up about your upcoming payment:</p>"
+            
+            return subject, f"""
             <!DOCTYPE html>
             <html>
             <head>
@@ -184,9 +186,7 @@ class EmailService:
                 </div>
             </body>
             </html>
-            """.format(
-                custom_message_section=f"<p><em>Special message: {custom_message}</em></p>" if custom_message else "<p>Hope you're smashing those fitness goals! 🎯 Just a friendly heads up about your upcoming payment:</p>"
-            )
+            """
         
         # Default fallback
         return self.get_email_template("default", custom_subject, custom_message)
