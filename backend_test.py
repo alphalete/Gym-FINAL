@@ -409,38 +409,79 @@ class AlphaleteAPITester:
     def run_all_tests(self):
         """Run all API tests"""
         print("🚀 Starting Alphalete Athletics Club API Tests")
-        print("=" * 60)
+        print("=" * 80)
         
-        # Test sequence
+        # Test sequence - organized by feature
         tests = [
-            self.test_health_check,
-            self.test_email_configuration,
-            self.test_get_clients_empty,
-            self.test_create_client,
-            self.test_get_clients_with_data,
-            self.test_get_specific_client,
-            self.test_send_individual_payment_reminder,
-            self.test_send_bulk_payment_reminders,
-            self.test_create_duplicate_client,
+            # Basic connectivity
+            ("Basic Connectivity", [
+                self.test_health_check,
+                self.test_email_configuration,
+            ]),
+            
+            # Membership Types Management (NEW FEATURES)
+            ("Membership Types Management", [
+                self.test_membership_types_seed,
+                self.test_get_membership_types,
+                self.test_create_membership_type,
+                self.test_get_specific_membership_type,
+                self.test_update_membership_type,
+                self.test_delete_membership_type,
+            ]),
+            
+            # Enhanced Client Management (NEW FEATURES)
+            ("Enhanced Client Management", [
+                self.test_get_clients_empty,
+                self.test_create_client_with_start_date,
+                self.test_get_clients_with_data,
+                self.test_get_specific_client,
+            ]),
+            
+            # Email System Integration
+            ("Email System Integration", [
+                self.test_send_individual_payment_reminder,
+                self.test_send_bulk_payment_reminders,
+            ]),
+            
+            # Error Handling & Edge Cases
+            ("Error Handling", [
+                self.test_create_duplicate_client,
+                self.test_error_handling,
+            ])
         ]
         
-        for test in tests:
-            try:
-                test()
-            except Exception as e:
-                print(f"❌ {test.__name__} - EXCEPTION: {str(e)}")
-            print("-" * 40)
+        for section_name, section_tests in tests:
+            print(f"\n🔧 {section_name.upper()}")
+            print("=" * 60)
+            
+            for test in section_tests:
+                try:
+                    test()
+                except Exception as e:
+                    print(f"❌ {test.__name__} - EXCEPTION: {str(e)}")
+                print("-" * 40)
         
         # Print summary
-        print("\n📊 TEST SUMMARY")
-        print("=" * 60)
+        print("\n📊 COMPREHENSIVE TEST SUMMARY")
+        print("=" * 80)
         print(f"Tests Run: {self.tests_run}")
         print(f"Tests Passed: {self.tests_passed}")
         print(f"Tests Failed: {self.tests_run - self.tests_passed}")
         print(f"Success Rate: {(self.tests_passed/self.tests_run*100):.1f}%" if self.tests_run > 0 else "0%")
         
+        # Feature-specific summary
+        print(f"\n🎯 NEW FEATURES TESTED:")
+        print(f"   ✓ Membership Types CRUD API")
+        print(f"   ✓ Client Start Date & Auto Payment Calculation")
+        print(f"   ✓ Enhanced Client Management")
+        print(f"   ✓ Email System Integration")
+        print(f"   ✓ Error Handling & Validation")
+        
         if self.tests_passed == self.tests_run:
-            print("\n🎉 ALL TESTS PASSED! API is working correctly.")
+            print("\n🎉 ALL TESTS PASSED! The enhanced API is working correctly.")
+            print("   ✅ Membership Types Management: WORKING")
+            print("   ✅ Automatic Payment Date Calculation: WORKING")
+            print("   ✅ Enhanced Client Structure: WORKING")
             return 0
         else:
             print(f"\n⚠️  {self.tests_run - self.tests_passed} test(s) failed. Check the details above.")
