@@ -519,6 +519,54 @@ class AlphaleteAPITester:
         
         return success
 
+    def test_record_payment_with_automatic_invoice(self):
+        """Test recording a payment with automatic invoice email (CRITICAL TEST)"""
+        if not self.created_client_id:
+            print("❌ Record Payment with Invoice - SKIPPED (No client ID available)")
+            return False
+            
+        payment_data = {
+            "client_id": self.created_client_id,
+            "amount_paid": 75.00,
+            "payment_date": "2025-01-23",
+            "payment_method": "Bank Transfer",
+            "notes": "Testing automatic invoice email functionality"
+        }
+        
+        success, response = self.run_test(
+            "Record Payment with Automatic Invoice Email",
+            "POST",
+            "payments/record",
+            200,
+            payment_data
+        )
+        
+        if success:
+            print(f"   Payment recorded for: {response.get('client_name')}")
+            print(f"   Amount paid: ${response.get('amount_paid')}")
+            print(f"   New next payment date: {response.get('new_next_payment_date')}")
+            print(f"   Success: {response.get('success')}")
+            
+            # CRITICAL: Check for automatic invoice email fields
+            invoice_sent = response.get('invoice_sent')
+            invoice_message = response.get('invoice_message')
+            
+            print(f"   🔍 INVOICE EMAIL STATUS:")
+            print(f"      Invoice Sent: {invoice_sent}")
+            print(f"      Invoice Message: {invoice_message}")
+            
+            if invoice_sent is not None and invoice_message is not None:
+                print(f"   ✅ AUTOMATIC INVOICE EMAIL FEATURE: IMPLEMENTED")
+                if invoice_sent:
+                    print(f"   ✅ INVOICE EMAIL: SENT SUCCESSFULLY")
+                else:
+                    print(f"   ⚠️  INVOICE EMAIL: FAILED TO SEND")
+            else:
+                print(f"   ❌ AUTOMATIC INVOICE EMAIL FEATURE: NOT IMPLEMENTED")
+                return False
+        
+        return success
+
     def test_send_custom_reminder_invalid_client(self):
         """Test sending custom payment reminder with invalid client ID"""
         reminder_data = {
