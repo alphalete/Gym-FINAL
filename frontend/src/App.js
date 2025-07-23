@@ -1,10 +1,41 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import { BrowserRouter, Routes, Route, Link, useLocation } from "react-router-dom";
-import axios from "axios";
+import LocalStorageManager from "./LocalStorageManager";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+// Initialize local storage manager
+const localDB = new LocalStorageManager();
+
+// PWA Status Component
+const PWAStatus = () => {
+  const [connectionStatus, setConnectionStatus] = useState({ online: navigator.onLine, message: '' });
+  
+  useEffect(() => {
+    const updateStatus = () => {
+      const status = localDB.getConnectionStatus();
+      setConnectionStatus(status);
+    };
+    
+    window.addEventListener('online', updateStatus);
+    window.addEventListener('offline', updateStatus);
+    updateStatus();
+    
+    return () => {
+      window.removeEventListener('online', updateStatus);
+      window.removeEventListener('offline', updateStatus);
+    };
+  }, []);
+  
+  return (
+    <div className={`fixed top-0 left-0 right-0 z-50 px-4 py-2 text-center text-sm font-medium ${
+      connectionStatus.online 
+        ? 'bg-green-600 text-white' 
+        : 'bg-orange-500 text-white'
+    }`}>
+      {connectionStatus.online ? '🌐 Online' : '📱 Offline'} - {connectionStatus.message}
+    </div>
+  );
+};
 
 // Navigation Component
 const Navigation = ({ currentPage }) => {
@@ -25,13 +56,13 @@ const Navigation = ({ currentPage }) => {
       {/* Mobile Menu Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden fixed top-4 left-4 z-50 bg-red-600 text-white p-2 rounded-lg"
+        className="md:hidden fixed top-14 left-4 z-50 bg-red-600 text-white p-2 rounded-lg"
       >
         {isOpen ? "✕" : "☰"}
       </button>
 
       {/* Sidebar */}
-      <div className={`fixed left-0 top-0 h-full w-64 bg-gray-900 border-r border-gray-700 transform transition-transform duration-300 z-40 ${
+      <div className={`fixed left-0 top-12 h-full w-64 bg-gray-900 border-r border-gray-700 transform transition-transform duration-300 z-40 ${
         isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
       }`}>
         {/* Logo Header */}
@@ -73,8 +104,8 @@ const Navigation = ({ currentPage }) => {
         {/* Footer */}
         <div className="absolute bottom-4 left-4 right-4">
           <div className="bg-gray-800 p-3 rounded-lg text-center">
-            <div className="text-xs text-gray-400">Gym Management System</div>
-            <div className="text-xs text-red-400 font-semibold">v2.0.0</div>
+            <div className="text-xs text-gray-400">PWA - Offline Ready</div>
+            <div className="text-xs text-red-400 font-semibold">v2.1.0</div>
           </div>
         </div>
       </div>
@@ -95,7 +126,8 @@ const Layout = ({ children }) => {
   const location = useLocation();
   
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="min-h-screen bg-gray-900 text-white pt-12">
+      <PWAStatus />
       <Navigation currentPage={location.pathname} />
       <div className="md:ml-64">
         {children}
@@ -104,7 +136,7 @@ const Layout = ({ children }) => {
   );
 };
 
-// Dashboard Component (Enhanced)
+// Dashboard Component (Using Local Storage)
 const Dashboard = () => {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -118,18 +150,18 @@ const Dashboard = () => {
   const fetchClients = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API}/clients`);
-      setClients(response.data);
+      const result = await localDB.getClients();
+      setClients(result.data);
       
       // Calculate stats
-      const activeMembers = response.data.filter(c => c.status === "Active");
+      const activeMembers = result.data.filter(c => c.status === "Active");
       const monthlyRevenue = activeMembers.reduce((sum, c) => sum + c.monthly_fee, 0);
       
       setStats({
-        totalClients: response.data.length,
+        totalClients: result.data.length,
         activeMembers: activeMembers.length,
         monthlyRevenue: monthlyRevenue,
-        pendingPayments: activeMembers.length // Assuming all active members have pending payments
+        pendingPayments: activeMembers.length
       });
     } catch (error) {
       console.error("Error fetching clients:", error);
@@ -257,7 +289,7 @@ const Dashboard = () => {
   );
 };
 
-// Client Management Component
+// Client Management Component (Using Local Storage)
 const ClientManagement = () => {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -266,8 +298,8 @@ const ClientManagement = () => {
   const fetchClients = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API}/clients`);
-      setClients(response.data);
+      const result = await localDB.getClients();
+      setClients(result.data);
     } catch (error) {
       console.error("Error fetching clients:", error);
     } finally {
@@ -279,20 +311,32 @@ const ClientManagement = () => {
     fetchClients();
   }, []);
 
-  const sendPaymentReminder = async (clientId) => {
+  const sendPaymentReminder = async (client) => {
+    if (!navigator.onLine) {
+      alert("Email functionality requires an internet connection.");
+      return;
+    }
+
     try {
-      const response = await axios.post(`${API}/email/payment-reminder`, {
-        client_id: clientId
+      // This would be handled by the service worker
+      const response = await fetch('/api/email/payment-reminder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ client_id: client.id })
       });
       
-      if (response.data.success) {
-        alert(`Payment reminder sent successfully to ${response.data.client_email}`);
+      const result = await response.json();
+      
+      if (result.offline) {
+        alert("You're offline. Email functionality requires an internet connection.");
+      } else if (result.success) {
+        alert(`Payment reminder sent successfully to ${result.client_email || client.email}`);
       } else {
-        alert(`Failed to send payment reminder: ${response.data.message}`);
+        alert(`Failed to send payment reminder: ${result.message}`);
       }
     } catch (error) {
       console.error("Error sending payment reminder:", error);
-      alert("Error sending payment reminder");
+      alert("Error sending payment reminder. Check your internet connection.");
     }
   };
 
@@ -394,9 +438,14 @@ const ClientManagement = () => {
                     <td className="p-4">
                       <div className="flex space-x-2">
                         <button
-                          onClick={() => sendPaymentReminder(client.id)}
-                          className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm font-semibold"
-                          title="Send Payment Reminder"
+                          onClick={() => sendPaymentReminder(client)}
+                          className={`px-3 py-1 rounded text-sm font-semibold ${
+                            navigator.onLine 
+                              ? 'bg-blue-600 hover:bg-blue-700' 
+                              : 'bg-gray-600 cursor-not-allowed'
+                          }`}
+                          disabled={!navigator.onLine}
+                          title={navigator.onLine ? "Send Payment Reminder" : "Requires internet connection"}
                         >
                           📧
                         </button>
@@ -419,7 +468,7 @@ const ClientManagement = () => {
   );
 };
 
-// Add Client Component (Enhanced with dynamic membership types)
+// Add Client Component (Using Local Storage)
 const AddClient = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -433,19 +482,20 @@ const AddClient = () => {
   const [loading, setLoading] = useState(false);
   const [typesLoading, setTypesLoading] = useState(false);
 
-  // Fetch membership types from API
+  // Fetch membership types from local storage
   const fetchMembershipTypes = async () => {
     try {
       setTypesLoading(true);
-      const response = await axios.get(`${API}/membership-types`);
-      setMembershipTypes(response.data);
+      const result = await localDB.getMembershipTypes();
+      setMembershipTypes(result.data.filter(type => type.is_active));
       
       // Set first membership type as default if available
-      if (response.data.length > 0) {
+      const activeTypes = result.data.filter(type => type.is_active);
+      if (activeTypes.length > 0) {
         setFormData(prev => ({
           ...prev,
-          membership_type: response.data[0].name,
-          monthly_fee: response.data[0].monthly_fee
+          membership_type: activeTypes[0].name,
+          monthly_fee: activeTypes[0].monthly_fee
         }));
       }
     } catch (error) {
@@ -468,8 +518,8 @@ const AddClient = () => {
     setLoading(true);
 
     try {
-      await axios.post(`${API}/clients`, formData);
-      alert("Client added successfully! Next payment date automatically calculated for 30 days from start date.");
+      await localDB.addClient(formData);
+      alert("Client added successfully! Next payment date automatically calculated for 30 days from start date. Data saved locally and will sync when online.");
       setFormData({
         name: "",
         email: "",
@@ -480,7 +530,7 @@ const AddClient = () => {
       });
     } catch (error) {
       console.error("Error adding client:", error);
-      alert("Error adding client: " + (error.response?.data?.detail || error.message));
+      alert("Error adding client: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -644,6 +694,7 @@ const AddClient = () => {
               >
                 {loading ? "Adding Client..." : "Add Client"}
               </button>
+              <p className="text-xs text-gray-400 text-center mt-2">Data will be saved locally and sync when online</p>
             </div>
           </form>
         </div>
@@ -652,161 +703,7 @@ const AddClient = () => {
   );
 };
 
-// Email Center Component
-const EmailCenter = () => {
-  const [clients, setClients] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [bulkLoading, setBulkLoading] = useState(false);
-
-  const fetchClients = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get(`${API}/clients`);
-      setClients(response.data);
-    } catch (error) {
-      console.error("Error fetching clients:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchClients();
-  }, []);
-
-  const sendBulkReminders = async () => {
-    if (!window.confirm("Send payment reminders to all active clients?")) {
-      return;
-    }
-
-    try {
-      setBulkLoading(true);
-      const response = await axios.post(`${API}/email/payment-reminder/bulk`);
-      alert(`Bulk reminders sent! Success: ${response.data.sent_successfully}, Failed: ${response.data.failed}`);
-    } catch (error) {
-      console.error("Error sending bulk reminders:", error);
-      alert("Error sending bulk reminders");
-    } finally {
-      setBulkLoading(false);
-    }
-  };
-
-  const sendIndividualReminder = async (clientId) => {
-    try {
-      const response = await axios.post(`${API}/email/payment-reminder`, {
-        client_id: clientId
-      });
-      
-      if (response.data.success) {
-        alert(`Payment reminder sent successfully to ${response.data.client_email}`);
-      } else {
-        alert(`Failed to send payment reminder: ${response.data.message}`);
-      }
-    } catch (error) {
-      console.error("Error sending payment reminder:", error);
-      alert("Error sending payment reminder");
-    }
-  };
-
-  return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">Email Center</h1>
-        <p className="text-gray-400">Send payment reminders and manage email communications.</p>
-      </div>
-
-      {/* Bulk Actions */}
-      <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 mb-6">
-        <h3 className="text-xl font-semibold mb-4">Bulk Actions</h3>
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="font-semibold">Send payment reminders to all active clients</p>
-            <p className="text-sm text-gray-400">This will send reminder emails to {clients.filter(c => c.status === 'Active').length} active members</p>
-          </div>
-          <button
-            onClick={sendBulkReminders}
-            disabled={bulkLoading}
-            className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 px-6 py-3 rounded-lg font-semibold flex items-center space-x-2"
-          >
-            <span>📧</span>
-            <span>{bulkLoading ? "Sending..." : "Send Bulk Reminders"}</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Individual Client Actions */}
-      <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
-        <h3 className="text-xl font-semibold mb-4">Individual Reminders</h3>
-        
-        {loading ? (
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto"></div>
-            <p className="mt-2 text-gray-400">Loading clients...</p>
-          </div>
-        ) : clients.length === 0 ? (
-          <div className="text-center py-8">
-            <div className="text-4xl mb-4">📧</div>
-            <p className="text-gray-400">No clients available for email reminders.</p>
-            <Link to="/add-client" className="text-red-400 hover:text-red-300 underline">Add clients first</Link>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {clients.map((client) => (
-              <div key={client.id} className="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
-                <div className="flex items-center space-x-4">
-                  <div className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center font-semibold">
-                    {client.name.charAt(0)}
-                  </div>
-                  <div>
-                    <p className="font-semibold">{client.name}</p>
-                    <p className="text-sm text-gray-400">{client.email} • ${client.monthly_fee}/month</p>
-                    <p className="text-xs text-gray-500">Started: {new Date(client.start_date).toLocaleDateString()} • Next payment: {new Date(client.next_payment_date).toLocaleDateString()}</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => sendIndividualReminder(client.id)}
-                  className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-semibold flex items-center space-x-2"
-                >
-                  <span>📧</span>
-                  <span>Send Reminder</span>
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-// Placeholder Components for other pages
-const Payments = () => (
-  <div className="p-6">
-    <div className="mb-6">
-      <h1 className="text-3xl font-bold mb-2">Payment Tracking</h1>
-      <p className="text-gray-400">Monitor client payments and outstanding balances.</p>
-    </div>
-    <div className="bg-gray-800 rounded-lg border border-gray-700 p-8 text-center">
-      <div className="text-6xl mb-4">💳</div>
-      <p className="text-xl text-gray-400">Payment tracking features coming soon!</p>
-    </div>
-  </div>
-);
-
-const Reports = () => (
-  <div className="p-6">
-    <div className="mb-6">
-      <h1 className="text-3xl font-bold mb-2">Reports & Analytics</h1>
-      <p className="text-gray-400">View detailed reports and business insights.</p>
-    </div>
-    <div className="bg-gray-800 rounded-lg border border-gray-700 p-8 text-center">
-      <div className="text-6xl mb-4">📈</div>
-      <p className="text-xl text-gray-400">Detailed analytics coming soon!</p>
-    </div>
-  </div>
-);
-
-// Enhanced Settings Component with Better Membership Types Management
+// PWA Settings Component with Offline Membership Types Management
 const Settings = () => {
   const [membershipTypes, setMembershipTypes] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -820,14 +717,11 @@ const Settings = () => {
     features: []
   });
 
-  console.log("Settings component render - editingType:", editingType, "isAddingNew:", isAddingNew);
-
   const fetchMembershipTypes = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API}/membership-types`);
-      setMembershipTypes(response.data);
-      console.log("Fetched membership types:", response.data);
+      const result = await localDB.getMembershipTypes();
+      setMembershipTypes(result.data.filter(type => type.is_active));
     } catch (error) {
       console.error("Error fetching membership types:", error);
     } finally {
@@ -845,15 +739,11 @@ const Settings = () => {
     
     try {
       if (editingType) {
-        // Update existing membership type
-        console.log("Updating membership type:", editingType.id, formData);
-        await axios.put(`${API}/membership-types/${editingType.id}`, formData);
-        alert("Membership type updated successfully!");
+        await localDB.updateMembershipType(editingType.id, formData);
+        alert("Membership type updated successfully! Changes saved locally and will sync when online.");
       } else {
-        // Create new membership type
-        console.log("Creating new membership type:", formData);
-        await axios.post(`${API}/membership-types`, formData);
-        alert("Membership type created successfully!");
+        await localDB.addMembershipType(formData);
+        alert("Membership type created successfully! Changes saved locally and will sync when online.");
       }
       
       setFormData({ name: "", monthly_fee: 0, description: "", features: [] });
@@ -862,44 +752,40 @@ const Settings = () => {
       fetchMembershipTypes();
     } catch (error) {
       console.error("Error saving membership type:", error);
-      alert("Error saving membership type: " + (error.response?.data?.detail || error.message));
+      alert("Error saving membership type: " + error.message);
     } finally {
       setSaving(false);
     }
   };
 
   const startEdit = (membershipType) => {
-    console.log("Starting edit for membership type:", membershipType);
     setEditingType(membershipType);
     setFormData({
       name: membershipType.name,
       monthly_fee: membershipType.monthly_fee,
       description: membershipType.description,
-      features: [...(membershipType.features || [])] // Create a copy of the features array
+      features: [...(membershipType.features || [])]
     });
     setIsAddingNew(false);
-    console.log("Edit mode activated - editingType set to:", membershipType);
   };
 
   const startAddNew = () => {
-    console.log("Starting add new membership type");
     setIsAddingNew(true);
     setEditingType(null);
     setFormData({ name: "", monthly_fee: 0, description: "", features: [] });
   };
 
   const cancelEdit = () => {
-    console.log("Cancelling edit");
     setEditingType(null);
     setIsAddingNew(false);
     setFormData({ name: "", monthly_fee: 0, description: "", features: [] });
   };
 
   const deleteMembershipType = async (id, name) => {
-    if (window.confirm(`Are you sure you want to delete the "${name}" membership type? This will deactivate it but not remove it completely.`)) {
+    if (window.confirm(`Are you sure you want to delete the "${name}" membership type? This will deactivate it.`)) {
       try {
-        await axios.delete(`${API}/membership-types/${id}`);
-        alert("Membership type deactivated successfully!");
+        await localDB.deleteMembershipType(id);
+        alert("Membership type deactivated successfully! Changes saved locally and will sync when online.");
         fetchMembershipTypes();
       } catch (error) {
         console.error("Error deleting membership type:", error);
@@ -933,7 +819,7 @@ const Settings = () => {
     <div className="p-6">
       <div className="mb-6">
         <h1 className="text-3xl font-bold mb-2">Settings</h1>
-        <p className="text-gray-400">Configure your gym management system and membership types.</p>
+        <p className="text-gray-400">Configure your gym management system and membership types (works offline).</p>
       </div>
 
       <div className="max-w-6xl mx-auto">
@@ -1004,21 +890,14 @@ const Settings = () => {
                       </div>
                       <div className="flex space-x-2 ml-4">
                         <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            console.log("Edit button clicked for:", type.name);
-                            startEdit(type);
-                          }}
+                          onClick={() => startEdit(type)}
                           className="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded text-sm font-semibold"
                           title="Edit Membership Type"
                         >
                           ✏️ Edit
                         </button>
                         <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            deleteMembershipType(type.id, type.name);
-                          }}
+                          onClick={() => deleteMembershipType(type.id, type.name)}
                           className="bg-red-600 hover:bg-red-700 px-3 py-2 rounded text-sm font-semibold"
                           title="Delete Membership Type"
                         >
@@ -1047,11 +926,6 @@ const Settings = () => {
                   ✕
                 </button>
               )}
-            </div>
-
-            {/* Debug Info */}
-            <div className="mb-4 p-2 bg-gray-700 rounded text-xs text-gray-300">
-              Debug: editingType={editingType ? editingType.name : 'null'}, isAddingNew={isAddingNew.toString()}
             </div>
 
             {(editingType || isAddingNew) ? (
@@ -1160,24 +1034,21 @@ const Settings = () => {
           </div>
         </div>
 
-        {/* Quick Actions */}
+        {/* PWA Info */}
         <div className="mt-8 bg-gray-800 rounded-lg border border-gray-700 p-6">
-          <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
+          <h3 className="text-lg font-semibold mb-4">📱 PWA Features</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-gray-700 p-4 rounded-lg">
-              <h4 className="font-semibold mb-2">📊 View Analytics</h4>
-              <p className="text-sm text-gray-400 mb-3">See which membership types are most popular</p>
-              <Link to="/reports" className="text-blue-400 hover:text-blue-300 text-sm">Go to Reports →</Link>
+              <h4 className="font-semibold mb-2">🔄 Offline Mode</h4>
+              <p className="text-sm text-gray-400 mb-3">All data stored locally. Works without internet!</p>
             </div>
             <div className="bg-gray-700 p-4 rounded-lg">
-              <h4 className="font-semibold mb-2">👥 Manage Clients</h4>
-              <p className="text-sm text-gray-400 mb-3">View and manage all your gym members</p>
-              <Link to="/clients" className="text-blue-400 hover:text-blue-300 text-sm">Go to Clients →</Link>
+              <h4 className="font-semibold mb-2">🌐 Auto Sync</h4>
+              <p className="text-sm text-gray-400 mb-3">Data syncs automatically when online</p>
             </div>
             <div className="bg-gray-700 p-4 rounded-lg">
-              <h4 className="font-semibold mb-2">📧 Email Center</h4>
-              <p className="text-sm text-gray-400 mb-3">Send payment reminders to clients</p>
-              <Link to="/email-center" className="text-blue-400 hover:text-blue-300 text-sm">Go to Email Center →</Link>
+              <h4 className="font-semibold mb-2">📧 Email Online</h4>
+              <p className="text-sm text-gray-400 mb-3">Email reminders work when connected</p>
             </div>
           </div>
         </div>
@@ -1186,7 +1057,66 @@ const Settings = () => {
   );
 };
 
+// Placeholder Components
+const Payments = () => (
+  <div className="p-6">
+    <div className="mb-6">
+      <h1 className="text-3xl font-bold mb-2">Payment Tracking</h1>
+      <p className="text-gray-400">Monitor client payments and outstanding balances (offline ready).</p>
+    </div>
+    <div className="bg-gray-800 rounded-lg border border-gray-700 p-8 text-center">
+      <div className="text-6xl mb-4">💳</div>
+      <p className="text-xl text-gray-400">Payment tracking features coming soon!</p>
+      <p className="text-sm text-gray-500 mt-2">Will work offline and sync when online</p>
+    </div>
+  </div>
+);
+
+const Reports = () => (
+  <div className="p-6">
+    <div className="mb-6">
+      <h1 className="text-3xl font-bold mb-2">Reports & Analytics</h1>
+      <p className="text-gray-400">View detailed reports and business insights (offline ready).</p>
+    </div>
+    <div className="bg-gray-800 rounded-lg border border-gray-700 p-8 text-center">
+      <div className="text-6xl mb-4">📈</div>
+      <p className="text-xl text-gray-400">Detailed analytics coming soon!</p>
+      <p className="text-sm text-gray-500 mt-2">Will generate reports from local data</p>
+    </div>
+  </div>
+);
+
+const EmailCenter = () => (
+  <div className="p-6">
+    <div className="mb-6">
+      <h1 className="text-3xl font-bold mb-2">Email Center</h1>
+      <p className="text-gray-400">Send payment reminders (requires internet connection).</p>
+    </div>
+    <div className="bg-gray-800 rounded-lg border border-gray-700 p-8 text-center">
+      <div className="text-6xl mb-4">📧</div>
+      <p className="text-xl text-gray-400">Email functionality requires internet connection.</p>
+      <p className="text-sm text-gray-500 mt-2">Use individual email buttons in Client Management when online</p>
+    </div>
+  </div>
+);
+
 function App() {
+  useEffect(() => {
+    // Initialize PWA
+    console.log('Alphalete PWA initialized');
+    
+    // Remove loading screen after app loads
+    const loadingScreen = document.getElementById('loading-screen');
+    if (loadingScreen) {
+      setTimeout(() => {
+        loadingScreen.style.opacity = '0';
+        setTimeout(() => {
+          loadingScreen.style.display = 'none';
+        }, 500);
+      }, 1000);
+    }
+  }, []);
+
   return (
     <div className="App">
       <BrowserRouter>
