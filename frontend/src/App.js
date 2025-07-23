@@ -1481,42 +1481,57 @@ const Payments = () => {
 
   const markAsPaid = async (client) => {
     try {
+      console.log("🔍 Debug - Recording payment for client:", client.name, "ID:", client.id);
+      
       // Calculate next payment date (30 days from today)
       const today = new Date();
       const nextPaymentDate = new Date(today);
       nextPaymentDate.setDate(today.getDate() + 30);
       
+      console.log("🔍 Debug - Next payment date calculated:", nextPaymentDate.toLocaleDateString());
+      
       // Update local storage first
       await localDB.updateClient(client.id, {
         next_payment_date: nextPaymentDate.toISOString().split('T')[0]
       });
+      console.log("🔍 Debug - Local storage updated successfully");
       
       // If online, also update the backend
       const isOnline = navigator.onLine;
+      console.log("🔍 Debug - Online status:", isOnline);
+      
       if (isOnline) {
         try {
           const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+          console.log("🔍 Debug - Backend URL:", backendUrl);
+          
+          const paymentData = {
+            client_id: client.id,
+            amount_paid: client.monthly_fee,
+            payment_date: today.toISOString().split('T')[0],
+            payment_method: "Manual Entry",
+            notes: "Payment recorded via PWA"
+          };
+          console.log("🔍 Debug - Payment data:", paymentData);
           
           const response = await fetch(`${backendUrl}/api/payments/record`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              client_id: client.id,
-              amount_paid: client.monthly_fee,
-              payment_date: today.toISOString().split('T')[0],
-              payment_method: "Manual Entry",
-              notes: "Payment recorded via PWA"
-            })
+            body: JSON.stringify(paymentData)
           });
+          
+          console.log("🔍 Debug - Payment record response status:", response.status);
           
           if (response.ok) {
             const result = await response.json();
-            console.log("Payment recorded on server:", result);
+            console.log("🔍 Debug - Payment recorded on server:", result);
           } else {
-            console.warn("Failed to record payment on server, but saved locally");
+            console.warn("❌ Failed to record payment on server, but saved locally");
+            const errorText = await response.text();
+            console.warn("Server error:", errorText);
           }
         } catch (error) {
-          console.warn("Could not sync payment to server:", error.message);
+          console.warn("❌ Could not sync payment to server:", error.message);
         }
       }
       
@@ -1524,8 +1539,8 @@ const Payments = () => {
       fetchPaymentData(); // Refresh data
       
     } catch (error) {
-      console.error("Error marking payment as paid:", error);
-      alert(`❌ Error updating payment status: ${error.message}`);
+      console.error("❌ Error marking payment as paid:", error);
+      alert(`❌ Error updating payment status: ${error.message}\n\nDebug info:\n- Client ID: ${client.id}\n- Check browser console for details`);
     }
   };
 
