@@ -820,11 +820,14 @@ const Settings = () => {
     features: []
   });
 
+  console.log("Settings component render - editingType:", editingType, "isAddingNew:", isAddingNew);
+
   const fetchMembershipTypes = async () => {
     try {
       setLoading(true);
       const response = await axios.get(`${API}/membership-types`);
       setMembershipTypes(response.data);
+      console.log("Fetched membership types:", response.data);
     } catch (error) {
       console.error("Error fetching membership types:", error);
     } finally {
@@ -843,10 +846,12 @@ const Settings = () => {
     try {
       if (editingType) {
         // Update existing membership type
+        console.log("Updating membership type:", editingType.id, formData);
         await axios.put(`${API}/membership-types/${editingType.id}`, formData);
         alert("Membership type updated successfully!");
       } else {
         // Create new membership type
+        console.log("Creating new membership type:", formData);
         await axios.post(`${API}/membership-types`, formData);
         alert("Membership type created successfully!");
       }
@@ -864,6 +869,7 @@ const Settings = () => {
   };
 
   const startEdit = (membershipType) => {
+    console.log("Starting edit for membership type:", membershipType);
     setEditingType(membershipType);
     setFormData({
       name: membershipType.name,
@@ -872,15 +878,18 @@ const Settings = () => {
       features: [...(membershipType.features || [])] // Create a copy of the features array
     });
     setIsAddingNew(false);
+    console.log("Edit mode activated - editingType set to:", membershipType);
   };
 
   const startAddNew = () => {
+    console.log("Starting add new membership type");
     setIsAddingNew(true);
     setEditingType(null);
     setFormData({ name: "", monthly_fee: 0, description: "", features: [] });
   };
 
   const cancelEdit = () => {
+    console.log("Cancelling edit");
     setEditingType(null);
     setIsAddingNew(false);
     setFormData({ name: "", monthly_fee: 0, description: "", features: [] });
@@ -995,14 +1004,21 @@ const Settings = () => {
                       </div>
                       <div className="flex space-x-2 ml-4">
                         <button
-                          onClick={() => startEdit(type)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            console.log("Edit button clicked for:", type.name);
+                            startEdit(type);
+                          }}
                           className="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded text-sm font-semibold"
                           title="Edit Membership Type"
                         >
                           ✏️ Edit
                         </button>
                         <button
-                          onClick={() => deleteMembershipType(type.id, type.name)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            deleteMembershipType(type.id, type.name);
+                          }}
                           className="bg-red-600 hover:bg-red-700 px-3 py-2 rounded text-sm font-semibold"
                           title="Delete Membership Type"
                         >
@@ -1025,12 +1041,17 @@ const Settings = () => {
               {(editingType || isAddingNew) && (
                 <button
                   onClick={cancelEdit}
-                  className="text-gray-400 hover:text-gray-200"
+                  className="text-gray-400 hover:text-gray-200 text-xl"
                   title="Cancel"
                 >
                   ✕
                 </button>
               )}
+            </div>
+
+            {/* Debug Info */}
+            <div className="mb-4 p-2 bg-gray-700 rounded text-xs text-gray-300">
+              Debug: editingType={editingType ? editingType.name : 'null'}, isAddingNew={isAddingNew.toString()}
             </div>
 
             {(editingType || isAddingNew) ? (
