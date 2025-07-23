@@ -370,8 +370,62 @@ const Dashboard = () => {
     }
   };
 
+  // Initialize with sample data if no clients exist
+  const initializeSampleData = async () => {
+    try {
+      const result = await localDB.getClients();
+      if (result.data.length === 0) {
+        // Add sample clients for testing
+        const sampleClients = [
+          {
+            name: "John Smith",
+            email: "john.smith@example.com",
+            phone: "(555) 123-4567",
+            membership_type: "Premium",
+            monthly_fee: 99.99,
+            start_date: "2025-07-01",
+            status: "Active"
+          },
+          {
+            name: "Sarah Johnson",
+            email: "sarah.johnson@example.com", 
+            phone: "(555) 234-5678",
+            membership_type: "Basic",
+            monthly_fee: 59.99,
+            start_date: "2025-07-15",
+            status: "Active"
+          },
+          {
+            name: "Mike Davis",
+            email: "mike.davis@example.com",
+            phone: "(555) 345-6789", 
+            membership_type: "Premium",
+            monthly_fee: 99.99,
+            start_date: "2025-06-20",
+            status: "Active"
+          }
+        ];
+
+        console.log("🔍 Debug - Adding sample clients for testing...");
+        for (const client of sampleClients) {
+          await localDB.addClient(client);
+          console.log(`✅ Added sample client: ${client.name}`);
+        }
+        
+        alert("🎯 Sample clients added for testing!\n\n✅ John Smith (Premium - $99.99)\n✅ Sarah Johnson (Basic - $59.99)\n✅ Mike Davis (Premium - $99.99)\n\nYou can now test email and payment features!");
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error initializing sample data:", error);
+      return false;
+    }
+  };
+
   useEffect(() => {
     fetchClients();
+    // Initialize sample data if needed
+    setTimeout(() => initializeSampleData(), 1000);
   }, []);
 
   return (
