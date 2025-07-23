@@ -701,6 +701,7 @@ class AlphaleteAPITester:
             
             # Error Handling & Edge Cases (UPDATED WITH TEMPLATE ERROR TESTS)
             ("Error Handling", [
+                self.test_email_endpoint_route_conflicts,
                 self.test_create_duplicate_client,
                 self.test_send_custom_reminder_invalid_client,
                 self.test_error_handling,
