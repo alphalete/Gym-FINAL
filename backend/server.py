@@ -131,6 +131,12 @@ async def get_client(client_id: str):
     client = await db.clients.find_one({"id": client_id})
     if not client:
         raise HTTPException(status_code=404, detail="Client not found")
+    
+    # Convert date string back to date object
+    if 'next_payment_date' in client and isinstance(client['next_payment_date'], str):
+        from datetime import datetime
+        client['next_payment_date'] = datetime.fromisoformat(client['next_payment_date']).date()
+    
     return Client(**client)
 
 @api_router.put("/clients/{client_id}", response_model=Client)
