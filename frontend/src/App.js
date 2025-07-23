@@ -74,7 +74,7 @@ const Navigation = ({ currentPage }) => {
         <div className="absolute bottom-4 left-4 right-4">
           <div className="bg-gray-800 p-3 rounded-lg text-center">
             <div className="text-xs text-gray-400">Gym Management System</div>
-            <div className="text-xs text-red-400 font-semibold">v1.0.0</div>
+            <div className="text-xs text-red-400 font-semibold">v2.0.0</div>
           </div>
         </div>
       </div>
@@ -207,10 +207,10 @@ const Dashboard = () => {
           <p className="text-gray-400">Email payment reminders to clients</p>
         </Link>
         
-        <Link to="/reports" className="bg-gray-800 p-6 rounded-lg border border-gray-700 hover:border-red-600 transition-all">
-          <div className="text-4xl mb-4">📈</div>
-          <h3 className="text-xl font-semibold mb-2">View Reports</h3>
-          <p className="text-gray-400">Analytics and performance metrics</p>
+        <Link to="/settings" className="bg-gray-800 p-6 rounded-lg border border-gray-700 hover:border-red-600 transition-all">
+          <div className="text-4xl mb-4">⚙️</div>
+          <h3 className="text-xl font-semibold mb-2">Manage Settings</h3>
+          <p className="text-gray-400">Configure membership types</p>
         </Link>
       </div>
 
@@ -238,6 +238,7 @@ const Dashboard = () => {
                   <div>
                     <p className="font-semibold">{client.name}</p>
                     <p className="text-sm text-gray-400">{client.membership_type} • ${client.monthly_fee}/month</p>
+                    <p className="text-xs text-gray-500">Started: {new Date(client.start_date).toLocaleDateString()}</p>
                   </div>
                 </div>
                 <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
@@ -358,6 +359,7 @@ const ClientManagement = () => {
                   <th className="text-left p-4">Phone</th>
                   <th className="text-left p-4">Membership</th>
                   <th className="text-left p-4">Monthly Fee</th>
+                  <th className="text-left p-4">Start Date</th>
                   <th className="text-left p-4">Next Payment</th>
                   <th className="text-left p-4">Status</th>
                   <th className="text-left p-4">Actions</th>
@@ -378,6 +380,7 @@ const ClientManagement = () => {
                     <td className="p-4 text-gray-300">{client.phone || "N/A"}</td>
                     <td className="p-4">{client.membership_type}</td>
                     <td className="p-4 font-semibold text-green-400">${client.monthly_fee}</td>
+                    <td className="p-4">{new Date(client.start_date).toLocaleDateString()}</td>
                     <td className="p-4">{new Date(client.next_payment_date).toLocaleDateString()}</td>
                     <td className="p-4">
                       <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
@@ -416,17 +419,49 @@ const ClientManagement = () => {
   );
 };
 
-// Add Client Component (Enhanced)
+// Add Client Component (Enhanced with dynamic membership types)
 const AddClient = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
-    membership_type: "Standard",
+    membership_type: "",
     monthly_fee: 50.00,
-    next_payment_date: ""
+    start_date: ""
   });
+  const [membershipTypes, setMembershipTypes] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [typesLoading, setTypesLoading] = useState(false);
+
+  // Fetch membership types from API
+  const fetchMembershipTypes = async () => {
+    try {
+      setTypesLoading(true);
+      const response = await axios.get(`${API}/membership-types`);
+      setMembershipTypes(response.data);
+      
+      // Set first membership type as default if available
+      if (response.data.length > 0) {
+        setFormData(prev => ({
+          ...prev,
+          membership_type: response.data[0].name,
+          monthly_fee: response.data[0].monthly_fee
+        }));
+      }
+    } catch (error) {
+      console.error("Error fetching membership types:", error);
+    } finally {
+      setTypesLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMembershipTypes();
+    
+    // Set default start date to today
+    const today = new Date().toISOString().split('T')[0];
+    setFormData(prev => ({ ...prev, start_date: today }));
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -434,14 +469,14 @@ const AddClient = () => {
 
     try {
       await axios.post(`${API}/clients`, formData);
-      alert("Client added successfully!");
+      alert("Client added successfully! Next payment date automatically calculated for 30 days from start date.");
       setFormData({
         name: "",
         email: "",
         phone: "",
-        membership_type: "Standard",
-        monthly_fee: 50.00,
-        next_payment_date: ""
+        membership_type: membershipTypes.length > 0 ? membershipTypes[0].name : "",
+        monthly_fee: membershipTypes.length > 0 ? membershipTypes[0].monthly_fee : 50.00,
+        start_date: new Date().toISOString().split('T')[0]
       });
     } catch (error) {
       console.error("Error adding client:", error);
@@ -459,18 +494,22 @@ const AddClient = () => {
     }));
   };
 
-  const membershipPlans = [
-    { type: "Standard", fee: 50.00, description: "Basic gym access" },
-    { type: "Premium", fee: 75.00, description: "Gym + Group classes" },
-    { type: "Elite", fee: 100.00, description: "Premium + Personal training" },
-    { type: "VIP", fee: 150.00, description: "All access + Nutrition consultation" }
-  ];
+  const handleMembershipChange = (selectedType) => {
+    const selectedMembership = membershipTypes.find(m => m.name === selectedType.name);
+    if (selectedMembership) {
+      setFormData(prev => ({
+        ...prev,
+        membership_type: selectedMembership.name,
+        monthly_fee: selectedMembership.monthly_fee
+      }));
+    }
+  };
 
   return (
     <div className="p-6">
       <div className="mb-6">
         <h1 className="text-3xl font-bold mb-2">Add New Client</h1>
-        <p className="text-gray-400">Register a new member to your gym.</p>
+        <p className="text-gray-400">Register a new member to your gym. Payment date will be automatically set to 30 days from start date.</p>
       </div>
 
       <div className="max-w-2xl">
@@ -515,38 +554,71 @@ const AddClient = () => {
             </div>
 
             <div>
+              <label className="block text-sm font-medium mb-2">Start Date *</label>
+              <input
+                type="date"
+                name="start_date"
+                value={formData.start_date}
+                onChange={handleChange}
+                required
+                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-600 focus:border-transparent"
+              />
+              <p className="text-sm text-gray-400 mt-1">Next payment date will be automatically set to 30 days from this date</p>
+            </div>
+
+            <div>
               <label className="block text-sm font-medium mb-3">Membership Type</label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {membershipPlans.map((plan) => (
-                  <label key={plan.type} className={`cursor-pointer border-2 rounded-lg p-4 transition-all ${
-                    formData.membership_type === plan.type
-                      ? 'border-red-600 bg-red-600/10'
-                      : 'border-gray-600 hover:border-gray-500'
-                  }`}>
-                    <input
-                      type="radio"
-                      name="membership_type"
-                      value={plan.type}
-                      checked={formData.membership_type === plan.type}
-                      onChange={(e) => {
-                        setFormData(prev => ({
-                          ...prev,
-                          membership_type: e.target.value,
-                          monthly_fee: plan.fee
-                        }));
-                      }}
-                      className="sr-only"
-                    />
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h4 className="font-semibold">{plan.type}</h4>
-                        <p className="text-sm text-gray-400">{plan.description}</p>
+              {typesLoading ? (
+                <div className="text-center py-4">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-red-600 mx-auto"></div>
+                  <p className="mt-2 text-gray-400 text-sm">Loading membership types...</p>
+                </div>
+              ) : membershipTypes.length === 0 ? (
+                <div className="text-center py-4">
+                  <p className="text-gray-400">No membership types available. Please configure them in Settings.</p>
+                  <Link to="/settings" className="text-red-400 hover:text-red-300 underline text-sm">Go to Settings</Link>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {membershipTypes.map((plan) => (
+                    <label key={plan.id} className={`cursor-pointer border-2 rounded-lg p-4 transition-all ${
+                      formData.membership_type === plan.name
+                        ? 'border-red-600 bg-red-600/10'
+                        : 'border-gray-600 hover:border-gray-500'
+                    }`}>
+                      <input
+                        type="radio"
+                        name="membership_type"
+                        value={plan.name}
+                        checked={formData.membership_type === plan.name}
+                        onChange={(e) => {
+                          handleMembershipChange(plan);
+                        }}
+                        className="sr-only"
+                      />
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h4 className="font-semibold">{plan.name}</h4>
+                          <p className="text-sm text-gray-400">{plan.description}</p>
+                        </div>
+                        <div className="text-lg font-bold text-green-400">${plan.monthly_fee}</div>
                       </div>
-                      <div className="text-lg font-bold text-green-400">${plan.fee}</div>
-                    </div>
-                  </label>
-                ))}
-              </div>
+                      {plan.features && plan.features.length > 0 && (
+                        <div className="mt-2">
+                          <ul className="text-xs text-gray-300 space-y-1">
+                            {plan.features.slice(0, 3).map((feature, index) => (
+                              <li key={index}>• {feature}</li>
+                            ))}
+                            {plan.features.length > 3 && (
+                              <li className="text-gray-400">• +{plan.features.length - 3} more features</li>
+                            )}
+                          </ul>
+                        </div>
+                      )}
+                    </label>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div>
@@ -561,24 +633,13 @@ const AddClient = () => {
                 required
                 className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-600 focus:border-transparent"
               />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">Next Payment Date *</label>
-              <input
-                type="date"
-                name="next_payment_date"
-                value={formData.next_payment_date}
-                onChange={handleChange}
-                required
-                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-600 focus:border-transparent"
-              />
+              <p className="text-sm text-gray-400 mt-1">Override the default fee for this membership type if needed</p>
             </div>
 
             <div className="pt-4">
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || membershipTypes.length === 0}
                 className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50 px-6 py-3 rounded-lg font-semibold text-lg transition"
               >
                 {loading ? "Adding Client..." : "Add Client"}
@@ -699,7 +760,7 @@ const EmailCenter = () => {
                   <div>
                     <p className="font-semibold">{client.name}</p>
                     <p className="text-sm text-gray-400">{client.email} • ${client.monthly_fee}/month</p>
-                    <p className="text-xs text-gray-500">Next payment: {new Date(client.next_payment_date).toLocaleDateString()}</p>
+                    <p className="text-xs text-gray-500">Started: {new Date(client.start_date).toLocaleDateString()} • Next payment: {new Date(client.next_payment_date).toLocaleDateString()}</p>
                   </div>
                 </div>
                 <button
@@ -745,18 +806,281 @@ const Reports = () => (
   </div>
 );
 
-const Settings = () => (
-  <div className="p-6">
-    <div className="mb-6">
-      <h1 className="text-3xl font-bold mb-2">Settings</h1>
-      <p className="text-gray-400">Configure your gym management system.</p>
+// Enhanced Settings Component with Membership Types Management
+const Settings = () => {
+  const [membershipTypes, setMembershipTypes] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [editingType, setEditingType] = useState(null);
+  const [isAddingNew, setIsAddingNew] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    monthly_fee: 0,
+    description: "",
+    features: []
+  });
+
+  const fetchMembershipTypes = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API}/membership-types`);
+      setMembershipTypes(response.data);
+    } catch (error) {
+      console.error("Error fetching membership types:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMembershipTypes();
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (editingType) {
+        // Update existing membership type
+        await axios.put(`${API}/membership-types/${editingType.id}`, formData);
+        alert("Membership type updated successfully!");
+      } else {
+        // Create new membership type
+        await axios.post(`${API}/membership-types`, formData);
+        alert("Membership type created successfully!");
+      }
+      
+      setFormData({ name: "", monthly_fee: 0, description: "", features: [] });
+      setEditingType(null);
+      setIsAddingNew(false);
+      fetchMembershipTypes();
+    } catch (error) {
+      console.error("Error saving membership type:", error);
+      alert("Error saving membership type: " + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  const startEdit = (membershipType) => {
+    setEditingType(membershipType);
+    setFormData({
+      name: membershipType.name,
+      monthly_fee: membershipType.monthly_fee,
+      description: membershipType.description,
+      features: membershipType.features || []
+    });
+    setIsAddingNew(false);
+  };
+
+  const startAddNew = () => {
+    setIsAddingNew(true);
+    setEditingType(null);
+    setFormData({ name: "", monthly_fee: 0, description: "", features: [] });
+  };
+
+  const cancelEdit = () => {
+    setEditingType(null);
+    setIsAddingNew(false);
+    setFormData({ name: "", monthly_fee: 0, description: "", features: [] });
+  };
+
+  const deleteMembershipType = async (id) => {
+    if (window.confirm("Are you sure you want to delete this membership type?")) {
+      try {
+        await axios.delete(`${API}/membership-types/${id}`);
+        alert("Membership type deleted successfully!");
+        fetchMembershipTypes();
+      } catch (error) {
+        console.error("Error deleting membership type:", error);
+        alert("Error deleting membership type");
+      }
+    }
+  };
+
+  const addFeature = () => {
+    setFormData(prev => ({
+      ...prev,
+      features: [...prev.features, ""]
+    }));
+  };
+
+  const updateFeature = (index, value) => {
+    setFormData(prev => ({
+      ...prev,
+      features: prev.features.map((feature, i) => i === index ? value : feature)
+    }));
+  };
+
+  const removeFeature = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      features: prev.features.filter((_, i) => i !== index)
+    }));
+  };
+
+  return (
+    <div className="p-6">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold mb-2">Settings</h1>
+        <p className="text-gray-400">Configure your gym management system and membership types.</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Membership Types Management */}
+        <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold">Membership Types</h2>
+            <button
+              onClick={startAddNew}
+              className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg font-semibold text-sm"
+            >
+              ➕ Add New Type
+            </button>
+          </div>
+
+          {loading ? (
+            <div className="text-center py-4">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto"></div>
+              <p className="mt-2 text-gray-400">Loading...</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {membershipTypes.map((type) => (
+                <div key={type.id} className="border border-gray-600 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-3">
+                      <h3 className="font-semibold">{type.name}</h3>
+                      <span className="text-green-400 font-bold">${type.monthly_fee}/month</span>
+                    </div>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => startEdit(type)}
+                        className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm"
+                      >
+                        ✏️
+                      </button>
+                      <button
+                        onClick={() => deleteMembershipType(type.id)}
+                        className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm"
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  </div>
+                  <p className="text-gray-400 text-sm mb-2">{type.description}</p>
+                  {type.features && type.features.length > 0 && (
+                    <div className="text-xs text-gray-300">
+                      <strong>Features:</strong> {type.features.slice(0, 3).join(", ")}
+                      {type.features.length > 3 && ` +${type.features.length - 3} more`}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Add/Edit Form */}
+        <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
+          <h2 className="text-xl font-semibold mb-6">
+            {editingType ? "Edit Membership Type" : isAddingNew ? "Add New Membership Type" : "Membership Type Form"}
+          </h2>
+
+          {(editingType || isAddingNew) ? (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Name *</label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  required
+                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-red-600 focus:border-transparent"
+                  placeholder="e.g., Premium"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Monthly Fee ($) *</label>
+                <input
+                  type="number"
+                  value={formData.monthly_fee}
+                  onChange={(e) => setFormData(prev => ({ ...prev, monthly_fee: parseFloat(e.target.value) || 0 }))}
+                  required
+                  min="0"
+                  step="0.01"
+                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-red-600 focus:border-transparent"
+                  placeholder="75.00"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Description *</label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  required
+                  rows="3"
+                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-red-600 focus:border-transparent"
+                  placeholder="Brief description of this membership type"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Features</label>
+                <div className="space-y-2">
+                  {formData.features.map((feature, index) => (
+                    <div key={index} className="flex items-center space-x-2">
+                      <input
+                        type="text"
+                        value={feature}
+                        onChange={(e) => updateFeature(index, e.target.value)}
+                        className="flex-1 bg-gray-700 border border-gray-600 rounded px-3 py-2 focus:ring-2 focus:ring-red-600 focus:border-transparent"
+                        placeholder="Enter feature"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeFeature(index)}
+                        className="bg-red-600 hover:bg-red-700 px-3 py-2 rounded text-sm"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={addFeature}
+                    className="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded text-sm"
+                  >
+                    ➕ Add Feature
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex space-x-4 pt-4">
+                <button
+                  type="submit"
+                  className="bg-green-600 hover:bg-green-700 px-6 py-2 rounded-lg font-semibold"
+                >
+                  {editingType ? "Update" : "Create"} Membership Type
+                </button>
+                <button
+                  type="button"
+                  onClick={cancelEdit}
+                  className="bg-gray-600 hover:bg-gray-700 px-6 py-2 rounded-lg font-semibold"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          ) : (
+            <div className="text-center py-8">
+              <div className="text-4xl mb-4">⚙️</div>
+              <p className="text-gray-400">Select a membership type to edit or add a new one</p>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
-    <div className="bg-gray-800 rounded-lg border border-gray-700 p-8 text-center">
-      <div className="text-6xl mb-4">⚙️</div>
-      <p className="text-xl text-gray-400">Settings panel coming soon!</p>
-    </div>
-  </div>
-);
+  );
+};
 
 function App() {
   return (
