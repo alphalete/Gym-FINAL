@@ -229,21 +229,24 @@ class AlphaleteAPITester:
             print(f"   Initial client count: {len(response)}")
         return success
 
-    def test_create_client(self):
-        """Test creating a new client"""
+    def test_create_client_with_start_date(self):
+        """Test creating a new client with custom start date and auto-calculated payment date"""
         # Use timestamp to ensure unique email
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        start_date = "2025-07-25"  # Custom start date as mentioned in requirements
+        expected_payment_date = "2025-08-24"  # 30 days later
+        
         client_data = {
-            "name": "Sarah Wilson",
-            "email": f"sarah_test_{timestamp}@test.com",
-            "phone": "(555) 987-6543",
+            "name": "John Doe",
+            "email": f"john_test_{timestamp}@example.com",
+            "phone": "(555) 123-4567",
             "membership_type": "Elite",
             "monthly_fee": 100.00,
-            "next_payment_date": "2025-08-20"
+            "start_date": start_date
         }
         
         success, response = self.run_test(
-            "Create Client",
+            "Create Client with Custom Start Date",
             "POST",
             "clients",
             200,
@@ -254,7 +257,15 @@ class AlphaleteAPITester:
             self.created_client_id = response["id"]
             print(f"   Created client ID: {self.created_client_id}")
             print(f"   Client name: {response.get('name')}")
-            print(f"   Client email: {response.get('email')}")
+            print(f"   Start date: {response.get('start_date')}")
+            print(f"   Next payment date: {response.get('next_payment_date')}")
+            print(f"   Expected payment date: {expected_payment_date}")
+            
+            # Verify automatic payment date calculation
+            if str(response.get('next_payment_date')) == expected_payment_date:
+                print("   ✅ Payment date calculation is CORRECT!")
+            else:
+                print("   ❌ Payment date calculation is INCORRECT!")
         
         return success
 
