@@ -110,9 +110,11 @@ class AlphaleteAPITester:
 
     def test_create_client(self):
         """Test creating a new client"""
+        # Use timestamp to ensure unique email
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         client_data = {
             "name": "Sarah Wilson",
-            "email": "sarah@test.com",
+            "email": f"sarah_test_{timestamp}@test.com",
             "phone": "(555) 987-6543",
             "membership_type": "Elite",
             "monthly_fee": 100.00,
