@@ -299,6 +299,8 @@ class AlphaleteAPITester:
         
         if success:
             print(f"   Retrieved client: {response.get('name')} ({response.get('email')})")
+            print(f"   Start date: {response.get('start_date')}")
+            print(f"   Next payment: {response.get('next_payment_date')}")
         
         return success
 
