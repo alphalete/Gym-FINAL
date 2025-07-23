@@ -214,7 +214,7 @@ class AlphaleteAPITester:
         """Test creating a client with duplicate email (should fail)"""
         client_data = {
             "name": "Sarah Wilson Duplicate",
-            "email": "sarah@test.com",  # Same email as before
+            "email": "johndoe@example.com",  # Use existing email from database
             "phone": "(555) 123-4567",
             "membership_type": "Standard",
             "monthly_fee": 50.00,
