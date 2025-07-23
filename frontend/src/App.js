@@ -2292,6 +2292,25 @@ function App() {
     // Initialize PWA
     console.log('Alphalete PWA initialized');
     
+    // CRITICAL: Hide loading screen when React app mounts
+    const hideLoadingScreen = () => {
+      console.log("🔍 App: Hiding loading screen...");
+      const loadingScreen = document.getElementById('loading-screen');
+      if (loadingScreen) {
+        loadingScreen.style.opacity = '0';
+        loadingScreen.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => {
+          loadingScreen.style.display = 'none';
+          console.log("✅ App: Loading screen hidden successfully");
+        }, 300);
+      } else {
+        console.log("⚠️ App: Loading screen element not found");
+      }
+    };
+    
+    // Hide loading screen immediately
+    hideLoadingScreen();
+    
     // Force scroll behavior fix for PWA
     const fixScrolling = () => {
       // Enable scrolling on body and document
