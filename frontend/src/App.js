@@ -50,7 +50,189 @@ const PWAStatus = () => {
   );
 };
 
-// Navigation Component (Updated for PWA)
+// Custom Email Template Modal Component
+const CustomEmailModal = ({ client, isOpen, onClose, onSend }) => {
+  const [emailData, setEmailData] = useState({
+    template_name: 'default',
+    custom_subject: '',
+    custom_message: '',
+    custom_amount: client?.monthly_fee || 0,
+    custom_due_date: ''
+  });
+  const [templates, setTemplates] = useState({});
+  const [sending, setSending] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && client) {
+      // Reset form when modal opens
+      setEmailData({
+        template_name: 'default',
+        custom_subject: '',
+        custom_message: '',
+        custom_amount: client.monthly_fee || 0,
+        custom_due_date: client.next_payment_date || ''
+      });
+      
+      // Fetch available templates
+      fetchTemplates();
+    }
+  }, [isOpen, client]);
+
+  const fetchTemplates = async () => {
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const response = await fetch(`${backendUrl}/api/email/templates`);
+      const data = await response.json();
+      setTemplates(data.templates || {});
+    } catch (error) {
+      console.error("Error fetching templates:", error);
+    }
+  };
+
+  const handleSend = async () => {
+    setSending(true);
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      
+      const response = await fetch(`${backendUrl}/api/email/custom-reminder`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          client_id: client.id,
+          ...emailData
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (response.ok && result.success) {
+        alert(`✅ Custom email sent successfully to ${result.client_email}`);
+        onSend && onSend();
+        onClose();
+      } else {
+        alert(`❌ Failed to send custom email: ${result.message}`);
+      }
+    } catch (error) {
+      console.error("Error sending custom email:", error);
+      alert(`❌ Error sending custom email: ${error.message}`);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  if (!isOpen || !client) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div className="bg-gray-800 rounded-lg border border-gray-700 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="p-6 border-b border-gray-700">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-semibold">Customize Email for {client.name}</h3>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-200 text-2xl"
+            >
+              ✕
+            </button>
+          </div>
+          <p className="text-gray-400 text-sm mt-1">Send a personalized payment reminder</p>
+        </div>
+        
+        <div className="p-6 space-y-4">
+          {/* Template Selection */}
+          <div>
+            <label className="block text-sm font-medium mb-2">Email Template</label>
+            <select
+              value={emailData.template_name}
+              onChange={(e) => setEmailData(prev => ({ ...prev, template_name: e.target.value }))}
+              className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-600 focus:border-transparent"
+            >
+              {Object.entries(templates).map(([value, template]) => (
+                <option key={value} value={value}>
+                  {template.name} - {template.description}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Custom Subject */}
+          <div>
+            <label className="block text-sm font-medium mb-2">Custom Subject (Optional)</label>
+            <input
+              type="text"
+              value={emailData.custom_subject}
+              onChange={(e) => setEmailData(prev => ({ ...prev, custom_subject: e.target.value }))}
+              placeholder="Leave empty to use template default"
+              className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-600 focus:border-transparent"
+            />
+          </div>
+
+          {/* Custom Message */}
+          <div>
+            <label className="block text-sm font-medium mb-2">Custom Message (Optional)</label>
+            <textarea
+              value={emailData.custom_message}
+              onChange={(e) => setEmailData(prev => ({ ...prev, custom_message: e.target.value }))}
+              placeholder="Add a personal message to include in the email"
+              rows="3"
+              className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-600 focus:border-transparent"
+            />
+          </div>
+
+          {/* Custom Amount */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Amount</label>
+              <input
+                type="number"
+                value={emailData.custom_amount}
+                onChange={(e) => setEmailData(prev => ({ ...prev, custom_amount: parseFloat(e.target.value) || 0 }))}
+                min="0"
+                step="0.01"
+                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-600 focus:border-transparent"
+              />
+            </div>
+
+            {/* Custom Due Date */}
+            <div>
+              <label className="block text-sm font-medium mb-2">Due Date</label>
+              <input
+                type="date"
+                value={emailData.custom_due_date}
+                onChange={(e) => setEmailData(prev => ({ ...prev, custom_due_date: e.target.value }))}
+                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-600 focus:border-transparent"
+              />
+            </div>
+          </div>
+
+          {/* Preview Info */}
+          <div className="bg-gray-900 p-4 rounded-lg border border-gray-600">
+            <h4 className="font-semibold mb-2">Email Preview Info:</h4>
+            <p className="text-sm text-gray-300">To: {client.email}</p>
+            <p className="text-sm text-gray-300">Template: {templates[emailData.template_name]?.name || 'Default'}</p>
+            <p className="text-sm text-gray-300">Amount: ${emailData.custom_amount}</p>
+          </div>
+        </div>
+
+        <div className="p-6 border-t border-gray-700 flex space-x-4">
+          <button
+            onClick={onClose}
+            className="flex-1 bg-gray-600 hover:bg-gray-700 px-6 py-3 rounded-lg font-semibold"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSend}
+            disabled={sending}
+            className="flex-1 bg-red-600 hover:bg-red-700 disabled:opacity-50 px-6 py-3 rounded-lg font-semibold"
+          >
+            {sending ? "Sending..." : "Send Custom Email"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 const Navigation = ({ currentPage }) => {
   const [isOpen, setIsOpen] = useState(false);
 
