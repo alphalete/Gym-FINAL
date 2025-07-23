@@ -7,7 +7,7 @@ from datetime import datetime, date, timedelta
 from typing import Dict, Any
 
 class AlphaleteAPITester:
-    def __init__(self, base_url="https://fb00d889-1c53-45d5-932b-d9d4fc2cee22.preview.emergentagent.com"):
+    def __init__(self, base_url="https://6b64051f-ce9a-4270-be16-1060b67d4f80.preview.emergentagent.com"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
         self.tests_run = 0
