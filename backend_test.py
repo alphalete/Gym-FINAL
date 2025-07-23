@@ -3,7 +3,7 @@
 import requests
 import sys
 import json
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from typing import Dict, Any
 
 class AlphaleteAPITester:
@@ -13,6 +13,7 @@ class AlphaleteAPITester:
         self.tests_run = 0
         self.tests_passed = 0
         self.created_client_id = None
+        self.created_membership_types = []
 
     def log_test(self, name: str, success: bool, details: str = ""):
         """Log test results"""
@@ -30,6 +31,8 @@ class AlphaleteAPITester:
 
         print(f"\n🔍 Testing {name}...")
         print(f"   URL: {url}")
+        if data:
+            print(f"   Data: {json.dumps(data, indent=2, default=str)}")
         
         try:
             if method == 'GET':
@@ -48,6 +51,7 @@ class AlphaleteAPITester:
                     response_data = response.json()
                     details = f"(Status: {response.status_code})"
                     self.log_test(name, True, details)
+                    print(f"   Response: {json.dumps(response_data, indent=2, default=str)}")
                     return True, response_data
                 except:
                     details = f"(Status: {response.status_code}, No JSON response)"
