@@ -604,6 +604,26 @@ const Dashboard = () => {
           </div>
         )}
       </div>
+
+      {/* Debug section - can be removed in production */}
+      <div className="mt-8 p-4 bg-gray-800 rounded-lg border border-gray-700">
+        <h3 className="text-lg font-semibold mb-2">🔧 Debug Tools</h3>
+        <div className="flex space-x-4">
+          <button
+            onClick={resetData}
+            className="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded-lg font-semibold text-sm"
+          >
+            🔄 Reset Sample Data
+          </button>
+          <button
+            onClick={() => console.log("Current clients:", clients)}
+            className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-semibold text-sm"
+          >
+            📊 Log Client Data
+          </button>
+        </div>
+        <p className="text-xs text-gray-400 mt-2">Use these tools to test and debug the application</p>
+      </div>
     </div>
   );
 };
