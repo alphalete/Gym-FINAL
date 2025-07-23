@@ -326,8 +326,10 @@ const ClientManagement = () => {
     }
 
     try {
-      // This would be handled by the service worker
-      const response = await fetch('/api/email/payment-reminder', {
+      // Get backend URL from environment
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      
+      const response = await fetch(`${backendUrl}/api/email/payment-reminder`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ client_id: client.id })
