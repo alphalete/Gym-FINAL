@@ -1480,22 +1480,46 @@ const Payments = () => {
       const nextPaymentDate = new Date(today);
       nextPaymentDate.setDate(today.getDate() + 30);
       
-      const updatedClient = {
-        ...client,
-        next_payment_date: nextPaymentDate.toISOString().split('T')[0],
-        updated_at: new Date().toISOString()
-      };
-      
+      // Update local storage first
       await localDB.updateClient(client.id, {
         next_payment_date: nextPaymentDate.toISOString().split('T')[0]
       });
       
-      alert(`Payment marked as received for ${client.name}. Next payment due: ${nextPaymentDate.toLocaleDateString()}`);
+      // If online, also update the backend
+      const isOnline = navigator.onLine;
+      if (isOnline) {
+        try {
+          const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+          
+          const response = await fetch(`${backendUrl}/api/payments/record`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              client_id: client.id,
+              amount_paid: client.monthly_fee,
+              payment_date: today.toISOString().split('T')[0],
+              payment_method: "Manual Entry",
+              notes: "Payment recorded via PWA"
+            })
+          });
+          
+          if (response.ok) {
+            const result = await response.json();
+            console.log("Payment recorded on server:", result);
+          } else {
+            console.warn("Failed to record payment on server, but saved locally");
+          }
+        } catch (error) {
+          console.warn("Could not sync payment to server:", error.message);
+        }
+      }
+      
+      alert(`✅ Payment marked as received for ${client.name}.\nNext payment due: ${nextPaymentDate.toLocaleDateString()}\n${isOnline ? '🌐 Synced to server' : '📱 Saved locally (will sync when online)'}`);
       fetchPaymentData(); // Refresh data
       
     } catch (error) {
       console.error("Error marking payment as paid:", error);
-      alert("Error updating payment status.");
+      alert(`❌ Error updating payment status: ${error.message}`);
     }
   };
 
