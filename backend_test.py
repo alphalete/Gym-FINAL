@@ -651,6 +651,45 @@ class AlphaleteAPITester:
         
         return success
 
+    def test_error_handling(self):
+        """Test various error scenarios"""
+        print("\n--- Testing Error Handling ---")
+        
+        # Test non-existent membership type
+        success1, _ = self.run_test(
+            "Get Non-existent Membership Type",
+            "GET",
+            "membership-types/non-existent-id",
+            404
+        )
+        
+        # Test non-existent client
+        success2, _ = self.run_test(
+            "Get Non-existent Client",
+            "GET",
+            "clients/non-existent-id",
+            404
+        )
+        
+        # Test invalid email format
+        invalid_client_data = {
+            "name": "Invalid Email User",
+            "email": "invalid-email-format",
+            "membership_type": "Standard",
+            "monthly_fee": 50.00,
+            "start_date": "2025-01-01"
+        }
+        
+        success3, _ = self.run_test(
+            "Create Client with Invalid Email",
+            "POST",
+            "clients",
+            422,  # Validation error
+            invalid_client_data
+        )
+        
+        return success1 and success2 and success3
+
     def run_all_tests(self):
         """Run all API tests"""
         print("🚀 Starting Alphalete Athletics Club API Tests")
