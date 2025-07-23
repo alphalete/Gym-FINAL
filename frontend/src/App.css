@@ -533,6 +533,40 @@ tbody tr:hover {
   margin-left: 0;
 }
 
+/* Page Container Classes */
+.pwa-page-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.pwa-page-header {
+  flex-shrink: 0;
+  padding: 1.5rem;
+  border-bottom: 1px solid #374151;
+  background-color: #111827;
+}
+
+.pwa-search-section {
+  flex-shrink: 0;
+  padding: 1rem 1.5rem;
+  background-color: #111827;
+  border-bottom: 1px solid #374151;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.pwa-scrollable-section {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  padding: 1.5rem;
+}
+
 /* Desktop navigation spacing */
 @media (min-width: 768px) {
   .pwa-scrollable-content {
