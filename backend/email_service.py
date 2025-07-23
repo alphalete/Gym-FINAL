@@ -222,10 +222,10 @@ class EmailService:
                 server.starttls()
                 logger.info(f"Logging in with email: {self.email}")
                 server.login(self.email, self.password)
-                logger.info(f"Sending email to: {client_email}")
+                logger.info(f"Sending email to: {client_email} with template: {template_name}")
                 server.send_message(msg)
                 
-            logger.info(f"Payment reminder sent successfully to {client_email}")
+            logger.info(f"Payment reminder sent successfully to {client_email} using {template_name} template")
             return True
             
         except Exception as e:
