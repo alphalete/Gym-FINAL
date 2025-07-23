@@ -20,15 +20,29 @@
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Alphalete" />
         
-        <!-- Disable zoom on iOS -->
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <!-- Enable scrolling on mobile -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
         
         <title>Alphalete Athletics Club - Gym Management</title>
         
         <style>
-          /* Prevent pull-to-refresh on mobile */
+          /* Fix mobile scrolling issues */
+          html, body {
+            height: 100%;
+            overflow: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: auto;
+          }
+          
           body {
-            overscroll-behavior-y: contain;
+            margin: 0;
+            padding: 0;
+            touch-action: pan-y pinch-zoom;
+          }
+          
+          /* Enable smooth scrolling */
+          * {
+            -webkit-overflow-scrolling: touch;
           }
           
           /* Loading screen */
@@ -193,17 +207,16 @@
             }, 1500);
           });
           
-          // Prevent context menu on long press (iOS Safari)
-          window.addEventListener('contextmenu', (e) => {
+          // Fix iOS scrolling issues
+          document.addEventListener('touchstart', function() {}, {passive: true});
+          document.addEventListener('touchmove', function(e) {
+            // Allow scrolling
+          }, {passive: true});
+          
+          // Prevent zoom but allow scroll
+          document.addEventListener('gesturestart', function (e) {
             e.preventDefault();
           });
-          
-          // Prevent bounce effect on iOS
-          document.body.addEventListener('touchstart', () => {}, {passive: true});
-          document.body.addEventListener('touchend', () => {}, {passive: true});
-          document.body.addEventListener('touchmove', (e) => {
-            if (e.scale !== 1) { e.preventDefault(); }
-          }, {passive: false});
         </script>
     </body>
 </html>
