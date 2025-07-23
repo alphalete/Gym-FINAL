@@ -37,7 +37,7 @@ const PWAStatus = () => {
   );
 };
 
-// Navigation Component
+// Navigation Component (Updated for PWA)
 const Navigation = ({ currentPage }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -56,17 +56,18 @@ const Navigation = ({ currentPage }) => {
       {/* Mobile Menu Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden fixed top-14 left-4 z-50 bg-red-600 text-white p-2 rounded-lg"
+        className="md:hidden fixed top-16 left-4 z-50 bg-red-600 text-white p-3 rounded-lg shadow-lg"
+        style={{ touchAction: 'manipulation' }}
       >
         {isOpen ? "✕" : "☰"}
       </button>
 
       {/* Sidebar */}
-      <div className={`fixed left-0 top-12 h-full w-64 bg-gray-900 border-r border-gray-700 transform transition-transform duration-300 z-40 ${
+      <div className={`fixed left-0 top-12 bottom-0 w-64 bg-gray-900 border-r border-gray-700 transform transition-transform duration-300 z-40 overflow-y-auto ${
         isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-      }`}>
+      }`} style={{ WebkitOverflowScrolling: 'touch' }}>
         {/* Logo Header */}
-        <div className="p-6 border-b border-gray-700">
+        <div className="p-6 border-b border-gray-700 flex-shrink-0">
           <div className="flex items-center space-x-3">
             <div className="text-2xl">🏋️‍♂️</div>
             <div>
@@ -77,7 +78,7 @@ const Navigation = ({ currentPage }) => {
         </div>
 
         {/* Navigation Menu */}
-        <nav className="p-4">
+        <nav className="p-4 flex-1">
           <ul className="space-y-2">
             {menuItems.map((item) => (
               <li key={item.path}>
@@ -89,6 +90,7 @@ const Navigation = ({ currentPage }) => {
                       ? "bg-red-600 text-white shadow-lg"
                       : "text-gray-300 hover:bg-gray-800 hover:text-white"
                   }`}
+                  style={{ touchAction: 'manipulation', minHeight: '48px' }}
                 >
                   <span className="text-xl">{item.icon}</span>
                   <div>
@@ -102,7 +104,7 @@ const Navigation = ({ currentPage }) => {
         </nav>
 
         {/* Footer */}
-        <div className="absolute bottom-4 left-4 right-4">
+        <div className="p-4 flex-shrink-0">
           <div className="bg-gray-800 p-3 rounded-lg text-center">
             <div className="text-xs text-gray-400">PWA - Offline Ready</div>
             <div className="text-xs text-red-400 font-semibold">v2.1.0</div>
@@ -115,6 +117,7 @@ const Navigation = ({ currentPage }) => {
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
           onClick={() => setIsOpen(false)}
+          style={{ touchAction: 'manipulation' }}
         />
       )}
     </>
