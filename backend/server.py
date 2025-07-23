@@ -105,11 +105,6 @@ class CustomEmailRequest(BaseModel):
     custom_amount: Optional[float] = None
     custom_due_date: Optional[str] = None
 
-class PaymentReminderRequest(BaseModel):
-    client_id: str
-    custom_amount: Optional[float] = None
-    custom_due_date: Optional[str] = None
-
 class EmailResponse(BaseModel):
     success: bool
     message: str
