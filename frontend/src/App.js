@@ -1928,15 +1928,15 @@ const Payments = () => {
             {/* Payment List */}
             <div className="bg-gray-800 rounded-lg border border-gray-700">
               <div className="p-4 border-b border-gray-700">
-                <h3 className="text-xl font-semibold">Client Payments</h3>
-                <p className="text-gray-400 text-sm">Manage individual client payments and send reminders</p>
+                <h3 className="text-xl font-semibold">All Client Payments</h3>
+                <p className="text-gray-400 text-sm">Manage payments for all clients - Record payments to reactivate inactive clients</p>
               </div>
               
               {filteredClients.length === 0 ? (
                 <div className="text-center py-8">
                   <div className="text-6xl mb-4">💳</div>
                   <p className="text-gray-400 text-lg">
-                    {searchTerm ? "No clients found matching your search" : "No active clients found"}
+                    {searchTerm ? "No clients found matching your search" : "No clients found"}
                   </p>
                 </div>
               ) : (
@@ -1945,16 +1945,28 @@ const Payments = () => {
                     const paymentStatus = getPaymentStatus(client.next_payment_date);
                     const nextPaymentDate = new Date(client.next_payment_date);
                     const daysUntilDue = Math.ceil((nextPaymentDate - new Date()) / (1000 * 60 * 60 * 24));
+                    const isInactive = client.status !== 'Active';
                     
                     return (
-                      <div key={client.id} className="p-4 hover:bg-gray-750">
+                      <div key={client.id} className={`p-4 hover:bg-gray-750 ${isInactive ? 'bg-gray-900 border-l-4 border-l-red-500' : ''}`}>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-4">
-                            <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center font-semibold">
+                            <div className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold ${
+                              isInactive ? 'bg-gray-600' : 'bg-red-600'
+                            }`}>
                               {client.name.charAt(0)}
                             </div>
                             <div>
-                              <h4 className="font-semibold text-lg">{client.name}</h4>
+                              <div className="flex items-center space-x-2">
+                                <h4 className={`font-semibold text-lg ${isInactive ? 'text-gray-400' : ''}`}>
+                                  {client.name}
+                                </h4>
+                                {isInactive && (
+                                  <span className="px-2 py-1 bg-red-900 text-red-300 text-xs rounded-full font-semibold">
+                                    INACTIVE
+                                  </span>
+                                )}
+                              </div>
                               <p className="text-gray-400 text-sm">{client.email}</p>
                               <p className="text-gray-500 text-xs">{client.membership_type} • ${client.monthly_fee}/month</p>
                             </div>
@@ -1962,7 +1974,9 @@ const Payments = () => {
                           
                           <div className="flex items-center space-x-4">
                             <div className="text-right">
-                              <p className="font-semibold text-lg">${client.monthly_fee}</p>
+                              <p className={`font-semibold text-lg ${isInactive ? 'text-gray-400' : ''}`}>
+                                ${client.monthly_fee}
+                              </p>
                               <p className="text-sm text-gray-400">
                                 Due: {nextPaymentDate.toLocaleDateString()}
                               </p>
@@ -1976,24 +1990,35 @@ const Payments = () => {
                               </p>
                             </div>
                             
-                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${paymentStatus.class}`}>
-                              {paymentStatus.label}
+                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              isInactive ? 'bg-gray-800 text-gray-400' : paymentStatus.class
+                            }`}>
+                              {isInactive ? 'Inactive' : paymentStatus.label}
                             </span>
                             
                             <div className="flex space-x-2">
                               <button
                                 onClick={() => sendPaymentReminder(client)}
-                                className="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded text-sm font-semibold"
-                                title="Send Payment Reminder"
+                                className={`px-3 py-2 rounded text-sm font-semibold ${
+                                  isInactive 
+                                    ? 'bg-gray-600 hover:bg-gray-700 text-gray-300' 
+                                    : 'bg-blue-600 hover:bg-blue-700'
+                                }`}
+                                title={isInactive ? "Reactivate client first to send reminder" : "Send Payment Reminder"}
+                                disabled={isInactive}
                               >
                                 📧 Remind
                               </button>
                               <button
                                 onClick={() => markAsPaid(client)}
-                                className="bg-green-600 hover:bg-green-700 px-3 py-2 rounded text-sm font-semibold"
-                                title="Mark as Paid"
+                                className={`px-3 py-2 rounded text-sm font-semibold ${
+                                  isInactive 
+                                    ? 'bg-green-600 hover:bg-green-700 text-white font-bold' 
+                                    : 'bg-green-600 hover:bg-green-700'
+                                }`}
+                                title={isInactive ? "Record Payment & Reactivate Client" : "Mark as Paid"}
                               >
-                                ✅ Mark Paid
+                                ✅ {isInactive ? 'Reactivate' : 'Mark Paid'}
                               </button>
                             </div>
                           </div>
