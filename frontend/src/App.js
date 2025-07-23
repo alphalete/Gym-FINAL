@@ -987,10 +987,11 @@ const ClientManagement = () => {
                         {client.status === 'Active' ? '⏸️' : '▶️'}
                       </button>
                       <button
-                        className="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg font-semibold"
-                        title="Edit Client"
+                        onClick={() => deleteClient(client)}
+                        className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg font-semibold"
+                        title="Delete Client"
                       >
-                        ✏️
+                        🗑️
                       </button>
                     </div>
                   </div>
