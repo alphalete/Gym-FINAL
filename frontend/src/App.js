@@ -1757,7 +1757,7 @@ const Payments = () => {
 
   const markAsPaid = async (client) => {
     try {
-      console.log("🔍 Debug - Recording payment for client:", client.name, "ID:", client.id);
+      console.log("🔍 Debug - Recording payment for client:", client.name, "ID:", client.id, "Current Status:", client.status);
       
       // Calculate next payment date (30 days from today)
       const today = new Date();
@@ -1766,11 +1766,15 @@ const Payments = () => {
       
       console.log("🔍 Debug - Next payment date calculated:", nextPaymentDate.toLocaleDateString());
       
-      // Update local storage first
-      await localDB.updateClient(client.id, {
-        next_payment_date: nextPaymentDate.toISOString().split('T')[0]
-      });
-      console.log("🔍 Debug - Local storage updated successfully");
+      // Update local storage first - including setting status to Active
+      const updateData = {
+        next_payment_date: nextPaymentDate.toISOString().split('T')[0],
+        status: "Active", // Always set to Active when payment is recorded
+        updated_at: new Date().toISOString()
+      };
+      
+      await localDB.updateClient(client.id, updateData);
+      console.log("🔍 Debug - Local storage updated successfully with Active status");
       
       // If online, also update the backend
       const isOnline = navigator.onLine;
@@ -1786,7 +1790,7 @@ const Payments = () => {
             amount_paid: client.monthly_fee,
             payment_date: today.toISOString().split('T')[0],
             payment_method: "Manual Entry",
-            notes: "Payment recorded via PWA"
+            notes: `Payment recorded via PWA - Client reactivated from ${client.status || 'Unknown'} to Active`
           };
           console.log("🔍 Debug - Payment data:", paymentData);
           
@@ -1811,7 +1815,7 @@ const Payments = () => {
         }
       }
       
-      alert(`✅ Payment marked as received for ${client.name}.\nNext payment due: ${nextPaymentDate.toLocaleDateString()}\n${isOnline ? '🌐 Synced to server' : '📱 Saved locally (will sync when online)'}`);
+      alert(`✅ Payment recorded for ${client.name}!\n\n💳 Amount: $${client.monthly_fee}\n📅 Next payment due: ${nextPaymentDate.toLocaleDateString()}\n🎯 Status: ACTIVE\n${isOnline ? '🌐 Synced to server' : '📱 Saved locally (will sync when online)'}`);
       fetchPaymentData(); // Refresh data
       
     } catch (error) {
