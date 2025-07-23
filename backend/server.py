@@ -253,9 +253,30 @@ async def get_clients():
     # Convert date strings back to date objects
     for client in clients:
         if 'start_date' in client and isinstance(client['start_date'], str):
-            client['start_date'] = datetime.fromisoformat(client['start_date']).date()
+            try:
+                client['start_date'] = datetime.fromisoformat(client['start_date']).date()
+            except ValueError:
+                # Handle legacy date format or invalid dates
+                client['start_date'] = date.today()
+        elif 'start_date' not in client:
+            # Handle clients without start_date (legacy)
+            client['start_date'] = date.today()
+            
         if 'next_payment_date' in client and isinstance(client['next_payment_date'], str):
-            client['next_payment_date'] = datetime.fromisoformat(client['next_payment_date']).date()
+            try:
+                client['next_payment_date'] = datetime.fromisoformat(client['next_payment_date']).date()
+            except ValueError:
+                # Handle legacy date format or calculate from start_date
+                start_date = client.get('start_date', date.today())
+                if isinstance(start_date, str):
+                    start_date = datetime.fromisoformat(start_date).date()
+                client['next_payment_date'] = calculate_next_payment_date(start_date)
+        elif 'next_payment_date' not in client:
+            # Handle clients without next_payment_date (legacy)
+            start_date = client.get('start_date', date.today())
+            if isinstance(start_date, str):
+                start_date = datetime.fromisoformat(start_date).date()
+            client['next_payment_date'] = calculate_next_payment_date(start_date)
     
     return [Client(**client) for client in clients]
 
