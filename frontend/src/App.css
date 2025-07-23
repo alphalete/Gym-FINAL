@@ -529,6 +529,7 @@ tbody tr:hover {
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
   padding: 0;
   margin-left: 0;
 }
@@ -563,8 +564,29 @@ tbody tr:hover {
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
   touch-action: pan-y;
   padding: 1.5rem;
+}
+
+/* Smooth scrolling for all scrollable elements */
+.pwa-scrollable-section::-webkit-scrollbar {
+  width: 8px;
+}
+
+.pwa-scrollable-section::-webkit-scrollbar-track {
+  background: #1f2937;
+  border-radius: 4px;
+}
+
+.pwa-scrollable-section::-webkit-scrollbar-thumb {
+  background: #dc2626;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.pwa-scrollable-section::-webkit-scrollbar-thumb:hover {
+  background: #b91c1c;
 }
 
 /* Desktop navigation spacing */
