@@ -341,6 +341,7 @@ const ClientManagement = () => {
     try {
       // Get backend URL from environment
       const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      console.log("Sending payment reminder to:", client.email, "Client ID:", client.id);
       
       const response = await fetch(`${backendUrl}/api/email/payment-reminder`, {
         method: 'POST',
@@ -348,18 +349,19 @@ const ClientManagement = () => {
         body: JSON.stringify({ client_id: client.id })
       });
       
+      console.log("Response status:", response.status);
       const result = await response.json();
+      console.log("Response data:", result);
       
-      if (result.offline) {
-        alert("You're offline. Email functionality requires an internet connection.");
-      } else if (result.success) {
-        alert(`Payment reminder sent successfully to ${result.client_email || client.email}`);
+      if (response.ok && result.success) {
+        alert(`✅ Payment reminder sent successfully to ${result.client_email || client.email}`);
       } else {
-        alert(`Failed to send payment reminder: ${result.message}`);
+        console.error("Failed to send email:", result);
+        alert(`❌ Failed to send payment reminder: ${result.message || 'Unknown error'}`);
       }
     } catch (error) {
       console.error("Error sending payment reminder:", error);
-      alert("Error sending payment reminder. Please check your internet connection and try again.");
+      alert(`❌ Error sending payment reminder: ${error.message}`);
     }
   };
 
