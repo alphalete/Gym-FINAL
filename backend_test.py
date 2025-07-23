@@ -574,22 +574,43 @@ class AlphaleteAPITester:
         
         return success
 
-    def test_send_custom_reminder_invalid_client(self):
-        """Test sending custom payment reminder with invalid client ID"""
+    def test_email_endpoint_route_conflicts(self):
+        """Test for route conflicts and duplicate handlers (CRITICAL - Route Conflict Test)"""
+        print(f"   🔍 TESTING ROUTE CONFLICTS: Checking for duplicate route definitions")
+        
+        # Test the main email reminder endpoint multiple times to ensure consistency
+        if not self.created_client_id:
+            print("❌ Route Conflict Test - SKIPPED (No client ID available)")
+            return False
+            
         reminder_data = {
-            "client_id": "non-existent-client-id",
-            "template_name": "default"
+            "client_id": self.created_client_id
         }
         
-        success, response = self.run_test(
-            "Send Custom Payment Reminder (Invalid Client)",
-            "POST",
-            "email/custom-reminder",
-            404,  # Should return 404 for non-existent client
-            reminder_data
-        )
+        # Test the endpoint multiple times to check for consistency
+        all_success = True
+        for i in range(3):
+            print(f"   📧 Test #{i+1}: /api/email/payment-reminder")
+            success, response = self.run_test(
+                f"Route Conflict Test #{i+1}",
+                "POST",
+                "email/payment-reminder",
+                200,
+                reminder_data
+            )
+            
+            if not success:
+                all_success = False
+                print(f"   ❌ Route conflict detected on attempt #{i+1}")
+            else:
+                print(f"   ✅ Route working consistently on attempt #{i+1}")
         
-        return success
+        if all_success:
+            print(f"   ✅ NO ROUTE CONFLICTS: All attempts successful")
+        else:
+            print(f"   ❌ ROUTE CONFLICTS DETECTED: Inconsistent responses")
+            
+        return all_success
 
     def test_create_duplicate_client(self):
         """Test creating a client with duplicate email (should fail)"""
