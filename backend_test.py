@@ -598,15 +598,21 @@ class AlphaleteAPITester:
                 self.test_get_specific_client,
             ]),
             
-            # Email System Integration
+            # Email System Integration (UPDATED WITH NEW TEMPLATE FEATURES)
             ("Email System Integration", [
+                self.test_get_email_templates,
                 self.test_send_individual_payment_reminder,
+                self.test_send_custom_reminder_default_template,
+                self.test_send_custom_reminder_professional_template,
+                self.test_send_custom_reminder_friendly_template,
+                self.test_send_custom_reminder_minimal_data,
                 self.test_send_bulk_payment_reminders,
             ]),
             
-            # Error Handling & Edge Cases
+            # Error Handling & Edge Cases (UPDATED WITH TEMPLATE ERROR TESTS)
             ("Error Handling", [
                 self.test_create_duplicate_client,
+                self.test_send_custom_reminder_invalid_client,
                 self.test_error_handling,
             ])
         ]
