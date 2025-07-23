@@ -102,6 +102,8 @@ class CustomEmailRequest(BaseModel):
     custom_subject: Optional[str] = None
     custom_message: Optional[str] = None
     template_name: Optional[str] = "default"
+    custom_amount: Optional[float] = None
+    custom_due_date: Optional[str] = None
 
 class PaymentReminderRequest(BaseModel):
     client_id: str
