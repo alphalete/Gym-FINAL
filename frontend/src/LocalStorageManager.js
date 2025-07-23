@@ -23,15 +23,22 @@ class LocalStorageManager {
   // Initialize IndexedDB
   async initDB() {
     return new Promise((resolve, reject) => {
+      console.log("🔍 LocalStorageManager: Initializing IndexedDB...");
       const request = indexedDB.open(this.dbName, this.version);
       
-      request.onerror = () => reject(request.error);
+      request.onerror = () => {
+        console.error("🔍 LocalStorageManager: IndexedDB open error:", request.error);
+        reject(request.error);
+      };
+      
       request.onsuccess = () => {
         this.db = request.result;
+        console.log("🔍 LocalStorageManager: IndexedDB opened successfully");
         resolve(this.db);
       };
       
       request.onupgradeneeded = (event) => {
+        console.log("🔍 LocalStorageManager: IndexedDB upgrade needed");
         const db = event.target.result;
         
         // Create clients store
@@ -40,22 +47,26 @@ class LocalStorageManager {
           clientStore.createIndex('email', 'email', { unique: true });
           clientStore.createIndex('name', 'name', { unique: false });
           clientStore.createIndex('membership_type', 'membership_type', { unique: false });
+          console.log("🔍 LocalStorageManager: Created clients store");
         }
         
         // Create membership types store
         if (!db.objectStoreNames.contains('membershipTypes')) {
           const membershipStore = db.createObjectStore('membershipTypes', { keyPath: 'id' });
           membershipStore.createIndex('name', 'name', { unique: true });
+          console.log("🔍 LocalStorageManager: Created membershipTypes store");
         }
         
         // Create sync queue store
         if (!db.objectStoreNames.contains('syncQueue')) {
           db.createObjectStore('syncQueue', { keyPath: 'id', autoIncrement: true });
+          console.log("🔍 LocalStorageManager: Created syncQueue store");
         }
         
         // Create app settings store
         if (!db.objectStoreNames.contains('settings')) {
           db.createObjectStore('settings', { keyPath: 'key' });
+          console.log("🔍 LocalStorageManager: Created settings store");
         }
       };
     });
