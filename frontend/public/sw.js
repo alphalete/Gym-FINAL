@@ -79,70 +79,78 @@ async function handleApiRequest(request) {
   // For email endpoints, always try network first (need internet)
   if (url.pathname.includes('/email/')) {
     try {
-      const response = await fetch(request);
+      console.log('Service Worker: Handling email request:', url.pathname);
+      
+      // Clone the request to avoid consumption issues
+      const networkRequest = request.clone();
+      
+      // Add timeout for mobile networks
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      
+      const response = await fetch(networkRequest, {
+        signal: controller.signal,
+        credentials: 'include',
+        mode: 'cors'
+      });
+      
+      clearTimeout(timeoutId);
+      
+      console.log('Service Worker: Email request successful:', response.status);
       return response;
     } catch (error) {
-      // Return offline message for email endpoints
+      console.error('Service Worker: Email request failed:', error);
+      
+      // Return more detailed offline message for email endpoints
       return new Response(
         JSON.stringify({
           success: false,
-          message: 'Email functionality requires internet connection',
-          offline: true
+          message: `Email functionality requires internet connection. Error: ${error.message}`,
+          offline: true,
+          error_type: error.name
         }),
         {
-          status: 200,
+          status: 503,
           headers: { 'Content-Type': 'application/json' }
         }
       );
     }
   }
   
-  // For other API endpoints, try cache first, then network
+  // For other API endpoints (clients, membership-types), try cache first
   try {
-    // Try network first for fresh data
-    const networkResponse = await fetch(request);
+    // Try network first for better data freshness
+    const response = await fetch(request);
     
-    if (networkResponse.ok) {
-      // Cache successful responses
+    // Cache successful responses
+    if (response.ok && (url.pathname.includes('/clients') || url.pathname.includes('/membership-types'))) {
       const cache = await caches.open(API_CACHE_NAME);
-      const responseClone = networkResponse.clone();
-      await cache.put(request, responseClone);
-      
-      return networkResponse;
+      cache.put(request, response.clone());
     }
-  } catch (error) {
-    console.log('Service Worker: Network request failed, trying cache');
-  }
-  
-  // If network fails, try cache
-  const cachedResponse = await caches.match(request);
-  if (cachedResponse) {
-    // Add offline indicator to cached responses
-    const data = await cachedResponse.json();
-    const offlineResponse = {
-      ...data,
-      offline: true,
-      cachedAt: cachedResponse.headers.get('date')
-    };
     
-    return new Response(JSON.stringify(offlineResponse), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-  
-  // If no cache available, return offline message
-  return new Response(
-    JSON.stringify({
-      error: 'Offline and no cached data available',
-      offline: true,
-      message: 'This feature requires an internet connection for first use'
-    }),
-    {
-      status: 503,
-      headers: { 'Content-Type': 'application/json' }
+    return response;
+  } catch (error) {
+    console.log('Service Worker: Network failed, trying cache for:', url.pathname);
+    
+    // Try cache as fallback
+    const cachedResponse = await caches.match(request);
+    if (cachedResponse) {
+      return cachedResponse;
     }
-  );
+    
+    // Return error response if no cache available
+    return new Response(
+      JSON.stringify({
+        success: false,
+        message: 'No internet connection and no cached data available',
+        offline: true
+      }),
+      {
+        status: 503,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
 }
 
 // Handle static requests with cache-first strategy
