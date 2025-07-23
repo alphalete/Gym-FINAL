@@ -489,8 +489,8 @@ class AlphaleteAPITester:
 
 def main():
     """Main function"""
-    print("🏋️‍♂️ ALPHALETE ATHLETICS CLUB - API TESTING")
-    print("Testing backend API functionality...")
+    print("🏋️‍♂️ ALPHALETE ATHLETICS CLUB - ENHANCED API TESTING")
+    print("Testing new membership types management and enhanced client features...")
     print()
     
     tester = AlphaleteAPITester()
