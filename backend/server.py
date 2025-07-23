@@ -417,6 +417,45 @@ async def send_custom_payment_reminder(reminder_request: CustomEmailRequest):
         client_email=client_obj.email
     )
 
+@api_router.post("/email/payment-reminder", response_model=EmailResponse)
+async def send_payment_reminder(reminder_request: CustomEmailRequest):
+    """Send payment reminder to a specific client"""
+    # Get client details
+    client = await db.clients.find_one({"id": reminder_request.client_id})
+    if not client:
+        raise HTTPException(status_code=404, detail="Client not found")
+    
+    # Convert date strings back to date objects if needed
+    if 'start_date' in client and isinstance(client['start_date'], str):
+        client['start_date'] = datetime.fromisoformat(client['start_date']).date()
+    if 'next_payment_date' in client and isinstance(client['next_payment_date'], str):
+        client['next_payment_date'] = datetime.fromisoformat(client['next_payment_date']).date()
+    
+    client_obj = Client(**client)
+    
+    # Use custom amount or client's monthly fee
+    amount = reminder_request.custom_amount or client_obj.monthly_fee
+    
+    # Use custom due date or client's next payment date
+    due_date = reminder_request.custom_due_date or client_obj.next_payment_date.strftime("%B %d, %Y")
+    
+    # Send email with customization
+    success = email_service.send_payment_reminder(
+        client_email=client_obj.email,
+        client_name=client_obj.name,
+        amount=amount,
+        due_date=due_date,
+        template_name=reminder_request.template_name or "default",
+        custom_subject=reminder_request.custom_subject,
+        custom_message=reminder_request.custom_message
+    )
+    
+    return EmailResponse(
+        success=success,
+        message="Payment reminder sent successfully!" if success else "Failed to send payment reminder",
+        client_email=client_obj.email
+    )
+
 @api_router.post("/payments/record")
 async def record_client_payment(payment_request: PaymentRecordRequest):
     """Record a payment and update client's next payment date"""
