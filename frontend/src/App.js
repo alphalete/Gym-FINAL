@@ -121,16 +121,18 @@ const Navigation = ({ currentPage }) => {
   );
 };
 
-// Main Layout Component
+// Main Layout Component with Scroll Fix
 const Layout = ({ children }) => {
   const location = useLocation();
   
   return (
-    <div className="min-h-screen bg-gray-900 text-white pt-12">
+    <div className="pwa-container">
       <PWAStatus />
       <Navigation currentPage={location.pathname} />
-      <div className="md:ml-64">
-        {children}
+      <div className="pwa-main-content">
+        <div className="pwa-scrollable-content">
+          {children}
+        </div>
       </div>
     </div>
   );
