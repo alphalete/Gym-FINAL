@@ -358,7 +358,7 @@ async def test_email():
     }
 
 @api_router.post("/email/payment-reminder", response_model=EmailResponse)
-async def send_payment_reminder(reminder_request: PaymentReminderRequest):
+async def send_payment_reminder(reminder_request: CustomEmailRequest):
     """Send payment reminder to a specific client"""
     # Get client details
     client = await db.clients.find_one({"id": reminder_request.client_id})
