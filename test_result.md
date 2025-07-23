@@ -246,10 +246,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Fix Email Payment Reminder 404 Error"
-    - "Automatic Invoice Email on Payment Recording"
-    - "Individual Email Reminder API"
-    - "Payment Recording API"
+    - "Email Service Online Status Detection"
+    - "Frontend Email Error Handling"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
