@@ -116,6 +116,9 @@ backend:
       - working: false
         agent: "user"
         comment: "User reports email says need to be connected but they are online"
+      - working: false
+        agent: "main"
+        comment: "Backend error found in logs: bulk payment reminder failing due to missing start_date field in Client model validation"
 
 frontend:
   - task: "Client Information Scrolling Fix"
