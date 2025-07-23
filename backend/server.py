@@ -389,31 +389,64 @@ async def send_bulk_payment_reminders():
     results = []
     
     for client_data in clients:
-        # Convert date strings back to date objects if needed
-        if 'start_date' in client_data and isinstance(client_data['start_date'], str):
-            client_data['start_date'] = datetime.fromisoformat(client_data['start_date']).date()
-        if 'next_payment_date' in client_data and isinstance(client_data['next_payment_date'], str):
-            client_data['next_payment_date'] = datetime.fromisoformat(client_data['next_payment_date']).date()
-        
-        client_obj = Client(**client_data)
-        
-        success = email_service.send_payment_reminder(
-            client_email=client_obj.email,
-            client_name=client_obj.name,
-            amount=client_obj.monthly_fee,
-            due_date=client_obj.next_payment_date.strftime("%B %d, %Y")
-        )
-        
-        if success:
-            sent_count += 1
-        else:
-            failed_count += 1
+        try:
+            # Convert date strings back to date objects if needed and handle missing fields
+            if 'start_date' in client_data and isinstance(client_data['start_date'], str):
+                try:
+                    client_data['start_date'] = datetime.fromisoformat(client_data['start_date']).date()
+                except ValueError:
+                    # Handle legacy date format or invalid dates
+                    client_data['start_date'] = date.today()
+            elif 'start_date' not in client_data:
+                # Handle clients without start_date (legacy)
+                client_data['start_date'] = date.today()
+                
+            if 'next_payment_date' in client_data and isinstance(client_data['next_payment_date'], str):
+                try:
+                    client_data['next_payment_date'] = datetime.fromisoformat(client_data['next_payment_date']).date()
+                except ValueError:
+                    # Handle legacy date format or calculate from start_date
+                    start_date = client_data.get('start_date', date.today())
+                    if isinstance(start_date, str):
+                        start_date = datetime.fromisoformat(start_date).date()
+                    client_data['next_payment_date'] = calculate_next_payment_date(start_date)
+            elif 'next_payment_date' not in client_data:
+                # Handle clients without next_payment_date (legacy)
+                start_date = client_data.get('start_date', date.today())
+                if isinstance(start_date, str):
+                    start_date = datetime.fromisoformat(start_date).date()
+                client_data['next_payment_date'] = calculate_next_payment_date(start_date)
             
-        results.append({
-            "client_name": client_obj.name,
-            "client_email": client_obj.email,
-            "success": success
-        })
+            client_obj = Client(**client_data)
+            
+            success = email_service.send_payment_reminder(
+                client_email=client_obj.email,
+                client_name=client_obj.name,
+                amount=client_obj.monthly_fee,
+                due_date=client_obj.next_payment_date.strftime("%B %d, %Y")
+            )
+            
+            if success:
+                sent_count += 1
+            else:
+                failed_count += 1
+                
+            results.append({
+                "client_name": client_obj.name,
+                "client_email": client_obj.email,
+                "success": success
+            })
+            
+        except Exception as e:
+            # Handle any other validation errors gracefully
+            logger.error(f"Error processing client {client_data.get('name', 'Unknown')}: {str(e)}")
+            failed_count += 1
+            results.append({
+                "client_name": client_data.get('name', 'Unknown'),
+                "client_email": client_data.get('email', 'Unknown'),
+                "success": False,
+                "error": str(e)
+            })
     
     return {
         "total_clients": len(clients),
