@@ -806,12 +806,13 @@ const Reports = () => (
   </div>
 );
 
-// Enhanced Settings Component with Membership Types Management
+// Enhanced Settings Component with Better Membership Types Management
 const Settings = () => {
   const [membershipTypes, setMembershipTypes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [editingType, setEditingType] = useState(null);
   const [isAddingNew, setIsAddingNew] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     monthly_fee: 0,
@@ -837,6 +838,8 @@ const Settings = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSaving(true);
+    
     try {
       if (editingType) {
         // Update existing membership type
@@ -855,6 +858,8 @@ const Settings = () => {
     } catch (error) {
       console.error("Error saving membership type:", error);
       alert("Error saving membership type: " + (error.response?.data?.detail || error.message));
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -864,7 +869,7 @@ const Settings = () => {
       name: membershipType.name,
       monthly_fee: membershipType.monthly_fee,
       description: membershipType.description,
-      features: membershipType.features || []
+      features: [...(membershipType.features || [])] // Create a copy of the features array
     });
     setIsAddingNew(false);
   };
@@ -881,11 +886,11 @@ const Settings = () => {
     setFormData({ name: "", monthly_fee: 0, description: "", features: [] });
   };
 
-  const deleteMembershipType = async (id) => {
-    if (window.confirm("Are you sure you want to delete this membership type?")) {
+  const deleteMembershipType = async (id, name) => {
+    if (window.confirm(`Are you sure you want to delete the "${name}" membership type? This will deactivate it but not remove it completely.`)) {
       try {
         await axios.delete(`${API}/membership-types/${id}`);
-        alert("Membership type deleted successfully!");
+        alert("Membership type deactivated successfully!");
         fetchMembershipTypes();
       } catch (error) {
         console.error("Error deleting membership type:", error);
@@ -922,160 +927,238 @@ const Settings = () => {
         <p className="text-gray-400">Configure your gym management system and membership types.</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Membership Types Management */}
-        <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold">Membership Types</h2>
-            <button
-              onClick={startAddNew}
-              className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg font-semibold text-sm"
-            >
-              ➕ Add New Type
-            </button>
+      <div className="max-w-6xl mx-auto">
+        {/* Header with Add Button */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-semibold">Membership Types Management</h2>
+            <p className="text-gray-400 text-sm">Create, edit, and manage your gym membership plans</p>
           </div>
-
-          {loading ? (
-            <div className="text-center py-4">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto"></div>
-              <p className="mt-2 text-gray-400">Loading...</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {membershipTypes.map((type) => (
-                <div key={type.id} className="border border-gray-600 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center space-x-3">
-                      <h3 className="font-semibold">{type.name}</h3>
-                      <span className="text-green-400 font-bold">${type.monthly_fee}/month</span>
-                    </div>
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => startEdit(type)}
-                        className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm"
-                      >
-                        ✏️
-                      </button>
-                      <button
-                        onClick={() => deleteMembershipType(type.id)}
-                        className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm"
-                      >
-                        🗑️
-                      </button>
-                    </div>
-                  </div>
-                  <p className="text-gray-400 text-sm mb-2">{type.description}</p>
-                  {type.features && type.features.length > 0 && (
-                    <div className="text-xs text-gray-300">
-                      <strong>Features:</strong> {type.features.slice(0, 3).join(", ")}
-                      {type.features.length > 3 && ` +${type.features.length - 3} more`}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
+          <button
+            onClick={startAddNew}
+            className="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg font-semibold flex items-center space-x-2"
+          >
+            <span>➕</span>
+            <span>Add New Type</span>
+          </button>
         </div>
 
-        {/* Add/Edit Form */}
-        <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
-          <h2 className="text-xl font-semibold mb-6">
-            {editingType ? "Edit Membership Type" : isAddingNew ? "Add New Membership Type" : "Membership Type Form"}
-          </h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Membership Types List */}
+          <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
+            <h3 className="text-lg font-semibold mb-4">Current Membership Types</h3>
 
-          {(editingType || isAddingNew) ? (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">Name *</label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  required
-                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-red-600 focus:border-transparent"
-                  placeholder="e.g., Premium"
-                />
+            {loading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto"></div>
+                <p className="mt-2 text-gray-400">Loading...</p>
               </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">Monthly Fee ($) *</label>
-                <input
-                  type="number"
-                  value={formData.monthly_fee}
-                  onChange={(e) => setFormData(prev => ({ ...prev, monthly_fee: parseFloat(e.target.value) || 0 }))}
-                  required
-                  min="0"
-                  step="0.01"
-                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-red-600 focus:border-transparent"
-                  placeholder="75.00"
-                />
+            ) : membershipTypes.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="text-4xl mb-4">📝</div>
+                <p className="text-gray-400 mb-4">No membership types configured yet.</p>
+                <button
+                  onClick={startAddNew}
+                  className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg font-semibold"
+                >
+                  Add Your First Type
+                </button>
               </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">Description *</label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  required
-                  rows="3"
-                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-red-600 focus:border-transparent"
-                  placeholder="Brief description of this membership type"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">Features</label>
-                <div className="space-y-2">
-                  {formData.features.map((feature, index) => (
-                    <div key={index} className="flex items-center space-x-2">
-                      <input
-                        type="text"
-                        value={feature}
-                        onChange={(e) => updateFeature(index, e.target.value)}
-                        className="flex-1 bg-gray-700 border border-gray-600 rounded px-3 py-2 focus:ring-2 focus:ring-red-600 focus:border-transparent"
-                        placeholder="Enter feature"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeFeature(index)}
-                        className="bg-red-600 hover:bg-red-700 px-3 py-2 rounded text-sm"
-                      >
-                        ✕
-                      </button>
+            ) : (
+              <div className="space-y-4">
+                {membershipTypes.map((type) => (
+                  <div key={type.id} className={`border rounded-lg p-4 transition-all ${
+                    editingType && editingType.id === type.id 
+                      ? 'border-red-600 bg-red-600/5' 
+                      : 'border-gray-600'
+                  }`}>
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3 mb-2">
+                          <h4 className="font-semibold text-lg">{type.name}</h4>
+                          <span className="text-green-400 font-bold text-lg">${type.monthly_fee}/month</span>
+                        </div>
+                        <p className="text-gray-400 text-sm mb-2">{type.description}</p>
+                        {type.features && type.features.length > 0 && (
+                          <div className="text-xs text-gray-300">
+                            <div className="font-semibold mb-1">Features:</div>
+                            <ul className="list-disc list-inside space-y-1">
+                              {type.features.slice(0, 4).map((feature, index) => (
+                                <li key={index}>{feature}</li>
+                              ))}
+                              {type.features.length > 4 && (
+                                <li className="text-gray-400">... and {type.features.length - 4} more features</li>
+                              )}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex space-x-2 ml-4">
+                        <button
+                          onClick={() => startEdit(type)}
+                          className="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded text-sm font-semibold"
+                          title="Edit Membership Type"
+                        >
+                          ✏️ Edit
+                        </button>
+                        <button
+                          onClick={() => deleteMembershipType(type.id, type.name)}
+                          className="bg-red-600 hover:bg-red-700 px-3 py-2 rounded text-sm font-semibold"
+                          title="Delete Membership Type"
+                        >
+                          🗑️ Delete
+                        </button>
+                      </div>
                     </div>
-                  ))}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Add/Edit Form */}
+          <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold">
+                {editingType ? `Edit "${editingType.name}" Membership` : isAddingNew ? "Add New Membership Type" : "Membership Type Editor"}
+              </h3>
+              {(editingType || isAddingNew) && (
+                <button
+                  onClick={cancelEdit}
+                  className="text-gray-400 hover:text-gray-200"
+                  title="Cancel"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {(editingType || isAddingNew) ? (
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Membership Name *</label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                    required
+                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-600 focus:border-transparent"
+                    placeholder="e.g., Premium, Elite, VIP"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Monthly Fee ($) *</label>
+                  <input
+                    type="number"
+                    value={formData.monthly_fee}
+                    onChange={(e) => setFormData(prev => ({ ...prev, monthly_fee: parseFloat(e.target.value) || 0 }))}
+                    required
+                    min="0"
+                    step="0.01"
+                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-600 focus:border-transparent"
+                    placeholder="75.00"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Description *</label>
+                  <textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                    required
+                    rows="3"
+                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-600 focus:border-transparent"
+                    placeholder="Brief description of this membership type..."
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Features & Benefits</label>
+                  <div className="space-y-2">
+                    {formData.features.map((feature, index) => (
+                      <div key={index} className="flex items-center space-x-2">
+                        <input
+                          type="text"
+                          value={feature}
+                          onChange={(e) => updateFeature(index, e.target.value)}
+                          className="flex-1 bg-gray-700 border border-gray-600 rounded px-3 py-2 focus:ring-2 focus:ring-red-600 focus:border-transparent"
+                          placeholder="Enter feature or benefit"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeFeature(index)}
+                          className="bg-red-600 hover:bg-red-700 px-3 py-2 rounded text-sm font-semibold"
+                          title="Remove Feature"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={addFeature}
+                      className="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded text-sm font-semibold"
+                    >
+                      ➕ Add Feature
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">Add features and benefits that come with this membership</p>
+                </div>
+
+                <div className="flex space-x-4 pt-6">
+                  <button
+                    type="submit"
+                    disabled={saving}
+                    className="flex-1 bg-green-600 hover:bg-green-700 disabled:opacity-50 px-6 py-3 rounded-lg font-semibold"
+                  >
+                    {saving ? (editingType ? "Updating..." : "Creating...") : (editingType ? "Update Membership Type" : "Create Membership Type")}
+                  </button>
                   <button
                     type="button"
-                    onClick={addFeature}
-                    className="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded text-sm"
+                    onClick={cancelEdit}
+                    className="bg-gray-600 hover:bg-gray-700 px-6 py-3 rounded-lg font-semibold"
                   >
-                    ➕ Add Feature
+                    Cancel
                   </button>
                 </div>
+              </form>
+            ) : (
+              <div className="text-center py-12">
+                <div className="text-6xl mb-4">⚙️</div>
+                <p className="text-gray-400 text-lg mb-4">Select a membership type to edit</p>
+                <p className="text-gray-500 text-sm mb-6">Or click "Add New Type" to create a new membership plan</p>
+                <button
+                  onClick={startAddNew}
+                  className="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg font-semibold"
+                >
+                  ➕ Add New Membership Type
+                </button>
               </div>
+            )}
+          </div>
+        </div>
 
-              <div className="flex space-x-4 pt-4">
-                <button
-                  type="submit"
-                  className="bg-green-600 hover:bg-green-700 px-6 py-2 rounded-lg font-semibold"
-                >
-                  {editingType ? "Update" : "Create"} Membership Type
-                </button>
-                <button
-                  type="button"
-                  onClick={cancelEdit}
-                  className="bg-gray-600 hover:bg-gray-700 px-6 py-2 rounded-lg font-semibold"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          ) : (
-            <div className="text-center py-8">
-              <div className="text-4xl mb-4">⚙️</div>
-              <p className="text-gray-400">Select a membership type to edit or add a new one</p>
+        {/* Quick Actions */}
+        <div className="mt-8 bg-gray-800 rounded-lg border border-gray-700 p-6">
+          <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-gray-700 p-4 rounded-lg">
+              <h4 className="font-semibold mb-2">📊 View Analytics</h4>
+              <p className="text-sm text-gray-400 mb-3">See which membership types are most popular</p>
+              <Link to="/reports" className="text-blue-400 hover:text-blue-300 text-sm">Go to Reports →</Link>
             </div>
-          )}
+            <div className="bg-gray-700 p-4 rounded-lg">
+              <h4 className="font-semibold mb-2">👥 Manage Clients</h4>
+              <p className="text-sm text-gray-400 mb-3">View and manage all your gym members</p>
+              <Link to="/clients" className="text-blue-400 hover:text-blue-300 text-sm">Go to Clients →</Link>
+            </div>
+            <div className="bg-gray-700 p-4 rounded-lg">
+              <h4 className="font-semibold mb-2">📧 Email Center</h4>
+              <p className="text-sm text-gray-400 mb-3">Send payment reminders to clients</p>
+              <Link to="/email-center" className="text-blue-400 hover:text-blue-300 text-sm">Go to Email Center →</Link>
+            </div>
+          </div>
         </div>
       </div>
     </div>
