@@ -1490,6 +1490,13 @@ const Payments = () => {
 
   useEffect(() => {
     fetchPaymentData();
+    // Initialize sample data if needed (for Payment Management)
+    setTimeout(async () => {
+      const result = await localDB.getClients();
+      if (result.data.length === 0) {
+        console.log("🔍 Payment Management - No clients found, sample data may be loading...");
+      }
+    }, 1000);
   }, []);
 
   const getPaymentStatus = (nextPaymentDate) => {
