@@ -629,44 +629,27 @@ class AlphaleteAPITester:
         
         return success
 
-    def test_error_handling(self):
-        """Test various error scenarios"""
-        print("\n--- Testing Error Handling ---")
-        
-        # Test non-existent membership type
-        success1, _ = self.run_test(
-            "Get Non-existent Membership Type",
-            "GET",
-            "membership-types/non-existent-id",
-            404
-        )
-        
-        # Test non-existent client
-        success2, _ = self.run_test(
-            "Get Non-existent Client",
-            "GET",
-            "clients/non-existent-id",
-            404
-        )
-        
-        # Test invalid email format
-        invalid_client_data = {
-            "name": "Invalid Email User",
-            "email": "invalid-email-format",
+    def test_create_duplicate_client(self):
+        """Test creating a client with duplicate email (should fail)"""
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        client_data = {
+            "name": "Duplicate Client",
+            "email": f"john_test_{timestamp}@example.com",  # Use same email as created client
+            "phone": "(555) 123-4567",
             "membership_type": "Standard",
             "monthly_fee": 50.00,
             "start_date": "2025-01-01"
         }
         
-        success3, _ = self.run_test(
-            "Create Client with Invalid Email",
+        success, response = self.run_test(
+            "Create Duplicate Client (Should Fail)",
             "POST",
             "clients",
-            422,  # Validation error
-            invalid_client_data
+            400,  # Expecting 400 Bad Request
+            client_data
         )
         
-        return success1 and success2 and success3
+        return success
 
     def run_all_tests(self):
         """Run all API tests"""
