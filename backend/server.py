@@ -105,7 +105,11 @@ async def create_client(client_data: ClientCreate):
     if existing_client:
         raise HTTPException(status_code=400, detail="Client with this email already exists")
     
-    await db.clients.insert_one(client_obj.dict())
+    # Convert date to string for MongoDB storage
+    client_dict_for_db = client_obj.dict()
+    client_dict_for_db['next_payment_date'] = client_obj.next_payment_date.isoformat()
+    
+    await db.clients.insert_one(client_dict_for_db)
     return client_obj
 
 @api_router.get("/clients", response_model=List[Client])
