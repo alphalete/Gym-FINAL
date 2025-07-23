@@ -422,9 +422,10 @@ class LocalStorageManager {
 
   // Get connection status
   getConnectionStatus() {
+    const isOnline = navigator.onLine && window.navigator.onLine;
     return {
-      online: this.isOnline,
-      message: this.isOnline ? 'Connected' : 'Offline - Data stored locally'
+      online: isOnline,
+      message: isOnline ? 'Connected - All features available' : 'Offline - Data stored locally'
     };
   }
 }
