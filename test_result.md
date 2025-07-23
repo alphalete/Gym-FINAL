@@ -211,53 +211,20 @@ backend:
         comment: "VERIFIED: Bulk email reminder API (/api/email/payment-reminder/bulk) is working perfectly. Successfully sent payment reminders to all 27 active clients with 100% success rate (27/27 sent successfully, 0 failed). The previous timeout issues were due to sequential email processing taking time, but the endpoint completes successfully when given adequate timeout (60+ seconds). All emails are being delivered properly."
 
 frontend:
-  - task: "Client Information Scrolling Fix"
+  - task: "Frontend Email Error Handling"
     implemented: true
-    working: true
-    file: "frontend/src/App.js, frontend/src/App.css"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: true
-    status_history:
-      - working: false
-        agent: "user"
-        comment: "User cannot scroll on client information section"
-      - working: false
-        agent: "main"
-        comment: "Multiple CSS scroll fixes attempted but scrolling still not working"
-      - working: true
-        agent: "main"
-        comment: "Fixed CSS classes and added proper PWA scrolling structure with pwa-page-container, pwa-page-header, pwa-search-section, and pwa-scrollable-section classes"
-        
-  - task: "Reports Page Functionality"
-    implemented: true
-    working: true
+    working: false
     file: "frontend/src/App.js"
     stuck_count: 0
-    priority: "high"
+    priority: "medium"
     needs_retesting: true
     status_history:
       - working: false
         agent: "user"
-        comment: "User requested to fix reports page"
-      - working: true
-        agent: "main"
-        comment: "Reports page already implemented with proper PWA scrolling structure - should work with CSS fixes applied"
-        
-  - task: "Payment Management Page"  
-    implemented: true
-    working: true
-    file: "frontend/src/App.js"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: true
-    status_history:
+        comment: "User still seeing 404 errors on frontend when sending payment reminders despite backend fixes"
       - working: false
-        agent: "user"
-        comment: "User requested to fix payment management section"
-      - working: true
         agent: "main"
-        comment: "Implemented full Payment Management component with payment tracking, statistics, status indicators, and actions"
+        comment: "Frontend may need to be updated to handle the corrected backend API responses after duplicate route removal"
 
 metadata:
   created_by: "main_agent"
