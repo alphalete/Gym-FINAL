@@ -410,6 +410,8 @@ const Dashboard = () => {
   const initializeSampleData = async () => {
     try {
       const result = await localDB.getClients();
+      console.log("🔍 Debug - Current clients count:", result.data.length);
+      
       if (result.data.length === 0) {
         // Add sample clients for testing
         const sampleClients = [
@@ -444,17 +446,44 @@ const Dashboard = () => {
 
         console.log("🔍 Debug - Adding sample clients for testing...");
         for (const client of sampleClients) {
-          await localDB.addClient(client);
-          console.log(`✅ Added sample client: ${client.name}`);
+          const addedClient = await localDB.addClient(client);
+          console.log(`✅ Added sample client: ${client.name}`, addedClient);
         }
         
         alert("🎯 Sample clients added for testing!\n\n✅ John Smith (Premium - $99.99)\n✅ Sarah Johnson (Basic - $59.99)\n✅ Mike Davis (Premium - $99.99)\n\nYou can now test email and payment features!");
+        
+        // Refresh the dashboard data
+        fetchClients();
         return true;
+      } else {
+        console.log("🔍 Debug - Existing clients found:", result.data.map(c => ({ name: c.name, status: c.status })));
       }
       return false;
     } catch (error) {
       console.error("Error initializing sample data:", error);
       return false;
+    }
+  };
+
+  // Debug function to clear all data and reinitialize
+  const resetData = async () => {
+    if (confirm("⚠️ This will delete all client data and add fresh sample clients. Continue?")) {
+      try {
+        // Clear all clients
+        const clients = await localDB.getClients();
+        for (const client of clients.data) {
+          await localDB.deleteClient(client.id);
+        }
+        console.log("🔍 Debug - All clients cleared");
+        
+        // Re-initialize sample data
+        await initializeSampleData();
+        
+        alert("✅ Data reset complete! Fresh sample clients added.");
+      } catch (error) {
+        console.error("Error resetting data:", error);
+        alert("❌ Error resetting data: " + error.message);
+      }
     }
   };
 
