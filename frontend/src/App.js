@@ -785,15 +785,23 @@ const ClientManagement = () => {
     }
 
     try {
-      // Get backend URL from environment
+      // Get backend URL from environment with explicit debugging
       const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-      console.log("🔍 Debug - Backend URL:", backendUrl);
+      const expectedUrl = "https://6b64051f-ce9a-4270-be16-1060b67d4f80.preview.emergentagent.com";
+      
+      console.log("🔍 Debug - Backend URL from env:", backendUrl);
+      console.log("🔍 Debug - Expected URL:", expectedUrl);
+      console.log("🔍 Debug - URL match:", backendUrl === expectedUrl);
       console.log("🔍 Debug - Sending payment reminder to:", client.email, "Client ID:", client.id);
+      
+      // Use the expected URL if there's a mismatch
+      const finalUrl = backendUrl || expectedUrl;
       
       const requestBody = { client_id: client.id };
       console.log("🔍 Debug - Request body:", requestBody);
+      console.log("🔍 Debug - Final URL:", `${finalUrl}/api/email/payment-reminder`);
       
-      const response = await fetch(`${backendUrl}/api/email/payment-reminder`, {
+      const response = await fetch(`${finalUrl}/api/email/payment-reminder`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody)
@@ -801,19 +809,26 @@ const ClientManagement = () => {
       
       console.log("🔍 Debug - Response status:", response.status);
       console.log("🔍 Debug - Response ok:", response.ok);
+      console.log("🔍 Debug - Response headers:", Object.fromEntries(response.headers.entries()));
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("🔍 Debug - Error response text:", errorText);
+        throw new Error(`HTTP ${response.status}: ${errorText || 'Unknown server error'}`);
+      }
       
       const result = await response.json();
       console.log("🔍 Debug - Response data:", result);
       
-      if (response.ok && result.success) {
+      if (result.success) {
         alert(`✅ Payment reminder sent successfully to ${result.client_email || client.email}`);
       } else {
         console.error("❌ Failed to send email:", result);
-        alert(`❌ Failed to send payment reminder: ${result.message || 'Unknown error'}\n\nDebug info:\n- Status: ${response.status}\n- Client ID: ${client.id}\n- Backend URL: ${backendUrl}`);
+        alert(`❌ Failed to send payment reminder: ${result.message || 'Unknown error'}\n\nDebug info:\n- Status: ${response.status}\n- Client ID: ${client.id}\n- Backend URL: ${finalUrl}`);
       }
     } catch (error) {
       console.error("❌ Error sending payment reminder:", error);
-      alert(`❌ Error sending payment reminder: ${error.message}\n\nDebug info:\n- Client ID: ${client.id}\n- Check browser console for details`);
+      alert(`❌ Error sending payment reminder: ${error.message}\n\nDebug info:\n- Client ID: ${client.id}\n- Please check browser console for more details`);
     }
   };
 
