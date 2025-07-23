@@ -1139,19 +1139,221 @@ const Payments = () => (
   </div>
 );
 
-const Reports = () => (
-  <div className="p-6">
-    <div className="mb-6">
-      <h1 className="text-3xl font-bold mb-2">Reports & Analytics</h1>
-      <p className="text-gray-400">View detailed reports and business insights (offline ready).</p>
+// Reports Component - Full Implementation
+const Reports = () => {
+  const [clients, setClients] = useState([]);
+  const [membershipTypes, setMembershipTypes] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [reportData, setReportData] = useState({
+    totalRevenue: 0,
+    avgMembershipFee: 0,
+    membershipDistribution: {},
+    monthlyGrowth: [],
+    topMemberships: []
+  });
+
+  const fetchReportData = async () => {
+    try {
+      setLoading(true);
+      const clientsResult = await localDB.getClients();
+      const typesResult = await localDB.getMembershipTypes();
+      
+      setClients(clientsResult.data);
+      setMembershipTypes(typesResult.data);
+      
+      // Calculate report metrics
+      const activeClients = clientsResult.data.filter(c => c.status === 'Active');
+      const totalRevenue = activeClients.reduce((sum, c) => sum + c.monthly_fee, 0);
+      const avgFee = activeClients.length > 0 ? totalRevenue / activeClients.length : 0;
+      
+      // Membership distribution
+      const distribution = {};
+      activeClients.forEach(client => {
+        distribution[client.membership_type] = (distribution[client.membership_type] || 0) + 1;
+      });
+      
+      // Top memberships by revenue
+      const membershipRevenue = {};
+      activeClients.forEach(client => {
+        membershipRevenue[client.membership_type] = (membershipRevenue[client.membership_type] || 0) + client.monthly_fee;
+      });
+      
+      const topMemberships = Object.entries(membershipRevenue)
+        .sort(([,a], [,b]) => b - a)
+        .slice(0, 5);
+      
+      setReportData({
+        totalRevenue,
+        avgMembershipFee: avgFee,
+        membershipDistribution: distribution,
+        topMemberships
+      });
+      
+    } catch (error) {
+      console.error("Error fetching report data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchReportData();
+  }, []);
+
+  return (
+    <div className="pwa-page-container">
+      <div className="pwa-page-header">
+        <h1 className="text-3xl font-bold mb-2">Reports & Analytics</h1>
+        <p className="text-gray-400">View detailed reports and business insights from your local data.</p>
+      </div>
+
+      <div className="pwa-scrollable-section">
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+            <p className="mt-4 text-gray-400">Generating reports...</p>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {/* Revenue Overview */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-gradient-to-r from-green-600 to-green-700 p-6 rounded-lg">
+                <h3 className="text-green-200 text-sm font-semibold">Total Monthly Revenue</h3>
+                <p className="text-3xl font-bold text-white">${reportData.totalRevenue.toFixed(2)}</p>
+                <p className="text-green-200 text-sm mt-2">From {clients.filter(c => c.status === 'Active').length} active members</p>
+              </div>
+              
+              <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 rounded-lg">
+                <h3 className="text-blue-200 text-sm font-semibold">Average Membership Fee</h3>
+                <p className="text-3xl font-bold text-white">${reportData.avgMembershipFee.toFixed(2)}</p>
+                <p className="text-blue-200 text-sm mt-2">Per member per month</p>
+              </div>
+              
+              <div className="bg-gradient-to-r from-purple-600 to-purple-700 p-6 rounded-lg">
+                <h3 className="text-purple-200 text-sm font-semibold">Total Members</h3>
+                <p className="text-3xl font-bold text-white">{clients.length}</p>
+                <p className="text-purple-200 text-sm mt-2">{clients.filter(c => c.status === 'Active').length} active, {clients.filter(c => c.status !== 'Active').length} inactive</p>
+              </div>
+            </div>
+
+            {/* Membership Distribution */}
+            <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
+              <h3 className="text-xl font-semibold mb-4">Membership Distribution</h3>
+              {Object.keys(reportData.membershipDistribution).length === 0 ? (
+                <p className="text-gray-400">No membership data available</p>
+              ) : (
+                <div className="space-y-4">
+                  {Object.entries(reportData.membershipDistribution).map(([type, count]) => {
+                    const percentage = ((count / clients.filter(c => c.status === 'Active').length) * 100).toFixed(1);
+                    return (
+                      <div key={type} className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-4 h-4 bg-red-600 rounded"></div>
+                          <span className="font-semibold">{type}</span>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                          <div className="w-32 bg-gray-700 rounded-full h-2">
+                            <div 
+                              className="bg-red-600 h-2 rounded-full"
+                              style={{ width: `${percentage}%` }}
+                            ></div>
+                          </div>
+                          <span className="text-sm font-semibold w-16">{count} ({percentage}%)</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Top Revenue Memberships */}
+            <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
+              <h3 className="text-xl font-semibold mb-4">Top Revenue Memberships</h3>
+              {reportData.topMemberships.length === 0 ? (
+                <p className="text-gray-400">No revenue data available</p>
+              ) : (
+                <div className="space-y-3">
+                  {reportData.topMemberships.map(([type, revenue], index) => (
+                    <div key={type} className="flex items-center justify-between p-3 bg-gray-700 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <span className="text-2xl">{index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '🏅'}</span>
+                        <div>
+                          <p className="font-semibold">{type}</p>
+                          <p className="text-sm text-gray-400">{reportData.membershipDistribution[type] || 0} members</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg font-bold text-green-400">${revenue.toFixed(2)}</p>
+                        <p className="text-sm text-gray-400">monthly</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Client Status Overview */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
+                <h3 className="text-xl font-semibold mb-4">Client Status</h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-green-400">● Active Members</span>
+                    <span className="font-bold">{clients.filter(c => c.status === 'Active').length}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-red-400">● Inactive Members</span>
+                    <span className="font-bold">{clients.filter(c => c.status !== 'Active').length}</span>
+                  </div>
+                  <div className="flex justify-between items-center border-t border-gray-700 pt-3">
+                    <span className="text-white font-semibold">Total</span>
+                    <span className="font-bold">{clients.length}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
+                <h3 className="text-xl font-semibold mb-4">Quick Actions</h3>
+                <div className="space-y-3">
+                  <Link to="/clients" className="block w-full bg-blue-600 hover:bg-blue-700 px-4 py-3 rounded-lg text-center font-semibold transition">
+                    📊 View All Clients
+                  </Link>
+                  <Link to="/add-client" className="block w-full bg-green-600 hover:bg-green-700 px-4 py-3 rounded-lg text-center font-semibold transition">
+                    ➕ Add New Client
+                  </Link>
+                  <Link to="/settings" className="block w-full bg-purple-600 hover:bg-purple-700 px-4 py-3 rounded-lg text-center font-semibold transition">
+                    ⚙️ Manage Memberships
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Data Export */}
+            <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
+              <h3 className="text-xl font-semibold mb-4">Export Data</h3>
+              <p className="text-gray-400 mb-4">Export your data for backup or external analysis</p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button 
+                  onClick={() => alert('CSV export feature coming soon!')}
+                  className="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg font-semibold"
+                >
+                  📄 Export to CSV
+                </button>
+                <button 
+                  onClick={() => alert('JSON export feature coming soon!')}
+                  className="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg font-semibold"
+                >
+                  📋 Export to JSON
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
-    <div className="bg-gray-800 rounded-lg border border-gray-700 p-8 text-center">
-      <div className="text-6xl mb-4">📈</div>
-      <p className="text-xl text-gray-400">Detailed analytics coming soon!</p>
-      <p className="text-sm text-gray-500 mt-2">Will generate reports from local data</p>
-    </div>
-  </div>
-);
+  );
+};
 
 const EmailCenter = () => (
   <div className="p-6">
