@@ -504,51 +504,26 @@ async def record_client_payment(payment_request: PaymentRecordRequest):
     # You could optionally store payment records in a separate collection
     # await db.payment_records.insert_one(payment_record)
     
+    # Send automatic invoice email
+    invoice_success = email_service.send_payment_invoice(
+        client_email=client_obj.email,
+        client_name=client_obj.name,
+        amount_paid=payment_request.amount_paid,
+        payment_date=payment_request.payment_date.strftime("%B %d, %Y"),
+        payment_method=payment_request.payment_method,
+        notes=payment_request.notes
+    )
+    
     return {
         "success": True,
         "message": f"Payment recorded successfully for {client_obj.name}",
         "client_name": client_obj.name,
         "amount_paid": payment_request.amount_paid,
         "new_next_payment_date": new_next_payment_date.strftime("%B %d, %Y"),
-        "payment_record": payment_record
+        "payment_record": payment_record,
+        "invoice_sent": invoice_success,
+        "invoice_message": "Invoice email sent successfully!" if invoice_success else "Invoice email failed to send"
     }
-async def send_payment_reminder(reminder_request: CustomEmailRequest):
-    """Send payment reminder to a specific client"""
-    # Get client details
-    client = await db.clients.find_one({"id": reminder_request.client_id})
-    if not client:
-        raise HTTPException(status_code=404, detail="Client not found")
-    
-    # Convert date strings back to date objects if needed
-    if 'start_date' in client and isinstance(client['start_date'], str):
-        client['start_date'] = datetime.fromisoformat(client['start_date']).date()
-    if 'next_payment_date' in client and isinstance(client['next_payment_date'], str):
-        client['next_payment_date'] = datetime.fromisoformat(client['next_payment_date']).date()
-    
-    client_obj = Client(**client)
-    
-    # Use custom amount or client's monthly fee
-    amount = reminder_request.custom_amount or client_obj.monthly_fee
-    
-    # Use custom due date or client's next payment date
-    due_date = reminder_request.custom_due_date or client_obj.next_payment_date.strftime("%B %d, %Y")
-    
-    # Send email
-    success = email_service.send_payment_reminder(
-        client_email=client_obj.email,
-        client_name=client_obj.name,
-        amount=amount,
-        due_date=due_date,
-        template_name=reminder_request.template_name or "default",
-        custom_subject=reminder_request.custom_subject,
-        custom_message=reminder_request.custom_message
-    )
-    
-    return EmailResponse(
-        success=success,
-        message="Payment reminder sent successfully!" if success else "Failed to send payment reminder",
-        client_email=client_obj.email
-    )
 
 @api_router.post("/email/payment-reminder/bulk")
 async def send_bulk_payment_reminders():
