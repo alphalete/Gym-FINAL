@@ -87,6 +87,123 @@ class AlphaleteAPITester:
             print(f"   Health message: {response['message']}")
         return success
 
+    def test_membership_types_seed(self):
+        """Test seeding default membership types"""
+        success, response = self.run_test(
+            "Seed Default Membership Types",
+            "POST",
+            "membership-types/seed",
+            200
+        )
+        if success:
+            print(f"   Seeded types: {response.get('created_types', [])}")
+        return success
+
+    def test_get_membership_types(self):
+        """Test getting all membership types"""
+        success, response = self.run_test(
+            "Get All Membership Types",
+            "GET",
+            "membership-types",
+            200
+        )
+        if success:
+            print(f"   Found {len(response)} membership types:")
+            for mt in response:
+                print(f"   - {mt['name']}: ${mt['monthly_fee']} ({mt['description']})")
+        return success
+
+    def test_create_membership_type(self):
+        """Test creating a new membership type"""
+        new_membership_data = {
+            "name": "Student",
+            "monthly_fee": 30.00,
+            "description": "Special discount for students with valid ID",
+            "features": ["Equipment Access", "Study Area", "Student Discount", "Flexible Hours"],
+            "is_active": True
+        }
+        
+        success, response = self.run_test(
+            "Create Student Membership Type",
+            "POST",
+            "membership-types",
+            200,
+            new_membership_data
+        )
+        
+        if success and "id" in response:
+            self.created_membership_types.append(response["id"])
+            print(f"   Created membership type ID: {response['id']}")
+            print(f"   Name: {response['name']}")
+            print(f"   Fee: ${response['monthly_fee']}")
+        
+        return success
+
+    def test_update_membership_type(self):
+        """Test updating a membership type"""
+        if not self.created_membership_types:
+            print("❌ Update Membership Type - SKIPPED (No membership type ID available)")
+            return False
+            
+        membership_id = self.created_membership_types[0]
+        update_data = {
+            "monthly_fee": 35.00,
+            "description": "Updated student membership with more benefits",
+            "features": ["Equipment Access", "Study Area", "Student Discount", "Group Classes", "Extended Hours"]
+        }
+        
+        success, response = self.run_test(
+            "Update Student Membership Type",
+            "PUT",
+            f"membership-types/{membership_id}",
+            200,
+            update_data
+        )
+        
+        if success:
+            print(f"   Updated fee: ${response.get('monthly_fee')}")
+            print(f"   Updated description: {response.get('description')}")
+        
+        return success
+
+    def test_get_specific_membership_type(self):
+        """Test getting a specific membership type"""
+        if not self.created_membership_types:
+            print("❌ Get Specific Membership Type - SKIPPED (No membership type ID available)")
+            return False
+            
+        membership_id = self.created_membership_types[0]
+        success, response = self.run_test(
+            "Get Specific Membership Type",
+            "GET",
+            f"membership-types/{membership_id}",
+            200
+        )
+        
+        if success:
+            print(f"   Retrieved: {response.get('name')} - ${response.get('monthly_fee')}")
+        
+        return success
+
+    def test_delete_membership_type(self):
+        """Test soft deleting a membership type"""
+        if not self.created_membership_types:
+            print("❌ Delete Membership Type - SKIPPED (No membership type ID available)")
+            return False
+            
+        membership_id = self.created_membership_types[0]
+        success, response = self.run_test(
+            "Soft Delete Membership Type",
+            "DELETE",
+            f"membership-types/{membership_id}",
+            200
+        )
+        
+        if success:
+            print(f"   Deletion message: {response.get('message')}")
+        
+        return success
+
     def test_email_configuration(self):
         """Test email configuration"""
         success, response = self.run_test(
