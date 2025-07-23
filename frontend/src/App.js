@@ -1110,6 +1110,39 @@ function App() {
     // Initialize PWA
     console.log('Alphalete PWA initialized');
     
+    // Force scroll behavior fix for PWA
+    const fixScrolling = () => {
+      // Enable scrolling on body and document
+      document.body.style.overflow = 'auto';
+      document.body.style.webkitOverflowScrolling = 'touch';
+      document.body.style.height = 'auto';
+      document.body.style.minHeight = '100vh';
+      
+      // Fix for iOS Safari
+      document.body.style.touchAction = 'pan-y pinch-zoom';
+      
+      // Find the main scrollable content
+      const scrollableContent = document.querySelector('.pwa-scrollable-content');
+      if (scrollableContent) {
+        scrollableContent.style.overflowY = 'auto';
+        scrollableContent.style.webkitOverflowScrolling = 'touch';
+        scrollableContent.style.touchAction = 'pan-y';
+      }
+      
+      // Fix any tables
+      const tables = document.querySelectorAll('.overflow-x-auto');
+      tables.forEach(table => {
+        table.style.overflowX = 'auto';
+        table.style.webkitOverflowScrolling = 'touch';
+        table.style.touchAction = 'pan-x pan-y';
+      });
+    };
+    
+    // Apply fixes immediately and after a delay
+    fixScrolling();
+    setTimeout(fixScrolling, 100);
+    setTimeout(fixScrolling, 500);
+    
     // Remove loading screen after app loads
     const loadingScreen = document.getElementById('loading-screen');
     if (loadingScreen) {
@@ -1117,9 +1150,25 @@ function App() {
         loadingScreen.style.opacity = '0';
         setTimeout(() => {
           loadingScreen.style.display = 'none';
+          // Apply scroll fixes again after loading screen is removed
+          fixScrolling();
         }, 500);
       }, 1000);
     }
+    
+    // Add event listener for orientation changes
+    const handleOrientationChange = () => {
+      setTimeout(fixScrolling, 100);
+    };
+    
+    window.addEventListener('orientationchange', handleOrientationChange);
+    window.addEventListener('resize', handleOrientationChange);
+    
+    // Cleanup
+    return () => {
+      window.removeEventListener('orientationchange', handleOrientationChange);
+      window.removeEventListener('resize', handleOrientationChange);
+    };
   }, []);
 
   return (
