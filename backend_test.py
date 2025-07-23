@@ -352,6 +352,160 @@ class AlphaleteAPITester:
         
         return success
 
+    def test_get_email_templates(self):
+        """Test getting available email templates"""
+        success, response = self.run_test(
+            "Get Email Templates",
+            "GET",
+            "email/templates",
+            200
+        )
+        
+        if success:
+            templates = response.get('templates', {})
+            print(f"   Available templates: {len(templates)}")
+            for template_key, template_info in templates.items():
+                print(f"   - {template_key}: {template_info.get('name')} - {template_info.get('description')}")
+        
+        return success
+
+    def test_send_custom_reminder_default_template(self):
+        """Test sending custom payment reminder with default template"""
+        if not self.created_client_id:
+            print("❌ Send Custom Reminder (Default) - SKIPPED (No client ID available)")
+            return False
+            
+        reminder_data = {
+            "client_id": self.created_client_id,
+            "template_name": "default",
+            "custom_subject": "Custom Subject - Payment Due",
+            "custom_message": "This is a custom message for testing the default template.",
+            "custom_amount": 125.50,
+            "custom_due_date": "February 15, 2025"
+        }
+        
+        success, response = self.run_test(
+            "Send Custom Payment Reminder (Default Template)",
+            "POST",
+            "email/custom-reminder",
+            200,
+            reminder_data
+        )
+        
+        if success:
+            print(f"   Email sent to: {response.get('client_email')}")
+            print(f"   Success: {response.get('success')}")
+            print(f"   Message: {response.get('message')}")
+            print(f"   Template used: default")
+        
+        return success
+
+    def test_send_custom_reminder_professional_template(self):
+        """Test sending custom payment reminder with professional template"""
+        if not self.created_client_id:
+            print("❌ Send Custom Reminder (Professional) - SKIPPED (No client ID available)")
+            return False
+            
+        reminder_data = {
+            "client_id": self.created_client_id,
+            "template_name": "professional",
+            "custom_subject": "Payment Due Notice - Professional Style",
+            "custom_message": "We appreciate your continued membership with our professional services.",
+            "custom_amount": 150.00,
+            "custom_due_date": "March 1, 2025"
+        }
+        
+        success, response = self.run_test(
+            "Send Custom Payment Reminder (Professional Template)",
+            "POST",
+            "email/custom-reminder",
+            200,
+            reminder_data
+        )
+        
+        if success:
+            print(f"   Email sent to: {response.get('client_email')}")
+            print(f"   Success: {response.get('success')}")
+            print(f"   Message: {response.get('message')}")
+            print(f"   Template used: professional")
+        
+        return success
+
+    def test_send_custom_reminder_friendly_template(self):
+        """Test sending custom payment reminder with friendly template"""
+        if not self.created_client_id:
+            print("❌ Send Custom Reminder (Friendly) - SKIPPED (No client ID available)")
+            return False
+            
+        reminder_data = {
+            "client_id": self.created_client_id,
+            "template_name": "friendly",
+            "custom_subject": "Hey! Payment Time 💪",
+            "custom_message": "Hope you're crushing those fitness goals! Just a friendly reminder about your payment.",
+            "custom_amount": 99.99,
+            "custom_due_date": "February 28, 2025"
+        }
+        
+        success, response = self.run_test(
+            "Send Custom Payment Reminder (Friendly Template)",
+            "POST",
+            "email/custom-reminder",
+            200,
+            reminder_data
+        )
+        
+        if success:
+            print(f"   Email sent to: {response.get('client_email')}")
+            print(f"   Success: {response.get('success')}")
+            print(f"   Message: {response.get('message')}")
+            print(f"   Template used: friendly")
+        
+        return success
+
+    def test_send_custom_reminder_minimal_data(self):
+        """Test sending custom payment reminder with minimal data (should use defaults)"""
+        if not self.created_client_id:
+            print("❌ Send Custom Reminder (Minimal) - SKIPPED (No client ID available)")
+            return False
+            
+        reminder_data = {
+            "client_id": self.created_client_id
+            # No template_name, custom_subject, custom_message, etc. - should use defaults
+        }
+        
+        success, response = self.run_test(
+            "Send Custom Payment Reminder (Minimal Data)",
+            "POST",
+            "email/custom-reminder",
+            200,
+            reminder_data
+        )
+        
+        if success:
+            print(f"   Email sent to: {response.get('client_email')}")
+            print(f"   Success: {response.get('success')}")
+            print(f"   Message: {response.get('message')}")
+            print(f"   Template used: default (fallback)")
+        
+        return success
+
+    def test_send_custom_reminder_invalid_client(self):
+        """Test sending custom payment reminder with invalid client ID"""
+        reminder_data = {
+            "client_id": "non-existent-client-id",
+            "template_name": "default"
+        }
+        
+        success, response = self.run_test(
+            "Send Custom Payment Reminder (Invalid Client)",
+            "POST",
+            "email/custom-reminder",
+            404,  # Should return 404 for non-existent client
+            reminder_data
+        )
+        
+        return success
+
     def test_create_duplicate_client(self):
         """Test creating a client with duplicate email (should fail)"""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
