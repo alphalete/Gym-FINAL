@@ -379,7 +379,10 @@ async def send_payment_reminder(reminder_request: CustomEmailRequest):
         client_email=client_obj.email,
         client_name=client_obj.name,
         amount=amount,
-        due_date=due_date
+        due_date=due_date,
+        template_name=reminder_request.template_name or "default",
+        custom_subject=reminder_request.custom_subject,
+        custom_message=reminder_request.custom_message
     )
     
     return EmailResponse(
