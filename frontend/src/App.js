@@ -825,6 +825,25 @@ const ClientManagement = () => {
     setCustomEmailModal({ isOpen: false, client: null });
   };
 
+  const toggleClientStatus = async (client) => {
+    try {
+      const newStatus = client.status === 'Active' ? 'Inactive' : 'Active';
+      console.log(`🔍 Debug - Toggling ${client.name} status from ${client.status} to ${newStatus}`);
+      
+      await localDB.updateClient(client.id, {
+        status: newStatus,
+        updated_at: new Date().toISOString()
+      });
+      
+      alert(`✅ ${client.name} status changed to: ${newStatus}`);
+      fetchPaymentData(); // Refresh data
+      
+    } catch (error) {
+      console.error("❌ Error toggling client status:", error);
+      alert(`❌ Error updating client status: ${error.message}`);
+    }
+  };
+
   const filteredClients = clients.filter(client =>
     client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     client.email.toLowerCase().includes(searchTerm.toLowerCase())
