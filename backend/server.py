@@ -110,6 +110,13 @@ class EmailResponse(BaseModel):
     message: str
     client_email: str
 
+class PaymentRecordRequest(BaseModel):
+    client_id: str
+    amount_paid: float
+    payment_date: date
+    payment_method: Optional[str] = "Cash"
+    notes: Optional[str] = None
+
 # Helper function to calculate next payment date
 def calculate_next_payment_date(start_date: date) -> date:
     return start_date + timedelta(days=30)
