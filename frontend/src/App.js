@@ -825,6 +825,26 @@ const ClientManagement = () => {
     setCustomEmailModal({ isOpen: false, client: null });
   };
 
+  const deleteClient = async (client) => {
+    if (!confirm(`⚠️ Are you sure you want to delete ${client.name}?\n\nThis action cannot be undone and will remove all client data including payment history.`)) {
+      return;
+    }
+    
+    try {
+      console.log(`🔍 Debug - Deleting client: ${client.name} (ID: ${client.id})`);
+      
+      await localDB.deleteClient(client.id);
+      console.log("✅ Client deleted from local storage");
+      
+      alert(`✅ ${client.name} has been deleted successfully.`);
+      fetchClients(); // Refresh the client list
+      
+    } catch (error) {
+      console.error("❌ Error deleting client:", error);
+      alert(`❌ Error deleting client: ${error.message}`);
+    }
+  };
+
   const toggleClientStatus = async (client) => {
     try {
       const newStatus = client.status === 'Active' ? 'Inactive' : 'Active';
