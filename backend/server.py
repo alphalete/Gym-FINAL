@@ -116,6 +116,13 @@ async def create_client(client_data: ClientCreate):
 async def get_clients():
     """Get all clients"""
     clients = await db.clients.find().to_list(1000)
+    
+    # Convert date strings back to date objects
+    for client in clients:
+        if 'next_payment_date' in client and isinstance(client['next_payment_date'], str):
+            from datetime import datetime
+            client['next_payment_date'] = datetime.fromisoformat(client['next_payment_date']).date()
+    
     return [Client(**client) for client in clients]
 
 @api_router.get("/clients/{client_id}", response_model=Client)
