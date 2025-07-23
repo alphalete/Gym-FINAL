@@ -417,7 +417,62 @@ async def send_custom_payment_reminder(reminder_request: CustomEmailRequest):
         client_email=client_obj.email
     )
 
-@api_router.post("/email/payment-reminder", response_model=EmailResponse)
+@api_router.post("/payments/record")
+async def record_client_payment(payment_request: PaymentRecordRequest):
+    """Record a payment and update client's next payment date"""
+    # Get client details
+    client = await db.clients.find_one({"id": payment_request.client_id})
+    if not client:
+        raise HTTPException(status_code=404, detail="Client not found")
+    
+    # Convert date strings back to date objects if needed
+    if 'start_date' in client and isinstance(client['start_date'], str):
+        client['start_date'] = datetime.fromisoformat(client['start_date']).date()
+    if 'next_payment_date' in client and isinstance(client['next_payment_date'], str):
+        client['next_payment_date'] = datetime.fromisoformat(client['next_payment_date']).date()
+    
+    client_obj = Client(**client)
+    
+    # Calculate new next payment date (30 days from payment date)
+    new_next_payment_date = payment_request.payment_date + timedelta(days=30)
+    
+    # Update client's next payment date
+    await db.clients.update_one(
+        {"id": payment_request.client_id}, 
+        {
+            "$set": {
+                "next_payment_date": new_next_payment_date.isoformat(),
+                "updated_at": datetime.utcnow()
+            }
+        }
+    )
+    
+    # Record the payment (you could store this in a separate payments collection if needed)
+    payment_record = {
+        "id": str(uuid.uuid4()),
+        "client_id": payment_request.client_id,
+        "client_name": client_obj.name,
+        "client_email": client_obj.email,
+        "amount_paid": payment_request.amount_paid,
+        "payment_date": payment_request.payment_date.isoformat(),
+        "payment_method": payment_request.payment_method,
+        "notes": payment_request.notes,
+        "previous_due_date": client_obj.next_payment_date.isoformat(),
+        "new_due_date": new_next_payment_date.isoformat(),
+        "recorded_at": datetime.utcnow()
+    }
+    
+    # You could optionally store payment records in a separate collection
+    # await db.payment_records.insert_one(payment_record)
+    
+    return {
+        "success": True,
+        "message": f"Payment recorded successfully for {client_obj.name}",
+        "client_name": client_obj.name,
+        "amount_paid": payment_request.amount_paid,
+        "new_next_payment_date": new_next_payment_date.strftime("%B %d, %Y"),
+        "payment_record": payment_record
+    }
 async def send_payment_reminder(reminder_request: CustomEmailRequest):
     """Send payment reminder to a specific client"""
     # Get client details
