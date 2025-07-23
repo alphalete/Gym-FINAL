@@ -506,6 +506,60 @@ tbody tr:hover {
   }
 }
 
+/* PWA Container and Scroll Fixes */
+.pwa-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background-color: #111827;
+  color: white;
+}
+
+.pwa-main-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  margin-top: 48px; /* Space for status bar */
+}
+
+.pwa-scrollable-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 0;
+  margin-left: 0;
+}
+
+/* Desktop navigation spacing */
+@media (min-width: 768px) {
+  .pwa-scrollable-content {
+    margin-left: 256px; /* 64 * 4 = 256px for sidebar */
+  }
+}
+
+/* Force scrolling on all content */
+.pwa-scrollable-content * {
+  -webkit-overflow-scrolling: touch !important;
+}
+
+/* Override any fixed positioning issues */
+.pwa-scrollable-content .p-6,
+.pwa-scrollable-content .p-4,
+.pwa-scrollable-content .p-8 {
+  overflow: visible !important;
+  height: auto !important;
+}
+
+/* Table container fix */
+.pwa-scrollable-content .overflow-x-auto {
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
 /* PWA specific fixes */
 .pwa-safe-area {
   padding-top: env(safe-area-inset-top);
