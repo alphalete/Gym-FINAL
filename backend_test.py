@@ -342,6 +342,13 @@ class AlphaleteAPITester:
             print(f"   Total clients: {response.get('total_clients', 0)}")
             print(f"   Sent successfully: {response.get('sent_successfully', 0)}")
             print(f"   Failed: {response.get('failed', 0)}")
+            
+            # Show some results if available
+            results = response.get('results', [])
+            if results:
+                print(f"   Sample results:")
+                for i, result in enumerate(results[:3]):  # Show first 3 results
+                    print(f"     {i+1}. {result.get('client_name')} ({result.get('client_email')}): {'✅' if result.get('success') else '❌'}")
         
         return success
 
