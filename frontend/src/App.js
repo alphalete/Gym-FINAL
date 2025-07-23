@@ -1126,20 +1126,309 @@ const Settings = () => {
   );
 };
 
-// Placeholder Components
-const Payments = () => (
-  <div className="p-6">
-    <div className="mb-6">
-      <h1 className="text-3xl font-bold mb-2">Payment Tracking</h1>
-      <p className="text-gray-400">Monitor client payments and outstanding balances (offline ready).</p>
+// Payment Management Component - Full Implementation
+const Payments = () => {
+  const [clients, setClients] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [paymentStats, setPaymentStats] = useState({
+    totalRevenue: 0,
+    pendingPayments: 0,
+    overduePayments: 0,
+    thisMonthRevenue: 0
+  });
+
+  const fetchPaymentData = async () => {
+    try {
+      setLoading(true);
+      const result = await localDB.getClients();
+      const activeClients = result.data.filter(c => c.status === 'Active');
+      setClients(activeClients);
+      
+      // Calculate payment statistics
+      const today = new Date();
+      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      
+      let totalRevenue = 0;
+      let pendingPayments = 0;
+      let overduePayments = 0;
+      let thisMonthRevenue = 0;
+      
+      activeClients.forEach(client => {
+        const nextPaymentDate = new Date(client.next_payment_date);
+        const fee = client.monthly_fee || 0;
+        
+        totalRevenue += fee;
+        
+        // Check if payment is due this month
+        if (nextPaymentDate >= startOfMonth && nextPaymentDate <= today) {
+          thisMonthRevenue += fee;
+        }
+        
+        // Check if payment is pending (due in next 7 days)
+        const daysUntilDue = Math.ceil((nextPaymentDate - today) / (1000 * 60 * 60 * 24));
+        if (daysUntilDue <= 7 && daysUntilDue >= 0) {
+          pendingPayments += 1;
+        }
+        
+        // Check if payment is overdue
+        if (nextPaymentDate < today) {
+          overduePayments += 1;
+        }
+      });
+      
+      setPaymentStats({
+        totalRevenue,
+        pendingPayments,
+        overduePayments,
+        thisMonthRevenue
+      });
+      
+    } catch (error) {
+      console.error("Error fetching payment data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPaymentData();
+  }, []);
+
+  const getPaymentStatus = (nextPaymentDate) => {
+    const today = new Date();
+    const paymentDate = new Date(nextPaymentDate);
+    const daysUntilDue = Math.ceil((paymentDate - today) / (1000 * 60 * 60 * 24));
+    
+    if (daysUntilDue < 0) {
+      return { status: 'overdue', label: 'Overdue', class: 'bg-red-900 text-red-300' };
+    } else if (daysUntilDue <= 7) {
+      return { status: 'due-soon', label: 'Due Soon', class: 'bg-orange-900 text-orange-300' };
+    } else {
+      return { status: 'upcoming', label: 'Upcoming', class: 'bg-green-900 text-green-300' };
+    }
+  };
+
+  const sendPaymentReminder = async (client) => {
+    const isOnline = navigator.onLine;
+    
+    if (!isOnline) {
+      alert("Email functionality requires an internet connection. Please check your connection and try again.");
+      return;
+    }
+
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      
+      const response = await fetch(`${backendUrl}/api/email/payment-reminder`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ client_id: client.id })
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        alert(`Payment reminder sent successfully to ${client.email}`);
+      } else {
+        alert(`Failed to send payment reminder: ${result.message}`);
+      }
+    } catch (error) {
+      console.error("Error sending payment reminder:", error);
+      alert("Error sending payment reminder. Please check your internet connection and try again.");
+    }
+  };
+
+  const markAsPaid = async (client) => {
+    try {
+      // Calculate next payment date (30 days from today)
+      const today = new Date();
+      const nextPaymentDate = new Date(today);
+      nextPaymentDate.setDate(today.getDate() + 30);
+      
+      const updatedClient = {
+        ...client,
+        next_payment_date: nextPaymentDate.toISOString().split('T')[0],
+        updated_at: new Date().toISOString()
+      };
+      
+      await localDB.updateClient(client.id, {
+        next_payment_date: nextPaymentDate.toISOString().split('T')[0]
+      });
+      
+      alert(`Payment marked as received for ${client.name}. Next payment due: ${nextPaymentDate.toLocaleDateString()}`);
+      fetchPaymentData(); // Refresh data
+      
+    } catch (error) {
+      console.error("Error marking payment as paid:", error);
+      alert("Error updating payment status.");
+    }
+  };
+
+  const filteredClients = clients.filter(client =>
+    client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    client.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  return (
+    <div className="pwa-page-container">
+      <div className="pwa-page-header">
+        <h1 className="text-3xl font-bold mb-2">Payment Management</h1>
+        <p className="text-gray-400">Track payments, send reminders, and manage billing.</p>
+      </div>
+
+      <div className="pwa-scrollable-section">
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+            <p className="mt-4 text-gray-400">Loading payment data...</p>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {/* Payment Statistics */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="bg-gradient-to-r from-green-600 to-green-700 p-6 rounded-lg">
+                <h3 className="text-green-200 text-sm font-semibold">Total Monthly Revenue</h3>
+                <p className="text-3xl font-bold text-white">${paymentStats.totalRevenue.toFixed(2)}</p>
+                <p className="text-green-200 text-sm mt-2">From {clients.length} active members</p>
+              </div>
+              
+              <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 rounded-lg">
+                <h3 className="text-blue-200 text-sm font-semibold">This Month Revenue</h3>
+                <p className="text-3xl font-bold text-white">${paymentStats.thisMonthRevenue.toFixed(2)}</p>
+                <p className="text-blue-200 text-sm mt-2">Payments due this month</p>
+              </div>
+              
+              <div className="bg-gradient-to-r from-orange-600 to-orange-700 p-6 rounded-lg">
+                <h3 className="text-orange-200 text-sm font-semibold">Pending Payments</h3>
+                <p className="text-3xl font-bold text-white">{paymentStats.pendingPayments}</p>
+                <p className="text-orange-200 text-sm mt-2">Due within 7 days</p>
+              </div>
+              
+              <div className="bg-gradient-to-r from-red-600 to-red-700 p-6 rounded-lg">
+                <h3 className="text-red-200 text-sm font-semibold">Overdue Payments</h3>
+                <p className="text-3xl font-bold text-white">{paymentStats.overduePayments}</p>
+                <p className="text-red-200 text-sm mt-2">Past due date</p>
+              </div>
+            </div>
+
+            {/* Search */}
+            <div className="bg-gray-800 rounded-lg border border-gray-700 p-4">
+              <input
+                type="text"
+                placeholder="Search clients by name or email..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-600 focus:border-transparent"
+              />
+            </div>
+
+            {/* Payment List */}
+            <div className="bg-gray-800 rounded-lg border border-gray-700">
+              <div className="p-4 border-b border-gray-700">
+                <h3 className="text-xl font-semibold">Client Payments</h3>
+                <p className="text-gray-400 text-sm">Manage individual client payments and send reminders</p>
+              </div>
+              
+              {filteredClients.length === 0 ? (
+                <div className="text-center py-8">
+                  <div className="text-6xl mb-4">💳</div>
+                  <p className="text-gray-400 text-lg">
+                    {searchTerm ? "No clients found matching your search" : "No active clients found"}
+                  </p>
+                </div>
+              ) : (
+                <div className="divide-y divide-gray-700">
+                  {filteredClients.map((client) => {
+                    const paymentStatus = getPaymentStatus(client.next_payment_date);
+                    const nextPaymentDate = new Date(client.next_payment_date);
+                    const daysUntilDue = Math.ceil((nextPaymentDate - new Date()) / (1000 * 60 * 60 * 24));
+                    
+                    return (
+                      <div key={client.id} className="p-4 hover:bg-gray-750">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-4">
+                            <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center font-semibold">
+                              {client.name.charAt(0)}
+                            </div>
+                            <div>
+                              <h4 className="font-semibold text-lg">{client.name}</h4>
+                              <p className="text-gray-400 text-sm">{client.email}</p>
+                              <p className="text-gray-500 text-xs">{client.membership_type} • ${client.monthly_fee}/month</p>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center space-x-4">
+                            <div className="text-right">
+                              <p className="font-semibold text-lg">${client.monthly_fee}</p>
+                              <p className="text-sm text-gray-400">
+                                Due: {nextPaymentDate.toLocaleDateString()}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {daysUntilDue < 0 
+                                  ? `${Math.abs(daysUntilDue)} days overdue`
+                                  : daysUntilDue === 0 
+                                    ? 'Due today'
+                                    : `${daysUntilDue} days remaining`
+                                }
+                              </p>
+                            </div>
+                            
+                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${paymentStatus.class}`}>
+                              {paymentStatus.label}
+                            </span>
+                            
+                            <div className="flex space-x-2">
+                              <button
+                                onClick={() => sendPaymentReminder(client)}
+                                className="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded text-sm font-semibold"
+                                title="Send Payment Reminder"
+                              >
+                                📧 Remind
+                              </button>
+                              <button
+                                onClick={() => markAsPaid(client)}
+                                className="bg-green-600 hover:bg-green-700 px-3 py-2 rounded text-sm font-semibold"
+                                title="Mark as Paid"
+                              >
+                                ✅ Mark Paid
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Quick Actions */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Link to="/clients" className="bg-gray-800 p-6 rounded-lg border border-gray-700 hover:border-red-600 transition-all text-center">
+                <div className="text-4xl mb-4">👥</div>
+                <h3 className="text-xl font-semibold mb-2">Manage Clients</h3>
+                <p className="text-gray-400">View and edit client information</p>
+              </Link>
+              
+              <Link to="/reports" className="bg-gray-800 p-6 rounded-lg border border-gray-700 hover:border-red-600 transition-all text-center">
+                <div className="text-4xl mb-4">📈</div>
+                <h3 className="text-xl font-semibold mb-2">View Reports</h3>
+                <p className="text-gray-400">Detailed payment analytics</p>
+              </Link>
+              
+              <Link to="/settings" className="bg-gray-800 p-6 rounded-lg border border-gray-700 hover:border-red-600 transition-all text-center">
+                <div className="text-4xl mb-4">⚙️</div>
+                <h3 className="text-xl font-semibold mb-2">Settings</h3>
+                <p className="text-gray-400">Configure membership types</p>
+              </Link>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
-    <div className="bg-gray-800 rounded-lg border border-gray-700 p-8 text-center">
-      <div className="text-6xl mb-4">💳</div>
-      <p className="text-xl text-gray-400">Payment tracking features coming soon!</p>
-      <p className="text-sm text-gray-500 mt-2">Will work offline and sync when online</p>
-    </div>
-  </div>
-);
+  );
+};
 
 // Reports Component - Full Implementation
 const Reports = () => {
