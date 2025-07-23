@@ -7,7 +7,7 @@ from datetime import datetime, date, timedelta
 from typing import Dict, Any
 
 class CriticalFunctionalityTester:
-    def __init__(self, base_url="https://6b64051f-ce9a-4270-be16-1060b67d4f80.preview.emergentagent.com"):
+    def __init__(self, base_url="https://54881f41-fb21-44a4-83a1-645c638e0fb4.preview.emergentagent.com"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
         self.tests_run = 0

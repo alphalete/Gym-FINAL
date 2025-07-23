@@ -787,7 +787,7 @@ const ClientManagement = () => {
     try {
       // Get backend URL from environment with explicit debugging
       const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-      const expectedUrl = "https://6b64051f-ce9a-4270-be16-1060b67d4f80.preview.emergentagent.com";
+      const expectedUrl = "https://54881f41-fb21-44a4-83a1-645c638e0fb4.preview.emergentagent.com";
       
       console.log("🔍 Debug - Backend URL from env:", backendUrl);
       console.log("🔍 Debug - Expected URL:", expectedUrl);
