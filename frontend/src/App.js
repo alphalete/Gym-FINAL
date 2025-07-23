@@ -1682,10 +1682,12 @@ const Payments = () => {
     try {
       setLoading(true);
       const result = await localDB.getClients();
-      const activeClients = result.data.filter(c => c.status === 'Active');
-      setClients(activeClients);
+      // Show ALL clients, not just active ones - so you can see inactive clients and reactivate them
+      const allClients = result.data;
+      setClients(allClients);
       
-      // Calculate payment statistics
+      // Calculate payment statistics (only from active clients for stats)
+      const activeClients = allClients.filter(client => client.status === 'Active');
       const today = new Date();
       const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
       
