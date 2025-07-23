@@ -409,6 +409,8 @@ async def send_custom_payment_reminder(reminder_request: CustomEmailRequest):
         message="Custom payment reminder sent successfully!" if success else "Failed to send custom payment reminder",
         client_email=client_obj.email
     )
+
+@api_router.post("/email/payment-reminder", response_model=EmailResponse)
 async def send_payment_reminder(reminder_request: CustomEmailRequest):
     """Send payment reminder to a specific client"""
     # Get client details
