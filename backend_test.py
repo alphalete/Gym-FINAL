@@ -697,6 +697,7 @@ class AlphaleteAPITester:
             # Payment Recording (CRITICAL FUNCTIONALITY)
             ("Payment Recording", [
                 self.test_record_payment,
+                self.test_record_payment_with_automatic_invoice,
             ]),
             
             # Error Handling & Edge Cases (UPDATED WITH TEMPLATE ERROR TESTS)
