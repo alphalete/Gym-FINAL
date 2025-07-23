@@ -96,6 +96,18 @@ class PaymentReminderRequest(BaseModel):
     custom_amount: Optional[float] = None
     custom_due_date: Optional[str] = None
 
+class EmailTemplateRequest(BaseModel):
+    template_name: str
+    subject: str
+    html_body: str
+    is_active: bool = True
+
+class CustomEmailRequest(BaseModel):
+    client_id: str
+    custom_subject: Optional[str] = None
+    custom_message: Optional[str] = None
+    template_name: Optional[str] = "default"
+
 class EmailResponse(BaseModel):
     success: bool
     message: str
