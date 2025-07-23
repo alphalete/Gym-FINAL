@@ -836,7 +836,7 @@ const ClientManagement = () => {
       });
       
       alert(`✅ ${client.name} status changed to: ${newStatus}`);
-      fetchPaymentData(); // Refresh data
+      fetchClients(); // Refresh data
       
     } catch (error) {
       console.error("❌ Error toggling client status:", error);
