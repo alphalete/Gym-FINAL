@@ -494,6 +494,7 @@ const ClientManagement = () => {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [customEmailModal, setCustomEmailModal] = useState({ isOpen: false, client: null });
 
   const fetchClients = async () => {
     try {
@@ -547,190 +548,222 @@ const ClientManagement = () => {
     }
   };
 
+  const openCustomEmailModal = (client) => {
+    setCustomEmailModal({ isOpen: true, client });
+  };
+
+  const closeCustomEmailModal = () => {
+    setCustomEmailModal({ isOpen: false, client: null });
+  };
+
   const filteredClients = clients.filter(client =>
     client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     client.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
-    <div className="pwa-page-container">
-      <div className="pwa-page-header">
-        <h1 className="text-3xl font-bold mb-2">Client Management</h1>
-        <p className="text-gray-400">Manage your gym members and their information.</p>
-      </div>
-
-      {/* Search and Actions */}
-      <div className="pwa-search-section">
-        <div className="flex-1">
-          <input
-            type="text"
-            placeholder="Search clients by name or email..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-600 focus:border-transparent"
-          />
+    <>
+      <div className="pwa-page-container">
+        <div className="pwa-page-header">
+          <h1 className="text-3xl font-bold mb-2">Client Management</h1>
+          <p className="text-gray-400">Manage your gym members and their information.</p>
         </div>
-        <Link
-          to="/add-client"
-          className="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg font-semibold whitespace-nowrap"
-        >
-          ➕ Add Client
-        </Link>
-      </div>
 
-      {/* Client Cards for Mobile, Table for Desktop */}
-      <div className="pwa-scrollable-section">
-        {loading ? (
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
-            <p className="mt-4 text-gray-400">Loading clients...</p>
+        {/* Search and Actions */}
+        <div className="pwa-search-section">
+          <div className="flex-1">
+            <input
+              type="text"
+              placeholder="Search clients by name or email..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-600 focus:border-transparent"
+            />
           </div>
-        ) : filteredClients.length === 0 ? (
-          <div className="text-center py-8">
-            <div className="text-6xl mb-4">💪</div>
-            <p className="text-gray-400 text-lg mb-4">
-              {searchTerm ? "No clients found matching your search" : "No clients yet"}
-            </p>
-            {!searchTerm && (
-              <Link 
-                to="/add-client"
-                className="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg font-semibold inline-block"
-              >
-                Add Your First Client
-              </Link>
-            )}
-          </div>
-        ) : (
-          <>
-            {/* Mobile Cards View */}
-            <div className="block md:hidden space-y-4">
-              {filteredClients.map((client) => (
-                <div key={client.id} className="bg-gray-800 rounded-lg border border-gray-700 p-4">
-                  <div className="flex items-center space-x-3 mb-3">
-                    <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center font-semibold">
-                      {client.name.charAt(0)}
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-lg">{client.name}</h3>
-                      <p className="text-gray-400 text-sm">{client.email}</p>
-                    </div>
-                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                      client.status === 'Active' 
-                        ? 'bg-green-900 text-green-300' 
-                        : 'bg-red-900 text-red-300'
-                    }`}>
-                      {client.status}
-                    </span>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4 text-sm mb-4">
-                    <div>
-                      <span className="text-gray-400">Phone:</span>
-                      <p>{client.phone || "N/A"}</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-400">Membership:</span>
-                      <p>{client.membership_type}</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-400">Monthly Fee:</span>
-                      <p className="text-green-400 font-semibold">${client.monthly_fee}</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-400">Next Payment:</span>
-                      <p>{new Date(client.next_payment_date).toLocaleDateString()}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => sendPaymentReminder(client)}
-                      className="flex-1 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-semibold flex items-center justify-center space-x-2"
-                    >
-                      <span>📧</span>
-                      <span>Send Reminder</span>
-                    </button>
-                    <button
-                      className="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg font-semibold"
-                      title="Edit Client"
-                    >
-                      ✏️
-                    </button>
-                  </div>
-                </div>
-              ))}
+          <Link
+            to="/add-client"
+            className="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg font-semibold whitespace-nowrap"
+          >
+            ➕ Add Client
+          </Link>
+        </div>
+
+        {/* Client Cards for Mobile, Table for Desktop */}
+        <div className="pwa-scrollable-section">
+          {loading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+              <p className="mt-4 text-gray-400">Loading clients...</p>
             </div>
-
-            {/* Desktop Table View */}
-            <div className="hidden md:block bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-700">
-                    <tr>
-                      <th className="text-left p-4">Name</th>
-                      <th className="text-left p-4">Email</th>
-                      <th className="text-left p-4">Phone</th>
-                      <th className="text-left p-4">Membership</th>
-                      <th className="text-left p-4">Monthly Fee</th>
-                      <th className="text-left p-4">Start Date</th>
-                      <th className="text-left p-4">Next Payment</th>
-                      <th className="text-left p-4">Status</th>
-                      <th className="text-left p-4">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredClients.map((client) => (
-                      <tr key={client.id} className="border-b border-gray-700 hover:bg-gray-750">
-                        <td className="p-4">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center font-semibold text-sm">
-                              {client.name.charAt(0)}
-                            </div>
-                            <div className="font-semibold">{client.name}</div>
-                          </div>
-                        </td>
-                        <td className="p-4 text-gray-300">{client.email}</td>
-                        <td className="p-4 text-gray-300">{client.phone || "N/A"}</td>
-                        <td className="p-4">{client.membership_type}</td>
-                        <td className="p-4 font-semibold text-green-400">${client.monthly_fee}</td>
-                        <td className="p-4">{new Date(client.start_date).toLocaleDateString()}</td>
-                        <td className="p-4">{new Date(client.next_payment_date).toLocaleDateString()}</td>
-                        <td className="p-4">
-                          <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                            client.status === 'Active' 
-                              ? 'bg-green-900 text-green-300' 
-                              : 'bg-red-900 text-red-300'
-                          }`}>
-                            {client.status}
-                          </span>
-                        </td>
-                        <td className="p-4">
-                          <div className="flex space-x-2">
-                            <button
-                              onClick={() => sendPaymentReminder(client)}
-                              className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm font-semibold"
-                              title="Send Payment Reminder"
-                            >
-                              📧
-                            </button>
-                            <button
-                              className="bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded text-sm font-semibold"
-                              title="Edit Client"
-                            >
-                              ✏️
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+          ) : filteredClients.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="text-6xl mb-4">💪</div>
+              <p className="text-gray-400 text-lg mb-4">
+                {searchTerm ? "No clients found matching your search" : "No clients yet"}
+              </p>
+              {!searchTerm && (
+                <Link 
+                  to="/add-client"
+                  className="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg font-semibold inline-block"
+                >
+                  Add Your First Client
+                </Link>
+              )}
+            </div>
+          ) : (
+            <>
+              {/* Mobile Cards View */}
+              <div className="block md:hidden space-y-4">
+                {filteredClients.map((client) => (
+                  <div key={client.id} className="bg-gray-800 rounded-lg border border-gray-700 p-4">
+                    <div className="flex items-center space-x-3 mb-3">
+                      <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center font-semibold">
+                        {client.name.charAt(0)}
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-lg">{client.name}</h3>
+                        <p className="text-gray-400 text-sm">{client.email}</p>
+                      </div>
+                      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                        client.status === 'Active' 
+                          ? 'bg-green-900 text-green-300' 
+                          : 'bg-red-900 text-red-300'
+                      }`}>
+                        {client.status}
+                      </span>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4 text-sm mb-4">
+                      <div>
+                        <span className="text-gray-400">Phone:</span>
+                        <p>{client.phone || "N/A"}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-400">Membership:</span>
+                        <p>{client.membership_type}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-400">Monthly Fee:</span>
+                        <p className="text-green-400 font-semibold">${client.monthly_fee}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-400">Next Payment:</span>
+                        <p>{new Date(client.next_payment_date).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => sendPaymentReminder(client)}
+                        className="flex-1 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-semibold flex items-center justify-center space-x-2"
+                      >
+                        <span>📧</span>
+                        <span>Quick Send</span>
+                      </button>
+                      <button
+                        onClick={() => openCustomEmailModal(client)}
+                        className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg font-semibold"
+                        title="Custom Email"
+                      >
+                        🎨
+                      </button>
+                      <button
+                        className="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg font-semibold"
+                        title="Edit Client"
+                      >
+                        ✏️
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
-          </>
-        )}
+
+              {/* Desktop Table View */}
+              <div className="hidden md:block bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-700">
+                      <tr>
+                        <th className="text-left p-4">Name</th>
+                        <th className="text-left p-4">Email</th>
+                        <th className="text-left p-4">Phone</th>
+                        <th className="text-left p-4">Membership</th>
+                        <th className="text-left p-4">Monthly Fee</th>
+                        <th className="text-left p-4">Start Date</th>
+                        <th className="text-left p-4">Next Payment</th>
+                        <th className="text-left p-4">Status</th>
+                        <th className="text-left p-4">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredClients.map((client) => (
+                        <tr key={client.id} className="border-b border-gray-700 hover:bg-gray-750">
+                          <td className="p-4">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center font-semibold text-sm">
+                                {client.name.charAt(0)}
+                              </div>
+                              <div className="font-semibold">{client.name}</div>
+                            </div>
+                          </td>
+                          <td className="p-4 text-gray-300">{client.email}</td>
+                          <td className="p-4 text-gray-300">{client.phone || "N/A"}</td>
+                          <td className="p-4">{client.membership_type}</td>
+                          <td className="p-4 font-semibold text-green-400">${client.monthly_fee}</td>
+                          <td className="p-4">{new Date(client.start_date).toLocaleDateString()}</td>
+                          <td className="p-4">{new Date(client.next_payment_date).toLocaleDateString()}</td>
+                          <td className="p-4">
+                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                              client.status === 'Active' 
+                                ? 'bg-green-900 text-green-300' 
+                                : 'bg-red-900 text-red-300'
+                            }`}>
+                              {client.status}
+                            </span>
+                          </td>
+                          <td className="p-4">
+                            <div className="flex space-x-2">
+                              <button
+                                onClick={() => sendPaymentReminder(client)}
+                                className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm font-semibold"
+                                title="Send Payment Reminder"
+                              >
+                                📧
+                              </button>
+                              <button
+                                onClick={() => openCustomEmailModal(client)}
+                                className="bg-purple-600 hover:bg-purple-700 px-3 py-1 rounded text-sm font-semibold"
+                                title="Custom Email"
+                              >
+                                🎨
+                              </button>
+                              <button
+                                className="bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded text-sm font-semibold"
+                                title="Edit Client"
+                              >
+                                ✏️
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
       </div>
-    </div>
+
+      {/* Custom Email Modal */}
+      <CustomEmailModal
+        client={customEmailModal.client}
+        isOpen={customEmailModal.isOpen}
+        onClose={closeCustomEmailModal}
+        onSend={fetchClients}
+      />
+    </>
   );
 };
 
