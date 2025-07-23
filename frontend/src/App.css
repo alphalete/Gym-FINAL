@@ -15,6 +15,11 @@ body {
   background-color: #111827;
 }
 
+/* Remove default text alignment for better layout */
+.App > div {
+  text-align: left;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
@@ -55,6 +60,42 @@ body {
 /* Hover effects for cards */
 .hover\:bg-gray-750:hover {
   background-color: #374151;
+}
+
+/* Navigation enhancements */
+.nav-item {
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.nav-item:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background: #dc2626;
+  transform: scaleY(0);
+  transition: transform 0.3s ease;
+}
+
+.nav-item.active:before {
+  transform: scaleY(1);
+}
+
+.nav-item:hover {
+  background: linear-gradient(90deg, rgba(220, 38, 38, 0.1) 0%, transparent 100%);
+}
+
+/* Card hover effects */
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(220, 38, 38, 0.15);
 }
 
 /* Custom button styles */
@@ -110,6 +151,11 @@ tbody tr:hover {
   
   .text-3xl {
     font-size: 1.875rem;
+  }
+
+  /* Mobile navigation adjustments */
+  .mobile-nav-overlay {
+    backdrop-filter: blur(4px);
   }
 }
 
@@ -183,6 +229,28 @@ tbody tr:hover {
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
+/* Gradient stat cards */
+.stat-card-gradient {
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card-gradient::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.stat-card-gradient:hover::before {
+  opacity: 1;
+}
+
 /* Custom notification styles */
 .notification {
   position: fixed;
@@ -205,4 +273,134 @@ tbody tr:hover {
   background-color: #7f1d1d;
   border: 1px solid #991b1b;
   color: #fecaca;
+}
+
+/* Quick action cards */
+.quick-action-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.quick-action-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(220, 38, 38, 0.1), transparent);
+  transition: left 0.5s;
+}
+
+.quick-action-card:hover::before {
+  left: 100%;
+}
+
+.quick-action-card:hover {
+  transform: translateY(-4px);
+  border-color: #dc2626;
+  box-shadow: 0 10px 30px rgba(220, 38, 38, 0.2);
+}
+
+/* Membership plan selection cards */
+.membership-card {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.membership-card:hover {
+  transform: translateY(-2px);
+}
+
+.membership-card.selected {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(220, 38, 38, 0.3);
+}
+
+.membership-card.selected::before {
+  content: '✓';
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: #dc2626;
+  color: white;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+/* Client avatar enhancement */
+.client-avatar {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+  transition: all 0.3s ease;
+}
+
+.client-avatar:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4);
+}
+
+/* Enhanced mobile responsiveness */
+@media (max-width: 640px) {
+  .mobile-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .mobile-text-sm {
+    font-size: 0.875rem;
+  }
+  
+  .mobile-p-4 {
+    padding: 1rem;
+  }
+}
+
+/* Dark mode enhancements */
+.dark-card {
+  background: linear-gradient(145deg, #1f2937, #111827);
+  border: 1px solid #374151;
+}
+
+.dark-card:hover {
+  border-color: #4b5563;
+}
+
+/* Animation for page transitions */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+/* Loading states */
+.skeleton {
+  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
