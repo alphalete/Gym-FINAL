@@ -280,7 +280,8 @@ class AlphaleteAPITester:
         if success:
             print(f"   Client count after creation: {len(response)}")
             if len(response) > 0:
-                print(f"   First client: {response[0].get('name')} ({response[0].get('email')})")
+                for client in response:
+                    print(f"   - {client.get('name')}: Started {client.get('start_date')}, Next payment {client.get('next_payment_date')}")
         return success
 
     def test_get_specific_client(self):
