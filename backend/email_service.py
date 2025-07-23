@@ -204,12 +204,10 @@ class EmailService:
             # Get email template
             subject, html_template = self.get_email_template(template_name, custom_subject, custom_message)
             
-            # Format the template with client data
-            html_body = html_template.format(
-                client_name=client_name,
-                amount=amount,
-                due_date=due_date
-            )
+            # Format the template with client data using safe string replacement
+            html_body = html_template.replace('{client_name}', client_name)
+            html_body = html_body.replace('{amount:.2f}', f"{amount:.2f}")
+            html_body = html_body.replace('{due_date}', due_date)
             
             # Create message
             msg = MIMEMultipart('alternative')
