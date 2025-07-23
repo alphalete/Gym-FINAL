@@ -8,21 +8,34 @@ const localDB = new LocalStorageManager();
 
 // PWA Status Component
 const PWAStatus = () => {
-  const [connectionStatus, setConnectionStatus] = useState({ online: navigator.onLine, message: '' });
+  const [connectionStatus, setConnectionStatus] = useState({ 
+    online: navigator.onLine, 
+    message: navigator.onLine ? 'Connected - All features available' : 'Offline - Local data only' 
+  });
   
   useEffect(() => {
     const updateStatus = () => {
-      const status = localDB.getConnectionStatus();
-      setConnectionStatus(status);
+      const isOnline = navigator.onLine;
+      setConnectionStatus({
+        online: isOnline,
+        message: isOnline ? 'Connected - All features available' : 'Offline - Local data only'
+      });
     };
     
+    // Update status immediately
+    updateStatus();
+    
+    // Listen for online/offline events
     window.addEventListener('online', updateStatus);
     window.addEventListener('offline', updateStatus);
-    updateStatus();
+    
+    // Also check every 5 seconds for connection status
+    const interval = setInterval(updateStatus, 5000);
     
     return () => {
       window.removeEventListener('online', updateStatus);
       window.removeEventListener('offline', updateStatus);
+      clearInterval(interval);
     };
   }, []);
   
