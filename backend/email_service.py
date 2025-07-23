@@ -20,14 +20,14 @@ class EmailService:
         # Remove spaces from app password if present
         self.password = self.password.replace(' ', '')
     
-    def send_payment_reminder(self, client_email: str, client_name: str, amount: float, due_date: str):
-        """Send payment reminder email to client"""
-        try:
-            # Create email content
-            subject = "Payment Reminder - Alphalete Athletics Club"
+    def get_email_template(self, template_name: str = "default", custom_subject: str = None, custom_message: str = None):
+        """Get email template with customization support"""
+        
+        # Default template
+        if template_name == "default" or not template_name:
+            subject = custom_subject or "Payment Reminder - Alphalete Athletics Club"
             
-            # HTML email template
-            html_body = f"""
+            return subject, """
             <!DOCTYPE html>
             <html>
             <head>
@@ -50,13 +50,13 @@ class EmailService:
                     </div>
                     <div class="content">
                         <h2>Payment Reminder</h2>
-                        <p>Dear {client_name},</p>
+                        <p>Dear {{client_name}},</p>
                         
-                        <p>We hope you're crushing your fitness goals! This is a friendly reminder about your upcoming payment:</p>
+                        {custom_message_section}
                         
                         <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                            <p><strong>Amount Due:</strong> <span class="amount">${amount:.2f}</span></p>
-                            <p><strong>Due Date:</strong> <span class="due-date">{due_date}</span></p>
+                            <p><strong>Amount Due:</strong> <span class="amount">${{amount:.2f}}</span></p>
+                            <p><strong>Due Date:</strong> <span class="due-date">{{due_date}}</span></p>
                         </div>
                         
                         <p>To continue enjoying our premium facilities and training programs, please ensure your payment is completed by the due date.</p>
@@ -74,7 +74,136 @@ class EmailService:
                 </div>
             </body>
             </html>
-            """
+            """.format(
+                custom_message_section=f"<p><em>{custom_message}</em></p>" if custom_message else "<p>We hope you're crushing your fitness goals! This is a friendly reminder about your upcoming payment:</p>"
+            )
+        
+        # Professional template
+        elif template_name == "professional":
+            subject = custom_subject or "Payment Due Notice - Alphalete Athletics Club"
+            
+            return subject, """
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #2c3e50; }}
+                    .container {{ max-width: 600px; margin: 0 auto; padding: 0; background: white; }}
+                    .header {{ background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 30px 20px; text-align: center; }}
+                    .content {{ padding: 40px 30px; }}
+                    .amount-box {{ background: #f8f9fa; border-left: 4px solid #e74c3c; padding: 20px; margin: 20px 0; }}
+                    .amount {{ font-size: 28px; font-weight: bold; color: #e74c3c; }}
+                    .due-date {{ font-size: 16px; color: #7f8c8d; }}
+                    .footer {{ background: #ecf0f1; padding: 20px; text-align: center; font-size: 12px; color: #7f8c8d; }}
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>ALPHALETE ATHLETICS CLUB</h1>
+                        <p>Professional Fitness Management</p>
+                    </div>
+                    <div class="content">
+                        <h2 style="color: #2c3e50;">Payment Notice</h2>
+                        <p>Dear {{client_name}},</p>
+                        
+                        {custom_message_section}
+                        
+                        <div class="amount-box">
+                            <p><strong>Payment Amount:</strong> <span class="amount">${{amount:.2f}}</span></p>
+                            <p><strong>Payment Due:</strong> <span class="due-date">{{due_date}}</span></p>
+                        </div>
+                        
+                        <p>Please ensure your payment is processed by the due date to maintain uninterrupted access to our facilities.</p>
+                        
+                        <p>For payment options or inquiries, please contact our membership services team.</p>
+                        
+                        <p>Best regards,<br><strong>Alphalete Athletics Club Management</strong></p>
+                    </div>
+                    <div class="footer">
+                        <p>Alphalete Athletics Club | Professional Fitness Services</p>
+                        <p>Automated notification - Please do not reply to this email</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """.format(
+                custom_message_section=f"<p><em>{custom_message}</em></p>" if custom_message else "<p>This is a reminder regarding your upcoming membership payment:</p>"
+            )
+        
+        # Friendly template
+        elif template_name == "friendly":
+            subject = custom_subject or "Hey! Your Payment is Coming Up 💪 - Alphalete Athletics"
+            
+            return subject, """
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body {{ font-family: 'Comic Sans MS', cursive, Arial, sans-serif; line-height: 1.6; color: #444; }}
+                    .container {{ max-width: 600px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }}
+                    .inner {{ background: white; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }}
+                    .header {{ text-align: center; margin-bottom: 30px; }}
+                    .emoji {{ font-size: 48px; }}
+                    .content {{ }}
+                    .amount {{ font-size: 24px; font-weight: bold; color: #e74c3c; }}
+                    .due-date {{ font-size: 18px; color: #f39c12; }}
+                    .footer {{ text-align: center; margin-top: 30px; font-size: 12px; color: #888; }}
+                    .highlight {{ background: linear-gradient(135deg, #ff9a56, #ff6b6b); color: white; padding: 20px; border-radius: 10px; margin: 20px 0; }}
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="inner">
+                        <div class="header">
+                            <div class="emoji">🏋️‍♂️💪</div>
+                            <h1 style="color: #667eea;">ALPHALETE ATHLETICS CLUB</h1>
+                            <p>Your Fitness Journey Partner!</p>
+                        </div>
+                        <div class="content">
+                            <h2>Hey {{client_name}}! 👋</h2>
+                            
+                            {custom_message_section}
+                            
+                            <div class="highlight">
+                                <p><strong>Payment Amount:</strong> <span class="amount">${{amount:.2f}}</span></p>
+                                <p><strong>Due Date:</strong> <span class="due-date">{{due_date}}</span></p>
+                            </div>
+                            
+                            <p>We love having you as part of our fitness family! 🌟 Let's keep those gains coming by keeping your membership active.</p>
+                            
+                            <p>Questions? We're here to help! Just reach out anytime. 📞</p>
+                            
+                            <p>Stay strong! 💪<br><strong>Your Alphalete Team</strong></p>
+                        </div>
+                        <div class="footer">
+                            <p>Alphalete Athletics Club | Making Fitness Fun! 🎉</p>
+                            <p>This is a friendly automated reminder 🤖</p>
+                        </div>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """.format(
+                custom_message_section=f"<p><em>Special message: {custom_message}</em></p>" if custom_message else "<p>Hope you're smashing those fitness goals! 🎯 Just a friendly heads up about your upcoming payment:</p>"
+            )
+        
+        # Default fallback
+        return self.get_email_template("default", custom_subject, custom_message)
+    
+    def send_payment_reminder(self, client_email: str, client_name: str, amount: float, due_date: str, 
+                            template_name: str = "default", custom_subject: str = None, custom_message: str = None):
+        """Send payment reminder email to client with customizable templates"""
+        try:
+            # Get email template
+            subject, html_template = self.get_email_template(template_name, custom_subject, custom_message)
+            
+            # Format the template with client data
+            html_body = html_template.format(
+                client_name=client_name,
+                amount=amount,
+                due_date=due_date
+            )
             
             # Create message
             msg = MIMEMultipart('alternative')
