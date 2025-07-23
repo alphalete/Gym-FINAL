@@ -237,6 +237,128 @@ class EmailService:
             logger.error(f"Error type: {type(e).__name__}")
             return False
     
+    def send_payment_invoice(self, client_email: str, client_name: str, amount_paid: float, 
+                           payment_date: str, payment_method: str = "Cash", notes: str = None):
+        """Send payment invoice/receipt email to client"""
+        try:
+            subject = f"Payment Invoice - Alphalete Athletics Club"
+            
+            # Create the invoice HTML template
+            html_template = """
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                    .header { background-color: #27ae60; color: white; padding: 20px; text-align: center; }
+                    .content { padding: 30px 20px; }
+                    .invoice-box { background-color: #f8f9fa; border: 2px solid #27ae60; padding: 25px; border-radius: 8px; margin: 20px 0; }
+                    .amount { font-size: 28px; font-weight: bold; color: #27ae60; }
+                    .invoice-details { margin: 20px 0; }
+                    .detail-row { display: flex; justify-content: space-between; margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #eee; }
+                    .footer { background-color: #f8f9fa; padding: 15px; text-align: center; font-size: 12px; }
+                    .success-badge { background-color: #27ae60; color: white; padding: 5px 15px; border-radius: 20px; font-size: 14px; display: inline-block; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>🏋️‍♂️ ALPHALETE ATHLETICS CLUB</h1>
+                        <p>Payment Invoice & Receipt</p>
+                    </div>
+                    <div class="content">
+                        <div class="text-center" style="text-align: center; margin-bottom: 20px;">
+                            <span class="success-badge">✅ PAYMENT RECEIVED</span>
+                        </div>
+                        
+                        <h2>Thank You, {client_name}!</h2>
+                        <p>We have successfully received your payment. Here are the details of your transaction:</p>
+                        
+                        <div class="invoice-box">
+                            <div class="invoice-details">
+                                <div class="detail-row">
+                                    <strong>Payment Amount:</strong>
+                                    <span class="amount">${amount_paid:.2f}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <strong>Payment Date:</strong>
+                                    <span>{payment_date}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <strong>Payment Method:</strong>
+                                    <span>{payment_method}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <strong>Client Name:</strong>
+                                    <span>{client_name}</span>
+                                </div>
+                                {notes_section}
+                            </div>
+                        </div>
+                        
+                        <p>Your membership has been updated, and you can continue enjoying all our premium facilities and services.</p>
+                        
+                        <p>If you have any questions about this payment or your membership, please don't hesitate to contact us.</p>
+                        
+                        <p>Thank you for being a valued member of the Alphalete Athletics family!</p>
+                        
+                        <p><strong>The Alphalete Athletics Team</strong></p>
+                    </div>
+                    <div class="footer">
+                        <p>Alphalete Athletics Club | Elite Fitness Training</p>
+                        <p>This is your official payment receipt. Please keep this for your records.</p>
+                        <p>Invoice generated on: {current_date}</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """
+            
+            # Add notes section if notes exist
+            notes_section = ""
+            if notes:
+                notes_section = f'''
+                <div class="detail-row">
+                    <strong>Notes:</strong>
+                    <span>{notes}</span>
+                </div>
+                '''
+            
+            # Format the template with client data
+            current_date = datetime.now().strftime("%B %d, %Y at %I:%M %p")
+            html_body = html_template.replace('{client_name}', client_name)
+            html_body = html_body.replace('{amount_paid:.2f}', f"{amount_paid:.2f}")
+            html_body = html_body.replace('{payment_date}', payment_date)
+            html_body = html_body.replace('{payment_method}', payment_method)
+            html_body = html_body.replace('{current_date}', current_date)
+            html_body = html_body.replace('{notes_section}', notes_section)
+            
+            # Create message
+            msg = MIMEMultipart('alternative')
+            msg['Subject'] = subject
+            msg['From'] = f"Alphalete Athletics Club <{self.email}>"
+            msg['To'] = client_email
+            
+            # Add HTML content
+            html_part = MIMEText(html_body, 'html')
+            msg.attach(html_part)
+            
+            # Send email
+            logger.info(f"Sending invoice email to: {client_email}")
+            with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
+                server.starttls()
+                server.login(self.email, self.password)
+                server.send_message(msg)
+                
+            logger.info(f"Payment invoice sent successfully to {client_email}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Failed to send payment invoice to {client_email}: {str(e)}")
+            logger.error(f"Error type: {type(e).__name__}")
+            return False
+
     def test_email_connection(self):
         """Test if email configuration is working"""
         try:
