@@ -115,6 +115,11 @@ class LocalStorageManager {
         clientData.id = this.generateUUID();
       }
       
+      // Set default status if not provided
+      if (!clientData.status) {
+        clientData.status = "Active";
+      }
+      
       // Add timestamps
       clientData.created_at = new Date().toISOString();
       clientData.updated_at = new Date().toISOString();
@@ -126,6 +131,8 @@ class LocalStorageManager {
         nextPaymentDate.setDate(startDate.getDate() + 30);
         clientData.next_payment_date = nextPaymentDate.toISOString().split('T')[0];
       }
+      
+      console.log("🔍 Debug - Adding client with data:", clientData);
       
       await this.performDBOperation('clients', 'add', clientData);
       
