@@ -102,9 +102,39 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "I cannot scroll in the app. I cannot scroll on client information, fix reports, fix payment management and email says need to be connected but I am online."
+user_problem_statement: "Fix the email sending 404 error and automatically email invoice when a payment is recorded"
 
 backend:
+  - task: "Fix Email Payment Reminder 404 Error"
+    implemented: true
+    working: false
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "User reports 404 error when trying to send payment reminders: 'Failed to send payment reminder: Unknown error - Status: 404'"
+      - working: true
+        agent: "main"
+        comment: "FIXED: Removed duplicate /api/email/payment-reminder route definitions from server.py lines 515-551. The duplicate routes were causing conflicts and 404 errors. Now only one clean route definition exists."
+
+  - task: "Automatic Invoice Email on Payment Recording"
+    implemented: true
+    working: false
+    file: "backend/server.py, backend/email_service.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "user"
+        comment: "User requested automatic invoice emailing when payments are recorded"
+      - working: true
+        agent: "main"
+        comment: "IMPLEMENTED: Added automatic invoice emailing to /api/payments/record endpoint. Created send_payment_invoice method in EmailService class with professional invoice template. Payment recording now automatically sends invoice email and returns invoice_sent status in response."
+
   - task: "Email Service Online Status Detection"
     implemented: true
     working: true
@@ -135,7 +165,7 @@ backend:
     file: "backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
@@ -143,6 +173,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "VERIFIED: Payment recording API (/api/payments/record) is working perfectly. Successfully tested with test client Michael Thompson: recorded $75.00 payment, properly updated next payment date from 2025-08-19 to 2025-08-22 (30 days from payment date), returned detailed payment record with all required fields. API handles date calculations, client validation, and payment tracking correctly."
+      - working: false
+        agent: "main"
+        comment: "NEEDS RE-TESTING: Enhanced payment recording endpoint to automatically send invoice emails. Added invoice_sent and invoice_message fields to response. Need to verify both payment recording and automatic invoice email sending work correctly."
 
   - task: "Individual Email Reminder API"
     implemented: true
@@ -150,7 +183,7 @@ backend:
     file: "backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
@@ -158,6 +191,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "VERIFIED: Individual email reminder API (/api/email/payment-reminder) is working perfectly. Successfully sent payment reminder to test client Michael Thompson at michael.thompson.20250723_123927@alphaleteclub.com. API returns success: true with proper client email confirmation. Email delivery confirmed through backend logs."
+      - working: false
+        agent: "main"
+        comment: "NEEDS RE-TESTING: Fixed duplicate route definitions that were causing 404 errors. Need to verify individual email reminders work correctly after removing duplicate routes."
 
   - task: "Bulk Email Reminder API"
     implemented: true
