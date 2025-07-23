@@ -1455,27 +1455,33 @@ const Payments = () => {
 
     try {
       const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-      console.log("Sending payment reminder to:", client.email, "Client ID:", client.id);
+      console.log("🔍 Debug - Payment Mgmt - Backend URL:", backendUrl);
+      console.log("🔍 Debug - Payment Mgmt - Sending payment reminder to:", client.email, "Client ID:", client.id);
+      
+      const requestBody = { client_id: client.id };
+      console.log("🔍 Debug - Payment Mgmt - Request body:", requestBody);
       
       const response = await fetch(`${backendUrl}/api/email/payment-reminder`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ client_id: client.id })
+        body: JSON.stringify(requestBody)
       });
       
-      console.log("Response status:", response.status);
+      console.log("🔍 Debug - Payment Mgmt - Response status:", response.status);
+      console.log("🔍 Debug - Payment Mgmt - Response ok:", response.ok);
+      
       const result = await response.json();
-      console.log("Response data:", result);
+      console.log("🔍 Debug - Payment Mgmt - Response data:", result);
       
       if (response.ok && result.success) {
         alert(`✅ Payment reminder sent successfully to ${result.client_email || client.email}`);
       } else {
-        console.error("Failed to send email:", result);
-        alert(`❌ Failed to send payment reminder: ${result.message || 'Unknown error'}`);
+        console.error("❌ Payment Mgmt - Failed to send email:", result);
+        alert(`❌ Failed to send payment reminder: ${result.message || 'Unknown error'}\n\nDebug info:\n- Status: ${response.status}\n- Client ID: ${client.id}\n- Backend URL: ${backendUrl}`);
       }
     } catch (error) {
-      console.error("Error sending payment reminder:", error);
-      alert(`❌ Error sending payment reminder: ${error.message}`);
+      console.error("❌ Payment Mgmt - Error sending payment reminder:", error);
+      alert(`❌ Error sending payment reminder: ${error.message}\n\nDebug info:\n- Client ID: ${client.id}\n- Check browser console for details`);
     }
   };
 
