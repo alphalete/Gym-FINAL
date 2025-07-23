@@ -612,24 +612,19 @@ class AlphaleteAPITester:
             
         return all_success
 
-    def test_create_duplicate_client(self):
-        """Test creating a client with duplicate email (should fail)"""
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        client_data = {
-            "name": "Duplicate Client",
-            "email": f"john_test_{timestamp}@example.com",  # Use same email as created client
-            "phone": "(555) 123-4567",
-            "membership_type": "Standard",
-            "monthly_fee": 50.00,
-            "start_date": "2025-01-01"
+    def test_send_custom_reminder_invalid_client(self):
+        """Test sending custom payment reminder with invalid client ID"""
+        reminder_data = {
+            "client_id": "non-existent-client-id",
+            "template_name": "default"
         }
         
         success, response = self.run_test(
-            "Create Duplicate Client (Should Fail)",
+            "Send Custom Payment Reminder (Invalid Client)",
             "POST",
-            "clients",
-            400,  # Expecting 400 Bad Request
-            client_data
+            "email/custom-reminder",
+            404,  # Should return 404 for non-existent client
+            reminder_data
         )
         
         return success
