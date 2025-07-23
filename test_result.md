@@ -189,3 +189,5 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: "Starting systematic fix of 4 reported issues: client scrolling, reports page, payment management, and email online status. Will work through each issue and test backend changes."
+  - agent: "main"
+    message: "Fixed frontend issues: 1) Added proper PWA CSS classes for scrolling, 2) Implemented full Payment Management component, 3) Fixed PWA online status detection. Backend bulk email issue still needs fixing due to missing start_date field in Client validation."
