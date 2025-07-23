@@ -14,8 +14,31 @@ const PWAStatus = () => {
   });
   
   useEffect(() => {
-    const updateStatus = () => {
-      const isOnline = navigator.onLine;
+    const updateStatus = async () => {
+      // Enhanced online detection for mobile PWA
+      let isOnline = navigator.onLine;
+      
+      // Additional connectivity check for mobile devices
+      if (isOnline) {
+        try {
+          // Try to fetch a small resource to verify actual connectivity
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 5000);
+          
+          await fetch('/manifest.json', {
+            method: 'HEAD',
+            signal: controller.signal,
+            cache: 'no-cache'
+          });
+          
+          clearTimeout(timeout);
+          isOnline = true;
+        } catch (error) {
+          console.log('PWA Status: Connectivity test failed:', error.message);
+          isOnline = false;
+        }
+      }
+      
       setConnectionStatus({
         online: isOnline,
         message: isOnline ? 'Connected - All features available' : 'Offline - Local data only'
@@ -26,15 +49,28 @@ const PWAStatus = () => {
     updateStatus();
     
     // Listen for online/offline events
-    window.addEventListener('online', updateStatus);
-    window.addEventListener('offline', updateStatus);
+    const handleOnline = () => {
+      console.log('PWA Status: Online event triggered');
+      updateStatus();
+    };
     
-    // Also check every 5 seconds for connection status
-    const interval = setInterval(updateStatus, 5000);
+    const handleOffline = () => {
+      console.log('PWA Status: Offline event triggered');
+      setConnectionStatus({
+        online: false,
+        message: 'Offline - Local data only'
+      });
+    };
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    // Enhanced check every 10 seconds for mobile devices
+    const interval = setInterval(updateStatus, 10000);
     
     return () => {
-      window.removeEventListener('online', updateStatus);
-      window.removeEventListener('offline', updateStatus);
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
       clearInterval(interval);
     };
   }, []);
