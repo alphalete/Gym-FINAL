@@ -16,6 +16,9 @@ class EmailService:
         
         if not self.email or not self.password:
             raise ValueError("Gmail credentials not configured properly")
+        
+        # Remove spaces from app password if present
+        self.password = self.password.replace(' ', '')
     
     def send_payment_reminder(self, client_email: str, client_name: str, amount: float, due_date: str):
         """Send payment reminder email to client"""
@@ -84,9 +87,13 @@ class EmailService:
             msg.attach(html_part)
             
             # Send email
+            logger.info(f"Connecting to SMTP server: {self.smtp_server}:{self.smtp_port}")
             with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
+                logger.info("Starting TLS...")
                 server.starttls()
+                logger.info(f"Logging in with email: {self.email}")
                 server.login(self.email, self.password)
+                logger.info(f"Sending email to: {client_email}")
                 server.send_message(msg)
                 
             logger.info(f"Payment reminder sent successfully to {client_email}")
@@ -94,15 +101,33 @@ class EmailService:
             
         except Exception as e:
             logger.error(f"Failed to send payment reminder to {client_email}: {str(e)}")
+            logger.error(f"Error type: {type(e).__name__}")
             return False
     
     def test_email_connection(self):
         """Test if email configuration is working"""
         try:
+            logger.info(f"Testing SMTP connection to {self.smtp_server}:{self.smtp_port}")
+            logger.info(f"Using email: {self.email}")
+            logger.info(f"Password length: {len(self.password)}")
+            
             with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
+                server.set_debuglevel(1)  # Enable debug output
+                logger.info("Starting TLS...")
                 server.starttls()
+                logger.info("Attempting login...")
                 server.login(self.email, self.password)
+                logger.info("Login successful!")
+            
+            logger.info("Email connection test passed!")
             return True
+            
         except Exception as e:
             logger.error(f"Email connection test failed: {str(e)}")
+            logger.error(f"Error type: {type(e).__name__}")
+            # Try to get more specific error information
+            if hasattr(e, 'smtp_code'):
+                logger.error(f"SMTP code: {e.smtp_code}")
+            if hasattr(e, 'smtp_error'):
+                logger.error(f"SMTP error: {e.smtp_error}")
             return False
