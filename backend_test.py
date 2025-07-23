@@ -639,6 +639,11 @@ class AlphaleteAPITester:
                 self.test_send_bulk_payment_reminders,
             ]),
             
+            # Payment Recording (CRITICAL FUNCTIONALITY)
+            ("Payment Recording", [
+                self.test_record_payment,
+            ]),
+            
             # Error Handling & Edge Cases (UPDATED WITH TEMPLATE ERROR TESTS)
             ("Error Handling", [
                 self.test_create_duplicate_client,
