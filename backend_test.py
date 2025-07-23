@@ -489,6 +489,36 @@ class AlphaleteAPITester:
         
         return success
 
+    def test_record_payment(self):
+        """Test recording a payment for a client"""
+        if not self.created_client_id:
+            print("❌ Record Payment - SKIPPED (No client ID available)")
+            return False
+            
+        payment_data = {
+            "client_id": self.created_client_id,
+            "amount_paid": 100.00,
+            "payment_date": "2025-07-23",
+            "payment_method": "Credit Card",
+            "notes": "Payment recorded via API test"
+        }
+        
+        success, response = self.run_test(
+            "Record Client Payment",
+            "POST",
+            "payments/record",
+            200,
+            payment_data
+        )
+        
+        if success:
+            print(f"   Payment recorded for: {response.get('client_name')}")
+            print(f"   Amount paid: ${response.get('amount_paid')}")
+            print(f"   New next payment date: {response.get('new_next_payment_date')}")
+            print(f"   Success: {response.get('success')}")
+        
+        return success
+
     def test_send_custom_reminder_invalid_client(self):
         """Test sending custom payment reminder with invalid client ID"""
         reminder_data = {
