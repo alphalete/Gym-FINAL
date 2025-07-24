@@ -252,7 +252,6 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Email Service Online Status Detection"
     - "Frontend Email Error Handling"
   stuck_tasks: []
   test_all: false
