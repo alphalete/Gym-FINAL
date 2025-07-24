@@ -403,15 +403,110 @@ class LocalStorageManager {
   }
 
   async syncItem(item) {
-    // This would sync with your server when online
-    // For now, just log the sync action
-    console.log('Syncing item:', item.action, item.data);
+    console.log('🔄 Syncing item with backend:', item.action, item.data);
     
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    const backendUrl = process.env.REACT_APP_BACKEND_URL || 
+                      (typeof import !== 'undefined' && import.meta?.env?.REACT_APP_BACKEND_URL) ||
+                      'https://54881f41-fb21-44a4-83a1-645c638e0fb4.preview.emergentagent.com';
     
-    // In a real implementation, you would make API calls here
-    // based on the item.action (CREATE_CLIENT, UPDATE_CLIENT, etc.)
+    try {
+      switch (item.action) {
+        case 'CREATE_CLIENT':
+          console.log('🔄 Creating client in backend:', item.data.name);
+          const createResponse = await fetch(`${backendUrl}/api/clients`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: item.data.name,
+              email: item.data.email,
+              phone: item.data.phone || null,
+              membership_type: item.data.membership_type,
+              monthly_fee: item.data.monthly_fee,
+              start_date: item.data.start_date
+            })
+          });
+          
+          if (!createResponse.ok) {
+            const errorText = await createResponse.text();
+            throw new Error(`Failed to create client: ${createResponse.status} - ${errorText}`);
+          }
+          
+          const createdClient = await createResponse.json();
+          console.log('✅ Client created in backend:', createdClient.name);
+          break;
+          
+        case 'UPDATE_CLIENT':
+          console.log('🔄 Updating client in backend:', item.data.name);
+          const updateResponse = await fetch(`${backendUrl}/api/clients/${item.data.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: item.data.name,
+              email: item.data.email,
+              phone: item.data.phone,
+              membership_type: item.data.membership_type,
+              monthly_fee: item.data.monthly_fee,
+              start_date: item.data.start_date,
+              status: item.data.status
+            })
+          });
+          
+          if (!updateResponse.ok) {
+            const errorText = await updateResponse.text();
+            throw new Error(`Failed to update client: ${updateResponse.status} - ${errorText}`);
+          }
+          
+          const updatedClient = await updateResponse.json();
+          console.log('✅ Client updated in backend:', updatedClient.name);
+          break;
+          
+        case 'DELETE_CLIENT':
+          console.log('🔄 Deleting client from backend:', item.data.id);
+          const deleteResponse = await fetch(`${backendUrl}/api/clients/${item.data.id}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          
+          if (!deleteResponse.ok) {
+            const errorText = await deleteResponse.text();
+            throw new Error(`Failed to delete client: ${deleteResponse.status} - ${errorText}`);
+          }
+          
+          console.log('✅ Client deleted from backend');
+          break;
+          
+        case 'CREATE_MEMBERSHIP_TYPE':
+          console.log('🔄 Creating membership type in backend:', item.data.name);
+          const createTypeResponse = await fetch(`${backendUrl}/api/membership-types`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: item.data.name,
+              monthly_fee: item.data.monthly_fee,
+              description: item.data.description,
+              features: item.data.features,
+              is_active: item.data.is_active
+            })
+          });
+          
+          if (!createTypeResponse.ok) {
+            const errorText = await createTypeResponse.text();
+            throw new Error(`Failed to create membership type: ${createTypeResponse.status} - ${errorText}`);
+          }
+          
+          console.log('✅ Membership type created in backend');
+          break;
+          
+        default:
+          console.log('⚠️ Unknown sync action:', item.action);
+      }
+      
+      console.log('✅ Sync completed for:', item.action);
+      
+    } catch (error) {
+      console.error('❌ Sync failed for:', item.action, error);
+      throw error;
+    }
   }
 
   // Utility methods
