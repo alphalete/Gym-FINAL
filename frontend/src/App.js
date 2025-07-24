@@ -812,13 +812,14 @@ const ClientManagement = () => {
     }
 
     try {
-      // Get backend URL from environment with explicit debugging
+      // Get backend URL from environment
       const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-      const expectedUrl = "https://54881f41-fb21-44a4-83a1-645c638e0fb4.preview.emergentagent.com";
+      
+      if (!backendUrl) {
+        throw new Error('Backend URL not configured. Please set REACT_APP_BACKEND_URL environment variable.');
+      }
       
       console.log("🔍 Debug - Backend URL from env:", backendUrl);
-      console.log("🔍 Debug - Expected URL:", expectedUrl);
-      console.log("🔍 Debug - URL match:", backendUrl === expectedUrl);
       console.log("🔍 Debug - Sending payment reminder to:", client.email, "Client ID:", client.id);
       
       // Use the expected URL if there's a mismatch
