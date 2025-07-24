@@ -532,6 +532,41 @@ class LocalStorageManager {
     await this.performDBOperation('settings', 'put', setting);
   }
 
+  // Force sync all existing data to backend
+  async forceSyncAllData() {
+    console.log('🔄 Force syncing all local data to backend...');
+    
+    try {
+      // Get all clients from local storage
+      const clients = await this.performDBOperation('clients', 'getAll');
+      console.log(`🔄 Found ${clients.length} clients to sync`);
+      
+      // Add all clients to sync queue
+      for (const client of clients) {
+        await this.addToSyncQueue('CREATE_CLIENT', client);
+      }
+      
+      // Get all membership types from local storage
+      const membershipTypes = await this.performDBOperation('membershipTypes', 'getAll');
+      console.log(`🔄 Found ${membershipTypes.length} membership types to sync`);
+      
+      // Add all membership types to sync queue
+      for (const type of membershipTypes) {
+        await this.addToSyncQueue('CREATE_MEMBERSHIP_TYPE', type);
+      }
+      
+      // Process the sync queue
+      await this.processSyncQueue();
+      
+      console.log('✅ Force sync completed');
+      return true;
+      
+    } catch (error) {
+      console.error('❌ Force sync failed:', error);
+      throw error;
+    }
+  }
+
   // Get connection status
   getConnectionStatus() {
     const isOnline = navigator.onLine && window.navigator.onLine;
