@@ -493,34 +493,6 @@ const Dashboard = () => {
     setTimeout(() => initializeSampleData(), 1000);
   }, []);
 
-  // Force clear all data and start fresh
-  const clearAllDataAndReset = async () => {
-    try {
-      console.log("🔍 EMERGENCY RESET - Clearing all data...");
-      
-      // Clear IndexedDB
-      const dbs = await indexedDB.databases();
-      dbs.forEach(db => {
-        indexedDB.deleteDatabase(db.name);
-        console.log(`Deleted database: ${db.name}`);
-      });
-      
-      // Clear localStorage
-      localStorage.clear();
-      console.log("Cleared localStorage");
-      
-      // Clear sessionStorage
-      sessionStorage.clear();
-      console.log("Cleared sessionStorage");
-      
-      // Force reload
-      window.location.reload();
-    } catch (error) {
-      console.error("Error clearing data:", error);
-      alert("Error clearing data: " + error.message);
-    }
-  };
-
   return (
     <div className="p-6">
       {/* Header */}
