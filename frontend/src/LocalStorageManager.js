@@ -405,8 +405,11 @@ class LocalStorageManager {
   async syncItem(item) {
     console.log('🔄 Syncing item with backend:', item.action, item.data);
     
-    const backendUrl = process.env.REACT_APP_BACKEND_URL || 
-                      'https://54881f41-fb21-44a4-83a1-645c638e0fb4.preview.emergentagent.com';
+    const backendUrl = process.env.REACT_APP_BACKEND_URL;
+    
+    if (!backendUrl) {
+      throw new Error('Backend URL not configured. Please set REACT_APP_BACKEND_URL environment variable.');
+    }
     
     try {
       switch (item.action) {
