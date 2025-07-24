@@ -740,6 +740,25 @@ const ClientManagement = () => {
     try {
       console.log(`🔍 Debug - Deleting client: ${client.name} (ID: ${client.id})`);
       
+      // First delete from backend
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      
+      if (backendUrl && navigator.onLine) {
+        console.log("🔄 Deleting client from backend first...");
+        const response = await fetch(`${backendUrl}/api/clients/${client.id}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Backend delete failed: ${response.status} - ${errorText}`);
+        }
+        
+        console.log("✅ Client deleted from backend successfully");
+      }
+      
+      // Then delete from local storage
       await localDB.deleteClient(client.id);
       console.log("✅ Client deleted from local storage");
       
