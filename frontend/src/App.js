@@ -822,12 +822,9 @@ const ClientManagement = () => {
       console.log("🔍 Debug - Backend URL from env:", backendUrl);
       console.log("🔍 Debug - Sending payment reminder to:", client.email, "Client ID:", client.id);
       
-      // Use the expected URL if there's a mismatch
-      const finalUrl = backendUrl || expectedUrl;
-      
       const requestBody = { client_id: client.id };
       console.log("🔍 Debug - Request body:", requestBody);
-      console.log("🔍 Debug - Final URL:", `${finalUrl}/api/email/payment-reminder`);
+      console.log("🔍 Debug - API URL:", `${backendUrl}/api/email/payment-reminder`);
       
       const response = await fetch(`${finalUrl}/api/email/payment-reminder`, {
         method: 'POST',
