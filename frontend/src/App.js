@@ -562,6 +562,22 @@ const Dashboard = () => {
           <button
             onClick={async () => {
               try {
+                console.log("🔄 Manual force sync triggered");
+                await localDB.forceSyncAllData();
+                alert("✅ Force sync completed! Check console for details.");
+                fetchClients(); // Refresh the display
+              } catch (error) {
+                console.error("❌ Force sync failed:", error);
+                alert("❌ Force sync failed: " + error.message);
+              }
+            }}
+            className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded font-bold text-white mr-4"
+          >
+            🔄 FORCE SYNC TO BACKEND
+          </button>
+          <button
+            onClick={async () => {
+              try {
                 console.log("FORCE ADDING SAMPLE CLIENTS...");
                 const sampleClients = [
                   {
