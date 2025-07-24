@@ -2337,19 +2337,227 @@ const Reports = () => {
   );
 };
 
-const EmailCenter = () => (
-  <div className="p-6">
-    <div className="mb-6">
-      <h1 className="text-3xl font-bold mb-2">Email Center</h1>
-      <p className="text-gray-400">Send payment reminders (requires internet connection).</p>
+const EmailCenter = () => {
+  const [connectionStatus, setConnectionStatus] = useState({
+    online: navigator.onLine,
+    message: navigator.onLine ? 'Connected - All features available' : 'Offline - Local data only'
+  });
+  const [clients, setClients] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [sendingBulk, setSendingBulk] = useState(false);
+
+  // Initialize local storage manager
+  const localDB = new LocalStorageManager();
+
+  useEffect(() => {
+    const updateStatus = async () => {
+      let isOnline = navigator.onLine;
+      
+      if (isOnline) {
+        try {
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 5000);
+          
+          await fetch('/manifest.json', {
+            method: 'HEAD',
+            signal: controller.signal,
+            cache: 'no-cache'
+          });
+          
+          clearTimeout(timeout);
+          isOnline = true;
+        } catch (error) {
+          console.log('Email Center: Connectivity test failed:', error.message);
+          isOnline = false;
+        }
+      }
+      
+      setConnectionStatus({
+        online: isOnline,
+        message: isOnline ? 'Connected - All features available' : 'Offline - Local data only'
+      });
+    };
+    
+    // Update status immediately and every 10 seconds
+    updateStatus();
+    const interval = setInterval(updateStatus, 10000);
+    
+    // Listen for online/offline events
+    const handleOnline = () => updateStatus();
+    const handleOffline = () => setConnectionStatus({
+      online: false,
+      message: 'Offline - Local data only'
+    });
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+      clearInterval(interval);
+    };
+  }, []);
+
+  // Fetch clients
+  const fetchClients = async () => {
+    try {
+      setLoading(true);
+      const result = await localDB.getClients();
+      setClients(result.data.filter(c => c.status === 'Active'));
+    } catch (error) {
+      console.error("Error fetching clients:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchClients();
+  }, []);
+
+  // Send bulk payment reminders
+  const sendBulkReminders = async () => {
+    if (!connectionStatus.online) {
+      alert("❌ Bulk email requires an internet connection. Please check your connection and try again.");
+      return;
+    }
+
+    if (clients.length === 0) {
+      alert("❌ No active clients found to send reminders to.");
+      return;
+    }
+
+    if (!confirm(`📧 Send payment reminders to all ${clients.length} active clients?`)) {
+      return;
+    }
+
+    try {
+      setSendingBulk(true);
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      
+      console.log("🔄 Sending bulk payment reminders...");
+      
+      const response = await fetch(`${backendUrl}/api/email/payment-reminder/bulk`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+      
+      const result = await response.json();
+      console.log("✅ Bulk reminders result:", result);
+      
+      alert(`✅ Bulk payment reminders completed!\n\n📊 Results:\n• Total clients: ${result.total_clients}\n• Sent successfully: ${result.sent_successfully}\n• Failed: ${result.failed}`);
+      
+    } catch (error) {
+      console.error("❌ Error sending bulk reminders:", error);
+      alert(`❌ Error sending bulk reminders: ${error.message}`);
+    } finally {
+      setSendingBulk(false);
+    }
+  };
+
+  return (
+    <div className="p-6">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold mb-2">Email Center</h1>
+        <p className="text-gray-400">Send payment reminders to clients.</p>
+      </div>
+
+      {/* Connection Status */}
+      <div className={`mb-6 p-4 rounded-lg border ${
+        connectionStatus.online 
+          ? 'bg-green-900 border-green-600' 
+          : 'bg-orange-900 border-orange-600'
+      }`}>
+        <div className="flex items-center">
+          <div className="text-2xl mr-3">
+            {connectionStatus.online ? '🌐' : '📱'}
+          </div>
+          <div>
+            <h3 className="font-bold">
+              {connectionStatus.online ? 'Online' : 'Offline'} - {connectionStatus.message}
+            </h3>
+            <p className="text-sm opacity-75">
+              {connectionStatus.online 
+                ? 'All email features are available' 
+                : 'Email features require internet connection'}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {connectionStatus.online ? (
+        <>
+          {/* Bulk Email Section */}
+          <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-xl font-bold">📧 Bulk Payment Reminders</h2>
+                <p className="text-gray-400">Send payment reminders to all active clients</p>
+              </div>
+              <div className="text-right">
+                <p className="text-2xl font-bold text-green-400">{clients.length}</p>
+                <p className="text-sm text-gray-500">Active Clients</p>
+              </div>
+            </div>
+            
+            <button
+              onClick={sendBulkReminders}
+              disabled={sendingBulk || clients.length === 0}
+              className={`w-full py-3 px-6 rounded-lg font-bold text-white transition-colors ${
+                sendingBulk || clients.length === 0
+                  ? 'bg-gray-600 cursor-not-allowed'
+                  : 'bg-blue-600 hover:bg-blue-700'
+              }`}
+            >
+              {sendingBulk ? '📧 Sending Reminders...' : `📧 Send Reminders to All ${clients.length} Clients`}
+            </button>
+          </div>
+
+          {/* Client List */}
+          <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
+            <h3 className="text-lg font-bold mb-4">👥 Active Clients</h3>
+            {loading ? (
+              <p className="text-center text-gray-400">Loading clients...</p>
+            ) : clients.length > 0 ? (
+              <div className="space-y-2">
+                {clients.map((client, index) => (
+                  <div key={client.id || index} className="flex justify-between items-center p-3 bg-gray-700 rounded">
+                    <div>
+                      <p className="font-semibold">{client.name}</p>
+                      <p className="text-sm text-gray-400">{client.email}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-green-400 font-bold">${client.monthly_fee}</p>
+                      <p className="text-xs text-gray-500">{client.membership_type}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <div className="text-4xl mb-4">👥</div>
+                <p className="text-gray-400">No active clients found</p>
+                <p className="text-sm text-gray-500 mt-2">Add clients in Client Management</p>
+              </div>
+            )}
+          </div>
+        </>
+      ) : (
+        <div className="bg-gray-800 rounded-lg border border-gray-700 p-8 text-center">
+          <div className="text-6xl mb-4">📧</div>
+          <p className="text-xl text-gray-400">Email functionality requires internet connection.</p>
+          <p className="text-sm text-gray-500 mt-2">Use individual email buttons in Client Management when online</p>
+        </div>
+      )}
     </div>
-    <div className="bg-gray-800 rounded-lg border border-gray-700 p-8 text-center">
-      <div className="text-6xl mb-4">📧</div>
-      <p className="text-xl text-gray-400">Email functionality requires internet connection.</p>
-      <p className="text-sm text-gray-500 mt-2">Use individual email buttons in Client Management when online</p>
-    </div>
-  </div>
-);
+  );
+};
 
 function App() {
   useEffect(() => {
