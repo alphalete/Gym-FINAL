@@ -826,7 +826,7 @@ const ClientManagement = () => {
       console.log("🔍 Debug - Request body:", requestBody);
       console.log("🔍 Debug - API URL:", `${backendUrl}/api/email/payment-reminder`);
       
-      const response = await fetch(`${finalUrl}/api/email/payment-reminder`, {
+      const response = await fetch(`${backendUrl}/api/email/payment-reminder`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody)
