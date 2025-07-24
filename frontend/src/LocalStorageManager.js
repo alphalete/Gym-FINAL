@@ -111,10 +111,48 @@ class LocalStorageManager {
   // Client management methods
   async getClients() {
     try {
-      const clients = await this.performDBOperation('clients', 'getAll');
-      return { data: clients, offline: !this.isOnline };
+      // First try to fetch from backend if online
+      if (this.isOnline) {
+        try {
+          const backendUrl = process.env.REACT_APP_BACKEND_URL;
+          if (backendUrl) {
+            console.log("🔍 LocalStorageManager: Fetching clients from backend...");
+            const response = await fetch(`${backendUrl}/api/clients`, {
+              method: 'GET',
+              headers: { 'Content-Type': 'application/json' },
+              timeout: 10000
+            });
+            
+            if (response.ok) {
+              const backendClients = await response.json();
+              console.log(`✅ LocalStorageManager: Fetched ${backendClients.length} clients from backend`);
+              
+              // Store backend data in local storage for offline access
+              for (const client of backendClients) {
+                try {
+                  await this.performDBOperation('clients', 'put', client);
+                } catch (error) {
+                  console.warn(`Warning: Could not store client ${client.name} locally:`, error);
+                }
+              }
+              
+              return { data: backendClients, offline: false };
+            } else {
+              console.warn("⚠️ LocalStorageManager: Backend fetch failed, falling back to local storage");
+            }
+          }
+        } catch (error) {
+          console.warn("⚠️ LocalStorageManager: Backend error, falling back to local storage:", error);
+        }
+      }
+      
+      // Fallback to local storage (offline mode or backend unavailable)
+      console.log("📱 LocalStorageManager: Using local storage for clients");
+      const localClients = await this.performDBOperation('clients', 'getAll');
+      return { data: localClients, offline: true };
+      
     } catch (error) {
-      console.error('Error getting clients from local storage:', error);
+      console.error('Error getting clients:', error);
       return { data: [], offline: true, error: error.message };
     }
   }
