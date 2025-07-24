@@ -406,7 +406,6 @@ class LocalStorageManager {
     console.log('🔄 Syncing item with backend:', item.action, item.data);
     
     const backendUrl = process.env.REACT_APP_BACKEND_URL || 
-                      (typeof import !== 'undefined' && import.meta?.env?.REACT_APP_BACKEND_URL) ||
                       'https://54881f41-fb21-44a4-83a1-645c638e0fb4.preview.emergentagent.com';
     
     try {
