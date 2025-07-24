@@ -849,7 +849,7 @@ const ClientManagement = () => {
         alert(`✅ Payment reminder sent successfully to ${result.client_email || client.email}`);
       } else {
         console.error("❌ Failed to send email:", result);
-        alert(`❌ Failed to send payment reminder: ${result.message || 'Unknown error'}\n\nDebug info:\n- Status: ${response.status}\n- Client ID: ${client.id}\n- Backend URL: ${finalUrl}`);
+        alert(`❌ Failed to send payment reminder: ${result.message || 'Unknown error'}\n\nDebug info:\n- Status: ${response.status}\n- Client ID: ${client.id}\n- Backend URL: ${backendUrl}`);
       }
     } catch (error) {
       console.error("❌ Error sending payment reminder:", error);
