@@ -771,6 +771,17 @@ const ClientManagement = () => {
       const result = await localDB.getClients();
       if (result.data.length === 0) {
         console.log("🔍 Client Management - No clients found, sample data may be loading...");
+      } else {
+        // Force sync existing clients to backend if online
+        if (navigator.onLine) {
+          try {
+            console.log("🔄 Syncing existing clients to backend...");
+            await localDB.forceSyncAllData();
+            console.log("✅ Client sync completed");
+          } catch (error) {
+            console.error("❌ Client sync failed:", error);
+          }
+        }
       }
     }, 1000);
   }, []);
