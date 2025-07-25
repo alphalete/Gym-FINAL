@@ -1,5 +1,5 @@
-const CACHE_NAME = 'alphalete-v3.2.0-date-fixes'; // Updated version for date calculation fixes
-const API_CACHE_NAME = 'alphalete-api-v3.2.0';
+const CACHE_NAME = 'alphalete-v3.3.0-client-sync-fix'; // Updated version for client sync fixes and refresh button
+const API_CACHE_NAME = 'alphalete-api-v3.3.0';
 
 // Static assets to cache for offline use
 const STATIC_ASSETS = [
