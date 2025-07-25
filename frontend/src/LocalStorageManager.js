@@ -231,7 +231,48 @@ class LocalStorageManager {
     }
   }
 
-  async updateClient(clientId, updateData) {
+  // Force refresh data from backend
+  async forceRefreshClients() {
+    try {
+      console.log("🔄 LocalStorageManager: Force refreshing clients from backend...");
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      
+      if (!backendUrl) {
+        console.warn("⚠️ No backend URL configured for force refresh");
+        return await this.getClients();
+      }
+      
+      const response = await fetch(`${backendUrl}/api/clients`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        cache: 'no-cache' // Force bypass cache
+      });
+      
+      if (response.ok) {
+        const backendClients = await response.json();
+        console.log(`✅ Force refresh: Fetched ${backendClients.length} clients from backend`);
+        
+        // Clear local storage and repopulate with fresh backend data
+        const transaction = this.db.transaction(['clients'], 'readwrite');
+        const store = transaction.objectStore('clients');
+        await store.clear();
+        
+        // Add all fresh data
+        for (const client of backendClients) {
+          await store.put(client);
+        }
+        
+        console.log("✅ Local storage refreshed with backend data");
+        return { data: backendClients, offline: false, refreshed: true };
+      } else {
+        console.warn("⚠️ Force refresh failed, using existing local data");
+        return await this.getClients();
+      }
+    } catch (error) {
+      console.error("❌ Force refresh error:", error);
+      return await this.getClients();
+    }
+  }
     try {
       const existingClient = await this.performDBOperation('clients', 'get', clientId);
       if (!existingClient) {
