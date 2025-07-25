@@ -955,6 +955,17 @@ class AlphaleteAPITester:
                 self.test_get_specific_client,
             ]),
             
+            # Client Editing Functionality (REQUESTED FEATURE)
+            ("Client Editing Functionality", [
+                self.test_update_client_all_fields,
+                self.test_update_client_partial_fields,
+                self.test_update_client_membership_and_fee,
+                self.test_update_client_status,
+                self.test_update_client_date_handling,
+                self.test_get_client_after_updates,
+                self.test_get_all_clients_after_updates,
+            ]),
+            
             # Email System Integration (UPDATED WITH NEW TEMPLATE FEATURES)
             ("Email System Integration", [
                 self.test_get_email_templates,
