@@ -2242,8 +2242,18 @@ const Payments = () => {
             {/* Payment List */}
             <div className="bg-gray-800 rounded-lg border border-gray-700">
               <div className="p-4 border-b border-gray-700">
-                <h3 className="text-xl font-semibold">All Client Payments</h3>
-                <p className="text-gray-400 text-sm">Manage payments for all clients - Record payments to reactivate inactive clients</p>
+                <h3 className="text-xl font-semibold">
+                  {filter === "all" && "All Client Payments"}
+                  {filter === "pending" && "Pending Payments (Due Within 7 Days)"}
+                  {filter === "overdue" && "Overdue Payments (Past Due Date)"}
+                  {filter === "upcoming" && "Upcoming Payments (Due Later)"}
+                </h3>
+                <p className="text-gray-400 text-sm">
+                  {filter === "all" && "Manage payments for all clients - Record payments to reactivate inactive clients"}
+                  {filter === "pending" && "Clients with payments due in the next 7 days - Send reminders or record payments"}
+                  {filter === "overdue" && "Clients with payments past their due date - Urgent action required"}
+                  {filter === "upcoming" && "Clients with payments due more than 7 days away"}
+                </p>
               </div>
               
               {filteredClients.length === 0 ? (
