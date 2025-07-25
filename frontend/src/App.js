@@ -1241,7 +1241,8 @@ const ClientManagement = () => {
                         <th className="text-left p-4">Phone</th>
                         <th className="text-left p-4">Membership</th>
                         <th className="text-left p-4">Monthly Fee</th>
-                        <th className="text-left p-4">Start Date</th>
+                        <th className="text-left p-4">Member Since</th>
+                        <th className="text-left p-4">Current Period</th>
                         <th className="text-left p-4">Next Payment</th>
                         <th className="text-left p-4">Status</th>
                         <th className="text-left p-4">Actions</th>
