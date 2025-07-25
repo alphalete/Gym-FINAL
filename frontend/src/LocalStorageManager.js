@@ -178,12 +178,16 @@ class LocalStorageManager {
       clientData.created_at = new Date().toISOString();
       clientData.updated_at = new Date().toISOString();
       
-      // Calculate next payment date (30 days from start date)
+      // Calculate billing period dates (30 days from start date)
       if (clientData.start_date && !clientData.next_payment_date) {
         const startDate = new Date(clientData.start_date);
         const nextPaymentDate = new Date(startDate);
         nextPaymentDate.setDate(startDate.getDate() + 30);
+        
+        // Set initial billing period
         clientData.next_payment_date = nextPaymentDate.toISOString().split('T')[0];
+        clientData.current_period_start = startDate.toISOString().split('T')[0];
+        clientData.current_period_end = nextPaymentDate.toISOString().split('T')[0];
       }
       
       console.log("🔍 Debug - Adding client with data:", clientData);
