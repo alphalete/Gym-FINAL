@@ -2328,14 +2328,18 @@ const Payments = () => {
                                 ${client.monthly_fee}
                               </p>
                               <p className="text-sm text-gray-400">
-                                Due: {nextPaymentDate.toLocaleDateString()}
+                                Due: {nextPaymentDate.toLocaleDateString('en-US', { 
+                                  year: 'numeric', 
+                                  month: 'short', 
+                                  day: 'numeric' 
+                                })}
                               </p>
                               <p className="text-xs text-gray-500">
                                 {daysUntilDue < 0 
-                                  ? `${Math.abs(daysUntilDue)} days overdue`
+                                  ? `${Math.abs(daysUntilDue)} day${Math.abs(daysUntilDue) !== 1 ? 's' : ''} overdue`
                                   : daysUntilDue === 0 
                                     ? 'Due today'
-                                    : `${daysUntilDue} days remaining`
+                                    : `${daysUntilDue} day${daysUntilDue !== 1 ? 's' : ''} remaining`
                                 }
                               </p>
                             </div>
