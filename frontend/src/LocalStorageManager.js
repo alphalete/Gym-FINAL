@@ -273,6 +273,8 @@ class LocalStorageManager {
       return await this.getClients();
     }
   }
+
+  async updateClient(clientId, updateData) {
     try {
       const existingClient = await this.performDBOperation('clients', 'get', clientId);
       if (!existingClient) {
