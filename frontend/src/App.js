@@ -1896,6 +1896,7 @@ const Payments = () => {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [filter, setFilter] = useState("all"); // "all", "pending", "overdue", "upcoming"
   const [paymentStats, setPaymentStats] = useState({
     totalRevenue: 0,
     pendingPayments: 0,
