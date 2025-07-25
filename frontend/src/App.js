@@ -877,10 +877,19 @@ const ClientManagement = () => {
   const [customEmailModal, setCustomEmailModal] = useState({ isOpen: false, client: null });
   const [editClientModal, setEditClientModal] = useState({ isOpen: false, client: null });
 
-  const fetchClients = async () => {
+  const fetchClients = async (forceRefresh = false) => {
     try {
       setLoading(true);
-      const result = await localDB.getClients();
+      let result;
+      
+      if (forceRefresh) {
+        console.log("🔄 ClientManagement: Force refreshing clients...");
+        result = await localDB.forceRefreshClients();
+      } else {
+        result = await localDB.getClients();
+      }
+      
+      console.log(`📊 ClientManagement: Loaded ${result.data.length} clients (offline: ${result.offline})`);
       setClients(result.data);
     } catch (error) {
       console.error("Error fetching clients:", error);
