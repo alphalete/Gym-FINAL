@@ -1270,6 +1270,13 @@ const ClientManagement = () => {
                                 🎨
                               </button>
                               <button
+                                onClick={() => openEditClientModal(client)}
+                                className="bg-yellow-600 hover:bg-yellow-700 px-3 py-1 rounded text-sm font-semibold"
+                                title="Edit Client"
+                              >
+                                ✏️
+                              </button>
+                              <button
                                 onClick={() => toggleClientStatus(client)}
                                 className={`px-3 py-1 rounded text-sm font-semibold ${
                                   client.status === 'Active' 
