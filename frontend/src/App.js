@@ -730,28 +730,6 @@ const Dashboard = () => {
     }
   };
 
-  // Debug function to clear all data and reinitialize
-  const resetData = async () => {
-    if (confirm("⚠️ This will delete all client data and add fresh sample clients. Continue?")) {
-      try {
-        // Clear all clients
-        const clients = await localDB.getClients();
-        for (const client of clients.data) {
-          await localDB.deleteClient(client.id);
-        }
-        console.log("🔍 Debug - All clients cleared");
-        
-        // Re-initialize sample data
-        await initializeSampleData();
-        
-        alert("✅ Data reset complete! Fresh sample clients added.");
-      } catch (error) {
-        console.error("Error resetting data:", error);
-        alert("❌ Error resetting data: " + error.message);
-      }
-    }
-  };
-
   useEffect(() => {
     fetchClients();
     // Initialize sample data if needed
