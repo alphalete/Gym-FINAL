@@ -1915,7 +1915,10 @@ const Payments = () => {
       // Calculate payment statistics (only from active clients for stats)
       const activeClients = allClients.filter(client => client.status === 'Active');
       const today = new Date();
+      today.setHours(0, 0, 0, 0); // Set to start of day for accurate comparison
+      
       const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
       
       let totalRevenue = 0;
       let pendingPayments = 0;
@@ -1924,23 +1927,27 @@ const Payments = () => {
       
       activeClients.forEach(client => {
         const nextPaymentDate = new Date(client.next_payment_date);
+        nextPaymentDate.setHours(0, 0, 0, 0); // Set to start of day for accurate comparison
+        
         const fee = client.monthly_fee || 0;
         
         totalRevenue += fee;
         
         // Check if payment is due this month
-        if (nextPaymentDate >= startOfMonth && nextPaymentDate <= today) {
+        if (nextPaymentDate >= startOfMonth && nextPaymentDate <= endOfMonth) {
           thisMonthRevenue += fee;
         }
         
-        // Check if payment is pending (due in next 7 days)
+        // Calculate days until due with consistent logic
         const daysUntilDue = Math.ceil((nextPaymentDate - today) / (1000 * 60 * 60 * 24));
+        
+        // Check if payment is pending (due in next 7 days including today)
         if (daysUntilDue <= 7 && daysUntilDue >= 0) {
           pendingPayments += 1;
         }
         
         // Check if payment is overdue
-        if (nextPaymentDate < today) {
+        if (daysUntilDue < 0) {
           overduePayments += 1;
         }
       });
