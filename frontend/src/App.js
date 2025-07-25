@@ -998,6 +998,19 @@ const ClientManagement = () => {
     setCustomEmailModal({ isOpen: false, client: null });
   };
 
+  const openEditClientModal = (client) => {
+    setEditClientModal({ isOpen: true, client });
+  };
+
+  const closeEditClientModal = () => {
+    setEditClientModal({ isOpen: false, client: null });
+  };
+
+  const handleClientUpdated = (updatedClient) => {
+    // Refresh the client list after successful update
+    fetchClients();
+  };
+
   const deleteClient = async (client) => {
     if (!confirm(`⚠️ Are you sure you want to delete ${client.name}?\n\nThis action cannot be undone and will remove all client data including payment history.`)) {
       return;
