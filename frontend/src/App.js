@@ -1972,15 +1972,34 @@ const Payments = () => {
 
   const getPaymentStatus = (nextPaymentDate) => {
     const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set to start of day for accurate comparison
+    
     const paymentDate = new Date(nextPaymentDate);
+    paymentDate.setHours(0, 0, 0, 0); // Set to start of day for accurate comparison
+    
     const daysUntilDue = Math.ceil((paymentDate - today) / (1000 * 60 * 60 * 24));
     
     if (daysUntilDue < 0) {
-      return { status: 'overdue', label: 'Overdue', class: 'bg-red-900 text-red-300' };
+      return { 
+        status: 'overdue', 
+        label: `Overdue (${Math.abs(daysUntilDue)} day${Math.abs(daysUntilDue) !== 1 ? 's' : ''})`, 
+        class: 'bg-red-900 text-red-300',
+        daysUntilDue 
+      };
     } else if (daysUntilDue <= 7) {
-      return { status: 'due-soon', label: 'Due Soon', class: 'bg-orange-900 text-orange-300' };
+      return { 
+        status: 'due-soon', 
+        label: daysUntilDue === 0 ? 'Due Today' : `Due in ${daysUntilDue} day${daysUntilDue !== 1 ? 's' : ''}`, 
+        class: 'bg-orange-900 text-orange-300',
+        daysUntilDue 
+      };
     } else {
-      return { status: 'upcoming', label: 'Upcoming', class: 'bg-green-900 text-green-300' };
+      return { 
+        status: 'upcoming', 
+        label: `Due in ${daysUntilDue} day${daysUntilDue !== 1 ? 's' : ''}`, 
+        class: 'bg-green-900 text-green-300',
+        daysUntilDue 
+      };
     }
   };
 
