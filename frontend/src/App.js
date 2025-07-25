@@ -1261,6 +1261,15 @@ const ClientManagement = () => {
                           <td className="p-4">{client.membership_type}</td>
                           <td className="p-4 font-semibold text-green-400">${client.monthly_fee}</td>
                           <td className="p-4">{new Date(client.start_date).toLocaleDateString()}</td>
+                          <td className="p-4">
+                            {client.current_period_start && client.current_period_end ? (
+                              <div className="text-blue-400 text-sm">
+                                {new Date(client.current_period_start).toLocaleDateString()} - {new Date(client.current_period_end).toLocaleDateString()}
+                              </div>
+                            ) : (
+                              <span className="text-gray-500 text-sm">Not set</span>
+                            )}
+                          </td>
                           <td className="p-4">{new Date(client.next_payment_date).toLocaleDateString()}</td>
                           <td className="p-4">
                             <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
