@@ -2295,7 +2295,7 @@ const Payments = () => {
                     {filteredClients.map((client) => {
                       const paymentStatus = getPaymentStatus(client.next_payment_date);
                       const nextPaymentDate = new Date(client.next_payment_date);
-                      const daysUntilDue = Math.ceil((nextPaymentDate - new Date()) / (1000 * 60 * 60 * 24));
+                      const daysUntilDue = paymentStatus.daysUntilDue; // Use the same calculation from getPaymentStatus
                       const isInactive = client.status !== 'Active';
                       
                       return (
