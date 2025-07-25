@@ -1,5 +1,5 @@
-const CACHE_NAME = 'alphalete-v1.0.1'; // Updated version to force cache refresh
-const API_CACHE_NAME = 'alphalete-api-v1.0.0';
+const CACHE_NAME = 'alphalete-v2.0.0-edit-feature'; // Updated version to force cache refresh for edit feature
+const API_CACHE_NAME = 'alphalete-api-v2.0.0';
 
 // Static assets to cache for offline use
 const STATIC_ASSETS = [
