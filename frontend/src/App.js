@@ -2075,18 +2075,41 @@ const Payments = () => {
     try {
       console.log("🔍 Debug - Recording payment for client:", client.name, "ID:", client.id, "Current Status:", client.status);
       
-      // Calculate next payment date (30 days from today)
+      // Calculate billing period dates
       const today = new Date();
       const nextPaymentDate = new Date(today);
       nextPaymentDate.setDate(today.getDate() + 30);
       
-      console.log("🔍 Debug - Next payment date calculated:", nextPaymentDate.toLocaleDateString());
+      // Calculate current billing period end date (when this payment expires)
+      const currentPeriodEndDate = new Date(today);
+      currentPeriodEndDate.setDate(today.getDate() + 30);
       
-      // Update local storage first - including setting status to Active
+      // If client has an existing next_payment_date, use it as the start of the new period
+      let periodStartDate = today;
+      if (client.next_payment_date) {
+        const existingNextPayment = new Date(client.next_payment_date);
+        // If the existing next payment is in the future, start the new period from that date
+        if (existingNextPayment > today) {
+          periodStartDate = existingNextPayment;
+          nextPaymentDate.setTime(periodStartDate.getTime());
+          nextPaymentDate.setDate(periodStartDate.getDate() + 30);
+          currentPeriodEndDate.setTime(nextPaymentDate.getTime());
+        }
+      }
+      
+      console.log("🔍 Debug - Period start date:", periodStartDate.toLocaleDateString());
+      console.log("🔍 Debug - Current period end date:", currentPeriodEndDate.toLocaleDateString());
+      console.log("🔍 Debug - Next payment date:", nextPaymentDate.toLocaleDateString());
+      
+      // Update local storage with new billing period information
       const updateData = {
         next_payment_date: nextPaymentDate.toISOString().split('T')[0],
+        current_period_start: periodStartDate.toISOString().split('T')[0],
+        current_period_end: currentPeriodEndDate.toISOString().split('T')[0],
         status: "Active", // Always set to Active when payment is recorded
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
+        last_payment_date: today.toISOString().split('T')[0],
+        last_payment_amount: client.monthly_fee
       };
       
       await localDB.updateClient(client.id, updateData);
