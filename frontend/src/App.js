@@ -1314,6 +1314,14 @@ const ClientManagement = () => {
         onClose={closeCustomEmailModal}
         onSend={fetchClients}
       />
+
+      {/* Edit Client Modal */}
+      <EditClientModal
+        client={editClientModal.client}
+        isOpen={editClientModal.isOpen}
+        onClose={closeEditClientModal}
+        onSave={handleClientUpdated}
+      />
     </>
   );
 };
