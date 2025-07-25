@@ -2093,10 +2093,27 @@ const Payments = () => {
     }
   };
 
-  const filteredClients = clients.filter(client =>
-    client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    client.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredClients = clients.filter(client => {
+    const matchesSearch = client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          client.email.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    if (!matchesSearch) return false;
+    
+    if (filter === "all") return true;
+    
+    const paymentStatus = getPaymentStatus(client.next_payment_date);
+    
+    switch (filter) {
+      case "pending":
+        return paymentStatus.status === "due-soon";
+      case "overdue":
+        return paymentStatus.status === "overdue";
+      case "upcoming":
+        return paymentStatus.status === "upcoming";
+      default:
+        return true;
+    }
+  });
 
   return (
     <div className="pwa-page-container">
