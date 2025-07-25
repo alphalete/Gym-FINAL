@@ -1,5 +1,5 @@
-const CACHE_NAME = 'alphalete-v3.0.0-cross-logo-clean'; // Updated version for cross logo and debug cleanup
-const API_CACHE_NAME = 'alphalete-api-v3.0.0';
+const CACHE_NAME = 'alphalete-v3.1.0-payment-filters'; // Updated version for payment filtering functionality
+const API_CACHE_NAME = 'alphalete-api-v3.1.0';
 
 // Static assets to cache for offline use
 const STATIC_ASSETS = [
