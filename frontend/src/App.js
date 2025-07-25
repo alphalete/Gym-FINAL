@@ -2132,28 +2132,99 @@ const Payments = () => {
           <div className="space-y-6">
             {/* Payment Statistics */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-gradient-to-r from-green-600 to-green-700 p-6 rounded-lg">
+              <button 
+                onClick={() => setFilter("all")}
+                className={`bg-gradient-to-r from-green-600 to-green-700 p-6 rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-200 ${filter === "all" ? "ring-4 ring-green-400" : ""}`}
+              >
                 <h3 className="text-green-200 text-sm font-semibold">Total Monthly Revenue</h3>
                 <p className="text-3xl font-bold text-white">${paymentStats.totalRevenue.toFixed(2)}</p>
-                <p className="text-green-200 text-sm mt-2">From {clients.length} active members</p>
-              </div>
+                <p className="text-green-200 text-sm mt-2">From {clients.filter(c => c.status === 'Active').length} active members</p>
+              </button>
               
-              <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 rounded-lg">
-                <h3 className="text-blue-200 text-sm font-semibold">This Month Revenue</h3>
-                <p className="text-3xl font-bold text-white">${paymentStats.thisMonthRevenue.toFixed(2)}</p>
-                <p className="text-blue-200 text-sm mt-2">Payments due this month</p>
-              </div>
+              <button 
+                onClick={() => setFilter("upcoming")}
+                className={`bg-gradient-to-r from-blue-600 to-blue-700 p-6 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 ${filter === "upcoming" ? "ring-4 ring-blue-400" : ""}`}
+              >
+                <h3 className="text-blue-200 text-sm font-semibold">Upcoming Payments</h3>
+                <p className="text-3xl font-bold text-white">{clients.filter(c => getPaymentStatus(c.next_payment_date).status === 'upcoming').length}</p>
+                <p className="text-blue-200 text-sm mt-2">More than 7 days away</p>
+              </button>
               
-              <div className="bg-gradient-to-r from-orange-600 to-orange-700 p-6 rounded-lg">
+              <button 
+                onClick={() => setFilter("pending")}
+                className={`bg-gradient-to-r from-orange-600 to-orange-700 p-6 rounded-lg hover:from-orange-700 hover:to-orange-800 transition-all duration-200 ${filter === "pending" ? "ring-4 ring-orange-400" : ""}`}
+              >
                 <h3 className="text-orange-200 text-sm font-semibold">Pending Payments</h3>
                 <p className="text-3xl font-bold text-white">{paymentStats.pendingPayments}</p>
                 <p className="text-orange-200 text-sm mt-2">Due within 7 days</p>
-              </div>
+              </button>
               
-              <div className="bg-gradient-to-r from-red-600 to-red-700 p-6 rounded-lg">
+              <button 
+                onClick={() => setFilter("overdue")}
+                className={`bg-gradient-to-r from-red-600 to-red-700 p-6 rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-200 ${filter === "overdue" ? "ring-4 ring-red-400" : ""}`}
+              >
                 <h3 className="text-red-200 text-sm font-semibold">Overdue Payments</h3>
                 <p className="text-3xl font-bold text-white">{paymentStats.overduePayments}</p>
                 <p className="text-red-200 text-sm mt-2">Past due date</p>
+              </button>
+            </div>
+
+            {/* Filter Status Bar */}
+            <div className="bg-gray-800 rounded-lg border border-gray-700 p-4">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div className="flex items-center space-x-4">
+                  <h3 className="text-lg font-semibold">
+                    {filter === "all" && "All Clients"}
+                    {filter === "pending" && "Pending Payments"}
+                    {filter === "overdue" && "Overdue Payments"}
+                    {filter === "upcoming" && "Upcoming Payments"}
+                  </h3>
+                  <span className="px-3 py-1 bg-gray-700 rounded-full text-sm font-semibold">
+                    {filteredClients.length} client{filteredClients.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => setFilter("all")}
+                    className={`px-3 py-1 rounded-full text-sm font-semibold transition-all ${
+                      filter === "all" 
+                        ? "bg-green-600 text-white" 
+                        : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                    }`}
+                  >
+                    All
+                  </button>
+                  <button
+                    onClick={() => setFilter("upcoming")}
+                    className={`px-3 py-1 rounded-full text-sm font-semibold transition-all ${
+                      filter === "upcoming" 
+                        ? "bg-blue-600 text-white" 
+                        : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                    }`}
+                  >
+                    Upcoming
+                  </button>
+                  <button
+                    onClick={() => setFilter("pending")}
+                    className={`px-3 py-1 rounded-full text-sm font-semibold transition-all ${
+                      filter === "pending" 
+                        ? "bg-orange-600 text-white" 
+                        : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                    }`}
+                  >
+                    Pending
+                  </button>
+                  <button
+                    onClick={() => setFilter("overdue")}
+                    className={`px-3 py-1 rounded-full text-sm font-semibold transition-all ${
+                      filter === "overdue" 
+                        ? "bg-red-600 text-white" 
+                        : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                    }`}
+                  >
+                    Overdue
+                  </button>
+                </div>
               </div>
             </div>
 
