@@ -1181,9 +1181,6 @@ const ClientManagement = () => {
                         </div>
                       )}
                     </div>
-                        <p>{new Date(client.next_payment_date).toLocaleDateString()}</p>
-                      </div>
-                    </div>
                     
                     <div className="flex space-x-2">
                       <button
