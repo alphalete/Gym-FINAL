@@ -2154,7 +2154,7 @@ const Payments = () => {
         }
       }
       
-      alert(`✅ Payment recorded for ${client.name}!\n\n💳 Amount: $${client.monthly_fee}\n📅 Next payment due: ${nextPaymentDate.toLocaleDateString()}\n🎯 Status: ACTIVE\n${isOnline ? '🌐 Synced to server' : '📱 Saved locally (will sync when online)'}`);
+      alert(`✅ Payment recorded for ${client.name}!\n\n💳 Amount: $${client.monthly_fee}\n📅 Current Period: ${periodStartDate.toLocaleDateString()} - ${currentPeriodEndDate.toLocaleDateString()}\n📅 Next payment due: ${nextPaymentDate.toLocaleDateString()}\n🎯 Status: ACTIVE\n${isOnline ? '🌐 Synced to server' : '📱 Saved locally (will sync when online)'}`);
       fetchPaymentData(); // Refresh data
       
     } catch (error) {
