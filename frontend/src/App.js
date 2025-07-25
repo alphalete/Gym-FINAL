@@ -300,7 +300,9 @@ const Navigation = ({ currentPage }) => {
         {/* Logo Header */}
         <div className="p-6 border-b border-gray-700 flex-shrink-0">
           <div className="flex items-center space-x-3">
-            <div className="text-2xl">🏋️‍♂️</div>
+            <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center">
+              <img src="/icon-192.png" alt="Wolf Logo" className="w-8 h-8 rounded-full" />
+            </div>
             <div>
               <h1 className="text-lg font-bold text-white">ALPHALETE</h1>
               <p className="text-xs text-red-400">ATHLETICS CLUB</p>
