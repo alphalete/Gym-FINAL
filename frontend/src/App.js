@@ -1062,12 +1062,30 @@ const ClientManagement = () => {
   return (
     <>
       <div className="pwa-page-container">
-        <div className="pwa-page-header">
-          <h1 className="text-3xl font-bold mb-2">Client Management</h1>
-          <p className="text-gray-400">Manage your gym members and their information.</p>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Client Management</h1>
+            <p className="text-gray-400">Manage your gym members and their information.</p>
+          </div>
+          <div className="flex space-x-4">
+            <button
+              onClick={() => fetchClients(true)}
+              className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-semibold whitespace-nowrap flex items-center space-x-2"
+              disabled={loading}
+            >
+              <span>{loading ? "🔄" : "↻"}</span>
+              <span>Refresh</span>
+            </button>
+            <Link 
+              to="/add-client"
+              className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg font-semibold whitespace-nowrap"
+            >
+              ➕ Add Client
+            </Link>
+          </div>
         </div>
 
-        {/* Search and Actions */}
+        {/* Search Section */}
         <div className="pwa-search-section">
           <div className="flex-1">
             <input
@@ -1078,12 +1096,6 @@ const ClientManagement = () => {
               className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-600 focus:border-transparent"
             />
           </div>
-          <Link
-            to="/add-client"
-            className="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg font-semibold whitespace-nowrap"
-          >
-            ➕ Add Client
-          </Link>
         </div>
 
         {/* Client Cards for Mobile, Table for Desktop */}
