@@ -188,16 +188,45 @@ class LocalStorageManager {
       
       console.log("🔍 Debug - Adding client with data:", clientData);
       
+      // Try to add to backend first if online
+      if (this.isOnline) {
+        try {
+          const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+          if (backendUrl) {
+            console.log("🔍 LocalStorageManager: Adding client to backend first...");
+            const response = await fetch(`${backendUrl}/api/clients`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(clientData)
+            });
+            
+            if (response.ok) {
+              const backendClient = await response.json();
+              console.log("✅ LocalStorageManager: Client added to backend successfully");
+              
+              // Store the backend response (with any server-generated fields)
+              await this.performDBOperation('clients', 'put', backendClient);
+              return { data: backendClient, success: true, offline: false };
+            } else {
+              console.warn("⚠️ LocalStorageManager: Backend add failed, storing locally for sync later");
+            }
+          }
+        } catch (error) {
+          console.warn("⚠️ LocalStorageManager: Backend error, storing locally for sync later:", error);
+        }
+      }
+      
+      // Add to local storage (either offline or backend failed)
       await this.performDBOperation('clients', 'add', clientData);
       
-      // Add to sync queue if online
+      // Add to sync queue if online but backend failed
       if (this.isOnline) {
         this.addToSyncQueue('CREATE_CLIENT', clientData);
       }
       
       return { data: clientData, success: true, offline: !this.isOnline };
     } catch (error) {
-      console.error('Error adding client to local storage:', error);
+      console.error('Error adding client:', error);
       throw error;
     }
   }
