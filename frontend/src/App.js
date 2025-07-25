@@ -899,6 +899,7 @@ const ClientManagement = () => {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [customEmailModal, setCustomEmailModal] = useState({ isOpen: false, client: null });
+  const [editClientModal, setEditClientModal] = useState({ isOpen: false, client: null });
 
   const fetchClients = async () => {
     try {
