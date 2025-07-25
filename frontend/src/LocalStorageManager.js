@@ -114,9 +114,9 @@ class LocalStorageManager {
       // First try to fetch from backend if online
       if (this.isOnline) {
         try {
-          const backendUrl = process.env.REACT_APP_BACKEND_URL;
+          const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
           if (backendUrl) {
-            console.log("🔍 LocalStorageManager: Fetching clients from backend...");
+            console.log("🔍 LocalStorageManager: Fetching clients from backend...", backendUrl);
             const response = await fetch(`${backendUrl}/api/clients`, {
               method: 'GET',
               headers: { 'Content-Type': 'application/json' },
@@ -138,17 +138,22 @@ class LocalStorageManager {
               
               return { data: backendClients, offline: false };
             } else {
-              console.warn("⚠️ LocalStorageManager: Backend fetch failed, falling back to local storage");
+              console.warn("⚠️ LocalStorageManager: Backend fetch failed, status:", response.status, "falling back to local storage");
             }
+          } else {
+            console.warn("⚠️ LocalStorageManager: No backend URL configured, using local storage only");
           }
         } catch (error) {
           console.warn("⚠️ LocalStorageManager: Backend error, falling back to local storage:", error);
         }
+      } else {
+        console.log("📱 LocalStorageManager: Offline mode, using local storage");
       }
       
       // Fallback to local storage (offline mode or backend unavailable)
       console.log("📱 LocalStorageManager: Using local storage for clients");
       const localClients = await this.performDBOperation('clients', 'getAll');
+      console.log(`📱 LocalStorageManager: Found ${localClients.length} clients in local storage`);
       return { data: localClients, offline: true };
       
     } catch (error) {
