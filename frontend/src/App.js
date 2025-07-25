@@ -304,17 +304,35 @@ const EditClientModal = ({ client, isOpen, onClose, onSave }) => {
 
   const fetchMembershipTypes = async () => {
     try {
+      // First try to get from local storage manager
+      const result = await localDB.getMembershipTypes();
+      if (result.data && result.data.length > 0) {
+        const activeTypes = result.data.filter(type => type.is_active);
+        setMembershipTypes(activeTypes);
+        return;
+      }
+      
+      // Fallback to backend API
       const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-      const response = await fetch(`${backendUrl}/api/membership-types`);
-      const data = await response.json();
-      setMembershipTypes(data || []);
+      if (backendUrl) {
+        const response = await fetch(`${backendUrl}/api/membership-types`);
+        if (response.ok) {
+          const data = await response.json();
+          setMembershipTypes(data || []);
+          return;
+        }
+      }
+      
+      // Final fallback to default types
+      throw new Error('Could not fetch membership types');
     } catch (error) {
       console.error("Error fetching membership types:", error);
-      // Use default types if API fails
+      // Use default types if everything fails
       setMembershipTypes([
         { name: 'Standard', monthly_fee: 50.00 },
         { name: 'Premium', monthly_fee: 75.00 },
-        { name: 'Elite', monthly_fee: 100.00 }
+        { name: 'Elite', monthly_fee: 100.00 },
+        { name: 'VIP', monthly_fee: 150.00 }
       ]);
     }
   };
