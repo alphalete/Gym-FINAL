@@ -988,6 +988,8 @@ class AlphaleteAPITester:
                 self.test_email_endpoint_route_conflicts,
                 self.test_create_duplicate_client,
                 self.test_send_custom_reminder_invalid_client,
+                self.test_update_nonexistent_client,
+                self.test_update_client_invalid_email,
                 self.test_error_handling,
             ])
         ]
