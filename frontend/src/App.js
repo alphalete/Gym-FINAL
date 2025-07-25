@@ -269,6 +269,269 @@ const CustomEmailModal = ({ client, isOpen, onClose, onSend }) => {
     </div>
   );
 };
+
+// Edit Client Modal Component
+const EditClientModal = ({ client, isOpen, onClose, onSave }) => {
+  const [clientData, setClientData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    membership_type: 'Standard',
+    monthly_fee: 0,
+    start_date: '',
+    status: 'Active'
+  });
+  const [membershipTypes, setMembershipTypes] = useState([]);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && client) {
+      // Initialize form with client data
+      setClientData({
+        name: client.name || '',
+        email: client.email || '',
+        phone: client.phone || '',
+        membership_type: client.membership_type || 'Standard',
+        monthly_fee: client.monthly_fee || 0,
+        start_date: client.start_date || '',
+        status: client.status || 'Active'
+      });
+      
+      // Fetch membership types
+      fetchMembershipTypes();
+    }
+  }, [isOpen, client]);
+
+  const fetchMembershipTypes = async () => {
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const response = await fetch(`${backendUrl}/api/membership-types`);
+      const data = await response.json();
+      setMembershipTypes(data || []);
+    } catch (error) {
+      console.error("Error fetching membership types:", error);
+      // Use default types if API fails
+      setMembershipTypes([
+        { name: 'Standard', monthly_fee: 50.00 },
+        { name: 'Premium', monthly_fee: 75.00 },
+        { name: 'Elite', monthly_fee: 100.00 }
+      ]);
+    }
+  };
+
+  const handleMembershipTypeChange = (membershipType) => {
+    const selectedType = membershipTypes.find(type => type.name === membershipType);
+    setClientData(prev => ({
+      ...prev,
+      membership_type: membershipType,
+      monthly_fee: selectedType ? selectedType.monthly_fee : prev.monthly_fee
+    }));
+  };
+
+  const handleSave = async () => {
+    // Validation
+    if (!clientData.name.trim()) {
+      alert('❌ Please enter client name');
+      return;
+    }
+    if (!clientData.email.trim()) {
+      alert('❌ Please enter client email');
+      return;
+    }
+    if (!clientData.start_date) {
+      alert('❌ Please enter start date');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      
+      // Update via backend API
+      const response = await fetch(`${backendUrl}/api/clients/${client.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: clientData.name.trim(),
+          email: clientData.email.trim(),
+          phone: clientData.phone.trim() || null,
+          membership_type: clientData.membership_type,
+          monthly_fee: parseFloat(clientData.monthly_fee),
+          start_date: clientData.start_date,
+          status: clientData.status
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to update client: ${response.status} - ${errorText}`);
+      }
+
+      const updatedClient = await response.json();
+      
+      // Also update local storage
+      await localDB.updateClient(client.id, {
+        name: clientData.name.trim(),
+        email: clientData.email.trim(),
+        phone: clientData.phone.trim() || null,
+        membership_type: clientData.membership_type,
+        monthly_fee: parseFloat(clientData.monthly_fee),
+        start_date: clientData.start_date,
+        status: clientData.status,
+        updated_at: new Date().toISOString()
+      });
+
+      alert(`✅ ${clientData.name} updated successfully!`);
+      onSave && onSave(updatedClient);
+      onClose();
+      
+    } catch (error) {
+      console.error("Error updating client:", error);
+      alert(`❌ Error updating client: ${error.message}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!isOpen || !client) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div className="bg-gray-800 rounded-lg border border-gray-700 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="p-6 border-b border-gray-700">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-semibold">Edit Client: {client.name}</h3>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-200 text-2xl"
+            >
+              ✕
+            </button>
+          </div>
+          <p className="text-gray-400 text-sm mt-1">Update client information</p>
+        </div>
+        
+        <div className="p-6 space-y-4">
+          {/* Name */}
+          <div>
+            <label className="block text-sm font-medium mb-2">Full Name *</label>
+            <input
+              type="text"
+              value={clientData.name}
+              onChange={(e) => setClientData(prev => ({ ...prev, name: e.target.value }))}
+              className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-600 focus:border-transparent"
+              placeholder="Enter full name"
+            />
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className="block text-sm font-medium mb-2">Email Address *</label>
+            <input
+              type="email"
+              value={clientData.email}
+              onChange={(e) => setClientData(prev => ({ ...prev, email: e.target.value }))}
+              className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-600 focus:border-transparent"
+              placeholder="Enter email address"
+            />
+          </div>
+
+          {/* Phone */}
+          <div>
+            <label className="block text-sm font-medium mb-2">Phone Number</label>
+            <input
+              type="tel"
+              value={clientData.phone}
+              onChange={(e) => setClientData(prev => ({ ...prev, phone: e.target.value }))}
+              className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-600 focus:border-transparent"
+              placeholder="Enter phone number (optional)"
+            />
+          </div>
+
+          {/* Membership Type and Monthly Fee */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Membership Type</label>
+              <select
+                value={clientData.membership_type}
+                onChange={(e) => handleMembershipTypeChange(e.target.value)}
+                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-600 focus:border-transparent"
+              >
+                {membershipTypes.map((type) => (
+                  <option key={type.name} value={type.name}>
+                    {type.name} - ${type.monthly_fee}/month
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Monthly Fee</label>
+              <input
+                type="number"
+                value={clientData.monthly_fee}
+                onChange={(e) => setClientData(prev => ({ ...prev, monthly_fee: parseFloat(e.target.value) || 0 }))}
+                min="0"
+                step="0.01"
+                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-600 focus:border-transparent"
+              />
+            </div>
+          </div>
+
+          {/* Start Date and Status */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Start Date *</label>
+              <input
+                type="date"
+                value={clientData.start_date}
+                onChange={(e) => setClientData(prev => ({ ...prev, start_date: e.target.value }))}
+                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-600 focus:border-transparent"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Status</label>
+              <select
+                value={clientData.status}
+                onChange={(e) => setClientData(prev => ({ ...prev, status: e.target.value }))}
+                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-600 focus:border-transparent"
+              >
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Client Info Preview */}
+          <div className="bg-gray-900 p-4 rounded-lg border border-gray-600">
+            <h4 className="font-semibold mb-2">Updated Client Info:</h4>
+            <p className="text-sm text-gray-300">Name: {clientData.name}</p>
+            <p className="text-sm text-gray-300">Email: {clientData.email}</p>
+            <p className="text-sm text-gray-300">Membership: {clientData.membership_type} (${clientData.monthly_fee}/month)</p>
+            <p className="text-sm text-gray-300">Status: {clientData.status}</p>
+          </div>
+        </div>
+
+        <div className="p-6 border-t border-gray-700 flex space-x-4">
+          <button
+            onClick={onClose}
+            className="flex-1 bg-gray-600 hover:bg-gray-700 px-6 py-3 rounded-lg font-semibold"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="flex-1 bg-red-600 hover:bg-red-700 disabled:opacity-50 px-6 py-3 rounded-lg font-semibold"
+          >
+            {saving ? "Saving..." : "Save Changes"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 const Navigation = ({ currentPage }) => {
   const [isOpen, setIsOpen] = useState(false);
 
