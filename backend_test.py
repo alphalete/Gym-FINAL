@@ -304,6 +304,240 @@ class AlphaleteAPITester:
         
         return success
 
+    def test_update_client_all_fields(self):
+        """Test updating client with all editable fields"""
+        if not self.created_client_id:
+            print("❌ Update Client (All Fields) - SKIPPED (No client ID available)")
+            return False
+            
+        # Update all possible fields
+        update_data = {
+            "name": "John Smith Updated",
+            "email": "john.smith.updated@example.com",
+            "phone": "(555) 987-6543",
+            "membership_type": "Premium",
+            "monthly_fee": 75.00,
+            "start_date": "2025-08-01",
+            "status": "Active"
+        }
+        
+        success, response = self.run_test(
+            "Update Client (All Fields)",
+            "PUT",
+            f"clients/{self.created_client_id}",
+            200,
+            update_data
+        )
+        
+        if success:
+            print(f"   Updated client: {response.get('name')} ({response.get('email')})")
+            print(f"   New phone: {response.get('phone')}")
+            print(f"   New membership: {response.get('membership_type')} - ${response.get('monthly_fee')}")
+            print(f"   New start date: {response.get('start_date')}")
+            print(f"   Status: {response.get('status')}")
+            print(f"   Next payment date: {response.get('next_payment_date')}")
+            
+            # Verify that start_date update recalculated next_payment_date
+            expected_payment_date = "2025-08-31"  # 30 days after 2025-08-01
+            if str(response.get('next_payment_date')) == expected_payment_date:
+                print("   ✅ Payment date recalculation is CORRECT!")
+            else:
+                print(f"   ❌ Payment date recalculation is INCORRECT! Expected: {expected_payment_date}, Got: {response.get('next_payment_date')}")
+        
+        return success
+
+    def test_update_client_partial_fields(self):
+        """Test updating client with only some fields (partial update)"""
+        if not self.created_client_id:
+            print("❌ Update Client (Partial) - SKIPPED (No client ID available)")
+            return False
+            
+        # Update only name and phone
+        update_data = {
+            "name": "John Smith Partial Update",
+            "phone": "(555) 111-2222"
+        }
+        
+        success, response = self.run_test(
+            "Update Client (Partial Fields)",
+            "PUT",
+            f"clients/{self.created_client_id}",
+            200,
+            update_data
+        )
+        
+        if success:
+            print(f"   Updated client: {response.get('name')}")
+            print(f"   Updated phone: {response.get('phone')}")
+            print(f"   Email unchanged: {response.get('email')}")
+            print(f"   Membership unchanged: {response.get('membership_type')}")
+        
+        return success
+
+    def test_update_client_membership_and_fee(self):
+        """Test updating client membership type and monthly fee"""
+        if not self.created_client_id:
+            print("❌ Update Client (Membership & Fee) - SKIPPED (No client ID available)")
+            return False
+            
+        # Update membership type and fee
+        update_data = {
+            "membership_type": "VIP",
+            "monthly_fee": 150.00
+        }
+        
+        success, response = self.run_test(
+            "Update Client (Membership & Fee)",
+            "PUT",
+            f"clients/{self.created_client_id}",
+            200,
+            update_data
+        )
+        
+        if success:
+            print(f"   Updated membership: {response.get('membership_type')}")
+            print(f"   Updated fee: ${response.get('monthly_fee')}")
+            print(f"   Client: {response.get('name')}")
+        
+        return success
+
+    def test_update_client_status(self):
+        """Test updating client status"""
+        if not self.created_client_id:
+            print("❌ Update Client (Status) - SKIPPED (No client ID available)")
+            return False
+            
+        # Update status to Inactive
+        update_data = {
+            "status": "Inactive"
+        }
+        
+        success, response = self.run_test(
+            "Update Client (Status to Inactive)",
+            "PUT",
+            f"clients/{self.created_client_id}",
+            200,
+            update_data
+        )
+        
+        if success:
+            print(f"   Updated status: {response.get('status')}")
+            print(f"   Client: {response.get('name')}")
+        
+        return success
+
+    def test_update_client_date_handling(self):
+        """Test updating client with different date formats and edge cases"""
+        if not self.created_client_id:
+            print("❌ Update Client (Date Handling) - SKIPPED (No client ID available)")
+            return False
+            
+        # Test with a different start date to verify date serialization/deserialization
+        update_data = {
+            "start_date": "2025-12-15"
+        }
+        
+        success, response = self.run_test(
+            "Update Client (Date Handling)",
+            "PUT",
+            f"clients/{self.created_client_id}",
+            200,
+            update_data
+        )
+        
+        if success:
+            print(f"   Updated start date: {response.get('start_date')}")
+            print(f"   Recalculated next payment: {response.get('next_payment_date')}")
+            
+            # Verify date format and calculation
+            expected_payment_date = "2026-01-14"  # 30 days after 2025-12-15
+            if str(response.get('next_payment_date')) == expected_payment_date:
+                print("   ✅ Date handling and calculation is CORRECT!")
+            else:
+                print(f"   ❌ Date handling is INCORRECT! Expected: {expected_payment_date}, Got: {response.get('next_payment_date')}")
+        
+        return success
+
+    def test_update_nonexistent_client(self):
+        """Test updating a non-existent client (should return 404)"""
+        update_data = {
+            "name": "Non-existent Client",
+            "email": "nonexistent@example.com"
+        }
+        
+        success, response = self.run_test(
+            "Update Non-existent Client (Should Fail)",
+            "PUT",
+            "clients/non-existent-client-id",
+            404,
+            update_data
+        )
+        
+        return success
+
+    def test_update_client_invalid_email(self):
+        """Test updating client with invalid email format"""
+        if not self.created_client_id:
+            print("❌ Update Client (Invalid Email) - SKIPPED (No client ID available)")
+            return False
+            
+        update_data = {
+            "email": "invalid-email-format"
+        }
+        
+        success, response = self.run_test(
+            "Update Client (Invalid Email)",
+            "PUT",
+            f"clients/{self.created_client_id}",
+            422,  # Validation error
+            update_data
+        )
+        
+        return success
+
+    def test_get_client_after_updates(self):
+        """Test getting client after multiple updates to verify persistence"""
+        if not self.created_client_id:
+            print("❌ Get Client After Updates - SKIPPED (No client ID available)")
+            return False
+            
+        success, response = self.run_test(
+            "Get Client After Updates",
+            "GET",
+            f"clients/{self.created_client_id}",
+            200
+        )
+        
+        if success:
+            print(f"   Final client state:")
+            print(f"   Name: {response.get('name')}")
+            print(f"   Email: {response.get('email')}")
+            print(f"   Phone: {response.get('phone')}")
+            print(f"   Membership: {response.get('membership_type')} - ${response.get('monthly_fee')}")
+            print(f"   Start date: {response.get('start_date')}")
+            print(f"   Next payment: {response.get('next_payment_date')}")
+            print(f"   Status: {response.get('status')}")
+        
+        return success
+
+    def test_get_all_clients_after_updates(self):
+        """Test getting all clients after updates to verify they appear correctly in list"""
+        success, response = self.run_test(
+            "Get All Clients After Updates",
+            "GET",
+            "clients",
+            200
+        )
+        
+        if success:
+            print(f"   Total clients: {len(response)}")
+            for client in response:
+                print(f"   - {client.get('name')} ({client.get('email')})")
+                print(f"     Membership: {client.get('membership_type')} - ${client.get('monthly_fee')}")
+                print(f"     Status: {client.get('status')}")
+        
+        return success
+
     def test_send_individual_payment_reminder(self):
         """Test sending individual payment reminder (CRITICAL - 404 Error Fix Test)"""
         if not self.created_client_id:
