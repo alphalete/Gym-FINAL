@@ -1157,7 +1157,30 @@ const ClientManagement = () => {
                         <p className="text-green-400 font-semibold">${client.monthly_fee}</p>
                       </div>
                       <div>
-                        <span className="text-gray-400">Next Payment:</span>
+                        <span className="text-gray-400">Member Since:</span>
+                        <p>{new Date(client.start_date).toLocaleDateString()}</p>
+                      </div>
+                      {client.current_period_start && client.current_period_end && (
+                        <>
+                          <div>
+                            <span className="text-gray-400">Current Period:</span>
+                            <p className="text-blue-400">
+                              {new Date(client.current_period_start).toLocaleDateString()} - {new Date(client.current_period_end).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <div>
+                            <span className="text-gray-400">Next Payment:</span>
+                            <p>{new Date(client.next_payment_date).toLocaleDateString()}</p>
+                          </div>
+                        </>
+                      )}
+                      {!client.current_period_start && (
+                        <div>
+                          <span className="text-gray-400">Next Payment:</span>
+                          <p>{new Date(client.next_payment_date).toLocaleDateString()}</p>
+                        </div>
+                      )}
+                    </div>
                         <p>{new Date(client.next_payment_date).toLocaleDateString()}</p>
                       </div>
                     </div>
