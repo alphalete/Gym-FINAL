@@ -2397,10 +2397,21 @@ const Payments = () => {
                           </div>
                           
                           <div className="flex items-center space-x-4 flex-shrink-0">
-                            <div className="text-right" style={{ minWidth: '120px' }}>
+                            <div className="text-right" style={{ minWidth: '150px' }}>
                               <p className={`font-semibold text-lg ${isInactive ? 'text-gray-400' : ''}`}>
                                 ${client.monthly_fee}
                               </p>
+                              {client.current_period_start && client.current_period_end && (
+                                <p className="text-xs text-blue-400 mb-1">
+                                  Period: {new Date(client.current_period_start).toLocaleDateString('en-US', { 
+                                    month: 'short', 
+                                    day: 'numeric' 
+                                  })} - {new Date(client.current_period_end).toLocaleDateString('en-US', { 
+                                    month: 'short', 
+                                    day: 'numeric' 
+                                  })}
+                                </p>
+                              )}
                               <p className="text-sm text-gray-400">
                                 Due: {nextPaymentDate.toLocaleDateString('en-US', { 
                                   year: 'numeric', 
