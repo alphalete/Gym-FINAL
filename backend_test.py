@@ -14,6 +14,10 @@ class AlphaleteAPITester:
         self.tests_passed = 0
         self.created_client_id = None
         self.created_membership_types = []
+        # Reminder system test variables
+        self.reminder_test_client_id = None
+        self.due_soon_client_id = None
+        self.due_today_client_id = None
 
     def log_test(self, name: str, success: bool, details: str = ""):
         """Log test results"""
