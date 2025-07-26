@@ -177,9 +177,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Client editing modal functionality"
-    - "Branding update with wolf logo"
-    - "Backend supports client editing"
+    - "Automatic payment reminder system"
+    - "Automatic reminders UI and client settings"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
