@@ -924,6 +924,361 @@ class AlphaleteAPITester:
         
         return success1 and success2 and success3
 
+    # ===== AUTOMATIC REMINDER SYSTEM TESTS =====
+    
+    def test_create_client_with_auto_reminders(self):
+        """Test creating a client with auto_reminders_enabled field"""
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        
+        client_data = {
+            "name": "Sarah Connor",
+            "email": f"sarah_reminder_{timestamp}@example.com",
+            "phone": "(555) 987-6543",
+            "membership_type": "Premium",
+            "monthly_fee": 75.00,
+            "start_date": "2025-01-25",
+            "auto_reminders_enabled": True
+        }
+        
+        success, response = self.run_test(
+            "Create Client with Auto Reminders Enabled",
+            "POST",
+            "clients",
+            200,
+            client_data
+        )
+        
+        if success and "id" in response:
+            # Store for reminder tests
+            self.reminder_test_client_id = response["id"]
+            print(f"   Created reminder test client ID: {self.reminder_test_client_id}")
+            print(f"   Auto reminders enabled: {response.get('auto_reminders_enabled', 'Not specified')}")
+            
+            # Verify auto_reminders_enabled field is present and True
+            if response.get('auto_reminders_enabled') is True:
+                print("   ✅ Auto reminders field correctly set to True")
+            else:
+                print("   ❌ Auto reminders field not correctly set")
+                return False
+        
+        return success
+
+    def test_update_client_reminder_settings(self):
+        """Test updating client reminder settings via PUT /api/clients/{client_id}/reminders"""
+        if not hasattr(self, 'reminder_test_client_id') or not self.reminder_test_client_id:
+            print("❌ Update Client Reminder Settings - SKIPPED (No reminder test client ID available)")
+            return False
+        
+        # Test disabling reminders
+        success1, response1 = self.run_test(
+            "Disable Client Auto Reminders",
+            "PUT",
+            f"clients/{self.reminder_test_client_id}/reminders?enabled=false",
+            200
+        )
+        
+        if success1:
+            print(f"   Reminder status: {response1.get('auto_reminders_enabled')}")
+            print(f"   Message: {response1.get('message')}")
+        
+        # Test enabling reminders
+        success2, response2 = self.run_test(
+            "Enable Client Auto Reminders",
+            "PUT", 
+            f"clients/{self.reminder_test_client_id}/reminders?enabled=true",
+            200
+        )
+        
+        if success2:
+            print(f"   Reminder status: {response2.get('auto_reminders_enabled')}")
+            print(f"   Message: {response2.get('message')}")
+        
+        return success1 and success2
+
+    def test_get_upcoming_reminders(self):
+        """Test GET /api/reminders/upcoming endpoint"""
+        success, response = self.run_test(
+            "Get Upcoming Reminders (7 days)",
+            "GET",
+            "reminders/upcoming?days_ahead=7",
+            200
+        )
+        
+        if success:
+            upcoming = response.get('upcoming_reminders', [])
+            print(f"   Found {len(upcoming)} upcoming reminders")
+            print(f"   Days ahead: {response.get('days_ahead')}")
+            print(f"   Total reminders: {response.get('total_reminders')}")
+            
+            # Show sample upcoming reminders
+            for i, reminder in enumerate(upcoming[:3]):  # Show first 3
+                print(f"   {i+1}. {reminder.get('client_name')} - {reminder.get('reminder_type')} on {reminder.get('reminder_date')}")
+        
+        return success
+
+    def test_get_reminder_history(self):
+        """Test GET /api/reminders/history endpoint"""
+        success, response = self.run_test(
+            "Get Reminder History",
+            "GET",
+            "reminders/history?limit=50",
+            200
+        )
+        
+        if success:
+            history = response.get('reminder_history', [])
+            print(f"   Found {len(history)} reminder history records")
+            print(f"   Total records: {response.get('total_records')}")
+            
+            # Show sample history
+            for i, record in enumerate(history[:3]):  # Show first 3
+                print(f"   {i+1}. {record.get('client_name')} - {record.get('reminder_type')} - {record.get('status')}")
+        
+        return success
+
+    def test_get_reminder_stats(self):
+        """Test GET /api/reminders/stats endpoint"""
+        success, response = self.run_test(
+            "Get Reminder Statistics",
+            "GET",
+            "reminders/stats",
+            200
+        )
+        
+        if success:
+            print(f"   Total reminders sent: {response.get('total_reminders_sent', 0)}")
+            print(f"   Total failed reminders: {response.get('total_failed_reminders', 0)}")
+            print(f"   Success rate: {response.get('success_rate', 0):.1f}%")
+            print(f"   Today's reminders: {response.get('todays_reminders', 0)}")
+            print(f"   Scheduler active: {response.get('scheduler_active', False)}")
+            
+            recent_summaries = response.get('recent_summaries', [])
+            print(f"   Recent summaries: {len(recent_summaries)} days")
+        
+        return success
+
+    def test_manual_reminder_run(self):
+        """Test POST /api/reminders/test-run endpoint"""
+        success, response = self.run_test(
+            "Manual Reminder Test Run",
+            "POST",
+            "reminders/test-run",
+            200
+        )
+        
+        if success:
+            print(f"   Success: {response.get('success')}")
+            print(f"   Message: {response.get('message')}")
+        
+        return success
+
+    def test_client_with_payment_due_soon(self):
+        """Test creating a client with payment due in 3 days to test reminder logic"""
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        
+        # Calculate start date so payment is due in 3 days
+        payment_due_in_3_days = date.today() + timedelta(days=3)
+        start_date = payment_due_in_3_days - timedelta(days=30)  # 30 days before due date
+        
+        client_data = {
+            "name": "Mike Reminder Test",
+            "email": f"mike_due_soon_{timestamp}@example.com",
+            "phone": "(555) 111-2222",
+            "membership_type": "Elite",
+            "monthly_fee": 100.00,
+            "start_date": start_date.isoformat(),
+            "auto_reminders_enabled": True
+        }
+        
+        success, response = self.run_test(
+            "Create Client with Payment Due in 3 Days",
+            "POST",
+            "clients",
+            200,
+            client_data
+        )
+        
+        if success and "id" in response:
+            self.due_soon_client_id = response["id"]
+            print(f"   Created client with payment due: {payment_due_in_3_days}")
+            print(f"   Next payment date: {response.get('next_payment_date')}")
+            print(f"   Auto reminders: {response.get('auto_reminders_enabled')}")
+            
+            # Verify the payment date calculation is correct
+            expected_payment_date = payment_due_in_3_days.isoformat()
+            if str(response.get('next_payment_date')) == expected_payment_date:
+                print("   ✅ Payment date calculation is CORRECT for reminder testing!")
+            else:
+                print(f"   ❌ Payment date calculation is INCORRECT! Expected: {expected_payment_date}, Got: {response.get('next_payment_date')}")
+        
+        return success
+
+    def test_client_with_payment_due_today(self):
+        """Test creating a client with payment due today"""
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        
+        # Calculate start date so payment is due today
+        payment_due_today = date.today()
+        start_date = payment_due_today - timedelta(days=30)  # 30 days before due date
+        
+        client_data = {
+            "name": "Lisa Due Today",
+            "email": f"lisa_due_today_{timestamp}@example.com",
+            "phone": "(555) 333-4444",
+            "membership_type": "VIP",
+            "monthly_fee": 150.00,
+            "start_date": start_date.isoformat(),
+            "auto_reminders_enabled": True
+        }
+        
+        success, response = self.run_test(
+            "Create Client with Payment Due Today",
+            "POST",
+            "clients",
+            200,
+            client_data
+        )
+        
+        if success and "id" in response:
+            self.due_today_client_id = response["id"]
+            print(f"   Created client with payment due today: {payment_due_today}")
+            print(f"   Next payment date: {response.get('next_payment_date')}")
+            print(f"   Auto reminders: {response.get('auto_reminders_enabled')}")
+        
+        return success
+
+    def test_reminder_integration_flow(self):
+        """Test the complete reminder integration flow"""
+        print("\n🔄 Testing Complete Reminder Integration Flow...")
+        
+        # Step 1: Check upcoming reminders (should include our test clients)
+        success1, upcoming_response = self.run_test(
+            "Check Upcoming Reminders for Test Clients",
+            "GET",
+            "reminders/upcoming?days_ahead=7",
+            200
+        )
+        
+        if success1:
+            upcoming = upcoming_response.get('upcoming_reminders', [])
+            test_client_found = False
+            
+            for reminder in upcoming:
+                if hasattr(self, 'due_soon_client_id') and reminder.get('client_id') == self.due_soon_client_id:
+                    test_client_found = True
+                    print(f"   ✅ Found test client in upcoming reminders: {reminder.get('client_name')}")
+                    print(f"      Reminder type: {reminder.get('reminder_type')}")
+                    print(f"      Reminder date: {reminder.get('reminder_date')}")
+                    break
+            
+            if not test_client_found and hasattr(self, 'due_soon_client_id'):
+                print(f"   ⚠️ Test client not found in upcoming reminders (may be expected)")
+        
+        # Step 2: Trigger manual reminder run
+        success2, run_response = self.run_test(
+            "Trigger Manual Reminder Run",
+            "POST",
+            "reminders/test-run",
+            200
+        )
+        
+        # Step 3: Check reminder history after run
+        success3, history_response = self.run_test(
+            "Check Reminder History After Run",
+            "GET",
+            "reminders/history?limit=10",
+            200
+        )
+        
+        if success3:
+            history = history_response.get('reminder_history', [])
+            print(f"   Recent reminder history: {len(history)} records")
+            
+            # Look for our test clients in history
+            for record in history[:5]:  # Check first 5 records
+                print(f"   - {record.get('client_name')}: {record.get('reminder_type')} - {record.get('status')}")
+        
+        # Step 4: Check updated stats
+        success4, stats_response = self.run_test(
+            "Check Updated Reminder Stats",
+            "GET",
+            "reminders/stats",
+            200
+        )
+        
+        return success1 and success2 and success3 and success4
+
+    def test_reminder_settings_persistence(self):
+        """Test that reminder settings persist correctly"""
+        if not hasattr(self, 'reminder_test_client_id') or not self.reminder_test_client_id:
+            print("❌ Reminder Settings Persistence - SKIPPED (No reminder test client ID available)")
+            return False
+        
+        # Get client to check current reminder setting
+        success1, client_response = self.run_test(
+            "Get Client to Check Reminder Settings",
+            "GET",
+            f"clients/{self.reminder_test_client_id}",
+            200
+        )
+        
+        if success1:
+            current_setting = client_response.get('auto_reminders_enabled')
+            print(f"   Current reminder setting: {current_setting}")
+            
+            # Update the client's other fields and verify reminder setting persists
+            update_data = {
+                "phone": "(555) 999-8888",
+                "membership_type": "Elite"
+            }
+            
+            success2, update_response = self.run_test(
+                "Update Client Other Fields",
+                "PUT",
+                f"clients/{self.reminder_test_client_id}",
+                200,
+                update_data
+            )
+            
+            if success2:
+                updated_setting = update_response.get('auto_reminders_enabled')
+                print(f"   Reminder setting after update: {updated_setting}")
+                
+                if current_setting == updated_setting:
+                    print("   ✅ Reminder settings persisted correctly during client update")
+                    return True
+                else:
+                    print("   ❌ Reminder settings did not persist during client update")
+                    return False
+        
+        return False
+
+    def test_reminder_error_scenarios(self):
+        """Test reminder system error handling"""
+        print("\n--- Testing Reminder Error Scenarios ---")
+        
+        # Test updating reminders for non-existent client
+        success1, _ = self.run_test(
+            "Update Reminders for Non-existent Client",
+            "PUT",
+            "clients/non-existent-id/reminders?enabled=true",
+            404
+        )
+        
+        # Test getting history for non-existent client
+        success2, response2 = self.run_test(
+            "Get History for Non-existent Client",
+            "GET",
+            "reminders/history?client_id=non-existent-id&limit=10",
+            200  # Should return empty list, not error
+        )
+        
+        if success2:
+            history = response2.get('reminder_history', [])
+            print(f"   History for non-existent client: {len(history)} records (should be 0)")
+        
+        return success1 and success2
+
     def run_all_tests(self):
         """Run all API tests"""
         print("🚀 Starting Alphalete Athletics Club API Tests")
