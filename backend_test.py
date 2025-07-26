@@ -973,24 +973,28 @@ class AlphaleteAPITester:
             print("❌ Update Client Reminder Settings - SKIPPED (No reminder test client ID available)")
             return False
         
-        # Test disabling reminders
+        # Test disabling reminders with JSON body
+        disable_data = {"enabled": False}
         success1, response1 = self.run_test(
             "Disable Client Auto Reminders",
             "PUT",
-            f"clients/{self.reminder_test_client_id}/reminders?enabled=false",
-            200
+            f"clients/{self.reminder_test_client_id}/reminders",
+            200,
+            disable_data
         )
         
         if success1:
             print(f"   Reminder status: {response1.get('auto_reminders_enabled')}")
             print(f"   Message: {response1.get('message')}")
         
-        # Test enabling reminders
+        # Test enabling reminders with JSON body
+        enable_data = {"enabled": True}
         success2, response2 = self.run_test(
             "Enable Client Auto Reminders",
             "PUT", 
-            f"clients/{self.reminder_test_client_id}/reminders?enabled=true",
-            200
+            f"clients/{self.reminder_test_client_id}/reminders",
+            200,
+            enable_data
         )
         
         if success2:
