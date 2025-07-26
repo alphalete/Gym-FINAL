@@ -1287,6 +1287,120 @@ class AlphaleteAPITester:
         
         return success1 and success2
 
+    def test_payment_date_calculation_edge_cases(self):
+        """SPECIFIC REVIEW REQUEST: Test payment date calculation logic for exactly 30 calendar days"""
+        print("\n🎯 PAYMENT DATE CALCULATION EDGE CASES - EXACTLY 30 CALENDAR DAYS")
+        print("=" * 80)
+        
+        # Test cases as specified in the review request
+        test_cases = [
+            {
+                "name": "Normal Month (January)",
+                "start_date": "2025-01-15",
+                "expected_payment_date": "2025-02-14",
+                "description": "30 days later"
+            },
+            {
+                "name": "Month End (January 31st)",
+                "start_date": "2025-01-31", 
+                "expected_payment_date": "2025-03-02",
+                "description": "30 days later - skipping February"
+            },
+            {
+                "name": "February (28 days)",
+                "start_date": "2025-02-01",
+                "expected_payment_date": "2025-03-03", 
+                "description": "30 days later"
+            },
+            {
+                "name": "February 28th (non-leap year)",
+                "start_date": "2025-02-28",
+                "expected_payment_date": "2025-03-30",
+                "description": "30 days later"
+            },
+            {
+                "name": "Year Boundary",
+                "start_date": "2025-12-31",
+                "expected_payment_date": "2026-01-30",
+                "description": "30 days later"
+            },
+            {
+                "name": "Various Days - June 15th",
+                "start_date": "2025-06-15",
+                "expected_payment_date": "2025-07-15",
+                "description": "30 days later"
+            },
+            {
+                "name": "Various Days - April 1st",
+                "start_date": "2025-04-01",
+                "expected_payment_date": "2025-05-01",
+                "description": "30 days later"
+            },
+            {
+                "name": "Various Days - September 30th",
+                "start_date": "2025-09-30",
+                "expected_payment_date": "2025-10-30",
+                "description": "30 days later"
+            }
+        ]
+        
+        all_tests_passed = True
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        
+        for i, test_case in enumerate(test_cases, 1):
+            print(f"\n📅 Test Case {i}: {test_case['name']}")
+            print(f"   Start Date: {test_case['start_date']}")
+            print(f"   Expected Payment Date: {test_case['expected_payment_date']} ({test_case['description']})")
+            
+            # Create client with specific start date
+            client_data = {
+                "name": f"Payment Test {i} - {test_case['name']}",
+                "email": f"payment_test_{i}_{timestamp}@example.com",
+                "phone": f"(555) {100+i:03d}-{1000+i:04d}",
+                "membership_type": "Standard",
+                "monthly_fee": 50.00,
+                "start_date": test_case['start_date']
+            }
+            
+            success, response = self.run_test(
+                f"Create Client - {test_case['name']}",
+                "POST",
+                "clients",
+                200,
+                client_data
+            )
+            
+            if success and "id" in response:
+                actual_payment_date = str(response.get('next_payment_date'))
+                expected_payment_date = test_case['expected_payment_date']
+                
+                print(f"   Actual Payment Date: {actual_payment_date}")
+                
+                if actual_payment_date == expected_payment_date:
+                    print(f"   ✅ PASSED: Payment date calculation is EXACTLY 30 calendar days!")
+                else:
+                    print(f"   ❌ FAILED: Payment date calculation is INCORRECT!")
+                    print(f"      Expected: {expected_payment_date}")
+                    print(f"      Got: {actual_payment_date}")
+                    all_tests_passed = False
+            else:
+                print(f"   ❌ FAILED: Could not create client for test case")
+                all_tests_passed = False
+        
+        print(f"\n🎯 PAYMENT DATE CALCULATION SUMMARY:")
+        if all_tests_passed:
+            print("   ✅ ALL EDGE CASES PASSED!")
+            print("   ✅ Payment date calculation is EXACTLY 30 calendar days from start date")
+            print("   ✅ Handles month boundaries correctly")
+            print("   ✅ Handles February (28 days) correctly")
+            print("   ✅ Handles year boundaries correctly")
+            print("   ✅ Backend calculation logic is working perfectly")
+        else:
+            print("   ❌ SOME EDGE CASES FAILED!")
+            print("   ❌ Payment date calculation needs review")
+        
+        return all_tests_passed
+
     def test_client_start_date_update_recalculation(self):
         """SPECIFIC TEST: Test client start date update and automatic next payment date recalculation"""
         print("\n🎯 SPECIFIC TEST: Client Start Date Update & Payment Date Recalculation")
