@@ -71,6 +71,7 @@ class Client(BaseModel):
     start_date: date
     next_payment_date: date
     status: str = "Active"
+    auto_reminders_enabled: bool = True  # New field for automatic reminders
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
