@@ -10,6 +10,7 @@ from typing import List, Optional
 import uuid
 from datetime import datetime, date, timedelta
 from email_service import EmailService
+from reminder_scheduler import initialize_reminder_scheduler, shutdown_reminder_scheduler, reminder_scheduler
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
