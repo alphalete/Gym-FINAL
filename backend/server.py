@@ -92,6 +92,7 @@ class ClientUpdate(BaseModel):
     monthly_fee: Optional[float] = None
     start_date: Optional[date] = None
     status: Optional[str] = None
+    auto_reminders_enabled: Optional[bool] = None  # New field for automatic reminders
 
 class EmailTemplateRequest(BaseModel):
     template_name: str
