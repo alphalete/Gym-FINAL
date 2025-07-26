@@ -841,10 +841,10 @@ const Dashboard = () => {
           <p className="text-gray-400">Email payment reminders to clients</p>
         </Link>
         
-        <Link to="/settings" className="bg-gray-800 p-6 rounded-lg border border-gray-700 hover:border-red-600 transition-all">
-          <div className="text-4xl mb-4">⚙️</div>
-          <h3 className="text-xl font-semibold mb-2">Manage Settings</h3>
-          <p className="text-gray-400">Configure membership types</p>
+        <Link to="/reminders" className="bg-gray-800 p-6 rounded-lg border border-gray-700 hover:border-red-600 transition-all">
+          <div className="text-4xl mb-4">⏰</div>
+          <h3 className="text-xl font-semibold mb-2">Auto Reminders</h3>
+          <p className="text-gray-400">Manage automatic payment reminders</p>
         </Link>
       </div>
 
