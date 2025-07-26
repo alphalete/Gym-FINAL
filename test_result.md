@@ -201,6 +201,7 @@ metadata:
 
 test_plan:
   current_focus:
+    - "Professional email template implementation"
     - "Automatic payment reminder system"
     - "Automatic reminders UI and client settings"
   stuck_tasks: []
