@@ -3031,6 +3031,7 @@ function App() {
             <Route path="/payments" element={<Payments />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/reminders" element={<AutoReminders />} />
           </Routes>
         </Layout>
       </BrowserRouter>
