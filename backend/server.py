@@ -730,6 +730,26 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+@app.on_event("startup")
+async def startup_event():
+    """Initialize services on startup"""
+    try:
+        # Initialize reminder scheduler
+        await initialize_reminder_scheduler(client, email_service)
+        logger.info("✅ Application startup completed")
+    except Exception as e:
+        logger.error(f"❌ Application startup failed: {str(e)}")
+        # Don't raise here to allow app to start even if scheduler fails
+        # This allows manual functionality to still work
+
 @app.on_event("shutdown")
-async def shutdown_db_client():
-    client.close()
+async def shutdown_event():
+    """Clean up services on shutdown"""
+    try:
+        # Shutdown reminder scheduler
+        await shutdown_reminder_scheduler()
+        # Close database connection
+        client.close()
+        logger.info("✅ Application shutdown completed")
+    except Exception as e:
+        logger.error(f"❌ Application shutdown failed: {str(e)}")
