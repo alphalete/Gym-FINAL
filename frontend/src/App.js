@@ -580,6 +580,7 @@ const Navigation = ({ currentPage }) => {
     { path: "/add-client", icon: "➕", label: "Add Client", description: "New Member" },
     { path: "/payments", icon: "💳", label: "Payments", description: "Payment Tracking" },
     { path: "/email-center", icon: "📧", label: "Email Center", description: "Send Reminders" },
+    { path: "/reminders", icon: "⏰", label: "Auto Reminders", description: "Automated Reminders" },
     { path: "/reports", icon: "📈", label: "Reports", description: "Analytics" },
     { path: "/settings", icon: "⚙️", label: "Settings", description: "Configuration" },
   ];
