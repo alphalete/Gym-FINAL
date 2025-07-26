@@ -693,9 +693,11 @@ async def get_reminder_stats():
         raise HTTPException(status_code=500, detail="Failed to get reminder statistics")
 
 @api_router.put("/clients/{client_id}/reminders")
-async def update_client_reminder_settings(client_id: str, enabled: bool):
+async def update_client_reminder_settings(client_id: str, request: dict):
     """Update automatic reminder settings for a specific client"""
     try:
+        enabled = request.get("enabled", True)
+        
         # Check if client exists
         client = await db.clients.find_one({"id": client_id})
         if not client:
