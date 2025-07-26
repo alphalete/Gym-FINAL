@@ -2934,6 +2934,245 @@ const EmailCenter = () => {
   );
 };
 
+// Auto Reminders Component
+const AutoReminders = () => {
+  const [upcomingReminders, setUpcomingReminders] = useState([]);
+  const [reminderHistory, setReminderHistory] = useState([]);
+  const [reminderStats, setReminderStats] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('upcoming');
+
+  const fetchUpcomingReminders = async () => {
+    try {
+      const result = await localDB.getUpcomingReminders(7);
+      setUpcomingReminders(result.data || []);
+    } catch (error) {
+      console.error('Error fetching upcoming reminders:', error);
+    }
+  };
+
+  const fetchReminderHistory = async () => {
+    try {
+      const result = await localDB.getReminderHistory(null, 50);
+      setReminderHistory(result.data || []);
+    } catch (error) {
+      console.error('Error fetching reminder history:', error);
+    }
+  };
+
+  const fetchReminderStats = async () => {
+    try {
+      const result = await localDB.getReminderStats();
+      setReminderStats(result.data);
+    } catch (error) {
+      console.error('Error fetching reminder stats:', error);
+    }
+  };
+
+  const handleTestReminderRun = async () => {
+    try {
+      setLoading(true);
+      const result = await localDB.triggerTestReminderRun();
+      if (result.success) {
+        alert('✅ Test reminder run completed successfully! Check the history tab for results.');
+        // Refresh data
+        await fetchReminderHistory();
+        await fetchReminderStats();
+      } else {
+        alert('❌ Test reminder run failed: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error triggering test reminder run:', error);
+      alert('❌ Error triggering test reminder run: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUpcomingReminders();
+    fetchReminderHistory();
+    fetchReminderStats();
+  }, []);
+
+  const isOnline = navigator.onLine;
+
+  return (
+    <div className="p-6">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Automatic Reminders</h1>
+          <p className="text-gray-400">Manage automatic payment reminders sent to clients.</p>
+        </div>
+        <div className="flex space-x-4">
+          <button
+            onClick={handleTestReminderRun}
+            disabled={loading || !isOnline}
+            className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 px-4 py-2 rounded-lg font-semibold whitespace-nowrap"
+          >
+            {loading ? "Running..." : "🧪 Test Run"}
+          </button>
+        </div>
+      </div>
+
+      {!isOnline && (
+        <div className="bg-yellow-900 border border-yellow-600 rounded-lg p-4 mb-6">
+          <p className="text-yellow-200">⚠️ Automatic reminders require internet connection. You're currently offline.</p>
+        </div>
+      )}
+
+      {/* Reminder Stats */}
+      {reminderStats && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-blue-200">Total Sent</p>
+                <p className="text-3xl font-bold text-white">{reminderStats.total_reminders_sent || 0}</p>
+              </div>
+              <div className="text-4xl text-blue-200">📧</div>
+            </div>
+          </div>
+          
+          <div className="bg-gradient-to-r from-green-600 to-green-700 p-6 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-green-200">Success Rate</p>
+                <p className="text-3xl font-bold text-white">{reminderStats.success_rate ? reminderStats.success_rate.toFixed(1) : 0}%</p>
+              </div>
+              <div className="text-4xl text-green-200">✅</div>
+            </div>
+          </div>
+          
+          <div className="bg-gradient-to-r from-purple-600 to-purple-700 p-6 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-purple-200">Today's Reminders</p>
+                <p className="text-3xl font-bold text-white">{reminderStats.todays_reminders || 0}</p>
+              </div>
+              <div className="text-4xl text-purple-200">📅</div>
+            </div>
+          </div>
+          
+          <div className="bg-gradient-to-r from-orange-600 to-orange-700 p-6 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-orange-200">Scheduler Status</p>
+                <p className="text-lg font-bold text-white">{reminderStats.scheduler_active ? 'Active' : 'Inactive'}</p>
+              </div>
+              <div className="text-4xl text-orange-200">{reminderStats.scheduler_active ? '🟢' : '🔴'}</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tabs */}
+      <div className="flex space-x-4 mb-6">
+        <button
+          onClick={() => setActiveTab('upcoming')}
+          className={`px-4 py-2 rounded-lg font-semibold ${
+            activeTab === 'upcoming'
+              ? 'bg-red-600 text-white'
+              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+          }`}
+        >
+          📅 Upcoming ({upcomingReminders.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('history')}
+          className={`px-4 py-2 rounded-lg font-semibold ${
+            activeTab === 'history'
+              ? 'bg-red-600 text-white'
+              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+          }`}
+        >
+          📋 History ({reminderHistory.length})
+        </button>
+      </div>
+
+      {/* Tab Content */}
+      <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
+        {activeTab === 'upcoming' && (
+          <div>
+            <h3 className="text-xl font-semibold mb-4">Upcoming Reminders (Next 7 Days)</h3>
+            {upcomingReminders.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="text-4xl mb-4">📅</div>
+                <p className="text-gray-400">No upcoming reminders in the next 7 days</p>
+                <p className="text-sm text-gray-500 mt-2">Reminders are sent 3 days before due date and on due date</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {upcomingReminders.map((reminder, index) => (
+                  <div key={index} className="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
+                    <div className="flex items-center space-x-4">
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold text-white ${
+                        reminder.reminder_type === '3_day' ? 'bg-yellow-600' : 'bg-red-600'
+                      }`}>
+                        {reminder.reminder_type === '3_day' ? '⚠️' : '🚨'}
+                      </div>
+                      <div>
+                        <p className="font-semibold">{reminder.client_name}</p>
+                        <p className="text-sm text-gray-400">{reminder.client_email}</p>
+                        <p className="text-xs text-gray-500">
+                          {reminder.reminder_type === '3_day' ? '3-Day Reminder' : 'Due Date Reminder'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-green-400 font-bold">${reminder.amount}</p>
+                      <p className="text-sm text-gray-400">Due: {new Date(reminder.payment_due_date).toLocaleDateString()}</p>
+                      <p className="text-xs text-gray-500">Reminder: {new Date(reminder.reminder_date).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'history' && (
+          <div>
+            <h3 className="text-xl font-semibold mb-4">Reminder History (Last 50)</h3>
+            {reminderHistory.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="text-4xl mb-4">📋</div>
+                <p className="text-gray-400">No reminder history available</p>
+                <p className="text-sm text-gray-500 mt-2">Reminders will appear here once they are sent</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {reminderHistory.map((reminder, index) => (
+                  <div key={index} className="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
+                    <div className="flex items-center space-x-4">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold ${
+                        reminder.status === 'sent' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
+                      }`}>
+                        {reminder.status === 'sent' ? '✅' : '❌'}
+                      </div>
+                      <div>
+                        <p className="font-semibold">{reminder.client_name}</p>
+                        <p className="text-sm text-gray-400">{reminder.client_email}</p>
+                        <p className="text-xs text-gray-500">
+                          {reminder.reminder_type === '3_day' ? '3-Day Reminder' : 'Due Date Reminder'} - {reminder.status}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-gray-400">Sent: {new Date(reminder.sent_date).toLocaleDateString()}</p>
+                      <p className="text-xs text-gray-500">Due: {new Date(reminder.payment_due_date).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 function App() {
   useEffect(() => {
     // Initialize PWA
