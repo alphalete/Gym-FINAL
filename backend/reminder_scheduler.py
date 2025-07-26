@@ -300,6 +300,14 @@ class ReminderScheduler:
                 query["client_id"] = client_id
             
             reminders = await self.db.reminder_history.find(query).sort("created_at", -1).limit(limit).to_list(limit)
+            
+            # Convert ObjectId and datetime objects to JSON-serializable format
+            for reminder in reminders:
+                if '_id' in reminder:
+                    del reminder['_id']  # Remove MongoDB ObjectId
+                if 'created_at' in reminder and isinstance(reminder['created_at'], datetime):
+                    reminder['created_at'] = reminder['created_at'].isoformat()
+            
             return reminders
             
         except Exception as e:
