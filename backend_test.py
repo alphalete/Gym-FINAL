@@ -1743,6 +1743,11 @@ class AlphaleteAPITester:
         
         # Test sequence - organized by feature
         tests = [
+            # SPECIFIC REVIEW REQUEST TEST - Professional Email Template
+            ("🎯 REVIEW REQUEST: Professional Email Template Testing", [
+                self.test_professional_email_template,
+            ]),
+            
             # SPECIFIC REVIEW REQUEST TEST - Payment Date Calculation Edge Cases
             ("🎯 REVIEW REQUEST: Payment Date Calculation Edge Cases", [
                 self.test_payment_date_calculation_edge_cases,
