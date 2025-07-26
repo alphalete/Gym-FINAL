@@ -1311,6 +1311,15 @@ const ClientManagement = () => {
                             </span>
                           </td>
                           <td className="p-4">
+                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                              client.auto_reminders_enabled !== false 
+                                ? 'bg-green-900 text-green-300' 
+                                : 'bg-red-900 text-red-300'
+                            }`}>
+                              {client.auto_reminders_enabled !== false ? '✅ On' : '❌ Off'}
+                            </span>
+                          </td>
+                          <td className="p-4">
                             <div className="flex space-x-2">
                               <button
                                 onClick={() => sendPaymentReminder(client)}
