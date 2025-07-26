@@ -1,5 +1,5 @@
-const CACHE_NAME = 'alphalete-v3.4.0-billing-periods'; // Updated version for billing period functionality
-const API_CACHE_NAME = 'alphalete-api-v3.4.0';
+const CACHE_NAME = 'alphalete-v4.0.0-auto-reminders'; // Updated version for automatic reminders functionality
+const API_CACHE_NAME = 'alphalete-api-v4.0.0';
 
 // Static assets to cache for offline use
 const STATIC_ASSETS = [
