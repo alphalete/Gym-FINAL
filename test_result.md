@@ -120,6 +120,18 @@ backend:
         agent: "testing"
         comment: "COMPREHENSIVE TESTING COMPLETED: ✅ PUT /api/clients/{client_id} - All fields update correctly (name, email, phone, membership_type, monthly_fee, start_date, status). ✅ GET /api/clients - Updated clients returned correctly in list. ✅ GET /api/clients/{client_id} - Specific client retrieval after updates works perfectly. ✅ Date handling - Proper serialization/deserialization with automatic next_payment_date recalculation when start_date changes. ✅ Validation - Invalid client IDs return 404, malformed email returns 422. ✅ Partial updates work correctly. ✅ Full field updates work correctly. All requested client editing functionality is working excellently. Backend is ready for frontend integration."
 
+  - task: "Automatic payment reminder system"
+    implemented: false
+    working: "NA"
+    file: "backend/server.py, backend/reminder_scheduler.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "IMPLEMENTING: Adding automatic payment reminder system with APScheduler to send reminders 3 days before due date and on due date. Includes individual client settings to enable/disable reminders, reminder tracking to prevent duplicates, and background scheduler service."
+
 frontend:
   - task: "Branding update with wolf logo"
     implemented: true
