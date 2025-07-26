@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Use this image for all branding. I want the ability to edit client information and make sure when I add a new client they can be edited"
+user_problem_statement: "Implement automatic payment reminders that send 3 days before due date and on due date, with individual client settings to enable/disable automatic reminders for each client"
 
 backend:
   - task: "Backend supports client editing"
