@@ -1412,8 +1412,8 @@ class AlphaleteAPITester:
 
 def main():
     """Main function"""
-    print("🏋️‍♂️ ALPHALETE ATHLETICS CLUB - EMAIL TEMPLATE TESTING")
-    print("Testing new email template functionality and customizable reminders...")
+    print("🏋️‍♂️ ALPHALETE ATHLETICS CLUB - AUTOMATIC REMINDER SYSTEM TESTING")
+    print("Testing automatic payment reminder system with scheduler, API endpoints, and client settings...")
     print()
     
     tester = AlphaleteAPITester()
