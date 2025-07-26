@@ -1321,6 +1321,20 @@ class AlphaleteAPITester:
                 self.test_get_all_clients_after_updates,
             ]),
             
+            # Automatic Reminder System (NEW CRITICAL FEATURE)
+            ("Automatic Reminder System", [
+                self.test_create_client_with_auto_reminders,
+                self.test_update_client_reminder_settings,
+                self.test_get_upcoming_reminders,
+                self.test_get_reminder_history,
+                self.test_get_reminder_stats,
+                self.test_manual_reminder_run,
+                self.test_client_with_payment_due_soon,
+                self.test_client_with_payment_due_today,
+                self.test_reminder_integration_flow,
+                self.test_reminder_settings_persistence,
+            ]),
+            
             # Email System Integration (UPDATED WITH NEW TEMPLATE FEATURES)
             ("Email System Integration", [
                 self.test_get_email_templates,
@@ -1338,13 +1352,14 @@ class AlphaleteAPITester:
                 self.test_record_payment_with_automatic_invoice,
             ]),
             
-            # Error Handling & Edge Cases (UPDATED WITH TEMPLATE ERROR TESTS)
+            # Error Handling & Edge Cases (UPDATED WITH REMINDER ERROR TESTS)
             ("Error Handling", [
                 self.test_email_endpoint_route_conflicts,
                 self.test_create_duplicate_client,
                 self.test_send_custom_reminder_invalid_client,
                 self.test_update_nonexistent_client,
                 self.test_update_client_invalid_email,
+                self.test_reminder_error_scenarios,
                 self.test_error_handling,
             ])
         ]
