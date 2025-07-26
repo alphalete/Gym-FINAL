@@ -697,6 +697,141 @@ class LocalStorageManager {
       message: isOnline ? 'Connected - All features available' : 'Offline - Data stored locally'
     };
   }
+
+  // Reminder-related methods
+  async getUpcomingReminders(daysAhead = 7) {
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      
+      if (!backendUrl || !this.isOnline) {
+        throw new Error('Backend URL not configured or offline');
+      }
+      
+      const response = await fetch(`${backendUrl}/api/reminders/upcoming?days_ahead=${daysAhead}`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      return { data: data.upcoming_reminders, offline: false };
+    } catch (error) {
+      console.error('Error getting upcoming reminders:', error);
+      return { data: [], offline: true, error: error.message };
+    }
+  }
+
+  async getReminderHistory(clientId = null, limit = 100) {
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      
+      if (!backendUrl || !this.isOnline) {
+        throw new Error('Backend URL not configured or offline');
+      }
+      
+      const url = clientId 
+        ? `${backendUrl}/api/reminders/history?client_id=${clientId}&limit=${limit}`
+        : `${backendUrl}/api/reminders/history?limit=${limit}`;
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      return { data: data.reminder_history, offline: false };
+    } catch (error) {
+      console.error('Error getting reminder history:', error);
+      return { data: [], offline: true, error: error.message };
+    }
+  }
+
+  async getReminderStats() {
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      
+      if (!backendUrl || !this.isOnline) {
+        throw new Error('Backend URL not configured or offline');
+      }
+      
+      const response = await fetch(`${backendUrl}/api/reminders/stats`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      return { data, offline: false };
+    } catch (error) {
+      console.error('Error getting reminder stats:', error);
+      return { data: null, offline: true, error: error.message };
+    }
+  }
+
+  async updateClientReminderSettings(clientId, enabled) {
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      
+      if (!backendUrl || !this.isOnline) {
+        throw new Error('Backend URL not configured or offline');
+      }
+      
+      const response = await fetch(`${backendUrl}/api/clients/${clientId}/reminders`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ enabled })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
+      // Update local storage as well
+      try {
+        const localClient = await this.performDBOperation('clients', 'get', clientId);
+        if (localClient) {
+          localClient.auto_reminders_enabled = enabled;
+          await this.performDBOperation('clients', 'put', localClient);
+        }
+      } catch (localError) {
+        console.warn('Could not update local client reminder settings:', localError);
+      }
+      
+      return { data, success: true, offline: false };
+    } catch (error) {
+      console.error('Error updating client reminder settings:', error);
+      return { data: null, success: false, offline: true, error: error.message };
+    }
+  }
+
+  async triggerTestReminderRun() {
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      
+      if (!backendUrl || !this.isOnline) {
+        throw new Error('Backend URL not configured or offline');
+      }
+      
+      const response = await fetch(`${backendUrl}/api/reminders/test-run`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      return { data, success: true, offline: false };
+    } catch (error) {
+      console.error('Error triggering test reminder run:', error);
+      return { data: null, success: false, offline: true, error: error.message };
+    }
+  }
 }
 
 // Export for use in React components
