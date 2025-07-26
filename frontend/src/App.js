@@ -1302,7 +1302,7 @@ const ClientManagement = () => {
                               <span className="text-gray-500 text-sm">Not set</span>
                             )}
                           </td>
-                          <td className="p-4">{new Date(client.next_payment_date).toLocaleDateString()}</td>
+                          <td className="p-4">{client.next_payment_date ? new Date(client.next_payment_date + 'T00:00:00').toLocaleDateString() : 'N/A'}</td>
                           <td className="p-4">
                             <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
                               client.status === 'Active' 
