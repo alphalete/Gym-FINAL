@@ -295,7 +295,8 @@ const EditClientModal = ({ client, isOpen, onClose, onSave }) => {
         membership_type: client.membership_type || 'Standard',
         monthly_fee: client.monthly_fee || 0,
         start_date: client.start_date || '',
-        status: client.status || 'Active'
+        status: client.status || 'Active',
+        auto_reminders_enabled: client.auto_reminders_enabled !== undefined ? client.auto_reminders_enabled : true
       });
       
       // Fetch membership types
