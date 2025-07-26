@@ -1558,6 +1558,11 @@ class AlphaleteAPITester:
         
         # Test sequence - organized by feature
         tests = [
+            # SPECIFIC REVIEW REQUEST TEST - Payment Date Calculation Edge Cases
+            ("🎯 REVIEW REQUEST: Payment Date Calculation Edge Cases", [
+                self.test_payment_date_calculation_edge_cases,
+            ]),
+            
             # SPECIFIC REVIEW REQUEST TEST - Client Start Date Update & Payment Recalculation
             ("🎯 REVIEW REQUEST: Client Start Date Update & Payment Recalculation", [
                 self.test_client_start_date_update_recalculation,
