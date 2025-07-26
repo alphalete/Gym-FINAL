@@ -378,7 +378,8 @@ const EditClientModal = ({ client, isOpen, onClose, onSave }) => {
           membership_type: clientData.membership_type,
           monthly_fee: parseFloat(clientData.monthly_fee),
           start_date: clientData.start_date,
-          status: clientData.status
+          status: clientData.status,
+          auto_reminders_enabled: clientData.auto_reminders_enabled
         })
       });
 
