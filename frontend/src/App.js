@@ -279,7 +279,8 @@ const EditClientModal = ({ client, isOpen, onClose, onSave }) => {
     membership_type: 'Standard',
     monthly_fee: 0,
     start_date: '',
-    status: 'Active'
+    status: 'Active',
+    auto_reminders_enabled: true
   });
   const [membershipTypes, setMembershipTypes] = useState([]);
   const [saving, setSaving] = useState(false);
