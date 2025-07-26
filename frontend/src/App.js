@@ -1196,12 +1196,12 @@ const ClientManagement = () => {
                           <div>
                             <span className="text-gray-400">Current Period:</span>
                             <p className="text-blue-400">
-                              {new Date(client.current_period_start).toLocaleDateString()} - {new Date(client.current_period_end).toLocaleDateString()}
+                              {new Date(client.current_period_start + 'T00:00:00').toLocaleDateString()} - {new Date(client.current_period_end + 'T00:00:00').toLocaleDateString()}
                             </p>
                           </div>
                           <div>
                             <span className="text-gray-400">Next Payment:</span>
-                            <p>{new Date(client.next_payment_date).toLocaleDateString()}</p>
+                            <p>{new Date(client.next_payment_date + 'T00:00:00').toLocaleDateString()}</p>
                           </div>
                         </>
                       )}
