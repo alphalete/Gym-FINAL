@@ -1183,7 +1183,7 @@ const ClientManagement = () => {
                       </div>
                       <div>
                         <span className="text-gray-400">Member Since:</span>
-                        <p>{new Date(client.start_date).toLocaleDateString()}</p>
+                        <p>{client.start_date ? new Date(client.start_date + 'T00:00:00').toLocaleDateString() : 'N/A'}</p>
                       </div>
                       <div>
                         <span className="text-gray-400">Auto Reminders:</span>
