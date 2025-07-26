@@ -399,6 +399,7 @@ const EditClientModal = ({ client, isOpen, onClose, onSave }) => {
         monthly_fee: parseFloat(clientData.monthly_fee),
         start_date: clientData.start_date,
         status: clientData.status,
+        auto_reminders_enabled: clientData.auto_reminders_enabled,
         updated_at: new Date().toISOString()
       });
 
