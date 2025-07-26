@@ -666,6 +666,13 @@ async def get_reminder_stats():
         # Get recent summaries
         summaries = await db.reminder_summaries.find().sort("created_at", -1).limit(30).to_list(30)
         
+        # Convert datetime objects to JSON-serializable format
+        for summary in summaries:
+            if '_id' in summary:
+                del summary['_id']  # Remove MongoDB ObjectId
+            if 'created_at' in summary and isinstance(summary['created_at'], datetime):
+                summary['created_at'] = summary['created_at'].isoformat()
+        
         # Calculate totals
         total_sent = sum(summary.get("total_reminders_sent", 0) for summary in summaries)
         total_failed = sum(summary.get("failed_reminders", 0) for summary in summaries)
