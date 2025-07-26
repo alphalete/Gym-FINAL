@@ -23,55 +23,142 @@ class EmailService:
     def get_email_template(self, template_name: str = "default", custom_subject: str = None, custom_message: str = None):
         """Get email template with customization support"""
         
-        # Default template
+        # Default template - Professional Clean Business
         if template_name == "default" or not template_name:
-            subject = custom_subject or "Payment Reminder - Alphalete Athletics Club"
+            subject = custom_subject or "Payment Reminder - Alphalete Athletics"
             
-            custom_message_section = f"<p><em>{custom_message}</em></p>" if custom_message else "<p>We hope you're crushing your fitness goals! This is a friendly reminder about your upcoming payment:</p>"
+            custom_message_section = f"<p>{custom_message}</p>" if custom_message else "<p>We hope this message finds you well. This is a friendly reminder regarding your upcoming membership payment.</p>"
             
             html_template = """
             <!DOCTYPE html>
             <html>
             <head>
                 <style>
-                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                    .header { background-color: #2c3e50; color: white; padding: 20px; text-align: center; }
-                    .content { padding: 30px 20px; }
-                    .amount { font-size: 24px; font-weight: bold; color: #e74c3c; }
-                    .due-date { font-size: 18px; color: #f39c12; }
-                    .footer { background-color: #f8f9fa; padding: 15px; text-align: center; font-size: 12px; }
-                    .btn { background-color: #3498db; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; display: inline-block; }
+                    body { 
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                        line-height: 1.6; 
+                        color: #2c3e50; 
+                        margin: 0; 
+                        padding: 0; 
+                        background-color: #f8f9fa; 
+                    }
+                    .container { 
+                        max-width: 600px; 
+                        margin: 0 auto; 
+                        background: white; 
+                        border-radius: 8px; 
+                        box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+                        overflow: hidden; 
+                    }
+                    .header { 
+                        background: linear-gradient(135deg, #1a1a1a, #2c3e50); 
+                        color: white; 
+                        padding: 30px 20px; 
+                        text-align: center; 
+                    }
+                    .header h1 { 
+                        margin: 0; 
+                        font-size: 28px; 
+                        font-weight: 600; 
+                        letter-spacing: 2px; 
+                    }
+                    .header p { 
+                        margin: 8px 0 0 0; 
+                        font-size: 14px; 
+                        opacity: 0.9; 
+                        font-weight: 300; 
+                    }
+                    .content { 
+                        padding: 40px 30px; 
+                    }
+                    .greeting { 
+                        font-size: 18px; 
+                        font-weight: 500; 
+                        margin-bottom: 20px; 
+                    }
+                    .payment-details { 
+                        background: #f8f9fa; 
+                        border: 1px solid #e9ecef; 
+                        border-radius: 8px; 
+                        padding: 25px; 
+                        margin: 25px 0; 
+                        text-align: center; 
+                    }
+                    .amount { 
+                        font-size: 32px; 
+                        font-weight: 700; 
+                        color: #e74c3c; 
+                        margin: 10px 0; 
+                    }
+                    .due-date { 
+                        font-size: 16px; 
+                        color: #6c757d; 
+                        font-weight: 500; 
+                    }
+                    .info-section { 
+                        margin: 20px 0; 
+                        padding: 20px; 
+                        background: #f8f9fa; 
+                        border-radius: 6px; 
+                    }
+                    .footer { 
+                        background: #2c3e50; 
+                        color: white; 
+                        padding: 25px; 
+                        text-align: center; 
+                        font-size: 14px; 
+                    }
+                    .footer p { 
+                        margin: 5px 0; 
+                    }
+                    .signature { 
+                        margin-top: 30px; 
+                        font-weight: 500; 
+                    }
+                    .divider { 
+                        height: 1px; 
+                        background: #e9ecef; 
+                        margin: 25px 0; 
+                    }
                 </style>
             </head>
             <body>
                 <div class="container">
                     <div class="header">
-                        <h1>🏋️‍♂️ ALPHALETE ATHLETICS CLUB</h1>
-                        <p>Elite Fitness Training & Membership</p>
+                        <h1>ALPHALETE ATHLETICS</h1>
+                        <p>Premium Fitness & Training</p>
                     </div>
                     <div class="content">
-                        <h2>Payment Reminder</h2>
-                        <p>Dear {client_name},</p>
+                        <div class="greeting">Dear {client_name},</div>
                         
                         """ + custom_message_section + """
                         
-                        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                            <p><strong>Amount Due:</strong> <span class="amount">${amount:.2f}</span></p>
-                            <p><strong>Due Date:</strong> <span class="due-date">{due_date}</span></p>
+                        <div class="payment-details">
+                            <p style="margin: 0 0 10px 0; font-size: 16px; color: #6c757d;">Payment Amount</p>
+                            <div class="amount">${amount:.2f}</div>
+                            <div class="divider"></div>
+                            <p style="margin: 0 0 5px 0; font-size: 16px; color: #6c757d;">Due Date</p>
+                            <div class="due-date">{due_date}</div>
                         </div>
                         
-                        <p>To continue enjoying our premium facilities and training programs, please ensure your payment is completed by the due date.</p>
+                        <div class="info-section">
+                            <p style="margin: 0 0 10px 0; font-weight: 500;">Payment Instructions:</p>
+                            <p style="margin: 0;">Please ensure your payment is completed by the due date to avoid any interruption to your membership and access to our facilities.</p>
+                        </div>
                         
-                        <p>If you have any questions about your membership or payment, please don't hesitate to contact us.</p>
+                        <p>If you have any questions about your membership or need assistance with your payment, please don't hesitate to contact us.</p>
                         
-                        <p>Keep grinding!</p>
+                        <p>Thank you for being a valued member of the Alphalete Athletics community.</p>
                         
-                        <p><strong>The Alphalete Athletics Team</strong></p>
+                        <div class="signature">
+                            <p><strong>Best regards,</strong></p>
+                            <p><strong>Alphalete Athletics Team</strong></p>
+                        </div>
                     </div>
                     <div class="footer">
-                        <p>Alphalete Athletics Club | Elite Fitness Training</p>
-                        <p>This is an automated payment reminder. Please do not reply to this email.</p>
+                        <p><strong>Alphalete Athletics</strong></p>
+                        <p>Premium Fitness & Training Facility</p>
+                        <p style="margin-top: 15px; font-size: 12px; opacity: 0.8;">This is an automated payment reminder. Please do not reply to this email.</p>
                     </div>
                 </div>
             </body>
