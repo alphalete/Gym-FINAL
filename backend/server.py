@@ -736,9 +736,13 @@ logger = logging.getLogger(__name__)
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup"""
+    global reminder_scheduler
     try:
         # Initialize reminder scheduler
         await initialize_reminder_scheduler(client, email_service)
+        # Get the global reminder_scheduler instance from the module
+        from reminder_scheduler import reminder_scheduler as rs
+        reminder_scheduler = rs
         logger.info("✅ Application startup completed")
     except Exception as e:
         logger.error(f"❌ Application startup failed: {str(e)}")
