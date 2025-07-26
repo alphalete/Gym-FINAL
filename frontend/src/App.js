@@ -549,6 +549,7 @@ const EditClientModal = ({ client, isOpen, onClose, onSave }) => {
             <p className="text-sm text-gray-300">Email: {clientData.email}</p>
             <p className="text-sm text-gray-300">Membership: {clientData.membership_type} (${clientData.monthly_fee}/month)</p>
             <p className="text-sm text-gray-300">Status: {clientData.status}</p>
+            <p className="text-sm text-gray-300">Auto Reminders: {clientData.auto_reminders_enabled ? '✅ Enabled' : '❌ Disabled'}</p>
           </div>
         </div>
 
