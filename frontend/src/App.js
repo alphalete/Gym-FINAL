@@ -390,16 +390,9 @@ const EditClientModal = ({ client, isOpen, onClose, onSave }) => {
 
       const updatedClient = await response.json();
       
-      // Also update local storage
+      // Update local storage with the complete updated client data from backend
       await localDB.updateClient(client.id, {
-        name: clientData.name.trim(),
-        email: clientData.email.trim(),
-        phone: clientData.phone.trim() || null,
-        membership_type: clientData.membership_type,
-        monthly_fee: parseFloat(clientData.monthly_fee),
-        start_date: clientData.start_date,
-        status: clientData.status,
-        auto_reminders_enabled: clientData.auto_reminders_enabled,
+        ...updatedClient,
         updated_at: new Date().toISOString()
       });
 
