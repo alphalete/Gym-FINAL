@@ -605,6 +605,113 @@ async def send_bulk_payment_reminders():
         "results": results
     }
 
+# Automatic Reminders API Routes
+@api_router.get("/reminders/upcoming")
+async def get_upcoming_reminders(days_ahead: int = 7):
+    """Get upcoming automatic reminders for the next N days"""
+    if not reminder_scheduler:
+        raise HTTPException(status_code=503, detail="Reminder scheduler not initialized")
+    
+    try:
+        upcoming = await reminder_scheduler.get_upcoming_reminders(days_ahead)
+        return {
+            "upcoming_reminders": upcoming,
+            "days_ahead": days_ahead,
+            "total_reminders": len(upcoming)
+        }
+    except Exception as e:
+        logger.error(f"Error getting upcoming reminders: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to get upcoming reminders")
+
+@api_router.get("/reminders/history")
+async def get_reminder_history(client_id: Optional[str] = None, limit: int = 100):
+    """Get reminder history for all clients or specific client"""
+    if not reminder_scheduler:
+        raise HTTPException(status_code=503, detail="Reminder scheduler not initialized")
+    
+    try:
+        history = await reminder_scheduler.get_reminder_history(client_id, limit)
+        return {
+            "reminder_history": history,
+            "total_records": len(history),
+            "client_id": client_id
+        }
+    except Exception as e:
+        logger.error(f"Error getting reminder history: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to get reminder history")
+
+@api_router.post("/reminders/test-run")
+async def test_reminder_run():
+    """Manually trigger a reminder check (for testing purposes)"""
+    if not reminder_scheduler:
+        raise HTTPException(status_code=503, detail="Reminder scheduler not initialized")
+    
+    try:
+        await reminder_scheduler.check_and_send_reminders()
+        return {
+            "success": True,
+            "message": "Test reminder run completed successfully"
+        }
+    except Exception as e:
+        logger.error(f"Error in test reminder run: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to run reminder test")
+
+@api_router.get("/reminders/stats")
+async def get_reminder_stats():
+    """Get reminder statistics and summary"""
+    try:
+        # Get recent summaries
+        summaries = await db.reminder_summaries.find().sort("created_at", -1).limit(30).to_list(30)
+        
+        # Calculate totals
+        total_sent = sum(summary.get("total_reminders_sent", 0) for summary in summaries)
+        total_failed = sum(summary.get("failed_reminders", 0) for summary in summaries)
+        
+        # Get today's stats
+        today_summary = await db.reminder_summaries.find_one({"date": date.today().isoformat()})
+        
+        return {
+            "total_reminders_sent": total_sent,
+            "total_failed_reminders": total_failed,
+            "success_rate": (total_sent / (total_sent + total_failed) * 100) if (total_sent + total_failed) > 0 else 0,
+            "todays_reminders": today_summary.get("total_reminders_sent", 0) if today_summary else 0,
+            "recent_summaries": summaries[:7],  # Last 7 days
+            "scheduler_active": reminder_scheduler is not None and reminder_scheduler.scheduler.running
+        }
+    except Exception as e:
+        logger.error(f"Error getting reminder stats: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to get reminder statistics")
+
+@api_router.put("/clients/{client_id}/reminders")
+async def update_client_reminder_settings(client_id: str, enabled: bool):
+    """Update automatic reminder settings for a specific client"""
+    try:
+        # Check if client exists
+        client = await db.clients.find_one({"id": client_id})
+        if not client:
+            raise HTTPException(status_code=404, detail="Client not found")
+        
+        # Update reminder settings
+        await db.clients.update_one(
+            {"id": client_id},
+            {
+                "$set": {
+                    "auto_reminders_enabled": enabled,
+                    "updated_at": datetime.utcnow()
+                }
+            }
+        )
+        
+        return {
+            "success": True,
+            "message": f"Automatic reminders {'enabled' if enabled else 'disabled'} for client",
+            "client_id": client_id,
+            "auto_reminders_enabled": enabled
+        }
+    except Exception as e:
+        logger.error(f"Error updating client reminder settings: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to update reminder settings")
+
 # Include the router in the main app
 app.include_router(api_router)
 
