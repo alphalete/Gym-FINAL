@@ -1271,6 +1271,7 @@ const ClientManagement = () => {
                         <th className="text-left p-4">Current Period</th>
                         <th className="text-left p-4">Next Payment</th>
                         <th className="text-left p-4">Status</th>
+                        <th className="text-left p-4">Auto Reminders</th>
                         <th className="text-left p-4">Actions</th>
                       </tr>
                     </thead>
