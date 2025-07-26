@@ -1,5 +1,5 @@
-const CACHE_NAME = 'alphalete-v4.0.2-timezone-fix'; // Updated version for timezone date fix
-const API_CACHE_NAME = 'alphalete-api-v4.0.2';
+const CACHE_NAME = 'alphalete-v4.0.3-payment-date-sync'; // Updated version for payment date sync fix
+const API_CACHE_NAME = 'alphalete-api-v4.0.3';
 
 // Static assets to cache for offline use
 const STATIC_ASSETS = [
