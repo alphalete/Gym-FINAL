@@ -1444,6 +1444,11 @@ class AlphaleteAPITester:
         
         # Test sequence - organized by feature
         tests = [
+            # SPECIFIC REVIEW REQUEST TEST - Client Start Date Update & Payment Recalculation
+            ("🎯 REVIEW REQUEST: Client Start Date Update & Payment Recalculation", [
+                self.test_client_start_date_update_recalculation,
+            ]),
+            
             # Basic connectivity
             ("Basic Connectivity", [
                 self.test_health_check,
