@@ -263,7 +263,7 @@ class ReminderScheduler:
                 "payment_due_date": client.get('next_payment_date').isoformat(),
                 "sent_date": date.today().isoformat(),
                 "status": status,
-                "created_at": datetime.utcnow()
+                "created_at": datetime.utcnow().isoformat()
             }
             
             await self.db.reminder_history.insert_one(reminder_record)
