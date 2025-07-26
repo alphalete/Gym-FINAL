@@ -283,7 +283,7 @@ class ReminderScheduler:
                 "skipped_reminders": stats["skipped_reminders"],
                 "failed_reminders": stats["failed_reminders"],
                 "total_reminders_sent": stats["three_day_reminders"] + stats["due_date_reminders"],
-                "created_at": datetime.utcnow()
+                "created_at": datetime.utcnow().isoformat()
             }
             
             await self.db.reminder_summaries.insert_one(summary)
