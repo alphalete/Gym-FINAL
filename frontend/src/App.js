@@ -1183,6 +1183,12 @@ const ClientManagement = () => {
                         <span className="text-gray-400">Member Since:</span>
                         <p>{new Date(client.start_date).toLocaleDateString()}</p>
                       </div>
+                      <div>
+                        <span className="text-gray-400">Auto Reminders:</span>
+                        <p className={client.auto_reminders_enabled !== false ? "text-green-400" : "text-red-400"}>
+                          {client.auto_reminders_enabled !== false ? "✅ Enabled" : "❌ Disabled"}
+                        </p>
+                      </div>
                       {client.current_period_start && client.current_period_end && (
                         <>
                           <div>
