@@ -1296,7 +1296,7 @@ const ClientManagement = () => {
                           <td className="p-4">
                             {client.current_period_start && client.current_period_end ? (
                               <div className="text-blue-400 text-sm">
-                                {new Date(client.current_period_start).toLocaleDateString()} - {new Date(client.current_period_end).toLocaleDateString()}
+                                {new Date(client.current_period_start + 'T00:00:00').toLocaleDateString()} - {new Date(client.current_period_end + 'T00:00:00').toLocaleDateString()}
                               </div>
                             ) : (
                               <span className="text-gray-500 text-sm">Not set</span>
