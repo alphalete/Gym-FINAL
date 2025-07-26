@@ -10,7 +10,7 @@ from typing import List, Optional
 import uuid
 from datetime import datetime, date, timedelta
 from email_service import EmailService
-from reminder_scheduler import initialize_reminder_scheduler, shutdown_reminder_scheduler, reminder_scheduler
+from reminder_scheduler import initialize_reminder_scheduler, shutdown_reminder_scheduler
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -22,6 +22,9 @@ db = client[os.environ['DB_NAME']]
 
 # Initialize email service
 email_service = EmailService()
+
+# Global reminder scheduler instance
+reminder_scheduler = None
 
 # Create the main app without a prefix
 app = FastAPI(title="Alphalete Athletics Club API", version="1.0.0")
