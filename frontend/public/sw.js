@@ -1,5 +1,5 @@
-const CACHE_NAME = 'alphalete-v4.0.0-auto-reminders'; // Updated version for automatic reminders functionality
-const API_CACHE_NAME = 'alphalete-api-v4.0.0';
+const CACHE_NAME = 'alphalete-v4.0.1-date-fix'; // Updated version for start date fix
+const API_CACHE_NAME = 'alphalete-api-v4.0.1';
 
 // Static assets to cache for offline use
 const STATIC_ASSETS = [
