@@ -1208,7 +1208,7 @@ const ClientManagement = () => {
                       {!client.current_period_start && (
                         <div>
                           <span className="text-gray-400">Next Payment:</span>
-                          <p>{new Date(client.next_payment_date).toLocaleDateString()}</p>
+                          <p>{new Date(client.next_payment_date + 'T00:00:00').toLocaleDateString()}</p>
                         </div>
                       )}
                     </div>
