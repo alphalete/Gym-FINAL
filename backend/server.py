@@ -740,9 +740,9 @@ async def startup_event():
     try:
         # Initialize reminder scheduler
         await initialize_reminder_scheduler(client, email_service)
-        # Get the global reminder_scheduler instance from the module
-        from reminder_scheduler import reminder_scheduler as rs
-        reminder_scheduler = rs
+        # Import the module and get the scheduler instance
+        import reminder_scheduler as rs_module
+        reminder_scheduler = rs_module.reminder_scheduler
         logger.info("✅ Application startup completed")
     except Exception as e:
         logger.error(f"❌ Application startup failed: {str(e)}")
