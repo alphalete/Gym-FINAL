@@ -1620,15 +1620,16 @@ const AddClient = () => {
                     setFormData(prev => ({
                       ...prev,
                       membership_type: e.target.value,
-                      monthly_fee: selectedType ? selectedType.fee : prev.monthly_fee
+                      monthly_fee: selectedType ? selectedType.monthly_fee : prev.monthly_fee
                     }));
                   }}
                   className="ultra-contrast-input w-full p-3 rounded-lg"
+                  name="membership_type"
                   required
                 >
                   {membershipTypes.map(type => (
-                    <option key={type.name} value={type.name}>
-                      {type.name} - ${type.fee}/month
+                    <option key={type.id || type.name} value={type.name}>
+                      {type.name} - ${type.monthly_fee}/month
                     </option>
                   ))}
                 </select>
