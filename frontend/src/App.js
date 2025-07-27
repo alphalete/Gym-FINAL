@@ -128,7 +128,7 @@ const EmailModal = ({ isOpen, onClose, client }) => {
     if (isOpen && client) {
       setEmailData({
         subject: `Payment Reminder - ${client.name}`,
-        message: `Dear ${client.name},\n\nThis is a reminder that your payment of $${client.monthly_fee} is due soon.\n\nThank you for your continued membership.`,
+        message: `Dear ${client.name},\n\nThis is a reminder that your payment of TTD ${client.monthly_fee} is due soon.\n\nThank you for your continued membership.`,
         template: 'default'
       });
     }
