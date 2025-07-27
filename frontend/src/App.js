@@ -439,7 +439,7 @@ const EditClientModal = ({ client, isOpen, onClose, onSave }) => {
                 >
                   {membershipTypes.map(type => (
                     <option key={type.name} value={type.name}>
-                      {type.name} - ${type.fee}/month
+                      {type.name} - TTD {type.fee}/month
                     </option>
                   ))}
                 </select>
