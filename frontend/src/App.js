@@ -2437,10 +2437,10 @@ const Payments = () => {
                               </p>
                               {client.current_period_start && client.current_period_end && (
                                 <p className="text-xs text-blue-400 mb-1">
-                                  Period: {new Date(client.current_period_start).toLocaleDateString('en-US', { 
+                                  Period: {new Date(client.current_period_start + 'T00:00:00').toLocaleDateString('en-US', { 
                                     month: 'short', 
                                     day: 'numeric' 
-                                  })} - {new Date(client.current_period_end).toLocaleDateString('en-US', { 
+                                  })} - {new Date(client.current_period_end + 'T00:00:00').toLocaleDateString('en-US', { 
                                     month: 'short', 
                                     day: 'numeric' 
                                   })}
