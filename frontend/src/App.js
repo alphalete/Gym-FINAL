@@ -1417,40 +1417,45 @@ const ClientManagement = () => {
                             <div className="flex space-x-2">
                               <button
                                 onClick={() => sendPaymentReminder(client)}
-                                className="btn btn-primary btn-sm"
+                                className="btn btn-primary btn-sm z-10 relative"
                                 title="Send Payment Reminder"
+                                style={{ minWidth: '32px', minHeight: '32px' }}
                               >
                                 📧
                               </button>
                               <button
                                 onClick={() => openCustomEmailModal(client)}
-                                className="btn btn-secondary btn-sm"
+                                className="btn btn-secondary btn-sm z-10 relative"
                                 title="Custom Email"
+                                style={{ minWidth: '32px', minHeight: '32px' }}
                               >
                                 🎨
                               </button>
                               <button
                                 onClick={() => openEditClientModal(client)}
-                                className="btn btn-secondary btn-sm"
+                                className="btn btn-secondary btn-sm z-10 relative"
                                 title="Edit Client"
+                                style={{ minWidth: '32px', minHeight: '32px' }}
                               >
                                 ✏️
                               </button>
                               <button
                                 onClick={() => toggleClientStatus(client)}
-                                className={`btn btn-sm ${
+                                className={`btn btn-sm z-10 relative ${
                                   client.status === 'Active' 
                                     ? 'bg-orange-600 hover:bg-orange-700 text-white' 
                                     : 'bg-green-600 hover:bg-green-700 text-white'
                                 }`}
                                 title={`Make ${client.status === 'Active' ? 'Inactive' : 'Active'}`}
+                                style={{ minWidth: '32px', minHeight: '32px' }}
                               >
                                 {client.status === 'Active' ? '⏸️' : '▶️'}
                               </button>
                               <button
                                 onClick={() => deleteClient(client)}
-                                className="btn bg-red-600 hover:bg-red-700 text-white btn-sm"
+                                className="btn bg-red-600 hover:bg-red-700 text-white btn-sm z-10 relative"
                                 title="Delete Client"
+                                style={{ minWidth: '32px', minHeight: '32px' }}
                               >
                                 🗑️
                               </button>
