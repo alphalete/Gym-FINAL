@@ -1,5 +1,5 @@
-const CACHE_NAME = 'alphalete-v4.1.0-professional-email'; // Updated version for professional email template
-const API_CACHE_NAME = 'alphalete-api-v4.1.0';
+const CACHE_NAME = 'alphalete-v4.1.1-payment-date-consistency'; // Updated version for payment date consistency fix
+const API_CACHE_NAME = 'alphalete-api-v4.1.1';
 
 // Static assets to cache for offline use
 const STATIC_ASSETS = [
