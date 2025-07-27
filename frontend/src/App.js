@@ -526,21 +526,29 @@ const Dashboard = () => {
     try {
       setLoading(true);
       
-      // Directly fetch from backend API to avoid IndexedDB hanging issue
+      // Get backend URL with debugging
       const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-      console.log("🔍 Dashboard: Fetching directly from backend...", backendUrl);
+      console.log("🔍 Dashboard: Backend URL:", backendUrl);
       
-      const response = await fetch(`${backendUrl}/api/clients`, {
+      const apiUrl = `${backendUrl}/api/clients`;
+      console.log("🔍 Dashboard: Fetching from:", apiUrl);
+      
+      const response = await fetch(apiUrl, {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        // Add timeout
+        signal: AbortSignal.timeout(10000) // 10 second timeout
       });
       
+      console.log("🔍 Dashboard: Response status:", response.status);
+      console.log("🔍 Dashboard: Response ok:", response.ok);
+      
       if (!response.ok) {
-        throw new Error(`Backend API failed: ${response.status}`);
+        throw new Error(`Backend API failed: ${response.status} ${response.statusText}`);
       }
       
       const clients = await response.json();
-      console.log(`✅ Dashboard: Fetched ${clients.length} clients directly from backend`);
+      console.log(`✅ Dashboard: Fetched ${clients.length} clients from backend`);
       
       // Calculate modern statistics
       const totalClients = clients.length;
