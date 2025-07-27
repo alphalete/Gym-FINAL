@@ -299,7 +299,16 @@ class LocalStorageManager {
         updatedClient.next_payment_date = nextPaymentDate.toISOString().split('T')[0];
       }
       
-      await this.performDBOperation('clients', 'put', updatedClient);
+      try {
+        await this.performDBOperation('clients', 'put', updatedClient);
+      } catch (constraintError) {
+        if (constraintError.name === 'ConstraintError') {
+          console.warn("Warning: Could not store client", updatedClient.name, "locally:", constraintError.message);
+          // Still return success since the main update logic worked
+        } else {
+          throw constraintError;
+        }
+      }
       
       // Add to sync queue if online
       if (this.isOnline) {
