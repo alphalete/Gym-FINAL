@@ -675,6 +675,7 @@ const Layout = ({ children }) => {
 
   // Dashboard Component - Modern Design
   const Dashboard = () => {
+    const navigate = useNavigate();
     const [stats, setStats] = useState({
       totalClients: 0,
       activeClients: 0,
