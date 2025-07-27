@@ -1,113 +1,401 @@
-/* Alphalete Athletics - Modern UI Design System */
+/* Simple Clean Functional Interface - As Requested by User */
 
-/* CSS Custom Properties - Improved Contrast Color Palette */
+/* Reset Complex Styling */
 :root {
-  /* Primary Colors */
-  --primary-50: #eef2ff;
-  --primary-100: #e0e7ff;
-  --primary-500: #6366f1;
-  --primary-600: #4f46e5;
-  --primary-700: #4338ca;
-  --primary-800: #3730a3;
-  --primary-900: #312e81;
-  
-  /* Secondary Colors */
-  --secondary-50: #f5f3ff;
-  --secondary-100: #ede9fe;
-  --secondary-500: #8b5cf6;
-  --secondary-600: #7c3aed;
-  --secondary-700: #6d28d9;
-  
-  /* Accent Colors */
-  --accent-50: #ecfdf5;
-  --accent-100: #d1fae5;
-  --accent-500: #10b981;
-  --accent-600: #059669;
-  --accent-700: #047857;
-  
-  /* High Contrast Neutral Colors */
-  --gray-50: #f9fafb;
-  --gray-100: #f3f4f6;
-  --gray-200: #e5e7eb;
-  --gray-300: #d1d5db;
-  --gray-400: #9ca3af;
-  --gray-500: #6b7280;
-  --gray-600: #4b5563;
-  --gray-700: #374151;
-  --gray-800: #1f2937;
-  --gray-900: #111827;
-  
-  /* Status Colors */
-  --success-50: #f0fdf4;
-  --success-500: #22c55e;
-  --success-600: #16a34a;
-  --success-700: #15803d;
-  --warning-50: #fffbeb;
-  --warning-500: #f59e0b;
-  --warning-600: #d97706;
-  --warning-700: #b45309;
-  --error-50: #fef2f2;
-  --error-500: #ef4444;
-  --error-600: #dc2626;
-  --error-700: #b91c1c;
-  
-  /* Typography Scale */
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
-  --text-base: 1rem;
-  --text-lg: 1.125rem;
-  --text-xl: 1.25rem;
-  --text-2xl: 1.5rem;
-  --text-3xl: 1.875rem;
-  --text-4xl: 2.25rem;
-  
-  /* Spacing Scale */
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-5: 1.25rem;
-  --space-6: 1.5rem;
-  --space-8: 2rem;
-  --space-10: 2.5rem;
-  --space-12: 3rem;
-  
-  /* Border Radius */
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
-  
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-}
-
-/* Light mode variables - High Contrast */
-:root {
+  /* Simple Clean Colors */
   --bg-primary: #ffffff;
-  --bg-secondary: #f9fafb;
-  --bg-tertiary: #f3f4f6;
-  --text-primary: #111827;
-  --text-secondary: #374151;
-  --text-tertiary: #6b7280;
-  --border-primary: #e5e7eb;
-  --border-secondary: #d1d5db;
+  --bg-secondary: #f8f9fa;
+  --bg-tertiary: #e9ecef;
+  --text-primary: #212529;
+  --text-secondary: #495057;
+  --text-tertiary: #6c757d;
+  --border-primary: #dee2e6;
+  --border-secondary: #ced4da;
+  
+  /* Simple Button Colors */
+  --btn-primary: #0d6efd;
+  --btn-secondary: #6c757d;
+  --btn-success: #198754;
+  --btn-danger: #dc3545;
+  --btn-warning: #fd7e14;
 }
 
-/* Dark mode variables - High Contrast */
+/* Simple Base Styling */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  margin: 0;
+  padding: 0;
+  line-height: 1.5;
+}
+
+.App {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+}
+
+/* Simple Cards - No Gradients or Shadows */
+.card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
+  padding: 1rem;
+}
+
+.card:hover {
+  border-color: var(--border-secondary);
+}
+
+/* Simple Buttons - No Gradients */
+.btn {
+  font-weight: normal;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background-color: var(--btn-primary);
+  color: white;
+  border-color: var(--btn-primary);
+}
+
+.btn-primary:hover {
+  background-color: #0b5ed7;
+  border-color: #0a58ca;
+}
+
+.btn-secondary {
+  background-color: var(--btn-secondary);
+  color: white;
+  border-color: var(--btn-secondary);
+}
+
+.btn-secondary:hover {
+  background-color: #5c636a;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+}
+
+/* Simple Navigation - No Gradients */
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 4px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: normal;
+}
+
+.nav-item:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.nav-item.active {
+  background-color: var(--btn-primary);
+  color: white;
+}
+
+/* Simple Forms - No Complex Styling */
+.form-input {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  width: 100%;
+  color: var(--text-primary);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--btn-primary);
+  box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25);
+}
+
+/* Simple Member Cards - Clean and Functional */
+.member-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.member-name {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.member-email {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.member-label {
+  color: var(--text-tertiary);
+  font-weight: 500;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.member-value {
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.member-fee {
+  color: var(--btn-success);
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+/* Simple Status Badges - No Complex Colors */
+.status-badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.status-active {
+  background-color: #d1e7dd;
+  color: #0f5132;
+  border: 1px solid #badbcc;
+}
+
+.status-inactive {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c2c7;
+}
+
+.member-status-active {
+  background-color: #d1e7dd;
+  color: #0f5132;
+  border: 1px solid #badbcc;
+}
+
+.member-status-inactive {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c2c7;
+}
+
+/* Simple Stats Cards - No Gradients */
+.stats-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
+  padding: 1.5rem;
+  cursor: pointer;
+  text-align: center;
+}
+
+.stats-card:hover {
+  border-color: var(--btn-primary);
+  background-color: var(--bg-tertiary);
+}
+
+.stats-card-primary {
+  background-color: var(--btn-primary);
+  color: white;
+  border-color: var(--btn-primary);
+}
+
+.stats-card-secondary {
+  background-color: var(--btn-secondary);
+  color: white;
+  border-color: var(--btn-secondary);
+}
+
+.stats-card-accent {
+  background-color: var(--btn-success);
+  color: white;
+  border-color: var(--btn-success);
+}
+
+.stats-card-error {
+  background-color: var(--btn-danger);
+  color: white;
+  border-color: var(--btn-danger);
+}
+
+.stats-card-warning {
+  background-color: var(--btn-warning);
+  color: white;
+  border-color: var(--btn-warning);
+}
+
+/* Simple Typography - Clean and Readable */
+.text-display {
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+.text-heading-1 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.text-heading-2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.text-heading-3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.text-body {
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.text-small {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+/* Simple Tables - Clean and Functional */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table th {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-weight: 600;
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-primary);
+}
+
+table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border-primary);
+  color: var(--text-primary);
+}
+
+table tr:hover {
+  background-color: var(--bg-secondary);
+}
+
+/* Remove All Complex Animations and Gradients */
+* {
+  transition: none !important;
+  animation: none !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+/* Override any remaining complex styling */
+.ultra-contrast-text,
+.ultra-contrast-secondary,
+.ultra-contrast-label,
+.ultra-contrast-value,
+.ultra-contrast-button,
+.ultra-contrast-button-primary,
+.ultra-contrast-input,
+.ultra-contrast-modal,
+.ultra-contrast-modal-header {
+  color: var(--text-primary) !important;
+  background: var(--bg-primary) !important;
+  border: 1px solid var(--border-primary) !important;
+  font-weight: normal !important;
+}
+
+.ultra-contrast-button-primary {
+  background-color: var(--btn-primary) !important;
+  color: white !important;
+  border-color: var(--btn-primary) !important;
+}
+
+/* Simple Mobile Responsiveness */
+@media (max-width: 768px) {
+  .text-display {
+    font-size: 1.5rem;
+  }
+  
+  .card {
+    padding: 0.75rem;
+  }
+  
+  .btn {
+    padding: 0.5rem;
+    font-size: 0.8rem;
+  }
+  
+  table {
+    font-size: 0.875rem;
+  }
+  
+  .stats-card {
+    padding: 1rem;
+  }
+}
+
+/* Force Simple Colors for All Elements */
+.bg-red-600, .bg-green-600, .bg-blue-600, .bg-orange-600 {
+  background-color: var(--btn-primary) !important;
+  color: white !important;
+}
+
+/* Ensure Buttons are Always Visible */
+button {
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: inline-block !important;
+}
+
+/* Clean Sidebar */
+.fixed.left-0.top-0.bottom-0 {
+  background-color: var(--bg-secondary) !important;
+  border-right: 1px solid var(--border-primary) !important;
+}
+
+/* Clean Header */
+.bg-gradient-to-r {
+  background: var(--btn-primary) !important;
+}
+
+/* Override Dark Mode - Keep Simple Light Theme */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg-primary: #111827;
-    --bg-secondary: #1f2937;
-    --bg-tertiary: #374151;
-    --text-primary: #f9fafb;
-    --text-secondary: #e5e7eb;
-    --text-tertiary: #d1d5db;
-    --border-primary: #374151;
-    --border-secondary: #4b5563;
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --bg-tertiary: #e9ecef;
+    --text-primary: #212529;
+    --text-secondary: #495057;
+    --text-tertiary: #6c757d;
   }
 }
 
