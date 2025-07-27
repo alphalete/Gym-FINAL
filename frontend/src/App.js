@@ -1399,7 +1399,7 @@ const ClientManagement = () => {
                             <div className="member-value">
                               <span className="font-semibold">{client.membership_type}</span>
                               <div className="text-sm text-gray-600 dark:text-gray-400">
-                                ${client.monthly_fee}/month
+                                TTD {client.monthly_fee}/month
                               </div>
                             </div>
                           </td>
