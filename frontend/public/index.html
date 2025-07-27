@@ -195,20 +195,6 @@
           window.addEventListener('offline', updateConnectionStatus);
           updateConnectionStatus(); // Initial check
           
-          // Remove loading screen when React loads
-          window.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-              const loadingScreen = document.getElementById('loading-screen');
-              if (loadingScreen) {
-                loadingScreen.style.opacity = '0';
-                loadingScreen.style.transition = 'opacity 0.5s ease';
-                setTimeout(() => {
-                  loadingScreen.style.display = 'none';
-                }, 500);
-              }
-            }, 1500);
-          });
-          
           // Fix iOS scrolling issues
           document.addEventListener('touchstart', function() {}, {passive: true});
           document.addEventListener('touchmove', function(e) {
