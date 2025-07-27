@@ -309,10 +309,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Professional email template implementation"
-    - "Automatic payment reminder system"
-    - "Automatic reminders UI and client settings"
-  stuck_tasks: []
+    - "Email sending functionality (payment reminders and custom emails)"
+  stuck_tasks:
+    - "Email sending functionality (payment reminders and custom emails)"
   test_all: false
   test_priority: "high_first"
 
