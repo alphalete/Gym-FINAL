@@ -1320,6 +1320,24 @@ const ClientManagement = () => {
                       >
                         ✏️
                       </button>
+                      <button
+                        onClick={() => toggleClientStatus(client)}
+                        className={`btn btn-sm ${
+                          client.status === 'Active' 
+                            ? 'bg-orange-600 hover:bg-orange-700 text-white' 
+                            : 'bg-green-600 hover:bg-green-700 text-white'
+                        }`}
+                        title={`Make ${client.status === 'Active' ? 'Inactive' : 'Active'}`}
+                      >
+                        {client.status === 'Active' ? '⏸️' : '▶️'}
+                      </button>
+                      <button
+                        onClick={() => deleteClient(client)}
+                        className="btn bg-red-600 hover:bg-red-700 text-white btn-sm"
+                        title="Delete Client"
+                      >
+                        🗑️
+                      </button>
                     </div>
                   </div>
                 ))}
