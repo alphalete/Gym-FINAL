@@ -2402,7 +2402,7 @@ const Payments = () => {
                   <div className="min-w-full divide-y divide-gray-700" style={{ minWidth: '800px' }}>
                     {filteredClients.map((client) => {
                       const paymentStatus = getPaymentStatus(client.next_payment_date);
-                      const nextPaymentDate = new Date(client.next_payment_date);
+                      const nextPaymentDate = new Date(client.next_payment_date + 'T00:00:00'); // Fix timezone issue
                       const daysUntilDue = paymentStatus.daysUntilDue; // Use the same calculation from getPaymentStatus
                       const isInactive = client.status !== 'Active';
                       
