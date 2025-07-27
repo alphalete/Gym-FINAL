@@ -389,7 +389,7 @@ const EditClientModal = ({ client, isOpen, onClose, onSave }) => {
             <h3 className="ultra-contrast-text text-lg mb-2">Client Preview</h3>
             <p className="ultra-contrast-secondary">Name: {clientData.name}</p>
             <p className="ultra-contrast-secondary">Email: {clientData.email}</p>
-            <p className="ultra-contrast-secondary">Membership: {clientData.membership_type} (${clientData.monthly_fee}/month)</p>
+            <p className="ultra-contrast-secondary">Membership: {clientData.membership_type} (TTD {clientData.monthly_fee}/month)</p>
             <p className="ultra-contrast-secondary">Status: {clientData.status}</p>
             <p className="ultra-contrast-secondary">Auto Reminders: {clientData.auto_reminders_enabled ? '✅ Enabled' : '❌ Disabled'}</p>
           </div>
