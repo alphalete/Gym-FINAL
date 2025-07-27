@@ -1500,6 +1500,7 @@ const ClientManagement = () => {
           )}
         </div>
       </div>
+    </div>
 
       {/* Custom Email Modal */}
       <CustomEmailModal
