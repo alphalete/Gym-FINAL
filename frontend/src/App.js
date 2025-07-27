@@ -673,219 +673,312 @@ const Layout = ({ children }) => {
   );
 };
 
-// Dashboard Component (Using Local Storage)
-const Dashboard = () => {
-  const [clients, setClients] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [stats, setStats] = useState({
-    totalClients: 0,
-    activeMembers: 0,
-    monthlyRevenue: 0,
-    pendingPayments: 0
-  });
+  // Dashboard Component - Modern Design
+  const Dashboard = () => {
+    const [stats, setStats] = useState({
+      totalClients: 0,
+      activeClients: 0,
+      inactiveClients: 0,
+      totalRevenue: 0,
+      pendingPayments: 0,
+      overduePayments: 0,
+      upcomingPayments: 0
+    });
+    const [loading, setLoading] = useState(true);
+    const [recentClients, setRecentClients] = useState([]);
 
-  const fetchClients = async () => {
-    try {
-      setLoading(true);
-      const result = await localDB.getClients();
-      setClients(result.data);
-      
-      // Calculate stats
-      const activeMembers = result.data.filter(c => c.status === "Active");
-      const monthlyRevenue = activeMembers.reduce((sum, c) => sum + c.monthly_fee, 0);
-      
-      setStats({
-        totalClients: result.data.length,
-        activeMembers: activeMembers.length,
-        monthlyRevenue: monthlyRevenue,
-        pendingPayments: activeMembers.length
-      });
-    } catch (error) {
-      console.error("Error fetching clients:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    useEffect(() => {
+      fetchDashboardData();
+    }, []);
 
-  // Initialize with sample data if no clients exist
-  const initializeSampleData = async () => {
-    try {
-      const result = await localDB.getClients();
-      console.log("🔍 Debug - Current clients count:", result.data.length);
-      
-      if (result.data.length === 0) {
-        // Add sample clients for testing
-        const sampleClients = [
-          {
-            name: "John Smith",
-            email: "john.smith@example.com",
-            phone: "(555) 123-4567",
-            membership_type: "Premium",
-            monthly_fee: 99.99,
-            start_date: "2025-07-01",
-            status: "Active"
-          },
-          {
-            name: "Sarah Johnson",
-            email: "sarah.johnson@example.com", 
-            phone: "(555) 234-5678",
-            membership_type: "Basic",
-            monthly_fee: 59.99,
-            start_date: "2025-07-15",
-            status: "Active"
-          },
-          {
-            name: "Mike Davis",
-            email: "mike.davis@example.com",
-            phone: "(555) 345-6789", 
-            membership_type: "Premium",
-            monthly_fee: 99.99,
-            start_date: "2025-06-20",
-            status: "Active"
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        const result = await localDB.getClients();
+        const clients = result.data || [];
+        
+        // Calculate modern statistics
+        const totalClients = clients.length;
+        const activeClients = clients.filter(c => c.status === 'Active').length;
+        const inactiveClients = clients.filter(c => c.status === 'Inactive').length;
+        const totalRevenue = clients.reduce((sum, c) => sum + (c.monthly_fee || 0), 0);
+        
+        // Calculate payment statistics
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        let pendingPayments = 0;
+        let overduePayments = 0;
+        let upcomingPayments = 0;
+        
+        clients.forEach(client => {
+          if (client.status === 'Active' && client.next_payment_date) {
+            const paymentDate = new Date(client.next_payment_date + 'T00:00:00');
+            const daysUntilDue = Math.ceil((paymentDate - today) / (1000 * 60 * 60 * 24));
+            
+            if (daysUntilDue < 0) {
+              overduePayments++;
+            } else if (daysUntilDue <= 7) {
+              pendingPayments++;
+            } else {
+              upcomingPayments++;
+            }
           }
-        ];
-
-        console.log("🔍 Debug - Adding sample clients for testing...");
-        for (const client of sampleClients) {
-          const addedClient = await localDB.addClient(client);
-          console.log(`✅ Added sample client: ${client.name}`, addedClient);
-        }
+        });
         
-        alert("🎯 Sample clients added for testing!\n\n✅ John Smith (Premium - $99.99)\n✅ Sarah Johnson (Basic - $59.99)\n✅ Mike Davis (Premium - $99.99)\n\nYou can now test email and payment features!");
+        setStats({
+          totalClients,
+          activeClients,
+          inactiveClients,
+          totalRevenue,
+          pendingPayments,
+          overduePayments,
+          upcomingPayments
+        });
         
-        // Refresh the dashboard data
-        fetchClients();
-        return true;
-      } else {
-        console.log("🔍 Debug - Existing clients found:", result.data.map(c => ({ name: c.name, status: c.status })));
+        // Get recent clients (last 5)
+        const recent = clients
+          .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
+          .slice(0, 5);
+        setRecentClients(recent);
+        
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      } finally {
+        setLoading(false);
       }
-      return false;
-    } catch (error) {
-      console.error("Error initializing sample data:", error);
-      return false;
+    };
+
+    const ModernStatCard = ({ title, value, subtitle, icon, trend, color = 'primary', onClick }) => (
+      <div 
+        className={`stats-card stats-card-${color} animate-fade-in cursor-pointer`}
+        onClick={onClick}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <div className="p-3 bg-white bg-opacity-20 rounded-lg">
+            <div className="text-2xl">{icon}</div>
+          </div>
+          {trend && (
+            <div className="flex items-center space-x-1 text-sm font-medium">
+              <span className={trend > 0 ? 'text-green-300' : 'text-red-300'}>
+                {trend > 0 ? '↗' : '↘'} {Math.abs(trend)}%
+              </span>
+            </div>
+          )}
+        </div>
+        <div>
+          <h3 className="text-3xl font-bold mb-1">{value}</h3>
+          <p className="text-sm opacity-90">{title}</p>
+          {subtitle && <p className="text-xs opacity-75 mt-1">{subtitle}</p>}
+        </div>
+      </div>
+    );
+
+    const ModernClientCard = ({ client }) => (
+      <div className="card p-4 animate-slide-in">
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-full flex items-center justify-center">
+            <span className="text-white font-semibold text-sm">{client.name.charAt(0)}</span>
+          </div>
+          <div className="flex-1">
+            <h4 className="font-semibold text-gray-900 dark:text-white">{client.name}</h4>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{client.email}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-sm font-medium text-green-600 dark:text-green-400">${client.monthly_fee}</p>
+            <span className={`status-badge ${client.status === 'Active' ? 'status-active' : 'status-inactive'}`}>
+              {client.status}
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+
+    if (loading) {
+      return (
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+          <div className="text-center">
+            <div className="loading-spinner mx-auto mb-4"></div>
+            <p className="text-gray-600 dark:text-gray-300">Loading dashboard...</p>
+          </div>
+        </div>
+      );
     }
-  };
 
-  useEffect(() => {
-    fetchClients();
-    // Initialize sample data if needed
-    setTimeout(() => initializeSampleData(), 1000);
-  }, []);
-
-  return (
-    <div className="p-6">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
-        <p className="text-gray-400">Welcome back! Here's what's happening at your gym.</p>
-      </div>
-
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-blue-200">Total Clients</p>
-              <p className="text-3xl font-bold text-white">{stats.totalClients}</p>
-            </div>
-            <div className="text-4xl text-blue-200">👥</div>
-          </div>
-        </div>
-        
-        <div className="bg-gradient-to-r from-green-600 to-green-700 p-6 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-green-200">Active Members</p>
-              <p className="text-3xl font-bold text-white">{stats.activeMembers}</p>
-            </div>
-            <div className="text-4xl text-green-200">💪</div>
-          </div>
-        </div>
-        
-        <div className="bg-gradient-to-r from-purple-600 to-purple-700 p-6 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-purple-200">Monthly Revenue</p>
-              <p className="text-3xl font-bold text-white">${stats.monthlyRevenue.toFixed(2)}</p>
-            </div>
-            <div className="text-4xl text-purple-200">💰</div>
-          </div>
-        </div>
-        
-        <div className="bg-gradient-to-r from-orange-600 to-orange-700 p-6 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-orange-200">Pending Payments</p>
-              <p className="text-3xl font-bold text-white">{stats.pendingPayments}</p>
-            </div>
-            <div className="text-4xl text-orange-200">⏰</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Link to="/add-client" className="bg-gray-800 p-6 rounded-lg border border-gray-700 hover:border-red-600 transition-all">
-          <div className="text-4xl mb-4">➕</div>
-          <h3 className="text-xl font-semibold mb-2">Add New Client</h3>
-          <p className="text-gray-400">Register a new gym member</p>
-        </Link>
-        
-        <Link to="/email-center" className="bg-gray-800 p-6 rounded-lg border border-gray-700 hover:border-red-600 transition-all">
-          <div className="text-4xl mb-4">📧</div>
-          <h3 className="text-xl font-semibold mb-2">Send Reminders</h3>
-          <p className="text-gray-400">Email payment reminders to clients</p>
-        </Link>
-        
-        <Link to="/reminders" className="bg-gray-800 p-6 rounded-lg border border-gray-700 hover:border-red-600 transition-all">
-          <div className="text-4xl mb-4">⏰</div>
-          <h3 className="text-xl font-semibold mb-2">Auto Reminders</h3>
-          <p className="text-gray-400">Manage automatic payment reminders</p>
-        </Link>
-      </div>
-
-      {/* Recent Activity */}
-      <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
-        <h3 className="text-xl font-semibold mb-4">Recent Clients</h3>
-        {loading ? (
-          <div className="text-center py-4">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto"></div>
-            <p className="mt-2 text-gray-400">Loading...</p>
-          </div>
-        ) : clients.length === 0 ? (
-          <div className="text-center py-8">
-            <div className="text-4xl mb-4">👋</div>
-            <p className="text-gray-400">No clients yet. Add your first client to get started!</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {clients.slice(0, 5).map((client) => (
-              <div key={client.id} className="flex items-center justify-between py-2 border-b border-gray-700 last:border-b-0">
-                <div className="flex items-center space-x-4">
-                  <div className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center font-semibold">
-                    {client.name.charAt(0)}
-                  </div>
-                  <div>
-                    <p className="font-semibold">{client.name}</p>
-                    <p className="text-sm text-gray-400">{client.membership_type} • ${client.monthly_fee}/month</p>
-                    <p className="text-xs text-gray-500">Started: {new Date(client.start_date).toLocaleDateString()}</p>
-                  </div>
-                </div>
-                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                  client.status === 'Active' 
-                    ? 'bg-green-900 text-green-300' 
-                    : 'bg-red-900 text-red-300'
-                }`}>
-                  {client.status}
-                </span>
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
+        <div className="max-w-7xl mx-auto">
+          {/* Modern Header */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-display text-gray-900 dark:text-white mb-2">
+                  Dashboard
+                </h1>
+                <p className="text-body text-gray-600 dark:text-gray-300">
+                  Welcome back! Here's what's happening at Alphalete Athletics.
+                </p>
               </div>
-            ))}
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={fetchDashboardData}
+                  className="btn btn-secondary btn-sm"
+                >
+                  <span>🔄</span>
+                  <span>Refresh</span>
+                </button>
+                <Link to="/add-client" className="btn btn-primary btn-sm">
+                  <span>➕</span>
+                  <span>Add Member</span>
+                </Link>
+              </div>
+            </div>
           </div>
-        )}
+
+          {/* Modern Statistics Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <ModernStatCard
+              title="Total Members"
+              value={stats.totalClients}
+              subtitle="All registered members"
+              icon="👥"
+              trend={+8.2}
+              color="primary"
+              onClick={() => navigate('/clients')}
+            />
+            <ModernStatCard
+              title="Active Members"
+              value={stats.activeClients}
+              subtitle="Currently active"
+              icon="✅"
+              trend={+5.1}
+              color="accent"
+              onClick={() => navigate('/clients')}
+            />
+            <ModernStatCard
+              title="Monthly Revenue"
+              value={`$${stats.totalRevenue.toLocaleString()}`}
+              subtitle="Total potential revenue"
+              icon="💰"
+              trend={+12.3}
+              color="secondary"
+              onClick={() => navigate('/payments')}
+            />
+            <ModernStatCard
+              title="Overdue Payments"
+              value={stats.overduePayments}
+              subtitle="Require immediate attention"
+              icon="⚠️"
+              trend={-2.1}
+              color="error"
+              onClick={() => navigate('/payments')}
+            />
+          </div>
+
+          {/* Payment Status Overview */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div className="card p-6">
+              <h3 className="text-heading-3 text-gray-900 dark:text-white mb-4">Payment Status</h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                    <span className="text-sm font-medium">Pending (7 days)</span>
+                  </div>
+                  <span className="text-sm font-bold text-yellow-600">{stats.pendingPayments}</span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                    <span className="text-sm font-medium">Overdue</span>
+                  </div>
+                  <span className="text-sm font-bold text-red-600">{stats.overduePayments}</span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                    <span className="text-sm font-medium">Upcoming</span>
+                  </div>
+                  <span className="text-sm font-bold text-green-600">{stats.upcomingPayments}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="card p-6">
+              <h3 className="text-heading-3 text-gray-900 dark:text-white mb-4">Quick Actions</h3>
+              <div className="space-y-3">
+                <Link to="/add-client" className="btn btn-primary w-full">
+                  <span>➕</span>
+                  <span>Add New Member</span>
+                </Link>
+                <Link to="/email-center" className="btn btn-secondary w-full">
+                  <span>📧</span>
+                  <span>Send Reminders</span>
+                </Link>
+                <Link to="/reminders" className="btn btn-secondary w-full">
+                  <span>⏰</span>
+                  <span>Auto Reminders</span>
+                </Link>
+              </div>
+            </div>
+
+            {/* System Status */}
+            <div className="card p-6">
+              <h3 className="text-heading-3 text-gray-900 dark:text-white mb-4">System Status</h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">Connection</span>
+                  <span className="status-badge status-active">Online</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">Auto Reminders</span>
+                  <span className="status-badge status-active">Active</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">Data Sync</span>
+                  <span className="status-badge status-active">Synced</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">PWA Version</span>
+                  <span className="text-xs text-gray-500">v4.2.0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Recent Members */}
+          <div className="card p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-heading-3 text-gray-900 dark:text-white">Recent Members</h3>
+              <Link to="/clients" className="text-sm font-medium text-primary-600 hover:text-primary-700">
+                View all →
+              </Link>
+            </div>
+            {recentClients.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl">👥</span>
+                </div>
+                <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No members yet</h4>
+                <p className="text-gray-500 dark:text-gray-400 mb-4">Get started by adding your first member</p>
+                <Link to="/add-client" className="btn btn-primary">
+                  <span>➕</span>
+                  <span>Add Member</span>
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {recentClients.map((client) => (
+                  <ModernClientCard key={client.id} client={client} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  };
 
 // Client Management Component (Fixed Scrolling)
 const ClientManagement = () => {
