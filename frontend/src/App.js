@@ -728,7 +728,7 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <ModernStatCard
             title="Total Members"
-            value={stats.totalClients}
+            value={stats.totalClients || 0}
             subtitle="All registered members"
             icon="👥"
             trend={+8.2}
@@ -737,7 +737,7 @@ const Dashboard = () => {
           />
           <ModernStatCard
             title="Active Members"
-            value={stats.activeClients}
+            value={stats.activeClients || 0}
             subtitle="Currently active"
             icon="✅"
             trend={+5.1}
