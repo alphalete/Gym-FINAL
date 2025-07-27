@@ -1030,6 +1030,7 @@ const ClientManagement = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          client_id: client.id,
           client_email: client.email,
           client_name: client.name,
           amount: client.monthly_fee,
