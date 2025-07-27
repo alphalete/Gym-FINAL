@@ -1943,13 +1943,23 @@ class AlphaleteAPITester:
             return 1
 
 def main():
-    """Main function"""
-    print("🏋️‍♂️ ALPHALETE ATHLETICS CLUB - AUTOMATIC REMINDER SYSTEM TESTING")
-    print("Testing automatic payment reminder system with scheduler, API endpoints, and client settings...")
+    """Main function - Run email-focused tests with new Gmail app password"""
+    print("🏋️‍♂️ ALPHALETE ATHLETICS CLUB - EMAIL FUNCTIONALITY TESTING")
+    print("Testing email functionality with updated Gmail app password: difs xvgc ljue sxjr")
     print()
     
     tester = AlphaleteAPITester()
-    return tester.run_all_tests()
+    
+    # Run email-focused tests
+    success_rate = tester.run_email_focused_tests()
+    
+    # Return appropriate exit code
+    if success_rate >= 0.9:
+        return 0  # Success
+    elif success_rate >= 0.7:
+        return 1  # Partial success with issues
+    else:
+        return 2  # Critical failures
 
 if __name__ == "__main__":
     sys.exit(main())
