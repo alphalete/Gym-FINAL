@@ -970,6 +970,43 @@ const ClientManagement = () => {
     }
   };
 
+  const deleteClient = async (client) => {
+    // Confirm deletion
+    const confirmDelete = window.confirm(
+      `⚠️ Are you sure you want to delete ${client.name}?\n\nThis action cannot be undone.`
+    );
+    
+    if (!confirmDelete) {
+      return;
+    }
+    
+    try {
+      console.log(`Deleting client: ${client.name} (ID: ${client.id})`);
+      
+      // Delete from backend
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const response = await fetch(`${backendUrl}/api/clients/${client.id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete client from backend');
+      }
+
+      // Delete from local storage
+      await localDB.deleteClient(client.id);
+
+      // Refresh the client list
+      fetchClients();
+      
+      alert(`✅ ${client.name} has been successfully deleted`);
+    } catch (error) {
+      console.error("❌ Error deleting client:", error);
+      alert('❌ Error deleting client: ' + error.message);
+    }
+  };
+
   const filteredClients = clients.filter(client =>
     client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     client.email.toLowerCase().includes(searchTerm.toLowerCase())
