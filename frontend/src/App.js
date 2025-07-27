@@ -536,6 +536,7 @@ const Dashboard = () => {
   });
   const [loading, setLoading] = useState(true);
   const [recentClients, setRecentClients] = useState([]);
+  const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
     fetchDashboardData();
