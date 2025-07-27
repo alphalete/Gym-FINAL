@@ -830,78 +830,35 @@ const Dashboard = () => {
         )}
 
         {activeTab === 'payments' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <div className="card p-6">
-            <h3 className="text-heading-3 text-gray-900 dark:text-white mb-4">Payment Status</h3>
-          <div className="card p-6">
-            <h3 className="text-heading-3 text-gray-900 dark:text-white mb-4">Payment Status</h3>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                  <span className="text-sm font-medium">Pending (7 days)</span>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div className="card p-6">
+              <h3 className="text-heading-3 text-gray-900 dark:text-white mb-4">Payment Status</h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                    <span className="text-sm font-medium">Pending (7 days)</span>
+                  </div>
+                  <span className="text-sm font-bold text-yellow-600">{stats.pendingPayments}</span>
                 </div>
-                <span className="text-sm font-bold text-yellow-600">{stats.pendingPayments}</span>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                  <span className="text-sm font-medium">Overdue</span>
+                <div className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                    <span className="text-sm font-medium">Overdue</span>
+                  </div>
+                  <span className="text-sm font-bold text-red-600">{stats.overduePayments}</span>
                 </div>
-                <span className="text-sm font-bold text-red-600">{stats.overduePayments}</span>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span className="text-sm font-medium">Upcoming</span>
+                <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                    <span className="text-sm font-medium">Upcoming</span>
+                  </div>
+                  <span className="text-sm font-bold text-green-600">{stats.upcomingPayments}</span>
                 </div>
-                <span className="text-sm font-bold text-green-600">{stats.upcomingPayments}</span>
               </div>
             </div>
           </div>
-
-          {/* Quick Actions */}
-          <div className="card p-6">
-            <h3 className="text-heading-3 text-gray-900 dark:text-white mb-4">Quick Actions</h3>
-            <div className="space-y-3">
-              <Link to="/add-client" className="btn btn-primary w-full">
-                <span>➕</span>
-                <span>Add New Member</span>
-              </Link>
-              <Link to="/email-center" className="btn btn-secondary w-full">
-                <span>📧</span>
-                <span>Send Reminders</span>
-              </Link>
-              <Link to="/reminders" className="btn btn-secondary w-full">
-                <span>⏰</span>
-                <span>Auto Reminders</span>
-              </Link>
-            </div>
-          </div>
-
-          {/* System Status */}
-          <div className="card p-6">
-            <h3 className="text-heading-3 text-gray-900 dark:text-white mb-4">System Status</h3>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Connection</span>
-                <span className="status-badge status-active">Online</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Auto Reminders</span>
-                <span className="status-badge status-active">Active</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Data Sync</span>
-                <span className="status-badge status-active">Synced</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">PWA Version</span>
-                <span className="text-xs text-gray-500">v4.2.0</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        )}
 
         {/* Recent Members */}
         <div className="card p-6">
