@@ -2019,11 +2019,17 @@ const Payments = () => {
             <div className="text-2xl mb-2">💰</div>
             <div>Process Payments</div>
           </button>
-          <button className="ultra-contrast-button p-4 rounded text-center">
+          <button 
+            onClick={() => setShowReportsModal(true)}
+            className="ultra-contrast-button p-4 rounded text-center hover:opacity-90 transition-opacity"
+          >
             <div className="text-2xl mb-2">📊</div>
             <div>Payment Reports</div>
           </button>
-          <button className="ultra-contrast-button p-4 rounded text-center">
+          <button 
+            onClick={() => setShowOverdueModal(true)}
+            className="ultra-contrast-button p-4 rounded text-center hover:opacity-90 transition-opacity"
+          >
             <div className="text-2xl mb-2">⚠️</div>
             <div>Overdue Management</div>
           </button>
