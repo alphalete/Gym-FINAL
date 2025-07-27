@@ -230,6 +230,9 @@ backend:
       - working: true
         agent: "main"
         comment: "VERIFIED: Client status buttons ARE present and working correctly. Members table has BOTH: 1) 'MAKE ACTIVE/INACTIVE' buttons in Quick Actions column (line 1427), 2) Status toggle buttons (⏸️/▶️) in Actions column (line 1479). Screenshot testing confirmed 145 client status buttons found and visible. The buttons exist and function properly - user may have missed them due to table scrolling or previous complex UI styling."
+      - working: true
+        agent: "testing"
+        comment: "✅ CLIENT STATUS BUTTONS TESTING COMPLETED - EXCELLENT VISIBILITY: Found 435 total client status buttons across Members page with perfect visibility and accessibility. Quick Actions column: 11 MAKE ACTIVE buttons + 134 MAKE INACTIVE buttons. Actions column: 268 pause (⏸️) buttons + 22 play (▶️) buttons. All buttons are clearly visible, properly styled, and easily accessible in both desktop table view and mobile card view. CONCLUSION: Client status buttons are working excellently with comprehensive visibility and functionality across all device formats."
 
   - task: "Dashboard showing 0 values fix"
     implemented: true
