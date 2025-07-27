@@ -1075,15 +1075,13 @@ const ClientManagement = () => {
   const toggleClientStatus = async (client) => {
     try {
       const newStatus = client.status === 'Active' ? 'Inactive' : 'Active';
-      console.log(`Toggling ${client.name} status from ${client.status} to ${newStatus} (ID: ${client.id})`);
+      console.log(`Updating client ${client.name} status from ${client.status} to ${newStatus}`);
       
-      // First delete from backend
+      // Update on backend
       const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       const response = await fetch(`${backendUrl}/api/clients/${client.id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...client,
           status: newStatus
@@ -1091,22 +1089,21 @@ const ClientManagement = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update client status');
+        throw new Error(`Failed to update client status: ${response.status}`);
       }
+      
+      const updatedClient = await response.json();
+      console.log('✅ Client status updated successfully:', updatedClient);
 
-      // Then update local storage
-      await localDB.updateClient(client.id, {
-        ...client,
-        status: newStatus,
-        updated_at: new Date().toISOString()
-      });
+      // Update in local storage
+      await localDB.updateClient(client.id, { status: newStatus });
 
-      // Refresh the client list
+      // Refresh the client list to show the change
       fetchClients();
       
-      alert(`✅ ${client.name} marked as ${newStatus}`);
+      alert(`✅ ${client.name} status changed to ${newStatus}`);
     } catch (error) {
-      console.error("❌ Error toggling client status:", error);
+      console.error("❌ Error updating client status:", error);
       alert('❌ Error updating client status: ' + error.message);
     }
   };
