@@ -1314,19 +1314,45 @@ const AddClient = () => {
 
   const fetchMembershipTypes = async () => {
     try {
-      const result = await localDB.getMembershipTypes();
-      setMembershipTypes(result.data || []);
+      // Fetch directly from backend API to avoid IndexedDB issues  
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const response = await fetch(`${backendUrl}/api/membership-types`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
       
-      // Set default membership type
-      if (result.data && result.data.length > 0) {
+      if (!response.ok) {
+        throw new Error(`Failed to fetch membership types: ${response.status}`);
+      }
+      
+      const membershipTypesData = await response.json();
+      console.log(`✅ AddMember: Fetched ${membershipTypesData.length} membership types`);
+      setMembershipTypes(membershipTypesData || []);
+      
+      // Set default membership type and fee
+      if (membershipTypesData && membershipTypesData.length > 0) {
+        const defaultType = membershipTypesData.find(type => type.name === 'Standard') || membershipTypesData[0];
         setFormData(prev => ({
           ...prev,
-          membership_type: result.data[0].name,
-          monthly_fee: result.data[0].fee
+          membership_type: defaultType.name,
+          monthly_fee: defaultType.monthly_fee
         }));
       }
     } catch (error) {
-      console.error('Error fetching membership types:', error);
+      console.error('AddMember: Error fetching membership types:', error);
+      // Fallback to default types
+      const fallbackTypes = [
+        { id: '1', name: 'Standard', monthly_fee: 50.0, description: 'Basic gym access' },
+        { id: '2', name: 'Premium', monthly_fee: 75.0, description: 'Gym access plus classes' },
+        { id: '3', name: 'Elite', monthly_fee: 100.0, description: 'Premium plus personal training' },
+        { id: '4', name: 'VIP', monthly_fee: 150.0, description: 'All-inclusive membership' }
+      ];
+      setMembershipTypes(fallbackTypes);
+      setFormData(prev => ({
+        ...prev,
+        membership_type: 'Standard',
+        monthly_fee: 50.0
+      }));
     }
   };
 
