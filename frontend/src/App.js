@@ -860,6 +860,86 @@ const Dashboard = () => {
           </div>
         )}
 
+        {activeTab === 'activity' && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div className="card p-6">
+              <h3 className="text-heading-3 text-gray-900 dark:text-white mb-4">Recent Members</h3>
+              <div className="space-y-3">
+                {recentClients.slice(0, 5).map(client => (
+                  <ModernClientCard key={client.id} client={client} />
+                ))}
+              </div>
+            </div>
+            <div className="card p-6">
+              <h3 className="text-heading-3 text-gray-900 dark:text-white mb-4">Activity Log</h3>
+              <div className="space-y-3 text-sm">
+                <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                  <span className="text-green-600">✅ Auto reminders sent to 12 members</span>
+                  <p className="text-gray-500 text-xs mt-1">2 hours ago</p>
+                </div>
+                <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                  <span className="text-blue-600">📧 Payment reminder sent</span>
+                  <p className="text-gray-500 text-xs mt-1">4 hours ago</p>
+                </div>
+                <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                  <span className="text-yellow-600">⚠️ 3 payments overdue</span>
+                  <p className="text-gray-500 text-xs mt-1">1 day ago</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'actions' && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div className="card p-6">
+              <h3 className="text-heading-3 text-gray-900 dark:text-white mb-4">Quick Actions</h3>
+              <div className="space-y-3">
+                <Link to="/add-client" className="btn btn-primary w-full">
+                  <span>➕</span>
+                  <span>Add New Member</span>
+                </Link>
+                <Link to="/email-center" className="btn btn-secondary w-full">
+                  <span>📧</span>
+                  <span>Send Reminders</span>
+                </Link>
+                <Link to="/reminders" className="btn btn-secondary w-full">
+                  <span>⏰</span>
+                  <span>Auto Reminders</span>
+                </Link>
+                <Link to="/reports" className="btn btn-secondary w-full">
+                  <span>📊</span>
+                  <span>View Reports</span>
+                </Link>
+              </div>
+            </div>
+            <div className="card p-6">
+              <h3 className="text-heading-3 text-gray-900 dark:text-white mb-4">System Actions</h3>
+              <div className="space-y-3">
+                <button 
+                  onClick={fetchDashboardData}
+                  className="btn btn-secondary w-full"
+                >
+                  <span>🔄</span>
+                  <span>Refresh Data</span>
+                </button>
+                <Link to="/settings" className="btn btn-secondary w-full">
+                  <span>⚙️</span>
+                  <span>Settings</span>
+                </Link>
+                <button className="btn btn-secondary w-full">
+                  <span>📤</span>
+                  <span>Export Data</span>
+                </button>
+                <button className="btn btn-secondary w-full">
+                  <span>🔔</span>
+                  <span>Test Notifications</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Recent Members */}
         <div className="card p-6">
           <div className="flex items-center justify-between mb-6">
