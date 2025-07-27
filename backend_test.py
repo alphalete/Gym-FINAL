@@ -1736,6 +1736,66 @@ class AlphaleteAPITester:
         
         return success1 and success3 and success4 and success6
 
+    def run_email_focused_tests(self):
+        """Run email-focused tests with new Gmail app password"""
+        print("📧 STARTING EMAIL FUNCTIONALITY TESTING WITH NEW GMAIL APP PASSWORD")
+        print("=" * 80)
+        print("🔑 Testing with Gmail app password: difs xvgc ljue sxjr")
+        print("=" * 80)
+        
+        # Basic setup
+        self.test_health_check()
+        self.test_membership_types_seed()
+        
+        # Create test client for email tests
+        self.test_create_client_with_start_date()
+        
+        # CRITICAL EMAIL TESTS
+        print("\n🎯 CRITICAL EMAIL FUNCTIONALITY TESTS")
+        print("-" * 50)
+        
+        # 1. Test Email Service Connection
+        self.test_email_configuration()
+        
+        # 2. Test Email Templates
+        self.test_get_email_templates()
+        
+        # 3. Test Payment Reminder Sending
+        self.test_send_individual_payment_reminder()
+        
+        # 4. Test Custom Email Sending
+        self.test_send_custom_reminder_default_template()
+        self.test_send_custom_reminder_professional_template()
+        self.test_send_custom_reminder_friendly_template()
+        
+        # 5. Test Bulk Email Sending
+        self.test_send_bulk_payment_reminders()
+        
+        # 6. Test Professional Template (specific focus)
+        self.test_professional_email_template()
+        
+        # 7. Test Email Error Scenarios
+        self.test_send_custom_reminder_invalid_client()
+        
+        # Final Email Summary
+        print("\n" + "=" * 80)
+        print("📧 EMAIL FUNCTIONALITY TESTING COMPLETED")
+        print("=" * 80)
+        print(f"📊 TOTAL TESTS RUN: {self.tests_run}")
+        print(f"✅ TESTS PASSED: {self.tests_passed}")
+        print(f"❌ TESTS FAILED: {self.tests_run - self.tests_passed}")
+        print(f"📈 SUCCESS RATE: {(self.tests_passed / self.tests_run * 100):.1f}%")
+        
+        if self.tests_passed == self.tests_run:
+            print("🎉 ALL EMAIL TESTS PASSED! Gmail SMTP with new password working perfectly!")
+        elif self.tests_passed / self.tests_run >= 0.8:
+            print("✅ GOOD! Most email functionality working - minor issues may exist")
+        else:
+            print("❌ CRITICAL: Email functionality has significant issues - Gmail authentication may still be failing")
+        
+        print("=" * 80)
+        return self.tests_passed / self.tests_run if self.tests_run > 0 else 0
+
     def run_all_tests(self):
         """Run all API tests"""
         print("🚀 Starting Alphalete Athletics Club API Tests")
