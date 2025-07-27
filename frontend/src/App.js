@@ -661,56 +661,16 @@ const Navigation = ({ currentPage }) => {
     </>
   );
 };
-                    currentPage === item.path
-                      ? "bg-red-600 text-white shadow-lg"
-                      : "text-gray-300 hover:bg-gray-800 hover:text-white"
-                  }`}
-                  style={{ touchAction: 'manipulation', minHeight: '48px' }}
-                >
-                  <span className="text-xl">{item.icon}</span>
-                  <div>
-                    <div className="font-semibold">{item.label}</div>
-                    <div className="text-xs opacity-75">{item.description}</div>
-                  </div>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
 
-        {/* Footer */}
-        <div className="p-4 flex-shrink-0">
-          <div className="bg-gray-800 p-3 rounded-lg text-center">
-            <div className="text-xs text-gray-400">PWA - Offline Ready</div>
-            <div className="text-xs text-red-400 font-semibold">v2.1.0</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Overlay for mobile */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
-          onClick={() => setIsOpen(false)}
-          style={{ touchAction: 'manipulation' }}
-        />
-      )}
-    </>
-  );
-};
-
-// Main Layout Component with Scroll Fix
+// Layout Component
 const Layout = ({ children }) => {
   const location = useLocation();
   
   return (
-    <div className="pwa-container">
-      <PWAStatus />
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Navigation currentPage={location.pathname} />
-      <div className="pwa-main-content">
-        <div className="pwa-scrollable-content">
-          {children}
-        </div>
+      <div className="md:ml-64">
+        {children}
       </div>
     </div>
   );
