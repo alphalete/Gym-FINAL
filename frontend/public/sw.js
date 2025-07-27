@@ -1,5 +1,5 @@
-const CACHE_NAME = 'alphalete-v4.1.1-payment-date-consistency'; // Updated version for payment date consistency fix
-const API_CACHE_NAME = 'alphalete-api-v4.1.1';
+const CACHE_NAME = 'alphalete-v4.2.0-modern-ui'; // Updated version for modern UI implementation
+const API_CACHE_NAME = 'alphalete-api-v4.2.0';
 
 // Static assets to cache for offline use
 const STATIC_ASSETS = [
