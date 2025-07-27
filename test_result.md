@@ -162,6 +162,42 @@ backend:
         agent: "testing"
         comment: "POST-FRONTEND-FIXES VERIFICATION COMPLETED: ✅ COMPREHENSIVE AUTOMATIC REMINDER SYSTEM TESTING AFTER FRONTEND CONTRAST FIXES: Ran extensive tests on all reminder endpoints with excellent results. ✅ GET /api/reminders/upcoming - Working correctly, returns upcoming reminders with proper JSON serialization. ✅ GET /api/reminders/history - Working correctly, returns reminder history with proper data handling. ✅ GET /api/reminders/stats - Working correctly, shows 100% success rate and active scheduler status (4 reminders sent, 0 failed). ✅ POST /api/reminders/test-run - Working correctly, manual trigger successful. ✅ PUT /api/clients/{client_id}/reminders - Working correctly with JSON body format for client reminder settings. ✅ Client reminder settings - auto_reminders_enabled field working correctly and persisting during updates. ✅ Scheduler functionality - Active and running, successfully processing automatic reminders. ✅ Complete integration flow - All reminder workflow components working perfectly. Minor: One endpoint expects JSON body instead of query params (minor API design issue). CONCLUSION: Automatic payment reminder system is fully functional and production-ready after frontend changes."
 
+  - task: "Membership type deletion functionality"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "IMPLEMENTING: Backend DELETE /api/membership-types/{membership_id} endpoint exists at line 194, implements soft delete by setting is_active to False. Frontend Settings component has deleteMembershipType function that calls this endpoint. Need to test if this is working properly and why user reports it's not working."
+
+  - task: "Currency change from $ to TTD"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "IMPLEMENTED: Changed all currency displays from '$' to 'TTD' throughout the frontend application. Updated email templates, client displays, settings forms, and revenue displays to show TTD instead of USD. Ready for testing."
+
+  - task: "Add Member form membership types update"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "ANALYZING: AddClient component has fetchMembershipTypes function that fetches from /api/membership-types. EditClient modal also has fetchMembershipTypes. Need to verify if membership type changes show in both forms properly and refresh appropriately."
+
 frontend:
   - task: "Branding update with wolf logo"
     implemented: true
