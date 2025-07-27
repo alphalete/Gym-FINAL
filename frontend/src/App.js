@@ -1710,10 +1710,265 @@ const AddClient = () => {
 // Other components would be here with similar ultra-contrast styles...
 // For brevity, I'm including placeholders for the remaining components
 
-const EmailCenter = () => <div className="ultra-contrast-text p-6">Email Center Component</div>;
-const Payments = () => <div className="ultra-contrast-text p-6">Payments Component</div>;
-const AutoReminders = () => <div className="ultra-contrast-text p-6">Auto Reminders Component</div>;
-const Reports = () => <div className="ultra-contrast-text p-6">Reports Component</div>;
+const EmailCenter = () => {
+  const [emailStats, setEmailStats] = useState({
+    totalSent: 1247,
+    thisMonth: 89,
+    successRate: 98.2,
+    pending: 3
+  });
+
+  return (
+    <div className="p-6 max-w-6xl mx-auto">
+      <div className="mb-8">
+        <h1 className="text-display ultra-contrast-text mb-2">Messages & Email Center</h1>
+        <p className="ultra-contrast-secondary">Send and manage email communications</p>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="ultra-contrast-modal rounded-lg p-6">
+          <h3 className="ultra-contrast-text font-bold mb-2">Total Sent</h3>
+          <p className="text-2xl font-bold text-blue-600">{emailStats.totalSent}</p>
+        </div>
+        <div className="ultra-contrast-modal rounded-lg p-6">
+          <h3 className="ultra-contrast-text font-bold mb-2">This Month</h3>
+          <p className="text-2xl font-bold text-green-600">{emailStats.thisMonth}</p>
+        </div>
+        <div className="ultra-contrast-modal rounded-lg p-6">
+          <h3 className="ultra-contrast-text font-bold mb-2">Success Rate</h3>
+          <p className="text-2xl font-bold text-purple-600">{emailStats.successRate}%</p>
+        </div>
+        <div className="ultra-contrast-modal rounded-lg p-6">
+          <h3 className="ultra-contrast-text font-bold mb-2">Pending</h3>
+          <p className="text-2xl font-bold text-orange-600">{emailStats.pending}</p>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="ultra-contrast-modal rounded-lg p-6">
+          <h2 className="ultra-contrast-text font-bold mb-4">Quick Actions</h2>
+          <div className="space-y-3">
+            <button className="ultra-contrast-button-primary w-full p-3 rounded">
+              📧 Send Payment Reminders
+            </button>
+            <button className="ultra-contrast-button w-full p-3 rounded">
+              📢 Send Announcements  
+            </button>
+            <button className="ultra-contrast-button w-full p-3 rounded">
+              📊 View Email Reports
+            </button>
+          </div>
+        </div>
+        
+        <div className="ultra-contrast-modal rounded-lg p-6">
+          <h2 className="ultra-contrast-text font-bold mb-4">Recent Activity</h2>
+          <div className="space-y-3">
+            <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded">
+              <p className="ultra-contrast-text font-medium">Payment reminders sent</p>
+              <p className="ultra-contrast-secondary text-sm">12 members • 2 hours ago</p>
+            </div>
+            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded">
+              <p className="ultra-contrast-text font-medium">Monthly newsletter sent</p>
+              <p className="ultra-contrast-secondary text-sm">143 members • 1 day ago</p>
+            </div>
+            <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded">
+              <p className="ultra-contrast-text font-medium">Welcome emails sent</p>
+              <p className="ultra-contrast-secondary text-sm">5 new members • 2 days ago</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const Payments = () => {
+  const [paymentStats, setPaymentStats] = useState({
+    totalRevenue: 12279.92,
+    pendingPayments: 12,
+    overduePayments: 78,
+    completedThisMonth: 65
+  });
+
+  return (
+    <div className="p-6 max-w-6xl mx-auto">
+      <div className="mb-8">
+        <h1 className="text-display ultra-contrast-text mb-2">Payment Tracking</h1>
+        <p className="ultra-contrast-secondary">Monitor and manage member payments</p>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="ultra-contrast-modal rounded-lg p-6">
+          <h3 className="ultra-contrast-text font-bold mb-2">Total Revenue</h3>
+          <p className="text-2xl font-bold text-green-600">${paymentStats.totalRevenue}</p>
+        </div>
+        <div className="ultra-contrast-modal rounded-lg p-6">
+          <h3 className="ultra-contrast-text font-bold mb-2">Pending</h3>
+          <p className="text-2xl font-bold text-yellow-600">{paymentStats.pendingPayments}</p>
+        </div>
+        <div className="ultra-contrast-modal rounded-lg p-6">
+          <h3 className="ultra-contrast-text font-bold mb-2">Overdue</h3>
+          <p className="text-2xl font-bold text-red-600">{paymentStats.overduePayments}</p>
+        </div>
+        <div className="ultra-contrast-modal rounded-lg p-6">
+          <h3 className="ultra-contrast-text font-bold mb-2">Completed</h3>
+          <p className="text-2xl font-bold text-blue-600">{paymentStats.completedThisMonth}</p>
+        </div>
+      </div>
+      
+      <div className="ultra-contrast-modal rounded-lg p-6">
+        <h2 className="ultra-contrast-text font-bold mb-4">Payment Management</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <button className="ultra-contrast-button-primary p-4 rounded text-center">
+            <div className="text-2xl mb-2">💰</div>
+            <div>Process Payments</div>
+          </button>
+          <button className="ultra-contrast-button p-4 rounded text-center">
+            <div className="text-2xl mb-2">📊</div>
+            <div>Payment Reports</div>
+          </button>
+          <button className="ultra-contrast-button p-4 rounded text-center">
+            <div className="text-2xl mb-2">⚠️</div>
+            <div>Overdue Management</div>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const AutoReminders = () => {
+  const [reminderStats, setReminderStats] = useState({
+    totalSent: 324,
+    activeClients: 134,
+    successRate: 94.2,
+    scheduled: 8
+  });
+
+  return (
+    <div className="p-6 max-w-6xl mx-auto">
+      <div className="mb-8">
+        <h1 className="text-display ultra-contrast-text mb-2">Automation & Reminders</h1>
+        <p className="ultra-contrast-secondary">Manage automated reminder systems</p>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="ultra-contrast-modal rounded-lg p-6">
+          <h3 className="ultra-contrast-text font-bold mb-2">Total Sent</h3>
+          <p className="text-2xl font-bold text-blue-600">{reminderStats.totalSent}</p>
+        </div>
+        <div className="ultra-contrast-modal rounded-lg p-6">
+          <h3 className="ultra-contrast-text font-bold mb-2">Active Clients</h3>
+          <p className="text-2xl font-bold text-green-600">{reminderStats.activeClients}</p>
+        </div>
+        <div className="ultra-contrast-modal rounded-lg p-6">
+          <h3 className="ultra-contrast-text font-bold mb-2">Success Rate</h3>
+          <p className="text-2xl font-bold text-purple-600">{reminderStats.successRate}%</p>
+        </div>
+        <div className="ultra-contrast-modal rounded-lg p-6">
+          <h3 className="ultra-contrast-text font-bold mb-2">Scheduled</h3>
+          <p className="text-2xl font-bold text-orange-600">{reminderStats.scheduled}</p>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="ultra-contrast-modal rounded-lg p-6">
+          <h2 className="ultra-contrast-text font-bold mb-4">Automation Settings</h2>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="ultra-contrast-text">Payment Reminders</span>
+              <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">ACTIVE</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="ultra-contrast-text">Overdue Notifications</span>
+              <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">ACTIVE</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="ultra-contrast-text">Welcome Messages</span>
+              <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">ACTIVE</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className="ultra-contrast-modal rounded-lg p-6">
+          <h2 className="ultra-contrast-text font-bold mb-4">Quick Actions</h2>
+          <div className="space-y-3">
+            <button className="ultra-contrast-button-primary w-full p-3 rounded">
+              ⚡ Run Manual Reminder
+            </button>
+            <button className="ultra-contrast-button w-full p-3 rounded">
+              📋 View Reminder Log
+            </button>
+            <button className="ultra-contrast-button w-full p-3 rounded">
+              ⚙️ Automation Settings
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const Reports = () => {
+  const [reportStats, setReportStats] = useState({
+    totalMembers: 143,
+    monthlyGrowth: 8.2,
+    revenue: 12279.92,
+    retentionRate: 89.5
+  });
+
+  return (
+    <div className="p-6 max-w-6xl mx-auto">
+      <div className="mb-8">
+        <h1 className="text-display ultra-contrast-text mb-2">Analytics & Reports</h1>
+        <p className="ultra-contrast-secondary">View detailed business insights and data</p>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="ultra-contrast-modal rounded-lg p-6">
+          <h3 className="ultra-contrast-text font-bold mb-2">Total Members</h3>
+          <p className="text-2xl font-bold text-blue-600">{reportStats.totalMembers}</p>
+          <p className="text-sm text-green-600">+{reportStats.monthlyGrowth}% this month</p>
+        </div>
+        <div className="ultra-contrast-modal rounded-lg p-6">
+          <h3 className="ultra-contrast-text font-bold mb-2">Revenue</h3>
+          <p className="text-2xl font-bold text-green-600">${reportStats.revenue}</p>
+          <p className="text-sm text-green-600">Monthly total</p>
+        </div>
+        <div className="ultra-contrast-modal rounded-lg p-6">
+          <h3 className="ultra-contrast-text font-bold mb-2">Growth Rate</h3>
+          <p className="text-2xl font-bold text-purple-600">{reportStats.monthlyGrowth}%</p>
+          <p className="text-sm ultra-contrast-secondary">Month over month</p>
+        </div>
+        <div className="ultra-contrast-modal rounded-lg p-6">
+          <h3 className="ultra-contrast-text font-bold mb-2">Retention</h3>
+          <p className="text-2xl font-bold text-orange-600">{reportStats.retentionRate}%</p>
+          <p className="text-sm ultra-contrast-secondary">Member retention</p>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <button className="ultra-contrast-modal rounded-lg p-6 text-center hover:bg-gray-50">
+          <div className="text-3xl mb-3">📊</div>
+          <h3 className="ultra-contrast-text font-bold mb-2">Member Reports</h3>
+          <p className="ultra-contrast-secondary text-sm">Detailed member analytics</p>
+        </button>
+        
+        <button className="ultra-contrast-modal rounded-lg p-6 text-center hover:bg-gray-50">
+          <div className="text-3xl mb-3">💰</div>
+          <h3 className="ultra-contrast-text font-bold mb-2">Financial Reports</h3>
+          <p className="ultra-contrast-secondary text-sm">Revenue and payment tracking</p>
+        </button>
+        
+        <button className="ultra-contrast-modal rounded-lg p-6 text-center hover:bg-gray-50">
+          <div className="text-3xl mb-3">📈</div>
+          <h3 className="ultra-contrast-text font-bold mb-2">Growth Analytics</h3>
+          <p className="ultra-contrast-secondary text-sm">Business growth insights</p>
+        </button>
+      </div>
+    </div>
+  );
+};
 const Settings = () => {
   const [settings, setSettings] = useState({
     gymName: 'Alphalete Athletics Club',
