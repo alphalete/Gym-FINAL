@@ -361,45 +361,52 @@
   }
 }
 
-/* Modern Statistics Cards */
+/* Modern Statistics Cards - High Contrast */
 .stats-card {
-  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+  background: var(--bg-secondary);
   border-radius: var(--radius-xl);
   padding: var(--space-6);
-  border: 1px solid var(--border-primary);
-  box-shadow: var(--shadow-sm);
+  border: 2px solid var(--border-primary);
+  box-shadow: var(--shadow-md);
   transition: all 0.3s ease;
   cursor: pointer;
+  color: var(--text-primary);
 }
 
 .stats-card:hover {
   box-shadow: var(--shadow-lg);
   transform: translateY(-2px);
+  border-color: var(--border-secondary);
 }
 
 .stats-card-primary {
   background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%);
   color: white;
+  border-color: var(--primary-500);
 }
 
 .stats-card-secondary {
   background: linear-gradient(135deg, var(--secondary-600) 0%, var(--secondary-700) 100%);
   color: white;
+  border-color: var(--secondary-500);
 }
 
 .stats-card-accent {
   background: linear-gradient(135deg, var(--accent-600) 0%, var(--accent-700) 100%);
   color: white;
+  border-color: var(--accent-500);
 }
 
 .stats-card-warning {
-  background: linear-gradient(135deg, var(--warning-500) 0%, var(--warning-600) 100%);
+  background: linear-gradient(135deg, var(--warning-600) 0%, var(--warning-700) 100%);
   color: white;
+  border-color: var(--warning-500);
 }
 
 .stats-card-error {
-  background: linear-gradient(135deg, var(--error-500) 0%, var(--error-600) 100%);
+  background: linear-gradient(135deg, var(--error-600) 0%, var(--error-700) 100%);
   color: white;
+  border-color: var(--error-500);
 }
 
 /* Mobile Optimizations */
