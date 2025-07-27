@@ -1425,40 +1425,21 @@ const ClientManagement = () => {
                             </span>
                           </td>
                           <td className="p-4">
-                            <div className="flex space-x-1">
-                              <button
-                                onClick={() => toggleClientStatus(client)}
-                                style={{
-                                  backgroundColor: client.status === 'Active' ? '#dc2626' : '#16a34a',
-                                  color: 'white',
-                                  padding: '4px 8px',
-                                  borderRadius: '4px',
-                                  border: 'none',
-                                  cursor: 'pointer',
-                                  fontSize: '12px',
-                                  fontWeight: 'bold'
-                                }}
-                                title={`Make ${client.status === 'Active' ? 'Inactive' : 'Active'}`}
-                              >
-                                {client.status === 'Active' ? 'DEACTIVATE' : 'ACTIVATE'}
-                              </button>
-                              <button
-                                onClick={() => openEditClientModal(client)}
-                                style={{
-                                  backgroundColor: '#3b82f6',
-                                  color: 'white',
-                                  padding: '4px 8px',
-                                  borderRadius: '4px',
-                                  border: 'none',
-                                  cursor: 'pointer',
-                                  fontSize: '12px',
-                                  fontWeight: 'bold'
-                                }}
-                                title="Edit Client"
-                              >
-                                EDIT
-                              </button>
-                            </div>
+                            <button
+                              onClick={() => toggleClientStatus(client)}
+                              style={{
+                                backgroundColor: client.status === 'Active' ? '#ef4444' : '#10b981',
+                                color: 'white',
+                                padding: '6px 12px',
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                fontSize: '12px',
+                                fontWeight: 'bold'
+                              }}
+                            >
+                              {client.status === 'Active' ? 'MAKE INACTIVE' : 'MAKE ACTIVE'}
+                            </button>
                           </td>
                           <td className="p-4">
                             <span className={`px-3 py-1 rounded-full text-xs font-bold ${
