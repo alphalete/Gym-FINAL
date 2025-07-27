@@ -1,38 +1,13 @@
 const CACHE_NAME = 'alphalete-v4.3.0-loading-fix'; // Updated version for loading fix
 const API_CACHE_NAME = 'alphalete-api-v4.3.0';
 
-// Static assets to cache for offline use
-const STATIC_ASSETS = [
-  '/',
-  '/static/js/bundle.js',
-  '/static/css/main.css',
-  '/manifest.json',
-  // Add other static assets as needed
-];
+// Minimal service worker to avoid interfering with app loading
+console.log('Service Worker: Starting minimal version to avoid loading issues');
 
-// API endpoints that can work offline
-const API_ENDPOINTS = [
-  '/api/clients',
-  '/api/membership-types',
-  '/api/email/test'
-];
-
-// Install event - cache static assets
+// Install event - skip static asset caching for now
 self.addEventListener('install', event => {
-  console.log('Service Worker: Install event');
-  
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('Service Worker: Caching static assets');
-        return cache.addAll(STATIC_ASSETS.map(url => new Request(url, {credentials: 'same-origin'})));
-      })
-      .catch(err => {
-        console.error('Service Worker: Error caching static assets:', err);
-      })
-  );
-  
-  // Force activation of new service worker
+  console.log('Service Worker: Install event - skipping heavy caching');
+  // Force activation immediately
   self.skipWaiting();
 });
 
@@ -57,24 +32,19 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-// Fetch event - handle offline requests
+// Fetch event - minimal handling, prefer network for now
 self.addEventListener('fetch', event => {
   const { request } = event;
-  const url = new URL(request.url);
   
-  // Handle API requests
-  if (url.pathname.startsWith('/api/')) {
-    event.respondWith(handleApiRequest(request));
-  }
-  // Handle static assets
-  else {
-    event.respondWith(handleStaticRequest(request));
-  }
+  // For now, just let all requests go to network to avoid caching issues
+  event.respondWith(
+    fetch(request).catch(err => {
+      console.log('Service Worker: Network request failed:', err);
+      // Only use cache as absolute fallback
+      return caches.match(request);
+    })
+  );
 });
-
-// Handle API requests with cache-first strategy for offline capability
-async function handleApiRequest(request) {
-  const url = new URL(request.url);
   
   // For email endpoints, always try network first (need internet)
   if (url.pathname.includes('/email/')) {
