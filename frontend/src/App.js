@@ -1385,19 +1385,19 @@ const ClientManagement = () => {
               </div>
 
               {/* Desktop Table View */}
-              <div className="hidden md:block bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+              <div className="hidden md:block card overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead className="bg-gray-700">
+                    <thead className="bg-gray-100 dark:bg-gray-800">
                       <tr>
-                        <th className="text-left p-4">Name</th>
-                        <th className="text-left p-4">Email</th>
-                        <th className="text-left p-4">Phone</th>
-                        <th className="text-left p-4">Membership</th>
-                        <th className="text-left p-4">Monthly Fee</th>
-                        <th className="text-left p-4">Member Since</th>
-                        <th className="text-left p-4">Current Period</th>
-                        <th className="text-left p-4">Next Payment</th>
+                        <th className="text-left p-4 font-semibold text-gray-900 dark:text-white">Name</th>
+                        <th className="text-left p-4 font-semibold text-gray-900 dark:text-white">Email</th>
+                        <th className="text-left p-4 font-semibold text-gray-900 dark:text-white">Phone</th>
+                        <th className="text-left p-4 font-semibold text-gray-900 dark:text-white">Membership</th>
+                        <th className="text-left p-4 font-semibold text-gray-900 dark:text-white">Monthly Fee</th>
+                        <th className="text-left p-4 font-semibold text-gray-900 dark:text-white">Member Since</th>
+                        <th className="text-left p-4 font-semibold text-gray-900 dark:text-white">Current Period</th>
+                        <th className="text-left p-4 font-semibold text-gray-900 dark:text-white">Next Payment</th>
                         <th className="text-left p-4">Status</th>
                         <th className="text-left p-4">Auto Reminders</th>
                         <th className="text-left p-4">Actions</th>
