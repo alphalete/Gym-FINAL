@@ -2149,34 +2149,42 @@ const Settings = () => {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b">
-                  <th className="ultra-contrast-text text-left p-2">Name</th>
-                  <th className="ultra-contrast-text text-left p-2">Monthly Fee</th>
-                  <th className="ultra-contrast-text text-left p-2">Description</th>
-                  <th className="ultra-contrast-text text-left p-2">Features</th>
-                  <th className="ultra-contrast-text text-left p-2">Status</th>
+                <tr className="border-b border-gray-400">
+                  <th className="ultra-contrast-text text-left p-3 font-bold bg-gray-100 dark:bg-gray-800">Name</th>
+                  <th className="ultra-contrast-text text-left p-3 font-bold bg-gray-100 dark:bg-gray-800">Monthly Fee</th>
+                  <th className="ultra-contrast-text text-left p-3 font-bold bg-gray-100 dark:bg-gray-800">Description</th>
+                  <th className="ultra-contrast-text text-left p-3 font-bold bg-gray-100 dark:bg-gray-800">Features</th>
+                  <th className="ultra-contrast-text text-left p-3 font-bold bg-gray-100 dark:bg-gray-800">Status</th>
                 </tr>
               </thead>
               <tbody>
-                {membershipTypes.map((type) => (
-                  <tr key={type.id} className="border-b">
-                    <td className="ultra-contrast-text p-2 font-semibold">{type.name}</td>
-                    <td className="ultra-contrast-text p-2">${type.monthly_fee}/month</td>
-                    <td className="ultra-contrast-secondary p-2 text-sm">{type.description}</td>
-                    <td className="ultra-contrast-secondary p-2 text-sm">
-                      {type.features ? type.features.slice(0, 2).join(', ') + (type.features.length > 2 ? '...' : '') : 'N/A'}
-                    </td>
-                    <td className="p-2">
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${
-                        type.is_active 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {type.is_active ? 'Active' : 'Inactive'}
-                      </span>
+                {membershipTypes.length > 0 ? (
+                  membershipTypes.map((type) => (
+                    <tr key={type.id} className="border-b border-gray-300 hover:bg-gray-50">
+                      <td className="p-3 font-bold" style={{ color: '#000000' }}>{type.name}</td>
+                      <td className="p-3 font-semibold" style={{ color: '#000000' }}>${type.monthly_fee}/month</td>
+                      <td className="p-3" style={{ color: '#333333' }}>{type.description || 'No description'}</td>
+                      <td className="p-3" style={{ color: '#333333' }}>
+                        {type.features ? type.features.slice(0, 2).join(', ') + (type.features.length > 2 ? '...' : '') : 'Standard features'}
+                      </td>
+                      <td className="p-3">
+                        <span className={`px-3 py-1 rounded font-bold text-sm ${
+                          type.is_active 
+                            ? 'bg-green-200 text-green-900' 
+                            : 'bg-red-200 text-red-900'
+                        }`}>
+                          {type.is_active ? 'Active' : 'Inactive'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5" className="p-6 text-center" style={{ color: '#000000', fontWeight: 'bold' }}>
+                      Loading membership types...
                     </td>
                   </tr>
-                ))}
+                )}}
               </tbody>
             </table>
           </div>
