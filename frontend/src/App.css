@@ -281,7 +281,7 @@
   color: var(--text-tertiary);
 }
 
-/* Modern Navigation */
+/* Modern Navigation - High Contrast */
 .nav-item {
   display: flex;
   align-items: center;
@@ -291,6 +291,7 @@
   transition: all 0.2s ease;
   color: var(--text-secondary);
   text-decoration: none;
+  font-weight: 500;
 }
 
 .nav-item:hover {
@@ -300,7 +301,15 @@
 
 .nav-item.active {
   background-color: var(--primary-100);
-  color: var(--primary-700);
+  color: var(--primary-800);
+  font-weight: 600;
+}
+
+@media (prefers-color-scheme: dark) {
+  .nav-item.active {
+    background-color: var(--primary-900);
+    color: var(--primary-200);
+  }
 }
 
 /* Modern Statistics Cards */
