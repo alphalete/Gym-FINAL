@@ -1832,6 +1832,86 @@ const Payments = () => {
     overduePayments: 78,
     completedThisMonth: 65
   });
+  
+  const [clients, setClients] = useState([]);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentForm, setPaymentForm] = useState({
+    client_id: '',
+    amount_paid: '',
+    payment_date: new Date().toISOString().split('T')[0],
+    payment_method: 'Cash',
+    notes: ''
+  });
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchClients();
+  }, []);
+
+  const fetchClients = async () => {
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const response = await fetch(`${backendUrl}/api/clients`);
+      if (response.ok) {
+        const clientsData = await response.json();
+        setClients(clientsData);
+      }
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+    }
+  };
+
+  const recordPayment = async () => {
+    if (!paymentForm.client_id || !paymentForm.amount_paid) {
+      alert('Please select a client and enter payment amount');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      
+      const response = await fetch(`${backendUrl}/api/payments/record`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          client_id: paymentForm.client_id,
+          amount_paid: parseFloat(paymentForm.amount_paid),
+          payment_date: paymentForm.payment_date,
+          payment_method: paymentForm.payment_method,
+          notes: paymentForm.notes || null
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        alert(`✅ Payment recorded successfully for ${result.client_name}!\n💰 Amount: TTD ${result.amount_paid}\n📅 Next payment due: ${result.new_next_payment_date}\n📧 ${result.invoice_message}`);
+        
+        // Reset form and close modal
+        setPaymentForm({
+          client_id: '',
+          amount_paid: '',
+          payment_date: new Date().toISOString().split('T')[0],
+          payment_method: 'Cash',
+          notes: ''
+        });
+        setShowPaymentModal(false);
+        
+        // Refresh clients data
+        fetchClients();
+      } else {
+        const error = await response.json();
+        alert(`❌ Error recording payment: ${error.detail || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Error recording payment:', error);
+      alert('❌ Error recording payment. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
@@ -1843,7 +1923,7 @@ const Payments = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <div className="ultra-contrast-modal rounded-lg p-6">
           <h3 className="ultra-contrast-text font-bold mb-2">Total Revenue</h3>
-          <p className="text-2xl font-bold text-green-600">${paymentStats.totalRevenue}</p>
+          <p className="text-2xl font-bold text-green-600">TTD {paymentStats.totalRevenue}</p>
         </div>
         <div className="ultra-contrast-modal rounded-lg p-6">
           <h3 className="ultra-contrast-text font-bold mb-2">Pending</h3>
@@ -1862,7 +1942,10 @@ const Payments = () => {
       <div className="ultra-contrast-modal rounded-lg p-6">
         <h2 className="ultra-contrast-text font-bold mb-4">Payment Management</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button className="ultra-contrast-button-primary p-4 rounded text-center">
+          <button 
+            onClick={() => setShowPaymentModal(true)}
+            className="ultra-contrast-button-primary p-4 rounded text-center hover:opacity-90 transition-opacity"
+          >
             <div className="text-2xl mb-2">💰</div>
             <div>Process Payments</div>
           </button>
@@ -1876,6 +1959,110 @@ const Payments = () => {
           </button>
         </div>
       </div>
+
+      {/* Payment Recording Modal */}
+      {showPaymentModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="ultra-contrast-modal rounded-lg p-6 w-full max-w-md">
+            <div className="ultra-contrast-modal-header mb-4">
+              <h3 className="text-lg font-bold">Record Payment</h3>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block font-bold mb-1" style={{ color: '#000000' }}>Select Client</label>
+                <select
+                  value={paymentForm.client_id}
+                  onChange={(e) => {
+                    const selectedClient = clients.find(c => c.id === e.target.value);
+                    setPaymentForm(prev => ({
+                      ...prev,
+                      client_id: e.target.value,
+                      amount_paid: selectedClient ? selectedClient.monthly_fee.toString() : ''
+                    }));
+                  }}
+                  className="ultra-contrast-input w-full p-2 rounded"
+                  required
+                >
+                  <option value="">Choose a client...</option>
+                  {clients.map(client => (
+                    <option key={client.id} value={client.id}>
+                      {client.name} - TTD {client.monthly_fee} ({client.membership_type})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              <div>
+                <label className="block font-bold mb-1" style={{ color: '#000000' }}>Amount Paid (TTD)</label>
+                <input
+                  type="number"
+                  value={paymentForm.amount_paid}
+                  onChange={(e) => setPaymentForm(prev => ({ ...prev, amount_paid: e.target.value }))}
+                  className="ultra-contrast-input w-full p-2 rounded"
+                  placeholder="0.00"
+                  step="0.01"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block font-bold mb-1" style={{ color: '#000000' }}>Payment Date</label>
+                <input
+                  type="date"
+                  value={paymentForm.payment_date}
+                  onChange={(e) => setPaymentForm(prev => ({ ...prev, payment_date: e.target.value }))}
+                  className="ultra-contrast-input w-full p-2 rounded"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block font-bold mb-1" style={{ color: '#000000' }}>Payment Method</label>
+                <select
+                  value={paymentForm.payment_method}
+                  onChange={(e) => setPaymentForm(prev => ({ ...prev, payment_method: e.target.value }))}
+                  className="ultra-contrast-input w-full p-2 rounded"
+                >
+                  <option value="Cash">Cash</option>
+                  <option value="Card">Card</option>
+                  <option value="Bank Transfer">Bank Transfer</option>
+                  <option value="Check">Check</option>
+                  <option value="Online Payment">Online Payment</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block font-bold mb-1" style={{ color: '#000000' }}>Notes (Optional)</label>
+                <input
+                  type="text"
+                  value={paymentForm.notes}
+                  onChange={(e) => setPaymentForm(prev => ({ ...prev, notes: e.target.value }))}
+                  className="ultra-contrast-input w-full p-2 rounded"
+                  placeholder="Any additional notes..."
+                />
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={() => setShowPaymentModal(false)}
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded font-medium"
+                disabled={loading}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={recordPayment}
+                disabled={loading || !paymentForm.client_id || !paymentForm.amount_paid}
+                className="ultra-contrast-button-primary px-4 py-2 rounded font-medium disabled:opacity-50"
+              >
+                {loading ? 'Recording...' : '💰 Record Payment'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
