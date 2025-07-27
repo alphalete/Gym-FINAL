@@ -2139,6 +2139,138 @@ const Payments = () => {
           </div>
         </div>
       )}
+
+      {/* Payment Reports Modal */}
+      {showReportsModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="ultra-contrast-modal rounded-lg p-6 w-full max-w-4xl max-h-[80vh] overflow-y-auto">
+            <div className="ultra-contrast-modal-header mb-4">
+              <h3 className="text-lg font-bold">Payment Reports</h3>
+            </div>
+            
+            <div className="space-y-6">
+              {/* Quick Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="ultra-contrast-modal rounded p-4 text-center">
+                  <h4 className="font-bold text-sm">Total Clients</h4>
+                  <p className="text-xl font-bold text-blue-600">{clients.length}</p>
+                </div>
+                <div className="ultra-contrast-modal rounded p-4 text-center">
+                  <h4 className="font-bold text-sm">Active Clients</h4>
+                  <p className="text-xl font-bold text-green-600">{clients.filter(c => c.status === 'Active').length}</p>
+                </div>
+                <div className="ultra-contrast-modal rounded p-4 text-center">
+                  <h4 className="font-bold text-sm">Overdue Clients</h4>
+                  <p className="text-xl font-bold text-red-600">{overdueClients.length}</p>
+                </div>
+                <div className="ultra-contrast-modal rounded p-4 text-center">
+                  <h4 className="font-bold text-sm">Total Revenue</h4>
+                  <p className="text-xl font-bold text-green-600">TTD {clients.reduce((sum, client) => sum + (client.monthly_fee || 0), 0).toFixed(2)}</p>
+                </div>
+              </div>
+
+              {/* Recent Payments Summary */}
+              <div className="ultra-contrast-modal rounded p-4">
+                <h4 className="font-bold mb-3">Payment Status Overview</h4>
+                <div className="space-y-2">
+                  {clients.slice(0, 10).map(client => {
+                    const nextPaymentDate = new Date(client.next_payment_date);
+                    const today = new Date();
+                    const isOverdue = nextPaymentDate < today;
+                    const daysDiff = Math.ceil((nextPaymentDate - today) / (1000 * 60 * 60 * 24));
+                    
+                    return (
+                      <div key={client.id} className="flex justify-between items-center p-2 border-b">
+                        <span className="font-medium">{client.name}</span>
+                        <span className="text-sm">{client.membership_type}</span>
+                        <span className="font-bold">TTD {client.monthly_fee}</span>
+                        <span className={`text-sm px-2 py-1 rounded ${isOverdue ? 'bg-red-100 text-red-800' : daysDiff <= 3 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>
+                          {isOverdue ? `Overdue ${Math.abs(daysDiff)} days` : daysDiff <= 3 ? `Due in ${daysDiff} days` : `Due ${daysDiff} days`}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={() => setShowReportsModal(false)}
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded font-medium"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Overdue Management Modal */}
+      {showOverdueModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="ultra-contrast-modal rounded-lg p-6 w-full max-w-4xl max-h-[80vh] overflow-y-auto">
+            <div className="ultra-contrast-modal-header mb-4">
+              <h3 className="text-lg font-bold">Overdue Management</h3>
+              <p className="text-sm text-gray-600">Manage clients with overdue payments</p>
+            </div>
+            
+            <div className="mb-4">
+              <div className="flex justify-between items-center">
+                <p className="font-medium">Total Overdue Clients: <span className="text-red-600">{overdueClients.length}</span></p>
+                <button
+                  onClick={sendOverdueReminders}
+                  disabled={loading || overdueClients.length === 0}
+                  className="ultra-contrast-button-primary px-4 py-2 rounded font-medium disabled:opacity-50"
+                >
+                  {loading ? 'Sending...' : '📧 Send Overdue Reminders'}
+                </button>
+              </div>
+            </div>
+            
+            <div className="space-y-2 max-h-96 overflow-y-auto">
+              {overdueClients.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <p className="text-lg">🎉 No overdue clients!</p>
+                  <p>All clients are up to date with their payments.</p>
+                </div>
+              ) : (
+                overdueClients.map(client => {
+                  const nextPaymentDate = new Date(client.next_payment_date);
+                  const today = new Date();
+                  const overdueDays = Math.ceil((today - nextPaymentDate) / (1000 * 60 * 60 * 24));
+                  
+                  return (
+                    <div key={client.id} className="ultra-contrast-modal rounded p-4">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <h4 className="font-bold">{client.name}</h4>
+                          <p className="text-sm text-gray-600">{client.email}</p>
+                          <p className="text-sm">{client.membership_type} - TTD {client.monthly_fee}/month</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm text-gray-600">Due Date: {new Date(client.next_payment_date).toLocaleDateString()}</p>
+                          <p className="font-bold text-red-600">Overdue: {overdueDays} days</p>
+                          <p className="font-bold">Amount: TTD {client.monthly_fee}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+            
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={() => setShowOverdueModal(false)}
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded font-medium"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
