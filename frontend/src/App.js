@@ -1689,7 +1689,7 @@ const AddClient = () => {
                 >
                   {membershipTypes.map(type => (
                     <option key={type.id || type.name} value={type.name}>
-                      {type.name} - ${type.monthly_fee}/month
+                      {type.name} - TTD {type.monthly_fee}/month
                     </option>
                   ))}
                 </select>
