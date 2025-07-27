@@ -2066,7 +2066,7 @@ const Payments = () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Set to start of day for accurate comparison
     
-    const paymentDate = new Date(nextPaymentDate);
+    const paymentDate = new Date(nextPaymentDate + 'T00:00:00'); // Fix timezone issue
     paymentDate.setHours(0, 0, 0, 0); // Set to start of day for accurate comparison
     
     const daysUntilDue = Math.ceil((paymentDate - today) / (1000 * 60 * 60 * 24));
