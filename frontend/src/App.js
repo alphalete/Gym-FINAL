@@ -576,6 +576,12 @@ const Dashboard = () => {
       const inactiveClients = clients.filter(c => c.status === 'Inactive').length;
       const totalRevenue = clients.reduce((sum, c) => sum + (c.monthly_fee || 0), 0);
       
+      console.log('📊 Dashboard Stats Calculation:');
+      console.log(`  - Total Clients: ${totalClients}`);
+      console.log(`  - Active Clients: ${activeClients}`);
+      console.log(`  - Inactive Clients: ${inactiveClients}`);
+      console.log(`  - Total Revenue: $${totalRevenue}`);
+      
       // Calculate payment statistics
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -599,7 +605,12 @@ const Dashboard = () => {
         }
       });
       
-      setStats({
+      console.log('💳 Payment Stats Calculation:');
+      console.log(`  - Pending Payments: ${pendingPayments}`);
+      console.log(`  - Overdue Payments: ${overduePayments}`);
+      console.log(`  - Upcoming Payments: ${upcomingPayments}`);
+      
+      const newStats = {
         totalClients,
         activeClients,
         inactiveClients,
@@ -607,7 +618,10 @@ const Dashboard = () => {
         pendingPayments,
         overduePayments,
         upcomingPayments
-      });
+      };
+      
+      console.log('📈 Setting Dashboard Stats:', newStats);
+      setStats(newStats);
       
       // Get recent clients (last 5)
       const recent = clients
