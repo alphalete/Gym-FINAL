@@ -1835,6 +1835,8 @@ const Payments = () => {
   
   const [clients, setClients] = useState([]);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showReportsModal, setShowReportsModal] = useState(false);
+  const [showOverdueModal, setShowOverdueModal] = useState(false);
   const [paymentForm, setPaymentForm] = useState({
     client_id: '',
     amount_paid: '',
