@@ -164,15 +164,18 @@ backend:
 
   - task: "Membership type deletion functionality"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "IMPLEMENTING: Backend DELETE /api/membership-types/{membership_id} endpoint exists at line 194, implements soft delete by setting is_active to False. Frontend Settings component has deleteMembershipType function that calls this endpoint. Need to test if this is working properly and why user reports it's not working."
+      - working: true
+        agent: "testing"
+        comment: "COMPREHENSIVE MEMBERSHIP TYPE CRUD TESTING COMPLETED: ✅ DELETE /api/membership-types/{membership_id} - WORKING PERFECTLY! Tested complete CRUD cycle: GET (list all), POST (create new), GET (specific), PUT (update), DELETE (soft delete), and verification. ✅ Soft Delete Functionality - Membership type deletion endpoint is working correctly, sets is_active=False, removes from active list, but keeps record accessible by ID. ✅ Currency Fields - All monetary values returned as proper numeric types (not strings) ready for TTD display. ✅ Complete CRUD Operations - All 7 test scenarios passed with 100% success rate. CONCLUSION: Backend membership type deletion functionality is fully operational. If user cannot delete membership types, the issue is likely in the frontend UI or user permissions, not the backend API."
 
   - task: "Currency change from $ to TTD"
     implemented: true
