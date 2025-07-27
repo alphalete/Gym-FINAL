@@ -1457,25 +1457,25 @@ const ClientManagement = () => {
                                 📧
                               </button>
                               <button
-                                onClick={() => openCustomEmailModal(client)}}
-                                className="bg-purple-600 hover:bg-purple-700 px-3 py-1 rounded text-sm font-semibold"
+                                onClick={() => openCustomEmailModal(client)}
+                                className="btn btn-secondary btn-sm"
                                 title="Custom Email"
                               >
                                 🎨
                               </button>
                               <button
                                 onClick={() => openEditClientModal(client)}
-                                className="bg-yellow-600 hover:bg-yellow-700 px-3 py-1 rounded text-sm font-semibold"
+                                className="btn btn-secondary btn-sm"
                                 title="Edit Client"
                               >
                                 ✏️
                               </button>
                               <button
                                 onClick={() => toggleClientStatus(client)}
-                                className={`px-3 py-1 rounded text-sm font-semibold ${
+                                className={`btn btn-sm ${
                                   client.status === 'Active' 
-                                    ? 'bg-orange-600 hover:bg-orange-700' 
-                                    : 'bg-green-600 hover:bg-green-700'
+                                    ? 'bg-orange-600 hover:bg-orange-700 text-white' 
+                                    : 'bg-green-600 hover:bg-green-700 text-white'
                                 }`}
                                 title={`Make ${client.status === 'Active' ? 'Inactive' : 'Active'}`}
                               >
