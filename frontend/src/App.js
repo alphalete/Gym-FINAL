@@ -2009,6 +2009,14 @@ const Settings = () => {
   
   const [membershipTypes, setMembershipTypes] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [editingMembership, setEditingMembership] = useState(null);
+  const [newMembership, setNewMembership] = useState({
+    name: '',
+    monthly_fee: '',
+    description: '',
+    features: '',
+    is_active: true
+  });
   
   useEffect(() => {
     fetchMembershipTypes();
@@ -2046,6 +2054,68 @@ const Settings = () => {
         { id: '3', name: 'Elite', monthly_fee: 100.0, description: 'Premium plus personal training', is_active: true },
         { id: '4', name: 'VIP', monthly_fee: 150.0, description: 'All-inclusive membership', is_active: true }
       ]);
+    }
+  };
+  
+  const startEditingMembership = (membership) => {
+    setEditingMembership(membership.id);
+    setNewMembership({
+      name: membership.name,
+      monthly_fee: membership.monthly_fee.toString(),
+      description: membership.description || '',
+      features: membership.features ? membership.features.join(', ') : '',
+      is_active: membership.is_active
+    });
+  };
+  
+  const cancelEditMembership = () => {
+    setEditingMembership(null);
+    setNewMembership({
+      name: '',
+      monthly_fee: '',
+      description: '',
+      features: '',
+      is_active: true
+    });
+  };
+  
+  const saveMembershipType = async (membershipId = null) => {
+    try {
+      setLoading(true);
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      
+      const membershipData = {
+        name: newMembership.name,
+        monthly_fee: parseFloat(newMembership.monthly_fee),
+        description: newMembership.description,
+        features: newMembership.features.split(',').map(f => f.trim()).filter(f => f),
+        is_active: newMembership.is_active
+      };
+      
+      const url = membershipId 
+        ? `${backendUrl}/api/membership-types/${membershipId}`
+        : `${backendUrl}/api/membership-types`;
+      
+      const method = membershipId ? 'PUT' : 'POST';
+      
+      const response = await fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(membershipData)
+      });
+      
+      if (response.ok) {
+        alert(membershipId ? 'Membership type updated successfully!' : 'Membership type created successfully!');
+        fetchMembershipTypes(); // Refresh the list
+        cancelEditMembership();
+      } else {
+        throw new Error('Failed to save membership type');
+      }
+    } catch (error) {
+      console.error('Error saving membership type:', error);
+      alert('Error saving membership type: ' + error.message);
+    } finally {
+      setLoading(false);
     }
   };
   
