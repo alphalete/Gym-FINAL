@@ -1261,6 +1261,13 @@ const ClientManagement = () => {
                               >
                                 {client.status === 'Active' ? '⏸️' : '▶️'}
                               </button>
+                              <button
+                                onClick={() => deleteClient(client)}
+                                className="btn bg-red-600 hover:bg-red-700 text-white btn-sm"
+                                title="Delete Client"
+                              >
+                                🗑️
+                              </button>
                             </div>
                           </td>
                         </tr>
