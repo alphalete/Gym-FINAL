@@ -525,8 +525,22 @@ const Dashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const result = await localDB.getClients();
-      const clients = result.data || [];
+      
+      // Directly fetch from backend API to avoid IndexedDB hanging issue
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      console.log("🔍 Dashboard: Fetching directly from backend...", backendUrl);
+      
+      const response = await fetch(`${backendUrl}/api/clients`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Backend API failed: ${response.status}`);
+      }
+      
+      const clients = await response.json();
+      console.log(`✅ Dashboard: Fetched ${clients.length} clients directly from backend`);
       
       // Calculate modern statistics
       const totalClients = clients.length;
