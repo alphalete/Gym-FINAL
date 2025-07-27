@@ -2184,7 +2184,7 @@ const Settings = () => {
                       Loading membership types...
                     </td>
                   </tr>
-                )}
+                )}}
               </tbody>
             </table>
           </div>
