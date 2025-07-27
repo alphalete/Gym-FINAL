@@ -2428,7 +2428,7 @@ const Settings = () => {
                       ) : (
                         <>
                           <td className="p-3 font-bold" style={{ color: '#000000' }}>{type.name}</td>
-                          <td className="p-3 font-semibold" style={{ color: '#000000' }}>${type.monthly_fee}/month</td>
+                          <td className="p-3 font-semibold" style={{ color: '#000000' }}>TTD {type.monthly_fee}/month</td>
                           <td className="p-3" style={{ color: '#333333' }}>{type.description || 'No description'}</td>
                           <td className="p-3">
                             <span className={`px-3 py-1 rounded font-bold text-sm ${
