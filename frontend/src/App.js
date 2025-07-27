@@ -1249,8 +1249,8 @@ const ClientManagement = () => {
             </div>
           </div>
 
-        {/* Client Cards for Mobile, Table for Desktop */}
-        <div className="pwa-scrollable-section">
+          {/* Client Cards for Mobile, Table for Desktop */}
+          <div className="pwa-scrollable-section">
           {loading ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
