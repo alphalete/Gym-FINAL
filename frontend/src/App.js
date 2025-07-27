@@ -1284,7 +1284,7 @@ const ClientManagement = () => {
                       </div>
                       <div>
                         <span className="member-label">Monthly Fee:</span>
-                        <p className="member-fee">${client.monthly_fee}</p>
+                        <p className="member-fee">TTD {client.monthly_fee}</p>
                       </div>
                       <div>
                         <span className="member-label">Member Since:</span>
