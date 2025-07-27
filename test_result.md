@@ -309,7 +309,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Email sending functionality (payment reminders and custom emails) - RESOLVED"
+    - "Email sending functionality (payment reminders and custom emails) - FRONTEND BUG IDENTIFIED"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
