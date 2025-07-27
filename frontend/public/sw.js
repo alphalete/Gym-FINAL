@@ -1,5 +1,5 @@
-const CACHE_NAME = 'alphalete-v4.2.0-modern-ui'; // Updated version for modern UI implementation
-const API_CACHE_NAME = 'alphalete-api-v4.2.0';
+const CACHE_NAME = 'alphalete-v4.2.1-app-loading-fix'; // Updated version to force cache refresh
+const API_CACHE_NAME = 'alphalete-api-v4.2.1';
 
 // Static assets to cache for offline use
 const STATIC_ASSETS = [
