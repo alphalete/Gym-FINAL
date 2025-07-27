@@ -1457,16 +1457,23 @@ const Settings = () => <div className="ultra-contrast-text p-6">Settings Compone
 
 function App() {
   useEffect(() => {
-    // Hide the loading screen after app mounts - make sure it happens
+    // Force remove loading screen with stronger methods
     const loadingScreen = document.getElementById('loading-screen');
     if (loadingScreen) {
-      console.log('React App mounted, hiding loading screen');
-      loadingScreen.style.opacity = '0';
-      loadingScreen.style.transition = 'opacity 0.5s ease';
+      console.log('React App mounted, removing loading screen...');
+      
+      // Use stronger CSS overrides with !important
+      loadingScreen.style.setProperty('opacity', '0', 'important');
+      loadingScreen.style.setProperty('pointer-events', 'none', 'important');
+      loadingScreen.style.setProperty('z-index', '-1', 'important');
+      
       setTimeout(() => {
-        loadingScreen.style.display = 'none';
-        console.log('Loading screen hidden');
-      }, 500);
+        // Complete DOM removal instead of just hiding
+        console.log('Completely removing loading screen from DOM');
+        loadingScreen.remove();
+      }, 300);
+    } else {
+      console.log('Loading screen element not found');
     }
   }, []);
 
