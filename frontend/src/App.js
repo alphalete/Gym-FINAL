@@ -1247,7 +1247,6 @@ const ClientManagement = () => {
         onClose={closeEditClientModal}
         onSave={handleClientUpdated}
       />
-      </div>
     </>
   );
 };
