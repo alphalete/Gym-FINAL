@@ -1425,13 +1425,40 @@ const ClientManagement = () => {
                             </span>
                           </td>
                           <td className="p-4">
-                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                              client.auto_reminders_enabled !== false 
-                                ? 'member-status-active' 
-                                : 'member-status-inactive'
-                            }`}>
-                              {client.auto_reminders_enabled !== false ? '✅ On' : '❌ Off'}
-                            </span>
+                            <div className="flex space-x-1">
+                              <button
+                                onClick={() => toggleClientStatus(client)}
+                                style={{
+                                  backgroundColor: client.status === 'Active' ? '#dc2626' : '#16a34a',
+                                  color: 'white',
+                                  padding: '4px 8px',
+                                  borderRadius: '4px',
+                                  border: 'none',
+                                  cursor: 'pointer',
+                                  fontSize: '12px',
+                                  fontWeight: 'bold'
+                                }}
+                                title={`Make ${client.status === 'Active' ? 'Inactive' : 'Active'}`}
+                              >
+                                {client.status === 'Active' ? 'DEACTIVATE' : 'ACTIVATE'}
+                              </button>
+                              <button
+                                onClick={() => openEditClientModal(client)}
+                                style={{
+                                  backgroundColor: '#3b82f6',
+                                  color: 'white',
+                                  padding: '4px 8px',
+                                  borderRadius: '4px',
+                                  border: 'none',
+                                  cursor: 'pointer',
+                                  fontSize: '12px',
+                                  fontWeight: 'bold'
+                                }}
+                                title="Edit Client"
+                              >
+                                EDIT
+                              </button>
+                            </div>
                           </td>
                           <td className="p-4">
                             <div className="flex space-x-2">
