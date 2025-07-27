@@ -5,7 +5,7 @@ import sys
 import json
 
 class EmailConfigTester:
-    def __init__(self, base_url="https://bc6dff33-f318-49ad-85f8-2547aae78d9f.preview.emergentagent.com"):
+    def __init__(self, base_url="https://78a1539e-abcd-416a-b4d2-3e75c19852c4.preview.emergentagent.com"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
 
