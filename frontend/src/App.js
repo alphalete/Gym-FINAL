@@ -1233,7 +1233,14 @@ const ClientManagement = () => {
                           </td>
                           <td className="p-4 member-email">{client.email}</td>
                           <td className="p-4 member-value">{client.phone || "N/A"}</td>
-                          <td className="p-4 member-value">{client.membership_type}</td>
+                          <td className="p-4">
+                            <div className="member-value">
+                              <span className="font-semibold">{client.membership_type}</span>
+                              <div className="text-sm text-gray-600 dark:text-gray-400">
+                                ${client.monthly_fee}/month
+                              </div>
+                            </div>
+                          </td>
                           <td className="p-4 member-fee">${client.monthly_fee}</td>
                           <td className="p-4 member-value">{client.start_date ? new Date(client.start_date + 'T00:00:00').toLocaleDateString() : 'N/A'}</td>
                           <td className="p-4">
