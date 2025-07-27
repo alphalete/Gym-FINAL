@@ -1254,6 +1254,21 @@ tbody tr:hover {
   -webkit-overflow-scrolling: touch !important;
 }
 
+/* Force button visibility in tables */
+table button {
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: inline-block !important;
+  z-index: 10 !important;
+  position: relative !important;
+}
+
+.btn {
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: inline-block !important;
+}
+
 /* Ultra High Contrast Styles for All Components */
 .ultra-contrast-text {
   color: #000000 !important;
