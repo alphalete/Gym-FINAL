@@ -1938,6 +1938,51 @@ const Payments = () => {
     }
   };
 
+  const sendOverdueReminders = async () => {
+    setLoading(true);
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      
+      let successCount = 0;
+      let failCount = 0;
+
+      for (const client of overdueClients) {
+        try {
+          const response = await fetch(`${backendUrl}/api/email/payment-reminder`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              client_id: client.id,
+              client_email: client.email,
+              client_name: client.name,
+              amount: client.monthly_fee,
+              due_date: new Date(client.next_payment_date).toLocaleDateString(),
+              template_name: 'default'
+            })
+          });
+
+          if (response.ok) {
+            successCount++;
+          } else {
+            failCount++;
+          }
+        } catch (error) {
+          failCount++;
+        }
+      }
+
+      alert(`📧 Overdue reminder results:\n✅ Sent successfully: ${successCount}\n❌ Failed: ${failCount}`);
+      setShowOverdueModal(false);
+    } catch (error) {
+      console.error('Error sending overdue reminders:', error);
+      alert('❌ Error sending overdue reminders. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <div className="mb-8">
