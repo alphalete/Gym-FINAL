@@ -2094,7 +2094,41 @@ const Settings = () => {
     });
   };
   
-  const saveMembershipType = async (membershipId = null) => {
+  const deleteMembershipType = async (membershipId, membershipName) => {
+    const confirmDelete = window.confirm(
+      `⚠️ Are you sure you want to delete "${membershipName}" membership type?\n\nThis action cannot be undone.`
+    );
+    
+    if (!confirmDelete) {
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      console.log('Deleting membership type:', membershipId);
+      
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const response = await fetch(`${backendUrl}/api/membership-types/${membershipId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      console.log('Delete response status:', response.status);
+      
+      if (response.ok) {
+        alert(`✅ "${membershipName}" membership type deleted successfully!`);
+        await fetchMembershipTypes(); // Refresh the list
+      } else {
+        const errorText = await response.text();
+        throw new Error(`Server error: ${response.status} - ${errorText}`);
+      }
+    } catch (error) {
+      console.error('Error deleting membership type:', error);
+      alert('Error deleting membership type: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
     try {
       setLoading(true);
       console.log('Saving membership type:', membershipId, newMembership);
