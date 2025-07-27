@@ -1,5 +1,5 @@
-const CACHE_NAME = 'alphalete-v4.2.2-high-contrast'; // Updated version for high contrast accessibility improvements
-const API_CACHE_NAME = 'alphalete-api-v4.2.2';
+const CACHE_NAME = 'alphalete-v4.2.3-member-info-contrast'; // Updated version for member information contrast improvements
+const API_CACHE_NAME = 'alphalete-api-v4.2.3';
 
 // Static assets to cache for offline use
 const STATIC_ASSETS = [
