@@ -1274,21 +1274,21 @@ const ClientManagement = () => {
           ) : (
             <>
               {/* Mobile Cards View */}
-              <div className="block md:hidden space-y-4">
+              <div className="md:hidden space-y-4">
                 {filteredClients.map((client) => (
-                  <div key={client.id} className="bg-gray-800 rounded-lg border border-gray-700 p-4">
-                    <div className="flex items-center space-x-3 mb-3">
-                      <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center font-semibold">
+                  <div key={client.id} className="member-card p-6">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center font-bold text-white">
                         {client.name.charAt(0)}
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-semibold text-lg text-gray-900 dark:text-white">{client.name}</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm font-medium">{client.email}</p>
+                        <h3 className="member-name">{client.name}</h3>
+                        <p className="member-email">{client.email}</p>
                       </div>
-                      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                      <span className={`px-3 py-1 rounded-full text-xs ${
                         client.status === 'Active' 
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-                          : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                          ? 'member-status-active' 
+                          : 'member-status-inactive'
                       }`}>
                         {client.status}
                       </span>
@@ -1296,24 +1296,24 @@ const ClientManagement = () => {
                     
                     <div className="grid grid-cols-2 gap-4 text-sm mb-4">
                       <div>
-                        <span className="text-gray-600 dark:text-gray-400 font-medium">Phone:</span>
-                        <p className="text-gray-900 dark:text-white font-semibold">{client.phone || "N/A"}</p>
+                        <span className="member-label">Phone:</span>
+                        <p className="member-value">{client.phone || "N/A"}</p>
                       </div>
                       <div>
-                        <span className="text-gray-600 dark:text-gray-400 font-medium">Membership:</span>
-                        <p className="text-gray-900 dark:text-white font-semibold">{client.membership_type}</p>
+                        <span className="member-label">Membership:</span>
+                        <p className="member-value">{client.membership_type}</p>
                       </div>
                       <div>
-                        <span className="text-gray-600 dark:text-gray-400 font-medium">Monthly Fee:</span>
-                        <p className="text-green-700 dark:text-green-400 font-bold">${client.monthly_fee}</p>
+                        <span className="member-label">Monthly Fee:</span>
+                        <p className="member-fee">${client.monthly_fee}</p>
                       </div>
                       <div>
-                        <span className="text-gray-600 dark:text-gray-400 font-medium">Member Since:</span>
-                        <p className="text-gray-900 dark:text-white font-semibold">{client.start_date ? new Date(client.start_date + 'T00:00:00').toLocaleDateString() : 'N/A'}</p>
+                        <span className="member-label">Member Since:</span>
+                        <p className="member-value">{client.start_date ? new Date(client.start_date + 'T00:00:00').toLocaleDateString() : 'N/A'}</p>
                       </div>
                       <div>
-                        <span className="text-gray-600 dark:text-gray-400 font-medium">Auto Reminders:</span>
-                        <p className={client.auto_reminders_enabled !== false ? "text-green-700 dark:text-green-400 font-semibold" : "text-red-700 dark:text-red-400 font-semibold"}>
+                        <span className="member-label">Auto Reminders:</span>
+                        <p className={client.auto_reminders_enabled !== false ? "member-reminder-enabled" : "member-reminder-disabled"}>
                           {client.auto_reminders_enabled !== false ? "✅ Enabled" : "❌ Disabled"}
                         </p>
                       </div>
