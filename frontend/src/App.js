@@ -1457,12 +1457,16 @@ const Settings = () => <div className="ultra-contrast-text p-6">Settings Compone
 
 function App() {
   useEffect(() => {
-    // Hide the loading screen after app mounts
+    // Hide the loading screen after app mounts - make sure it happens
     const loadingScreen = document.getElementById('loading-screen');
     if (loadingScreen) {
+      console.log('React App mounted, hiding loading screen');
+      loadingScreen.style.opacity = '0';
+      loadingScreen.style.transition = 'opacity 0.5s ease';
       setTimeout(() => {
         loadingScreen.style.display = 'none';
-      }, 1000);
+        console.log('Loading screen hidden');
+      }, 500);
     }
   }, []);
 
