@@ -1403,7 +1403,7 @@ const ClientManagement = () => {
                               </div>
                             </div>
                           </td>
-                          <td className="p-4 member-fee">${client.monthly_fee}</td>
+                          <td className="p-4 member-fee">TTD {client.monthly_fee}</td>
                           <td className="p-4 member-value">{client.start_date ? new Date(client.start_date + 'T00:00:00').toLocaleDateString() : 'N/A'}</td>
                           <td className="p-4">
                             {client.current_period_start && client.current_period_end ? (
