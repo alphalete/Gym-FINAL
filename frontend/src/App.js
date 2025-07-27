@@ -1520,7 +1520,192 @@ const EmailCenter = () => <div className="ultra-contrast-text p-6">Email Center 
 const Payments = () => <div className="ultra-contrast-text p-6">Payments Component</div>;
 const AutoReminders = () => <div className="ultra-contrast-text p-6">Auto Reminders Component</div>;
 const Reports = () => <div className="ultra-contrast-text p-6">Reports Component</div>;
-const Settings = () => <div className="ultra-contrast-text p-6">Settings Component</div>;
+const Settings = () => {
+  const [settings, setSettings] = useState({
+    gymName: 'Alphalete Athletics Club',
+    currency: 'USD',
+    timezone: 'America/New_York',
+    autoReminders: true,
+    reminderDays: [3, 0], // 3 days before, and on due date
+    emailFromName: 'Alphalete Athletics Club',
+    emailFromAddress: 'noreply@alphaleteathletics.com'
+  });
+  
+  const [membershipTypes, setMembershipTypes] = useState([]);
+  const [loading, setLoading] = useState(false);
+  
+  useEffect(() => {
+    fetchMembershipTypes();
+  }, []);
+  
+  const fetchMembershipTypes = async () => {
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const response = await fetch(`${backendUrl}/api/membership-types`);
+      if (response.ok) {
+        const data = await response.json();
+        setMembershipTypes(data);
+      }
+    } catch (error) {
+      console.error('Error fetching membership types:', error);
+    }
+  };
+  
+  const handleSettingChange = (key, value) => {
+    setSettings(prev => ({ ...prev, [key]: value }));
+  };
+  
+  const handleSaveSettings = () => {
+    // In a real app, you would save to backend
+    alert('Settings saved successfully!');
+  };
+  
+  return (
+    <div className="p-6 max-w-6xl mx-auto">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-display ultra-contrast-text mb-2">Settings</h1>
+        <p className="ultra-contrast-secondary">Manage your gym management system settings</p>
+      </div>
+      
+      {/* Settings Cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        {/* General Settings */}
+        <div className="ultra-contrast-modal rounded-lg p-6">
+          <h2 className="text-xl ultra-contrast-text font-bold mb-4">General Settings</h2>
+          
+          <div className="space-y-4">
+            <div>
+              <label className="ultra-contrast-label block mb-1">Gym Name</label>
+              <input
+                type="text"
+                value={settings.gymName}
+                onChange={(e) => handleSettingChange('gymName', e.target.value)}
+                className="ultra-contrast-input w-full p-2 rounded border"
+              />
+            </div>
+            
+            <div>
+              <label className="ultra-contrast-label block mb-1">Currency</label>
+              <select
+                value={settings.currency}
+                onChange={(e) => handleSettingChange('currency', e.target.value)}
+                className="ultra-contrast-input w-full p-2 rounded border"
+              >
+                <option value="USD">USD ($)</option>
+                <option value="EUR">EUR (€)</option>
+                <option value="GBP">GBP (£)</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="ultra-contrast-label block mb-1">Timezone</label>
+              <select
+                value={settings.timezone}
+                onChange={(e) => handleSettingChange('timezone', e.target.value)}
+                className="ultra-contrast-input w-full p-2 rounded border"
+              >
+                <option value="America/New_York">Eastern Time</option>
+                <option value="America/Chicago">Central Time</option>
+                <option value="America/Denver">Mountain Time</option>
+                <option value="America/Los_Angeles">Pacific Time</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        
+        {/* Reminder Settings */}
+        <div className="ultra-contrast-modal rounded-lg p-6">
+          <h2 className="text-xl ultra-contrast-text font-bold mb-4">Payment Reminders</h2>
+          
+          <div className="space-y-4">
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                checked={settings.autoReminders}
+                onChange={(e) => handleSettingChange('autoReminders', e.target.checked)}
+                className="mr-2"
+              />
+              <label className="ultra-contrast-label">Enable automatic payment reminders</label>
+            </div>
+            
+            <div>
+              <label className="ultra-contrast-label block mb-1">Email From Name</label>
+              <input
+                type="text"
+                value={settings.emailFromName}
+                onChange={(e) => handleSettingChange('emailFromName', e.target.value)}
+                className="ultra-contrast-input w-full p-2 rounded border"
+              />
+            </div>
+            
+            <div>
+              <label className="ultra-contrast-label block mb-1">Email From Address</label>
+              <input
+                type="email"
+                value={settings.emailFromAddress}
+                onChange={(e) => handleSettingChange('emailFromAddress', e.target.value)}
+                className="ultra-contrast-input w-full p-2 rounded border"
+              />
+            </div>
+          </div>
+        </div>
+        
+        {/* Membership Types */}
+        <div className="ultra-contrast-modal rounded-lg p-6 lg:col-span-2">
+          <h2 className="text-xl ultra-contrast-text font-bold mb-4">Membership Types</h2>
+          
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b">
+                  <th className="ultra-contrast-text text-left p-2">Name</th>
+                  <th className="ultra-contrast-text text-left p-2">Monthly Fee</th>
+                  <th className="ultra-contrast-text text-left p-2">Description</th>
+                  <th className="ultra-contrast-text text-left p-2">Features</th>
+                  <th className="ultra-contrast-text text-left p-2">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {membershipTypes.map((type) => (
+                  <tr key={type.id} className="border-b">
+                    <td className="ultra-contrast-text p-2 font-semibold">{type.name}</td>
+                    <td className="ultra-contrast-text p-2">${type.monthly_fee}/month</td>
+                    <td className="ultra-contrast-secondary p-2 text-sm">{type.description}</td>
+                    <td className="ultra-contrast-secondary p-2 text-sm">
+                      {type.features ? type.features.slice(0, 2).join(', ') + (type.features.length > 2 ? '...' : '') : 'N/A'}
+                    </td>
+                    <td className="p-2">
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${
+                        type.is_active 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-red-100 text-red-800'
+                      }`}>
+                        {type.is_active ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      
+      {/* Save Button */}
+      <div className="mt-8 flex justify-end">
+        <button
+          onClick={handleSaveSettings}
+          disabled={loading}
+          className="ultra-contrast-button-primary px-6 py-2 rounded font-medium"
+        >
+          {loading ? 'Saving...' : 'Save Settings'}
+        </button>
+      </div>
+    </div>
+  );
+};
 
 function App() {
   useEffect(() => {
