@@ -755,7 +755,7 @@ const Dashboard = () => {
           />
           <ModernStatCard
             title="Overdue Payments"
-            value={stats.overduePayments}
+            value={stats.overduePayments || 0}
             subtitle="Require immediate attention"
             icon="⚠️"
             trend={-2.1}
