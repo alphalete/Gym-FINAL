@@ -1408,32 +1408,32 @@ const ClientManagement = () => {
                         <tr key={client.id} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
                           <td className="p-4">
                             <div className="flex items-center space-x-3">
-                              <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center font-semibold text-sm">
+                              <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center font-bold text-white text-sm">
                                 {client.name.charAt(0)}
                               </div>
-                              <div className="font-semibold text-gray-900 dark:text-white">{client.name}</div>
+                              <div className="member-name">{client.name}</div>
                             </div>
                           </td>
-                          <td className="p-4 text-gray-600 dark:text-gray-300 font-medium">{client.email}</td>
-                          <td className="p-4 text-gray-600 dark:text-gray-300 font-medium">{client.phone || "N/A"}</td>
-                          <td className="p-4 text-gray-900 dark:text-white font-semibold">{client.membership_type}</td>
-                          <td className="p-4 font-bold text-green-700 dark:text-green-400">${client.monthly_fee}</td>
-                          <td className="p-4 text-gray-900 dark:text-white font-semibold">{client.start_date ? new Date(client.start_date + 'T00:00:00').toLocaleDateString() : 'N/A'}</td>
+                          <td className="p-4 member-email">{client.email}</td>
+                          <td className="p-4 member-value">{client.phone || "N/A"}</td>
+                          <td className="p-4 member-value">{client.membership_type}</td>
+                          <td className="p-4 member-fee">${client.monthly_fee}</td>
+                          <td className="p-4 member-value">{client.start_date ? new Date(client.start_date + 'T00:00:00').toLocaleDateString() : 'N/A'}</td>
                           <td className="p-4">
                             {client.current_period_start && client.current_period_end ? (
-                              <div className="text-blue-700 dark:text-blue-400 text-sm font-semibold">
+                              <div className="text-blue-700 dark:text-blue-300 text-sm font-bold">
                                 {new Date(client.current_period_start + 'T00:00:00').toLocaleDateString()} - {new Date(client.current_period_end + 'T00:00:00').toLocaleDateString()}
                               </div>
                             ) : (
-                              <span className="text-gray-500 dark:text-gray-400 text-sm">Not set</span>
+                              <span className="text-gray-500 dark:text-gray-400 text-sm font-semibold">Not set</span>
                             )}
                           </td>
-                          <td className="p-4 text-gray-900 dark:text-white font-semibold">{client.next_payment_date ? new Date(client.next_payment_date + 'T00:00:00').toLocaleDateString() : 'N/A'}</td>
+                          <td className="p-4 member-value">{client.next_payment_date ? new Date(client.next_payment_date + 'T00:00:00').toLocaleDateString() : 'N/A'}</td>
                           <td className="p-4">
-                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                            <span className={`px-3 py-1 rounded-full text-xs ${
                               client.status === 'Active' 
-                                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-                                : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                                ? 'member-status-active' 
+                                : 'member-status-inactive'
                             }`}>
                               {client.status}
                             </span>
