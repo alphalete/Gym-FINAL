@@ -571,13 +571,13 @@ const Navigation = ({ currentPage }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const menuItems = [
-    { path: "/", icon: "📊", label: "Dashboard", description: "Overview & Stats" },
-    { path: "/clients", icon: "👥", label: "Client Management", description: "Manage Members" },
-    { path: "/add-client", icon: "➕", label: "Add Client", description: "New Member" },
+    { path: "/", icon: "🏠", label: "Dashboard", description: "Overview & Stats" },
+    { path: "/clients", icon: "👥", label: "Members", description: "Manage Members" },
+    { path: "/add-client", icon: "➕", label: "Add Member", description: "New Member" },
     { path: "/payments", icon: "💳", label: "Payments", description: "Payment Tracking" },
-    { path: "/email-center", icon: "📧", label: "Email Center", description: "Send Reminders" },
-    { path: "/reminders", icon: "⏰", label: "Auto Reminders", description: "Automated Reminders" },
-    { path: "/reports", icon: "📈", label: "Reports", description: "Analytics" },
+    { path: "/email-center", icon: "📧", label: "Messages", description: "Send Reminders" },
+    { path: "/reminders", icon: "⏰", label: "Automation", description: "Auto Reminders" },
+    { path: "/reports", icon: "📊", label: "Analytics", description: "Reports & Data" },
     { path: "/settings", icon: "⚙️", label: "Settings", description: "Configuration" },
   ];
 
@@ -586,25 +586,28 @@ const Navigation = ({ currentPage }) => {
       {/* Mobile Menu Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden fixed top-16 left-4 z-50 bg-red-600 text-white p-3 rounded-lg shadow-lg"
+        className="md:hidden fixed top-4 left-4 z-50 p-3 bg-white dark:bg-gray-800 shadow-lg rounded-lg border border-gray-200 dark:border-gray-700 transition-all"
         style={{ touchAction: 'manipulation' }}
       >
-        {isOpen ? "✕" : "☰"}
+        <span className="text-gray-700 dark:text-gray-300 text-lg">
+          {isOpen ? "✕" : "☰"}
+        </span>
       </button>
 
       {/* Sidebar */}
-      <div className={`fixed left-0 top-12 bottom-0 w-64 bg-gray-900 border-r border-gray-700 transform transition-transform duration-300 z-40 overflow-y-auto ${
+      <div className={`fixed left-0 top-0 bottom-0 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transform transition-transform duration-300 z-40 overflow-y-auto shadow-lg ${
         isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
       }`} style={{ WebkitOverflowScrolling: 'touch' }}>
+        
         {/* Logo Header */}
-        <div className="p-6 border-b border-gray-700 flex-shrink-0">
+        <div className="p-6 bg-gradient-to-r from-primary-600 to-secondary-600 flex-shrink-0">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center">
-              <img src="/icon-192.png" alt="Wolf Logo" className="w-8 h-8 rounded-full" />
+            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md">
+              <img src="/icon-192.png" alt="Logo" className="w-8 h-8 rounded-full" />
             </div>
             <div>
               <h1 className="text-lg font-bold text-white">ALPHALETE</h1>
-              <p className="text-xs text-red-400">ATHLETICS CLUB</p>
+              <p className="text-xs text-white opacity-90">ATHLETICS</p>
             </div>
           </div>
         </div>
@@ -612,12 +615,52 @@ const Navigation = ({ currentPage }) => {
         {/* Navigation Menu */}
         <nav className="p-4 flex-1">
           <ul className="space-y-2">
-            {menuItems.map((item) => (
-              <li key={item.path}>
-                <Link
-                  to={item.path}
-                  onClick={() => setIsOpen(false)}
-                  className={`flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 ${
+            {menuItems.map((item) => {
+              const isActive = currentPage === item.path;
+              return (
+                <li key={item.path}>
+                  <Link
+                    to={item.path}
+                    onClick={() => setIsOpen(false)}
+                    className={`nav-item ${isActive ? 'active' : ''}`}
+                  >
+                    <span className="text-lg">{item.icon}</span>
+                    <div className="flex-1">
+                      <div className="font-medium">{item.label}</div>
+                      <div className="text-xs opacity-75">{item.description}</div>
+                    </div>
+                    {isActive && (
+                      <div className="w-1 h-8 bg-primary-500 rounded-full"></div>
+                    )}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
+          <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+            <span>Online - All features available</span>
+          </div>
+          <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+            PWA v4.2.0 - Modern UI
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div 
+          className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+    </>
+  );
+};
                     currentPage === item.path
                       ? "bg-red-600 text-white shadow-lg"
                       : "text-gray-300 hover:bg-gray-800 hover:text-white"
