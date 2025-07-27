@@ -290,25 +290,42 @@
   }
 }
 
-/* Modern Form Controls */
+/* Modern Form Controls - High Contrast */
 .form-input {
   background-color: var(--bg-secondary);
-  border: 1px solid var(--border-primary);
+  border: 2px solid var(--border-primary);
   border-radius: var(--radius-lg);
   padding: var(--space-3) var(--space-4);
   font-size: var(--text-base);
   transition: all 0.2s ease;
   width: 100%;
+  color: var(--text-primary);
+  font-weight: 500;
 }
 
 .form-input:focus {
   outline: none;
   border-color: var(--primary-500);
   box-shadow: 0 0 0 3px rgb(99 102 241 / 0.1);
+  background-color: var(--bg-primary);
 }
 
 .form-input::placeholder {
   color: var(--text-tertiary);
+  font-weight: 400;
+}
+
+@media (prefers-color-scheme: dark) {
+  .form-input {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-secondary);
+    color: var(--text-primary);
+  }
+  
+  .form-input:focus {
+    background-color: var(--bg-secondary);
+    border-color: var(--primary-400);
+  }
 }
 
 /* Modern Navigation - High Contrast */
