@@ -2448,7 +2448,7 @@ const Settings = () => {
                                 ✏️ Edit
                               </button>
                               <button
-                                onClick={() => deleteMembershipType(type.id)}
+                                onClick={() => deleteMembershipType(type.id, type.name)}
                                 className="px-3 py-1 bg-red-600 text-white rounded text-sm font-medium hover:bg-red-700"
                                 title="Delete Membership Type"
                               >
