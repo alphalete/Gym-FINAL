@@ -1850,6 +1850,7 @@ const Payments = () => {
 
   useEffect(() => {
     fetchClients();
+    fetchOverdueClients();
   }, []);
 
   const fetchClients = async () => {
@@ -1862,6 +1863,24 @@ const Payments = () => {
       }
     } catch (error) {
       console.error('Error fetching clients:', error);
+    }
+  };
+
+  const fetchOverdueClients = async () => {
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const response = await fetch(`${backendUrl}/api/clients`);
+      if (response.ok) {
+        const clientsData = await response.json();
+        const today = new Date();
+        const overdue = clientsData.filter(client => {
+          const nextPaymentDate = new Date(client.next_payment_date);
+          return nextPaymentDate < today && client.status === 'Active';
+        });
+        setOverdueClients(overdue);
+      }
+    } catch (error) {
+      console.error('Error fetching overdue clients:', error);
     }
   };
 
