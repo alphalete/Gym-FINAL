@@ -2011,7 +2011,7 @@ const Payments = () => {
       let thisMonthRevenue = 0;
       
       activeClients.forEach(client => {
-        const nextPaymentDate = new Date(client.next_payment_date);
+        const nextPaymentDate = new Date(client.next_payment_date + 'T00:00:00'); // Fix timezone issue
         nextPaymentDate.setHours(0, 0, 0, 0); // Set to start of day for accurate comparison
         
         const fee = client.monthly_fee || 0;
