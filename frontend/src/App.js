@@ -2082,6 +2082,8 @@ const Settings = () => {
   const saveMembershipType = async (membershipId = null) => {
     try {
       setLoading(true);
+      console.log('Saving membership type:', membershipId, newMembership);
+      
       const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
       const membershipData = {
@@ -2092,11 +2094,15 @@ const Settings = () => {
         is_active: newMembership.is_active
       };
       
+      console.log('Membership data being sent:', membershipData);
+      
       const url = membershipId 
         ? `${backendUrl}/api/membership-types/${membershipId}`
         : `${backendUrl}/api/membership-types`;
       
       const method = membershipId ? 'PUT' : 'POST';
+      
+      console.log(`Making ${method} request to:`, url);
       
       const response = await fetch(url, {
         method: method,
@@ -2104,12 +2110,16 @@ const Settings = () => {
         body: JSON.stringify(membershipData)
       });
       
+      console.log('Response status:', response.status);
+      const responseText = await response.text();
+      console.log('Response text:', responseText);
+      
       if (response.ok) {
         alert(membershipId ? 'Membership type updated successfully!' : 'Membership type created successfully!');
-        fetchMembershipTypes(); // Refresh the list
+        await fetchMembershipTypes(); // Refresh the list
         cancelEditMembership();
       } else {
-        throw new Error('Failed to save membership type');
+        throw new Error(`Server error: ${response.status} - ${responseText}`);
       }
     } catch (error) {
       console.error('Error saving membership type:', error);
