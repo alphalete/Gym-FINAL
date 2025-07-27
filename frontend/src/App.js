@@ -2129,6 +2129,8 @@ const Settings = () => {
       setLoading(false);
     }
   };
+
+  const saveMembershipType = async (membershipId = null) => {
     try {
       setLoading(true);
       console.log('Saving membership type:', membershipId, newMembership);
