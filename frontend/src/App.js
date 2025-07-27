@@ -1845,6 +1845,8 @@ const Payments = () => {
     notes: ''
   });
   const [loading, setLoading] = useState(false);
+  const [overdueClients, setOverdueClients] = useState([]);
+  const [paymentReports, setPaymentReports] = useState([]);
 
   useEffect(() => {
     fetchClients();
