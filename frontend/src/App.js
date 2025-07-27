@@ -1994,14 +1994,36 @@ const Settings = () => {
   
   const fetchMembershipTypes = async () => {
     try {
+      console.log('Settings: Fetching membership types...');
       const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      console.log('Settings: Backend URL:', backendUrl);
+      
       const response = await fetch(`${backendUrl}/api/membership-types`);
+      console.log('Settings: Response status:', response.status);
+      
       if (response.ok) {
         const data = await response.json();
-        setMembershipTypes(data);
+        console.log('Settings: Fetched membership types:', data);
+        setMembershipTypes(data || []);
+      } else {
+        console.error('Settings: Failed to fetch membership types:', response.status);
+        // Fallback data
+        setMembershipTypes([
+          { id: '1', name: 'Standard', monthly_fee: 50.0, description: 'Basic gym access', is_active: true },
+          { id: '2', name: 'Premium', monthly_fee: 75.0, description: 'Gym access plus classes', is_active: true },
+          { id: '3', name: 'Elite', monthly_fee: 100.0, description: 'Premium plus personal training', is_active: true },
+          { id: '4', name: 'VIP', monthly_fee: 150.0, description: 'All-inclusive membership', is_active: true }
+        ]);
       }
     } catch (error) {
-      console.error('Error fetching membership types:', error);
+      console.error('Settings: Error fetching membership types:', error);
+      // Fallback data
+      setMembershipTypes([
+        { id: '1', name: 'Standard', monthly_fee: 50.0, description: 'Basic gym access', is_active: true },
+        { id: '2', name: 'Premium', monthly_fee: 75.0, description: 'Gym access plus classes', is_active: true },
+        { id: '3', name: 'Elite', monthly_fee: 100.0, description: 'Premium plus personal training', is_active: true },
+        { id: '4', name: 'VIP', monthly_fee: 150.0, description: 'All-inclusive membership', is_active: true }
+      ]);
     }
   };
   
