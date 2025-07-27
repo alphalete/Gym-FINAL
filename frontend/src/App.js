@@ -2440,12 +2440,21 @@ const Settings = () => {
                             </span>
                           </td>
                           <td className="p-3">
-                            <button
-                              onClick={() => startEditingMembership(type)}
-                              className="px-3 py-1 bg-blue-600 text-white rounded text-sm font-medium hover:bg-blue-700"
-                            >
-                              ✏️ Edit
-                            </button>
+                            <div className="flex space-x-2">
+                              <button
+                                onClick={() => startEditingMembership(type)}
+                                className="px-3 py-1 bg-blue-600 text-white rounded text-sm font-medium hover:bg-blue-700"
+                              >
+                                ✏️ Edit
+                              </button>
+                              <button
+                                onClick={() => deleteMembershipType(type.id)}
+                                className="px-3 py-1 bg-red-600 text-white rounded text-sm font-medium hover:bg-red-700"
+                                title="Delete Membership Type"
+                              >
+                                🗑️ Delete
+                              </button>
+                            </div>
                           </td>
                         </>
                       )}
