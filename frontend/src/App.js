@@ -2222,7 +2222,7 @@ const Settings = () => {
                 onChange={(e) => handleSettingChange('currency', e.target.value)}
                 className="ultra-contrast-input w-full p-2 rounded border"
               >
-                <option value="USD">USD ($)</option>
+                <option value="TTD">TTD</option>
                 <option value="EUR">EUR (€)</option>
                 <option value="GBP">GBP (£)</option>
               </select>
