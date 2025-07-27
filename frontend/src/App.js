@@ -1398,42 +1398,42 @@ const ClientManagement = () => {
                         <th className="text-left p-4 font-semibold text-gray-900 dark:text-white">Member Since</th>
                         <th className="text-left p-4 font-semibold text-gray-900 dark:text-white">Current Period</th>
                         <th className="text-left p-4 font-semibold text-gray-900 dark:text-white">Next Payment</th>
-                        <th className="text-left p-4">Status</th>
-                        <th className="text-left p-4">Auto Reminders</th>
-                        <th className="text-left p-4">Actions</th>
+                        <th className="text-left p-4 font-semibold text-gray-900 dark:text-white">Status</th>
+                        <th className="text-left p-4 font-semibold text-gray-900 dark:text-white">Auto Reminders</th>
+                        <th className="text-left p-4 font-semibold text-gray-900 dark:text-white">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {filteredClients.map((client) => (
-                        <tr key={client.id} className="border-b border-gray-700 hover:bg-gray-750">
+                        <tr key={client.id} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
                           <td className="p-4">
                             <div className="flex items-center space-x-3">
                               <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center font-semibold text-sm">
                                 {client.name.charAt(0)}
                               </div>
-                              <div className="font-semibold">{client.name}</div>
+                              <div className="font-semibold text-gray-900 dark:text-white">{client.name}</div>
                             </div>
                           </td>
-                          <td className="p-4 text-gray-300">{client.email}</td>
-                          <td className="p-4 text-gray-300">{client.phone || "N/A"}</td>
-                          <td className="p-4">{client.membership_type}</td>
-                          <td className="p-4 font-semibold text-green-400">${client.monthly_fee}</td>
-                          <td className="p-4">{client.start_date ? new Date(client.start_date + 'T00:00:00').toLocaleDateString() : 'N/A'}</td>
+                          <td className="p-4 text-gray-600 dark:text-gray-300 font-medium">{client.email}</td>
+                          <td className="p-4 text-gray-600 dark:text-gray-300 font-medium">{client.phone || "N/A"}</td>
+                          <td className="p-4 text-gray-900 dark:text-white font-semibold">{client.membership_type}</td>
+                          <td className="p-4 font-bold text-green-700 dark:text-green-400">${client.monthly_fee}</td>
+                          <td className="p-4 text-gray-900 dark:text-white font-semibold">{client.start_date ? new Date(client.start_date + 'T00:00:00').toLocaleDateString() : 'N/A'}</td>
                           <td className="p-4">
                             {client.current_period_start && client.current_period_end ? (
-                              <div className="text-blue-400 text-sm">
+                              <div className="text-blue-700 dark:text-blue-400 text-sm font-semibold">
                                 {new Date(client.current_period_start + 'T00:00:00').toLocaleDateString()} - {new Date(client.current_period_end + 'T00:00:00').toLocaleDateString()}
                               </div>
                             ) : (
-                              <span className="text-gray-500 text-sm">Not set</span>
+                              <span className="text-gray-500 dark:text-gray-400 text-sm">Not set</span>
                             )}
                           </td>
-                          <td className="p-4">{client.next_payment_date ? new Date(client.next_payment_date + 'T00:00:00').toLocaleDateString() : 'N/A'}</td>
+                          <td className="p-4 text-gray-900 dark:text-white font-semibold">{client.next_payment_date ? new Date(client.next_payment_date + 'T00:00:00').toLocaleDateString() : 'N/A'}</td>
                           <td className="p-4">
                             <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
                               client.status === 'Active' 
-                                ? 'bg-green-900 text-green-300' 
-                                : 'bg-red-900 text-red-300'
+                                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                                : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                             }`}>
                               {client.status}
                             </span>
