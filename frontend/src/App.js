@@ -2222,7 +2222,78 @@ const Settings = () => {
         
         {/* Membership Types */}
         <div className="ultra-contrast-modal rounded-lg p-6 lg:col-span-2">
-          <h2 className="text-xl ultra-contrast-text font-bold mb-4">Membership Types</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl ultra-contrast-text font-bold">Membership Types</h2>
+            <button
+              onClick={() => setEditingMembership('new')}
+              className="ultra-contrast-button-primary px-4 py-2 rounded font-medium"
+            >
+              ➕ Add New Type
+            </button>
+          </div>
+          
+          {editingMembership === 'new' && (
+            <div className="mb-6 p-4 border-2 border-blue-300 rounded-lg bg-blue-50">
+              <h3 className="font-bold mb-3" style={{ color: '#000000' }}>Add New Membership Type</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block font-bold mb-1" style={{ color: '#000000' }}>Name</label>
+                  <input
+                    type="text"
+                    value={newMembership.name}
+                    onChange={(e) => setNewMembership(prev => ({ ...prev, name: e.target.value }))}
+                    className="w-full p-2 border rounded"
+                    placeholder="e.g., Corporate"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold mb-1" style={{ color: '#000000' }}>Monthly Fee ($)</label>
+                  <input
+                    type="number"
+                    value={newMembership.monthly_fee}
+                    onChange={(e) => setNewMembership(prev => ({ ...prev, monthly_fee: e.target.value }))}
+                    className="w-full p-2 border rounded"
+                    placeholder="e.g., 120"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block font-bold mb-1" style={{ color: '#000000' }}>Description</label>
+                  <input
+                    type="text"
+                    value={newMembership.description}
+                    onChange={(e) => setNewMembership(prev => ({ ...prev, description: e.target.value }))}
+                    className="w-full p-2 border rounded"
+                    placeholder="e.g., Corporate membership with special benefits"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block font-bold mb-1" style={{ color: '#000000' }}>Features (comma-separated)</label>
+                  <input
+                    type="text"
+                    value={newMembership.features}
+                    onChange={(e) => setNewMembership(prev => ({ ...prev, features: e.target.value }))}
+                    className="w-full p-2 border rounded"
+                    placeholder="e.g., Gym access, Group classes, Personal training"
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={cancelEditMembership}
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => saveMembershipType()}
+                  disabled={loading || !newMembership.name || !newMembership.monthly_fee}
+                  className="px-4 py-2 bg-blue-600 text-white rounded font-medium disabled:opacity-50"
+                >
+                  {loading ? 'Saving...' : 'Save New Type'}
+                </button>
+              </div>
+            </div>
+          )}
           
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -2231,29 +2302,92 @@ const Settings = () => {
                   <th className="ultra-contrast-text text-left p-3 font-bold bg-gray-100 dark:bg-gray-800">Name</th>
                   <th className="ultra-contrast-text text-left p-3 font-bold bg-gray-100 dark:bg-gray-800">Monthly Fee</th>
                   <th className="ultra-contrast-text text-left p-3 font-bold bg-gray-100 dark:bg-gray-800">Description</th>
-                  <th className="ultra-contrast-text text-left p-3 font-bold bg-gray-100 dark:bg-gray-800">Features</th>
                   <th className="ultra-contrast-text text-left p-3 font-bold bg-gray-100 dark:bg-gray-800">Status</th>
+                  <th className="ultra-contrast-text text-left p-3 font-bold bg-gray-100 dark:bg-gray-800">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {membershipTypes.length > 0 ? (
                   membershipTypes.map((type) => (
                     <tr key={type.id} className="border-b border-gray-300 hover:bg-gray-50">
-                      <td className="p-3 font-bold" style={{ color: '#000000' }}>{type.name}</td>
-                      <td className="p-3 font-semibold" style={{ color: '#000000' }}>${type.monthly_fee}/month</td>
-                      <td className="p-3" style={{ color: '#333333' }}>{type.description || 'No description'}</td>
-                      <td className="p-3" style={{ color: '#333333' }}>
-                        {type.features ? type.features.slice(0, 2).join(', ') + (type.features.length > 2 ? '...' : '') : 'Standard features'}
-                      </td>
-                      <td className="p-3">
-                        <span className={`px-3 py-1 rounded font-bold text-sm ${
-                          type.is_active 
-                            ? 'bg-green-200 text-green-900' 
-                            : 'bg-red-200 text-red-900'
-                        }`}>
-                          {type.is_active ? 'Active' : 'Inactive'}
-                        </span>
-                      </td>
+                      {editingMembership === type.id ? (
+                        <>
+                          <td className="p-3">
+                            <input
+                              type="text"
+                              value={newMembership.name}
+                              onChange={(e) => setNewMembership(prev => ({ ...prev, name: e.target.value }))}
+                              className="w-full p-1 border rounded"
+                            />
+                          </td>
+                          <td className="p-3">
+                            <input
+                              type="number"
+                              value={newMembership.monthly_fee}
+                              onChange={(e) => setNewMembership(prev => ({ ...prev, monthly_fee: e.target.value }))}
+                              className="w-full p-1 border rounded"
+                            />
+                          </td>
+                          <td className="p-3">
+                            <input
+                              type="text"
+                              value={newMembership.description}
+                              onChange={(e) => setNewMembership(prev => ({ ...prev, description: e.target.value }))}
+                              className="w-full p-1 border rounded"
+                            />
+                          </td>
+                          <td className="p-3">
+                            <select
+                              value={newMembership.is_active}
+                              onChange={(e) => setNewMembership(prev => ({ ...prev, is_active: e.target.value === 'true' }))}
+                              className="w-full p-1 border rounded"
+                            >
+                              <option value="true">Active</option>
+                              <option value="false">Inactive</option>
+                            </select>
+                          </td>
+                          <td className="p-3">
+                            <div className="flex space-x-2">
+                              <button
+                                onClick={() => saveMembershipType(type.id)}
+                                disabled={loading}
+                                className="px-3 py-1 bg-green-600 text-white rounded text-sm font-medium"
+                              >
+                                ✓ Save
+                              </button>
+                              <button
+                                onClick={cancelEditMembership}
+                                className="px-3 py-1 bg-gray-400 text-white rounded text-sm font-medium"
+                              >
+                                ✕ Cancel
+                              </button>
+                            </div>
+                          </td>
+                        </>
+                      ) : (
+                        <>
+                          <td className="p-3 font-bold" style={{ color: '#000000' }}>{type.name}</td>
+                          <td className="p-3 font-semibold" style={{ color: '#000000' }}>${type.monthly_fee}/month</td>
+                          <td className="p-3" style={{ color: '#333333' }}>{type.description || 'No description'}</td>
+                          <td className="p-3">
+                            <span className={`px-3 py-1 rounded font-bold text-sm ${
+                              type.is_active 
+                                ? 'bg-green-200 text-green-900' 
+                                : 'bg-red-200 text-red-900'
+                            }`}>
+                              {type.is_active ? 'Active' : 'Inactive'}
+                            </span>
+                          </td>
+                          <td className="p-3">
+                            <button
+                              onClick={() => startEditingMembership(type)}
+                              className="px-3 py-1 bg-blue-600 text-white rounded text-sm font-medium hover:bg-blue-700"
+                            >
+                              ✏️ Edit
+                            </button>
+                          </td>
+                        </>
+                      )}
                     </tr>
                   ))
                 ) : (
