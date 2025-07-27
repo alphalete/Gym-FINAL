@@ -800,7 +800,39 @@ const Dashboard = () => {
 
         {/* Tab Content */}
         {activeTab === 'overview' && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div className="card p-6">
+              <h3 className="text-heading-3 text-gray-900 dark:text-white mb-4">System Status</h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">Connection</span>
+                  <span className="status-badge status-active">ONLINE</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">Auto Reminders</span>
+                  <span className="status-badge status-active">ACTIVE</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">Data Sync</span>
+                  <span className="status-badge status-active">SYNCED</span>
+                </div>
+              </div>
+            </div>
+            <div className="card p-6">
+              <h3 className="text-heading-3 text-gray-900 dark:text-white mb-4">Recent Members</h3>
+              <div className="space-y-3">
+                {recentClients.slice(0, 4).map(client => (
+                  <RecentClientCard key={client.id} client={client} />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'payments' && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <div className="card p-6">
+            <h3 className="text-heading-3 text-gray-900 dark:text-white mb-4">Payment Status</h3>
           <div className="card p-6">
             <h3 className="text-heading-3 text-gray-900 dark:text-white mb-4">Payment Status</h3>
             <div className="space-y-4">
