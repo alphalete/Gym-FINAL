@@ -754,7 +754,7 @@ const Dashboard = () => {
           />
           <ModernStatCard
             title="Monthly Revenue"
-            value={`$${(stats.totalRevenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+            value={`TTD ${(stats.totalRevenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
             subtitle="Total potential revenue"
             icon="💰"
             trend={+12.3}
