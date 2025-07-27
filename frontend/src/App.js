@@ -822,7 +822,7 @@ const Dashboard = () => {
               <h3 className="text-heading-3 text-gray-900 dark:text-white mb-4">Recent Members</h3>
               <div className="space-y-3">
                 {recentClients.slice(0, 4).map(client => (
-                  <RecentClientCard key={client.id} client={client} />
+                  <ModernClientCard key={client.id} client={client} />
                 ))}
               </div>
             </div>
