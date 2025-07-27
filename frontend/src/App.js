@@ -1910,7 +1910,8 @@ const Payments = () => {
 
       if (response.ok) {
         const result = await response.json();
-        alert(`✅ Payment recorded successfully for ${result.client_name}!\n💰 Amount: TTD ${result.amount_paid}\n📅 Next payment due: ${result.new_next_payment_date}\n📧 ${result.invoice_message}`);
+        const invoiceStatus = result.invoice_sent ? '✅ Invoice sent successfully!' : '⚠️ Invoice email failed to send';
+        alert(`✅ Payment recorded successfully for ${result.client_name}!\n💰 Amount: TTD ${result.amount_paid}\n📅 Next payment due: ${result.new_next_payment_date}\n📧 ${invoiceStatus}`);
         
         // Reset form and close modal
         setPaymentForm({
@@ -1924,6 +1925,7 @@ const Payments = () => {
         
         // Refresh clients data
         fetchClients();
+        fetchOverdueClients();
       } else {
         const error = await response.json();
         alert(`❌ Error recording payment: ${error.detail || 'Unknown error'}`);
