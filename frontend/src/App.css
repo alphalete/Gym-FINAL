@@ -1254,6 +1254,36 @@ tbody tr:hover {
   -webkit-overflow-scrolling: touch !important;
 }
 
+/* Force ALL buttons to be visible and clickable */
+button {
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: inline-block !important;
+  position: relative !important;
+  z-index: 100 !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+}
+
+/* Ensure table buttons are visible */
+table button,
+.table-actions button,
+tr button,
+td button {
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background-color: rgb(37, 99, 235) !important;
+  color: white !important;
+  border-radius: 4px !important;
+  padding: 4px 8px !important;
+  margin: 2px !important;
+  cursor: pointer !important;
+  border: none !important;
+}
+
 /* Force button visibility in tables */
 table button {
   visibility: visible !important;
