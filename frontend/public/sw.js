@@ -1,4 +1,4 @@
-const CACHE_NAME = 'alphalete-v4.3.0-loading-fix';
+const CACHE_NAME = 'alphalete-v4.4.0-final-changes';
 
 console.log('Service Worker: Starting minimal version');
 
