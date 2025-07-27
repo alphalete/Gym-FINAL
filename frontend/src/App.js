@@ -1441,8 +1441,8 @@ const ClientManagement = () => {
                           <td className="p-4">
                             <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
                               client.auto_reminders_enabled !== false 
-                                ? 'bg-green-900 text-green-300' 
-                                : 'bg-red-900 text-red-300'
+                                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                                : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                             }`}>
                               {client.auto_reminders_enabled !== false ? '✅ On' : '❌ Off'}
                             </span>
@@ -1451,13 +1451,13 @@ const ClientManagement = () => {
                             <div className="flex space-x-2">
                               <button
                                 onClick={() => sendPaymentReminder(client)}
-                                className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm font-semibold"
+                                className="btn btn-primary btn-sm"
                                 title="Send Payment Reminder"
                               >
                                 📧
                               </button>
                               <button
-                                onClick={() => openCustomEmailModal(client)}
+                                onClick={() => openCustomEmailModal(client)}}
                                 className="bg-purple-600 hover:bg-purple-700 px-3 py-1 rounded text-sm font-semibold"
                                 title="Custom Email"
                               >
