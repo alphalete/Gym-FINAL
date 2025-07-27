@@ -1282,13 +1282,13 @@ const ClientManagement = () => {
                         {client.name.charAt(0)}
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-semibold text-lg">{client.name}</h3>
-                        <p className="text-gray-400 text-sm">{client.email}</p>
+                        <h3 className="font-semibold text-lg text-gray-900 dark:text-white">{client.name}</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm font-medium">{client.email}</p>
                       </div>
                       <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
                         client.status === 'Active' 
-                          ? 'bg-green-900 text-green-300' 
-                          : 'bg-red-900 text-red-300'
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                          : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                       }`}>
                         {client.status}
                       </span>
@@ -1296,24 +1296,24 @@ const ClientManagement = () => {
                     
                     <div className="grid grid-cols-2 gap-4 text-sm mb-4">
                       <div>
-                        <span className="text-gray-400">Phone:</span>
-                        <p>{client.phone || "N/A"}</p>
+                        <span className="text-gray-600 dark:text-gray-400 font-medium">Phone:</span>
+                        <p className="text-gray-900 dark:text-white font-semibold">{client.phone || "N/A"}</p>
                       </div>
                       <div>
-                        <span className="text-gray-400">Membership:</span>
-                        <p>{client.membership_type}</p>
+                        <span className="text-gray-600 dark:text-gray-400 font-medium">Membership:</span>
+                        <p className="text-gray-900 dark:text-white font-semibold">{client.membership_type}</p>
                       </div>
                       <div>
-                        <span className="text-gray-400">Monthly Fee:</span>
-                        <p className="text-green-400 font-semibold">${client.monthly_fee}</p>
+                        <span className="text-gray-600 dark:text-gray-400 font-medium">Monthly Fee:</span>
+                        <p className="text-green-700 dark:text-green-400 font-bold">${client.monthly_fee}</p>
                       </div>
                       <div>
-                        <span className="text-gray-400">Member Since:</span>
-                        <p>{client.start_date ? new Date(client.start_date + 'T00:00:00').toLocaleDateString() : 'N/A'}</p>
+                        <span className="text-gray-600 dark:text-gray-400 font-medium">Member Since:</span>
+                        <p className="text-gray-900 dark:text-white font-semibold">{client.start_date ? new Date(client.start_date + 'T00:00:00').toLocaleDateString() : 'N/A'}</p>
                       </div>
                       <div>
-                        <span className="text-gray-400">Auto Reminders:</span>
-                        <p className={client.auto_reminders_enabled !== false ? "text-green-400" : "text-red-400"}>
+                        <span className="text-gray-600 dark:text-gray-400 font-medium">Auto Reminders:</span>
+                        <p className={client.auto_reminders_enabled !== false ? "text-green-700 dark:text-green-400 font-semibold" : "text-red-700 dark:text-red-400 font-semibold"}>
                           {client.auto_reminders_enabled !== false ? "✅ Enabled" : "❌ Disabled"}
                         </p>
                       </div>
