@@ -1,6 +1,6 @@
 /* Alphalete Athletics - Modern UI Design System */
 
-/* CSS Custom Properties - Modern Color Palette */
+/* CSS Custom Properties - Improved Contrast Color Palette */
 :root {
   /* Primary Colors */
   --primary-50: #eef2ff;
@@ -25,28 +25,31 @@
   --accent-600: #059669;
   --accent-700: #047857;
   
-  /* Neutral Colors */
-  --gray-50: #f8fafc;
-  --gray-100: #f1f5f9;
-  --gray-200: #e2e8f0;
-  --gray-300: #cbd5e1;
-  --gray-400: #94a3b8;
-  --gray-500: #64748b;
-  --gray-600: #475569;
-  --gray-700: #334155;
-  --gray-800: #1e293b;
-  --gray-900: #0f172a;
+  /* High Contrast Neutral Colors */
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
   
   /* Status Colors */
   --success-50: #f0fdf4;
   --success-500: #22c55e;
   --success-600: #16a34a;
+  --success-700: #15803d;
   --warning-50: #fffbeb;
   --warning-500: #f59e0b;
   --warning-600: #d97706;
+  --warning-700: #b45309;
   --error-50: #fef2f2;
   --error-500: #ef4444;
   --error-600: #dc2626;
+  --error-700: #b91c1c;
   
   /* Typography Scale */
   --text-xs: 0.75rem;
@@ -82,30 +85,30 @@
   --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
 }
 
-/* Dark mode variables */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg-primary: var(--gray-900);
-    --bg-secondary: var(--gray-800);
-    --bg-tertiary: var(--gray-700);
-    --text-primary: var(--gray-50);
-    --text-secondary: var(--gray-300);
-    --text-tertiary: var(--gray-400);
-    --border-primary: var(--gray-700);
-    --border-secondary: var(--gray-600);
-  }
+/* Light mode variables - High Contrast */
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-tertiary: #f3f4f6;
+  --text-primary: #111827;
+  --text-secondary: #374151;
+  --text-tertiary: #6b7280;
+  --border-primary: #e5e7eb;
+  --border-secondary: #d1d5db;
 }
 
-/* Light mode variables */
-:root {
-  --bg-primary: var(--gray-50);
-  --bg-secondary: white;
-  --bg-tertiary: var(--gray-100);
-  --text-primary: var(--gray-900);
-  --text-secondary: var(--gray-600);
-  --text-tertiary: var(--gray-500);
-  --border-primary: var(--gray-200);
-  --border-secondary: var(--gray-300);
+/* Dark mode variables - High Contrast */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-primary: #111827;
+    --bg-secondary: #1f2937;
+    --bg-tertiary: #374151;
+    --text-primary: #f9fafb;
+    --text-secondary: #e5e7eb;
+    --text-tertiary: #d1d5db;
+    --border-primary: #374151;
+    --border-secondary: #4b5563;
+  }
 }
 
 .App {
