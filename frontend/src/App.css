@@ -230,10 +230,10 @@
   font-size: var(--text-lg);
 }
 
-/* Modern Status Badges */
+/* Modern Status Badges - High Contrast */
 .status-badge {
   font-size: var(--text-xs);
-  font-weight: 500;
+  font-weight: 600;
   padding: var(--space-1) var(--space-3);
   border-radius: var(--radius-md);
   text-transform: uppercase;
@@ -241,23 +241,53 @@
 }
 
 .status-active {
-  background-color: var(--success-50);
-  color: var(--success-700);
+  background-color: var(--success-100);
+  color: var(--success-800);
+  border: 1px solid var(--success-200);
 }
 
 .status-inactive {
   background-color: var(--gray-100);
-  color: var(--gray-700);
+  color: var(--gray-800);
+  border: 1px solid var(--gray-200);
 }
 
 .status-pending {
-  background-color: var(--warning-50);
-  color: var(--warning-700);
+  background-color: var(--warning-100);
+  color: var(--warning-800);
+  border: 1px solid var(--warning-200);
 }
 
 .status-overdue {
-  background-color: var(--error-50);
-  color: var(--error-700);
+  background-color: var(--error-100);
+  color: var(--error-800);
+  border: 1px solid var(--error-200);
+}
+
+@media (prefers-color-scheme: dark) {
+  .status-active {
+    background-color: var(--success-900);
+    color: var(--success-100);
+    border: 1px solid var(--success-700);
+  }
+  
+  .status-inactive {
+    background-color: var(--gray-800);
+    color: var(--gray-100);
+    border: 1px solid var(--gray-600);
+  }
+  
+  .status-pending {
+    background-color: var(--warning-900);
+    color: var(--warning-100);
+    border: 1px solid var(--warning-700);
+  }
+  
+  .status-overdue {
+    background-color: var(--error-900);
+    color: var(--error-100);
+    border: 1px solid var(--error-700);
+  }
 }
 
 /* Modern Form Controls */
