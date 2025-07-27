@@ -343,9 +343,9 @@ test_plan:
 
   - task: "Email sending functionality (payment reminders and custom emails)"
     implemented: true
-    working: true
-    file: "backend/email_service.py, backend/server.py"
-    stuck_count: 0
+    working: false
+    file: "backend/email_service.py, backend/server.py, frontend/src/App.js"
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
@@ -355,6 +355,9 @@ test_plan:
       - working: true
         agent: "testing"
         comment: "EMAIL FUNCTIONALITY TESTING COMPLETED WITH NEW GMAIL APP PASSWORD: ✅ GMAIL SMTP AUTHENTICATION NOW WORKING! Updated Gmail app password 'difs xvgc ljue sxjr' successfully resolves authentication issues. ✅ EMAIL SERVICE CONNECTION TEST PASSED: POST /api/email/test returns {'success': true, 'message': 'Email configuration is working!'} - Gmail SMTP connection established successfully. ✅ EMAIL TEMPLATES WORKING: GET /api/email/templates returns all 3 templates (default, professional, friendly) with proper descriptions. ✅ PAYMENT REMINDER SENDING WORKING: POST /api/email/payment-reminder successfully sends individual payment reminders with {'success': true, 'message': 'Payment reminder sent successfully!'}. ✅ CUSTOM EMAIL SENDING WORKING: POST /api/email/custom-reminder works with all template variations (default, professional, friendly) - all return success=true. ✅ EMAIL ENDPOINTS RESPONDING: All email API endpoints return 200 OK status codes. Minor: Some bulk operations experience timeouts due to SMTP connection overhead, but core email functionality is fully operational. CONCLUSION: The user's 'email reminder failed to send' issue is RESOLVED - Gmail authentication working with new app password, all email templates functional, payment reminders and custom emails sending successfully."
+      - working: false
+        agent: "testing"
+        comment: "🚨 CRITICAL FRONTEND EMAIL ISSUE IDENTIFIED - USER ISSUE REPRODUCED: ❌ ROOT CAUSE FOUND: Frontend payment reminder functionality is failing with 422 validation error because the required 'client_id' field is missing from the API request. ✅ EXACT USER EXPERIENCE REPRODUCED: When users click email reminder button (📧) from Members page, they see alert '❌ Failed to send reminder' due to API validation failure. ❌ SPECIFIC ERROR: Backend returns 422 with error message: {'detail': [{'type': 'missing', 'loc': ['body', 'client_id'], 'msg': 'Field required'}]}. ❌ FRONTEND BUG: The sendPaymentReminder function in App.js (lines 1023-1050) sends request body with client_email, client_name, amount, due_date, template_name but is missing the required client_id field. ✅ BACKEND API WORKING: Backend email endpoints are functional and Gmail authentication is working, but frontend is not sending complete data. ✅ EMAIL CENTER BULK SEND: Bulk send functionality from Email Center appears to work without user feedback issues. 🔧 SOLUTION REQUIRED: Add client.id to the request body in sendPaymentReminder function. CONCLUSION: User's 'email still not sending' issue is a frontend validation error, not a backend email delivery problem."
 
   - task: "Client status updates (ACTIVATE/DEACTIVATE functionality)"
     implemented: true
