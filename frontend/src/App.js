@@ -2308,7 +2308,7 @@ const Settings = () => {
                   />
                 </div>
                 <div>
-                  <label className="block font-bold mb-1" style={{ color: '#000000' }}>Monthly Fee ($)</label>
+                  <label className="block font-bold mb-1" style={{ color: '#000000' }}>Monthly Fee (TTD)</label>
                   <input
                     type="number"
                     value={newMembership.monthly_fee}
