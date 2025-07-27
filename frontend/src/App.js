@@ -1176,42 +1176,78 @@ const ClientManagement = () => {
 
   return (
     <>
-      <div className="pwa-page-container">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">Client Management</h1>
-            <p className="text-gray-400">Manage your gym members and their information.</p>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
+        <div className="max-w-7xl mx-auto">
+          {/* Modern Header */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-display text-gray-900 dark:text-white mb-2">
+                  Member Management
+                </h1>
+                <p className="text-body text-gray-600 dark:text-gray-300">
+                  Manage your gym members and their information.
+                </p>
+              </div>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => fetchClients(true)}
+                  className="btn btn-secondary btn-sm"
+                  disabled={loading}
+                >
+                  <span>{loading ? "🔄" : "↻"}</span>
+                  <span>Refresh</span>
+                </button>
+                <Link 
+                  to="/add-client"
+                  className="btn btn-primary btn-sm"
+                >
+                  <span>➕</span>
+                  <span>Add Member</span>
+                </Link>
+              </div>
+            </div>
           </div>
-          <div className="flex space-x-4">
-            <button
-              onClick={() => fetchClients(true)}
-              className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-semibold whitespace-nowrap flex items-center space-x-2"
-              disabled={loading}
-            >
-              <span>{loading ? "🔄" : "↻"}</span>
-              <span>Refresh</span>
-            </button>
-            <Link 
-              to="/add-client"
-              className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg font-semibold whitespace-nowrap"
-            >
-              ➕ Add Client
-            </Link>
-          </div>
-        </div>
 
-        {/* Search Section */}
-        <div className="pwa-search-section">
-          <div className="flex-1">
-            <input
-              type="text"
-              placeholder="Search clients by name or email..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-600 focus:border-transparent"
-            />
+          {/* Modern Search and Stats */}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+            <div className="lg:col-span-3">
+              <div className="card p-6">
+                <div className="flex items-center space-x-4">
+                  <div className="flex-1">
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Search members by name or email..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="form-input pl-10 pr-4"
+                      />
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span className="text-gray-400 text-lg">🔍</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                      {filteredClients.length} of {clients.length} members
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="stats-card stats-card-primary">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm opacity-90">Total Members</span>
+                <span className="text-2xl">👥</span>
+              </div>
+              <div className="text-2xl font-bold">{clients.length}</div>
+              <div className="text-sm opacity-75">
+                {clients.filter(c => c.status === 'Active').length} Active
+              </div>
+            </div>
           </div>
-        </div>
 
         {/* Client Cards for Mobile, Table for Desktop */}
         <div className="pwa-scrollable-section">
