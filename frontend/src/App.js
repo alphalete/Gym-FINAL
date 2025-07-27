@@ -1232,7 +1232,6 @@ const ClientManagement = () => {
           )}
         </div>
       </div>
-    </div>
 
       {/* Custom Email Modal */}
       <EmailModal
@@ -1248,6 +1247,7 @@ const ClientManagement = () => {
         onClose={closeEditClientModal}
         onSave={handleClientUpdated}
       />
+    </div>
     </>
   );
 };
