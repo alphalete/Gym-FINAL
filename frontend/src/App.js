@@ -280,10 +280,29 @@ const EditClientModal = ({ client, isOpen, onClose, onSave }) => {
 
   const fetchMembershipTypes = async () => {
     try {
-      const result = await localDB.getMembershipTypes();
-      setMembershipTypes(result.data || []);
+      // Fetch directly from backend API to avoid IndexedDB issues
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const response = await fetch(`${backendUrl}/api/membership-types`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch membership types: ${response.status}`);
+      }
+      
+      const membershipTypesData = await response.json();
+      console.log(`✅ Fetched ${membershipTypesData.length} membership types from backend`);
+      setMembershipTypes(membershipTypesData || []);
     } catch (error) {
       console.error('Error fetching membership types:', error);
+      // Fallback to default types if API fails
+      setMembershipTypes([
+        { id: '1', name: 'Standard', monthly_fee: 50.0, description: 'Basic gym access' },
+        { id: '2', name: 'Premium', monthly_fee: 75.0, description: 'Gym access plus classes' },
+        { id: '3', name: 'Elite', monthly_fee: 100.0, description: 'Premium plus personal training' },
+        { id: '4', name: 'VIP', monthly_fee: 150.0, description: 'All-inclusive membership' }
+      ]);
     }
   };
 
