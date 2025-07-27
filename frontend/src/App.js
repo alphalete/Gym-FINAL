@@ -1320,21 +1320,21 @@ const ClientManagement = () => {
                       {client.current_period_start && client.current_period_end && (
                         <>
                           <div>
-                            <span className="text-gray-600 dark:text-gray-400 font-medium">Current Period:</span>
-                            <p className="text-blue-700 dark:text-blue-400 font-semibold">
+                            <span className="member-label">Current Period:</span>
+                            <p className="member-value text-blue-700 dark:text-blue-300 font-bold">
                               {new Date(client.current_period_start + 'T00:00:00').toLocaleDateString()} - {new Date(client.current_period_end + 'T00:00:00').toLocaleDateString()}
                             </p>
                           </div>
                           <div>
-                            <span className="text-gray-600 dark:text-gray-400 font-medium">Next Payment:</span>
-                            <p className="text-gray-900 dark:text-white font-semibold">{new Date(client.next_payment_date + 'T00:00:00').toLocaleDateString()}</p>
+                            <span className="member-label">Next Payment:</span>
+                            <p className="member-value">{new Date(client.next_payment_date + 'T00:00:00').toLocaleDateString()}</p>
                           </div>
                         </>
                       )}
                       {!client.current_period_start && (
                         <div>
-                          <span className="text-gray-600 dark:text-gray-400 font-medium">Next Payment:</span>
-                          <p className="text-gray-900 dark:text-white font-semibold">{new Date(client.next_payment_date + 'T00:00:00').toLocaleDateString()}</p>
+                          <span className="member-label">Next Payment:</span>
+                          <p className="member-value">{new Date(client.next_payment_date + 'T00:00:00').toLocaleDateString()}</p>
                         </div>
                       )}
                     </div>
