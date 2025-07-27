@@ -1137,7 +1137,12 @@ const ClientManagement = () => {
                       </div>
                       <div>
                         <span className="member-label">Membership:</span>
-                        <p className="member-value">{client.membership_type}</p>
+                        <p className="member-value">
+                          <span className="font-semibold">{client.membership_type}</span>
+                          <span className="text-sm text-gray-600 dark:text-gray-400 ml-2">
+                            (${client.monthly_fee}/month)
+                          </span>
+                        </p>
                       </div>
                       <div>
                         <span className="member-label">Monthly Fee:</span>
