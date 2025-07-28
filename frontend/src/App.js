@@ -1915,30 +1915,33 @@ const Payments = () => {
   };
 
   const cleanupTestData = async () => {
+    console.log('🧹 Cleanup function called with', testClients.length, 'test clients');
+    
     if (testClients.length === 0) {
       alert('No test clients identified for cleanup.');
       return;
     }
 
-    const confirmCleanup = window.confirm(
-      `⚠️ DATABASE CLEANUP WARNING!\n\nThis will permanently delete ${testClients.length} test clients from your database.\n\nDeleted clients:\n${testClients.slice(0, 5).map(c => `• ${c.name} (${c.email})`).join('\n')}${testClients.length > 5 ? `\n• ... and ${testClients.length - 5} more` : ''}\n\nThis action CANNOT be undone!\n\nProceed with cleanup?`
-    );
+    // Simple confirmation without complex formatting
+    const proceed = confirm(`IMPORTANT: This will permanently delete ${testClients.length} test clients from your database. This cannot be undone! Continue?`);
+    
+    if (!proceed) {
+      console.log('❌ User cancelled cleanup');
+      return;
+    }
 
-    if (!confirmCleanup) return;
-
+    console.log('✅ User confirmed cleanup - proceeding...');
     setLoading(true);
     let deletedCount = 0;
     let failedCount = 0;
-    let errorDetails = [];
 
     try {
       const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-      
-      console.log(`Starting cleanup of ${testClients.length} test clients...`);
+      console.log('🌐 Backend URL:', backendUrl);
       
       for (let i = 0; i < testClients.length; i++) {
         const client = testClients[i];
-        console.log(`Deleting client ${i + 1}/${testClients.length}: ${client.name} (ID: ${client.id})`);
+        console.log(`🗑️ Deleting ${i + 1}/${testClients.length}: ${client.name} (ID: ${client.id})`);
         
         try {
           const response = await fetch(`${backendUrl}/api/clients/${client.id}`, {
@@ -1948,47 +1951,46 @@ const Payments = () => {
             }
           });
 
+          console.log(`📡 Response for ${client.name}:`, response.status, response.ok);
+
           if (response.ok) {
             deletedCount++;
-            console.log(`✅ Successfully deleted: ${client.name}`);
+            console.log(`✅ Deleted: ${client.name}`);
           } else {
-            const errorText = await response.text();
             failedCount++;
-            errorDetails.push(`${client.name}: ${response.status} - ${errorText}`);
-            console.error(`❌ Failed to delete ${client.name}: ${response.status} - ${errorText}`);
+            const errorText = await response.text();
+            console.error(`❌ Failed: ${client.name} - ${response.status}: ${errorText}`);
           }
         } catch (error) {
           failedCount++;
-          errorDetails.push(`${client.name}: ${error.message}`);
           console.error(`❌ Error deleting ${client.name}:`, error);
         }
 
-        // Add small delay between deletions to prevent overwhelming the server
-        if (i < testClients.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 100));
-        }
+        // Small delay to prevent overwhelming
+        await new Promise(resolve => setTimeout(resolve, 50));
       }
 
-      console.log(`Cleanup completed: ${deletedCount} deleted, ${failedCount} failed`);
+      console.log(`🎯 Cleanup completed: ${deletedCount} deleted, ${failedCount} failed`);
 
-      if (deletedCount > 0) {
-        alert(`🧹 Database cleanup completed!\n\n✅ Successfully deleted: ${deletedCount} test clients\n❌ Failed to delete: ${failedCount} clients\n\n${failedCount > 0 ? `Errors:\n${errorDetails.slice(0, 3).join('\n')}${errorDetails.length > 3 ? '\n...' : ''}` : 'Your analytics will now show accurate data!'}`);
-      } else {
-        alert(`❌ Database cleanup failed!\n\nNo clients were successfully deleted.\n\nErrors:\n${errorDetails.slice(0, 5).join('\n')}`);
-      }
+      alert(`Cleanup Results:\n\nSuccessfully deleted: ${deletedCount}\nFailed: ${failedCount}\n\n${deletedCount > 0 ? 'Database cleaned!' : 'No clients were deleted.'}`);
       
-      // Force refresh all data after cleanup
-      console.log('Refreshing all client data...');
-      await fetchClients();
-      await fetchOverdueClients();
-      await identifyTestClients();
+      // Refresh data
+      console.log('🔄 Refreshing client data...');
+      await Promise.all([
+        fetchClients(),
+        fetchOverdueClients(), 
+        identifyTestClients()
+      ]);
+      
+      console.log('✅ Data refresh complete');
       setShowCleanupModal(false);
 
     } catch (error) {
-      console.error('Critical error during cleanup:', error);
-      alert(`❌ Critical error during database cleanup: ${error.message}\n\nPlease try again or contact support.`);
+      console.error('💥 Critical cleanup error:', error);
+      alert(`Critical error during cleanup: ${error.message}`);
     } finally {
       setLoading(false);
+      console.log('🏁 Cleanup function finished');
     }
   };
 
