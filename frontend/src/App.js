@@ -1609,6 +1609,89 @@ const ClientManagement = () => {
         onClose={closeEditClientModal}
         onSave={handleClientUpdated}
       />
+
+      {/* Quick Payment Modal */}
+      {quickPaymentModal.isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="ultra-contrast-modal rounded-lg p-6 w-full max-w-md">
+            <div className="ultra-contrast-modal-header mb-4">
+              <h3 className="text-lg font-bold">Record Payment</h3>
+              {quickPaymentModal.client && (
+                <p className="text-sm text-gray-600">{quickPaymentModal.client.name} - {quickPaymentModal.client.membership_type}</p>
+              )}
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block font-bold mb-1" style={{ color: '#000000' }}>Amount Paid (TTD)</label>
+                <input
+                  type="number"
+                  value={quickPaymentForm.amount_paid}
+                  onChange={(e) => setQuickPaymentForm(prev => ({ ...prev, amount_paid: e.target.value }))}
+                  className="ultra-contrast-input w-full p-2 rounded"
+                  placeholder="0.00"
+                  step="0.01"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block font-bold mb-1" style={{ color: '#000000' }}>Payment Date</label>
+                <input
+                  type="date"
+                  value={quickPaymentForm.payment_date}
+                  onChange={(e) => setQuickPaymentForm(prev => ({ ...prev, payment_date: e.target.value }))}
+                  className="ultra-contrast-input w-full p-2 rounded"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block font-bold mb-1" style={{ color: '#000000' }}>Payment Method</label>
+                <select
+                  value={quickPaymentForm.payment_method}
+                  onChange={(e) => setQuickPaymentForm(prev => ({ ...prev, payment_method: e.target.value }))}
+                  className="ultra-contrast-input w-full p-2 rounded"
+                >
+                  <option value="Cash">Cash</option>
+                  <option value="Card">Card</option>
+                  <option value="Bank Transfer">Bank Transfer</option>
+                  <option value="Check">Check</option>
+                  <option value="Online Payment">Online Payment</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block font-bold mb-1" style={{ color: '#000000' }}>Notes (Optional)</label>
+                <input
+                  type="text"
+                  value={quickPaymentForm.notes}
+                  onChange={(e) => setQuickPaymentForm(prev => ({ ...prev, notes: e.target.value }))}
+                  className="ultra-contrast-input w-full p-2 rounded"
+                  placeholder="Any additional notes..."
+                />
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={() => setQuickPaymentModal({ isOpen: false, client: null })}
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded font-medium"
+                disabled={paymentLoading}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={recordQuickPayment}
+                disabled={paymentLoading || !quickPaymentForm.amount_paid}
+                className="ultra-contrast-button-primary px-4 py-2 rounded font-medium disabled:opacity-50"
+              >
+                {paymentLoading ? 'Recording...' : '💰 Record Payment'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
