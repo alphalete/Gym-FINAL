@@ -569,12 +569,28 @@ const Dashboard = () => {
       const clients = await response.json();
       console.log(`✅ Dashboard: Fetched ${clients.length} clients from backend`);
       
+      // Fetch actual payment revenue
+      console.log('🔄 Dashboard: Fetching payment statistics...');
+      let actualRevenue = 0;
+      try {
+        const paymentStatsResponse = await fetch(`${backendUrl}/api/payments/stats`);
+        if (paymentStatsResponse.ok) {
+          const paymentStats = await paymentStatsResponse.json();
+          actualRevenue = paymentStats.monthly_revenue || 0;
+          console.log(`✅ Dashboard: Actual revenue from payments: TTD ${actualRevenue}`);
+        } else {
+          console.warn('⚠️ Dashboard: Could not fetch payment stats, using potential revenue');
+          actualRevenue = clients.filter(c => c.status === 'Active').reduce((sum, c) => sum + (c.monthly_fee || 0), 0) || 0;
+        }
+      } catch (error) {
+        console.error('❌ Dashboard: Error fetching payment stats:', error);
+        actualRevenue = clients.filter(c => c.status === 'Active').reduce((sum, c) => sum + (c.monthly_fee || 0), 0) || 0;
+      }
+      
       // Calculate statistics with fallback values
       const totalClients = clients.length || 0;
       const activeClients = clients.filter(c => c.status === 'Active').length || 0;
       const inactiveClients = clients.filter(c => c.status === 'Inactive').length || 0;
-      // FIX: Only calculate revenue from ACTIVE clients
-      const totalRevenue = clients.filter(c => c.status === 'Active').reduce((sum, c) => sum + (c.monthly_fee || 0), 0) || 0;
       
       // Calculate payment statistics
       const today = new Date();
