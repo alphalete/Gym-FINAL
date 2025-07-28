@@ -516,7 +516,12 @@ async def record_client_payment(payment_request: PaymentRecordRequest):
     }
     
     # Store payment records in a separate collection for revenue tracking
-    await db.payment_records.insert_one(payment_record)
+    try:
+        await db.payment_records.insert_one(payment_record)
+        logger.info(f"Payment record stored successfully for client {client_obj.name}")
+    except Exception as e:
+        logger.error(f"Error storing payment record: {str(e)}")
+        # Continue execution even if payment record storage fails
     
     # Send automatic invoice email
     invoice_success = email_service.send_payment_invoice(
