@@ -1116,11 +1116,14 @@ const ClientManagement = () => {
           notes: ''
         });
         
-        // Refresh clients data and trigger parent refresh
+        // Refresh clients data and force page reload to update all statistics
+        console.log('✅ Payment recorded - refreshing data...');
         await fetchClients(true); // Force refresh to get updated payment date
         
-        // Trigger a full page data refresh by reloading
-        window.location.reload();
+        // Force reload to update all dashboard statistics and revenue
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000); // Small delay to ensure backend update completes
       } else {
         const error = await response.json();
         console.error('Payment recording error:', error);
