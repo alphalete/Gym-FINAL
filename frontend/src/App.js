@@ -1116,10 +1116,11 @@ const ClientManagement = () => {
           notes: ''
         });
         
-        // Refresh clients data
+        // Refresh clients data and trigger parent refresh
         await fetchClients(true); // Force refresh to get updated payment date
-        await fetchOverdueClients(); // Refresh overdue data
-        await calculateRealPaymentStats(); // Refresh payment statistics
+        
+        // Trigger a full page data refresh by reloading
+        window.location.reload();
       } else {
         const error = await response.json();
         console.error('Payment recording error:', error);
