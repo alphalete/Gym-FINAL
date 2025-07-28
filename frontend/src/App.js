@@ -2092,7 +2092,7 @@ const Payments = () => {
       
       <div className="ultra-contrast-modal rounded-lg p-6">
         <h2 className="ultra-contrast-text font-bold mb-4">Payment Management</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <button 
             onClick={() => setShowPaymentModal(true)}
             className="ultra-contrast-button-primary p-4 rounded text-center hover:opacity-90 transition-opacity"
@@ -2113,6 +2113,13 @@ const Payments = () => {
           >
             <div className="text-2xl mb-2">⚠️</div>
             <div>Overdue Management</div>
+          </button>
+          <button 
+            onClick={() => setShowCleanupModal(true)}
+            className="ultra-contrast-button p-4 rounded text-center hover:opacity-90 transition-opacity bg-red-600 text-white"
+          >
+            <div className="text-2xl mb-2">🧹</div>
+            <div>Database Cleanup</div>
           </button>
         </div>
       </div>
