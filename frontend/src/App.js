@@ -2359,6 +2359,92 @@ const Payments = () => {
           </div>
         </div>
       )}
+
+      {/* Database Cleanup Modal */}
+      {showCleanupModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="ultra-contrast-modal rounded-lg p-6 w-full max-w-4xl max-h-[80vh] overflow-y-auto">
+            <div className="ultra-contrast-modal-header mb-4">
+              <h3 className="text-lg font-bold text-red-600">🧹 Database Cleanup</h3>
+              <p className="text-sm text-gray-600">Remove test/fake client data to get accurate analytics</p>
+            </div>
+            
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded">
+              <h4 className="font-bold text-red-800">⚠️ ANALYTICS CONTAMINATION DETECTED!</h4>
+              <p className="text-red-700">Your database contains test data that is skewing your business analytics:</p>
+              <ul className="mt-2 text-red-700 text-sm list-disc ml-5">
+                <li><strong>Total Clients:</strong> {clients.length} (includes test data)</li>
+                <li><strong>Active Members:</strong> {clients.filter(c => c.status === 'Active').length} (includes test data)</li>
+                <li><strong>Total Revenue:</strong> TTD {clients.reduce((sum, client) => sum + (client.monthly_fee || 0), 0).toFixed(2)} (includes fake revenue)</li>
+                <li><strong>Test Clients Identified:</strong> {testClients.length}</li>
+              </ul>
+            </div>
+
+            <div className="mb-4">
+              <h4 className="font-bold mb-2">📋 Test Clients to be Removed ({testClients.length} total):</h4>
+              <div className="max-h-60 overflow-y-auto space-y-2">
+                {testClients.length === 0 ? (
+                  <div className="text-center py-4 text-green-600">
+                    <p className="text-lg">✅ No test clients detected!</p>
+                    <p>Your database appears to be clean.</p>
+                  </div>
+                ) : (
+                  testClients.map((client, index) => {
+                    const indicators = [];
+                    const name = client.name?.toLowerCase() || '';
+                    const email = client.email?.toLowerCase() || '';
+                    const phone = client.phone || '';
+                    
+                    if (name.includes('test') || name.includes('demo') || name.includes('john doe')) indicators.push('Test name');
+                    if (email.includes('@example.com') || email.includes('@test.com')) indicators.push('Test email');
+                    if (phone.includes('(555)') || phone.includes('555-')) indicators.push('Test phone');
+                    if (client.monthly_fee <= 10 || client.monthly_fee >= 500) indicators.push('Unrealistic fee');
+                    
+                    return (
+                      <div key={client.id} className="p-3 border rounded bg-red-50">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="font-medium">{client.name}</p>
+                            <p className="text-sm text-gray-600">{client.email}</p>
+                            <p className="text-sm">TTD {client.monthly_fee}/month - {client.membership_type}</p>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-xs text-red-600 bg-red-100 px-2 py-1 rounded">
+                              {indicators.join(', ')}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+
+            <div className="bg-yellow-50 border border-yellow-200 rounded p-4 mb-6">
+              <h4 className="font-bold text-yellow-800">🚨 PERMANENT ACTION WARNING</h4>
+              <p className="text-yellow-700">This action will permanently delete all identified test clients from your database. This cannot be undone!</p>
+              <p className="text-yellow-700 mt-2"><strong>After cleanup, your analytics will show accurate business data only.</strong></p>
+            </div>
+            
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setShowCleanupModal(false)}
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={cleanupTestData}
+                disabled={loading || testClients.length === 0}
+                className="px-4 py-2 bg-red-600 text-white rounded font-medium hover:bg-red-700 disabled:opacity-50"
+              >
+                {loading ? 'Cleaning...' : `🧹 Delete ${testClients.length} Test Clients`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
