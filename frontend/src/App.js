@@ -2066,8 +2066,9 @@ const Payments = () => {
       if (response.ok) {
         const clientsData = await response.json();
         
-        const totalRevenue = clientsData.reduce((sum, client) => sum + (client.monthly_fee || 0), 0);
         const activeClients = clientsData.filter(c => c.status === 'Active');
+        // FIX: Only calculate revenue from ACTIVE clients
+        const totalRevenue = activeClients.reduce((sum, client) => sum + (client.monthly_fee || 0), 0);
         const today = new Date();
         
         const overdueClients = activeClients.filter(client => {
