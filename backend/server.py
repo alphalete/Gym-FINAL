@@ -515,8 +515,8 @@ async def record_client_payment(payment_request: PaymentRecordRequest):
         "recorded_at": datetime.utcnow()
     }
     
-    # You could optionally store payment records in a separate collection
-    # await db.payment_records.insert_one(payment_record)
+    # Store payment records in a separate collection for revenue tracking
+    await db.payment_records.insert_one(payment_record)
     
     # Send automatic invoice email
     invoice_success = email_service.send_payment_invoice(
