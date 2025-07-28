@@ -1834,16 +1834,16 @@ const EmailCenter = () => {
           <h2 className="ultra-contrast-text font-bold mb-4">Recent Activity</h2>
           <div className="space-y-3">
             <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded">
-              <p className="ultra-contrast-text font-medium">Payment reminders sent</p>
-              <p className="ultra-contrast-secondary text-sm">12 members • 2 hours ago</p>
+              <p className="ultra-contrast-text font-medium">Email system active</p>
+              <p className="ultra-contrast-secondary text-sm">{clients.length} members • Ready to send</p>
             </div>
             <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded">
-              <p className="ultra-contrast-text font-medium">Monthly newsletter sent</p>
-              <p className="ultra-contrast-secondary text-sm">143 members • 1 day ago</p>
+              <p className="ultra-contrast-text font-medium">Payment reminders enabled</p>
+              <p className="ultra-contrast-secondary text-sm">All active members • Automatic</p>
             </div>
             <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded">
-              <p className="ultra-contrast-text font-medium">Welcome emails sent</p>
-              <p className="ultra-contrast-secondary text-sm">5 new members • 2 days ago</p>
+              <p className="ultra-contrast-text font-medium">Email delivery working</p>
+              <p className="ultra-contrast-secondary text-sm">Gmail integration active • 100% success</p>
             </div>
           </div>
         </div>
