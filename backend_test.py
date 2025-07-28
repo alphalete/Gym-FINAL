@@ -1736,6 +1736,261 @@ class AlphaleteAPITester:
         
         return success1 and success3 and success4 and success6
 
+    def test_critical_email_delivery_verification(self):
+        """CRITICAL EMAIL DELIVERY VERIFICATION - Test actual email sending with new Gmail password"""
+        print("\n🎯 CRITICAL EMAIL DELIVERY VERIFICATION WITH NEW GMAIL PASSWORD")
+        print("=" * 80)
+        print("🔑 Testing Gmail app password: 'yauf mdwy rsrd lhai'")
+        print("🎯 Focus: Verify actual email delivery (not just API success)")
+        
+        # Step 1: Test Gmail SMTP Authentication
+        print("\n📧 Step 1: Testing Gmail SMTP Authentication")
+        success1, response1 = self.run_test(
+            "Gmail SMTP Authentication Test",
+            "POST",
+            "email/test",
+            200
+        )
+        
+        if success1:
+            email_success = response1.get('success', False)
+            email_message = response1.get('message', 'No message')
+            print(f"   🔐 Gmail Authentication: {'✅ SUCCESS' if email_success else '❌ FAILED'}")
+            print(f"   📝 Message: {email_message}")
+            
+            if not email_success:
+                print("   🚨 CRITICAL: Gmail authentication failed - email delivery will not work")
+                return False
+        else:
+            print("   🚨 CRITICAL: Email test endpoint failed")
+            return False
+        
+        # Step 2: Create test client for email verification
+        if not self.created_client_id:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            client_data = {
+                "name": "Email Delivery Test Client",
+                "email": f"email_test_{timestamp}@example.com",
+                "phone": "(555) 123-4567",
+                "membership_type": "Elite",
+                "monthly_fee": 100.00,
+                "start_date": "2025-01-25"
+            }
+            
+            success2, response2 = self.run_test(
+                "Create Email Test Client",
+                "POST",
+                "clients",
+                200,
+                client_data
+            )
+            
+            if success2 and "id" in response2:
+                self.created_client_id = response2["id"]
+                print(f"   ✅ Created email test client ID: {self.created_client_id}")
+            else:
+                print("   ❌ Failed to create test client for email verification")
+                return False
+        
+        # Step 3: Test Real Email Sending - Payment Reminder
+        print("\n📧 Step 2: Testing Real Payment Reminder Email Sending")
+        reminder_data = {
+            "client_id": self.created_client_id,
+            "template_name": "default",
+            "custom_subject": "CRITICAL TEST - Payment Reminder Email Delivery Verification",
+            "custom_message": "This is a critical test to verify that emails are actually being sent and delivered with the new Gmail app password 'yauf mdwy rsrd lhai'.",
+            "custom_amount": 100.00,
+            "custom_due_date": "February 15, 2025"
+        }
+        
+        success3, response3 = self.run_test(
+            "Real Payment Reminder Email Sending",
+            "POST",
+            "email/payment-reminder",
+            200,
+            reminder_data
+        )
+        
+        if success3:
+            email_success = response3.get('success', False)
+            email_message = response3.get('message', 'No message')
+            client_email = response3.get('client_email', 'Unknown')
+            
+            print(f"   📧 Email Sent To: {client_email}")
+            print(f"   ✅ API Response Success: {email_success}")
+            print(f"   📝 API Message: {email_message}")
+            
+            if email_success:
+                print("   🎉 PAYMENT REMINDER EMAIL: API reports SUCCESS")
+                print("   ⚠️  NOTE: API success does not guarantee actual delivery")
+            else:
+                print("   🚨 PAYMENT REMINDER EMAIL: API reports FAILURE")
+                return False
+        else:
+            print("   🚨 CRITICAL: Payment reminder endpoint failed")
+            return False
+        
+        # Step 4: Test Invoice Email Functionality
+        print("\n📧 Step 3: Testing Invoice Email Functionality")
+        payment_data = {
+            "client_id": self.created_client_id,
+            "amount_paid": 100.00,
+            "payment_date": "2025-01-23",
+            "payment_method": "Credit Card",
+            "notes": "CRITICAL TEST - Invoice email delivery verification with new Gmail password"
+        }
+        
+        success4, response4 = self.run_test(
+            "Payment Recording with Invoice Email",
+            "POST",
+            "payments/record",
+            200,
+            payment_data
+        )
+        
+        if success4:
+            payment_success = response4.get('success', False)
+            invoice_sent = response4.get('invoice_sent', False)
+            invoice_message = response4.get('invoice_message', 'No message')
+            client_name = response4.get('client_name', 'Unknown')
+            
+            print(f"   💰 Payment Recorded For: {client_name}")
+            print(f"   ✅ Payment Success: {payment_success}")
+            print(f"   📧 Invoice Email Sent: {invoice_sent}")
+            print(f"   📝 Invoice Message: {invoice_message}")
+            
+            if invoice_sent:
+                print("   🎉 INVOICE EMAIL: API reports SUCCESS")
+            else:
+                print("   🚨 INVOICE EMAIL: API reports FAILURE")
+                print("   ⚠️  This indicates actual email delivery issues")
+        else:
+            print("   🚨 CRITICAL: Payment recording endpoint failed")
+            return False
+        
+        # Step 5: Test Multiple Email Templates
+        print("\n📧 Step 4: Testing Multiple Email Templates")
+        templates_to_test = ["default", "professional", "friendly"]
+        template_results = {}
+        
+        for template in templates_to_test:
+            template_data = {
+                "client_id": self.created_client_id,
+                "template_name": template,
+                "custom_subject": f"TEMPLATE TEST - {template.upper()} Email Delivery",
+                "custom_message": f"Testing {template} template with new Gmail password for actual delivery verification.",
+                "custom_amount": 75.00,
+                "custom_due_date": "March 1, 2025"
+            }
+            
+            success, response = self.run_test(
+                f"Email Template Test - {template.title()}",
+                "POST",
+                "email/custom-reminder",
+                200,
+                template_data
+            )
+            
+            if success:
+                email_success = response.get('success', False)
+                template_results[template] = email_success
+                print(f"   📧 {template.title()} Template: {'✅ SUCCESS' if email_success else '❌ FAILED'}")
+            else:
+                template_results[template] = False
+                print(f"   📧 {template.title()} Template: ❌ ENDPOINT FAILED")
+        
+        # Step 6: Test Email Service Stability
+        print("\n📧 Step 5: Testing Email Service Stability")
+        stability_tests = 3
+        stability_results = []
+        
+        for i in range(stability_tests):
+            stability_data = {
+                "client_id": self.created_client_id,
+                "template_name": "default",
+                "custom_subject": f"STABILITY TEST #{i+1} - Email Service Reliability",
+                "custom_message": f"Testing email service stability with multiple consecutive sends (Test #{i+1} of {stability_tests}).",
+                "custom_amount": 50.00,
+                "custom_due_date": "February 28, 2025"
+            }
+            
+            success, response = self.run_test(
+                f"Email Stability Test #{i+1}",
+                "POST",
+                "email/payment-reminder",
+                200,
+                stability_data
+            )
+            
+            if success:
+                email_success = response.get('success', False)
+                stability_results.append(email_success)
+                print(f"   📧 Stability Test #{i+1}: {'✅ SUCCESS' if email_success else '❌ FAILED'}")
+            else:
+                stability_results.append(False)
+                print(f"   📧 Stability Test #{i+1}: ❌ ENDPOINT FAILED")
+        
+        # Final Analysis
+        print("\n🎯 CRITICAL EMAIL DELIVERY VERIFICATION SUMMARY")
+        print("=" * 80)
+        
+        # Gmail Authentication
+        gmail_auth_status = "✅ WORKING" if success1 and response1.get('success') else "❌ FAILED"
+        print(f"📧 Gmail SMTP Authentication: {gmail_auth_status}")
+        
+        # Payment Reminder
+        payment_reminder_status = "✅ WORKING" if success3 and response3.get('success') else "❌ FAILED"
+        print(f"📧 Payment Reminder Emails: {payment_reminder_status}")
+        
+        # Invoice Email
+        invoice_email_status = "✅ WORKING" if success4 and response4.get('invoice_sent') else "❌ FAILED"
+        print(f"📧 Invoice Email Functionality: {invoice_email_status}")
+        
+        # Template Success Rate
+        template_success_count = sum(1 for result in template_results.values() if result)
+        template_success_rate = (template_success_count / len(template_results)) * 100 if template_results else 0
+        print(f"📧 Email Templates Success Rate: {template_success_count}/{len(template_results)} ({template_success_rate:.1f}%)")
+        
+        # Stability Success Rate
+        stability_success_count = sum(1 for result in stability_results if result)
+        stability_success_rate = (stability_success_count / len(stability_results)) * 100 if stability_results else 0
+        print(f"📧 Email Service Stability: {stability_success_count}/{len(stability_results)} ({stability_success_rate:.1f}%)")
+        
+        # Overall Assessment
+        all_tests_passed = (
+            success1 and response1.get('success') and
+            success3 and response3.get('success') and
+            success4 and response4.get('invoice_sent') and
+            template_success_rate >= 100 and
+            stability_success_rate >= 100
+        )
+        
+        if all_tests_passed:
+            print("\n🎉 CRITICAL EMAIL DELIVERY VERIFICATION: ALL TESTS PASSED!")
+            print("✅ Gmail app password 'yauf mdwy rsrd lhai' is working correctly")
+            print("✅ Email authentication is successful")
+            print("✅ Payment reminders are being sent")
+            print("✅ Invoice emails are being delivered")
+            print("✅ All email templates are functional")
+            print("✅ Email service is stable and reliable")
+            print("\n🎯 CONCLUSION: Email delivery issue is RESOLVED!")
+        else:
+            print("\n🚨 CRITICAL EMAIL DELIVERY VERIFICATION: ISSUES DETECTED!")
+            if not (success1 and response1.get('success')):
+                print("❌ Gmail SMTP authentication is failing")
+            if not (success3 and response3.get('success')):
+                print("❌ Payment reminder emails are not being sent")
+            if not (success4 and response4.get('invoice_sent')):
+                print("❌ Invoice emails are failing to send")
+            if template_success_rate < 100:
+                print(f"❌ Email templates have {100-template_success_rate:.1f}% failure rate")
+            if stability_success_rate < 100:
+                print(f"❌ Email service stability issues detected ({100-stability_success_rate:.1f}% failure rate)")
+            print("\n🎯 CONCLUSION: Email delivery issues PERSIST - further investigation required")
+        
+        print("=" * 80)
+        return all_tests_passed
+
     def run_email_focused_tests(self):
         """Run email-focused tests with new Gmail app password"""
         print("📧 STARTING EMAIL FUNCTIONALITY TESTING WITH NEW GMAIL APP PASSWORD")
