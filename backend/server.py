@@ -539,6 +539,44 @@ async def record_client_payment(payment_request: PaymentRecordRequest):
         "invoice_message": "Invoice email sent successfully!" if invoice_success else "Invoice email failed to send"
     }
 
+@api_router.get("/payments/stats")
+async def get_payment_statistics():
+    """Get payment statistics including total revenue from recorded payments"""
+    try:
+        # Get all payment records
+        payments = await db.payment_records.find({}).to_list(1000)
+        
+        # Calculate total revenue from actual payments
+        total_revenue = sum(payment.get('amount_paid', 0) for payment in payments)
+        
+        # Calculate this month's revenue
+        current_month = datetime.now().month
+        current_year = datetime.now().year
+        
+        monthly_revenue = 0
+        for payment in payments:
+            payment_date_str = payment.get('payment_date', '')
+            if payment_date_str:
+                try:
+                    payment_date = datetime.fromisoformat(payment_date_str)
+                    if payment_date.month == current_month and payment_date.year == current_year:
+                        monthly_revenue += payment.get('amount_paid', 0)
+                except:
+                    continue
+        
+        return {
+            "total_revenue": total_revenue,
+            "monthly_revenue": monthly_revenue,
+            "payment_count": len(payments)
+        }
+    except Exception as e:
+        logger.error(f"Error getting payment statistics: {str(e)}")
+        return {
+            "total_revenue": 0,
+            "monthly_revenue": 0,
+            "payment_count": 0
+        }
+
 @api_router.post("/email/payment-reminder/bulk")
 async def send_bulk_payment_reminders():
     """Send payment reminders to all active clients with upcoming payments"""
