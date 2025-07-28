@@ -2087,13 +2087,25 @@ const Payments = () => {
   const calculateRealPaymentStats = async () => {
     try {
       const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      
+      // Get actual payment revenue
+      let actualRevenue = 0;
+      try {
+        const paymentStatsResponse = await fetch(`${backendUrl}/api/payments/stats`);
+        if (paymentStatsResponse.ok) {
+          const paymentStats = await paymentStatsResponse.json();
+          actualRevenue = paymentStats.monthly_revenue || 0;
+          console.log(`✅ Payment Stats: Actual monthly revenue: TTD ${actualRevenue}`);
+        }
+      } catch (error) {
+        console.error('❌ Error fetching payment stats:', error);
+      }
+      
       const response = await fetch(`${backendUrl}/api/clients`);
       if (response.ok) {
         const clientsData = await response.json();
         
         const activeClients = clientsData.filter(c => c.status === 'Active');
-        // FIX: Only calculate revenue from ACTIVE clients
-        const totalRevenue = activeClients.reduce((sum, client) => sum + (client.monthly_fee || 0), 0);
         const today = new Date();
         
         const overdueClients = activeClients.filter(client => {
@@ -2108,7 +2120,7 @@ const Payments = () => {
         });
         
         setPaymentStats({
-          totalRevenue: totalRevenue,
+          totalRevenue: actualRevenue, // Use actual collected revenue
           pendingPayments: pendingClients.length,
           overduePayments: overdueClients.length,
           completedThisMonth: 0 // Would need payment history to calculate this accurately
