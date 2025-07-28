@@ -1072,6 +1072,65 @@ const ClientManagement = () => {
     });
   };
 
+  const recordQuickPayment = async () => {
+    if (!quickPaymentModal.client || !quickPaymentForm.amount_paid) {
+      alert('Please enter payment amount');
+      return;
+    }
+
+    setPaymentLoading(true);
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      
+      console.log('Recording payment for client:', quickPaymentModal.client.id);
+      
+      const response = await fetch(`${backendUrl}/api/payments/record`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          client_id: quickPaymentModal.client.id,
+          amount_paid: parseFloat(quickPaymentForm.amount_paid),
+          payment_date: quickPaymentForm.payment_date,
+          payment_method: quickPaymentForm.payment_method,
+          notes: quickPaymentForm.notes || null
+        })
+      });
+
+      console.log('Payment recording response status:', response.status);
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Payment recording result:', result);
+        
+        const invoiceStatus = result.invoice_sent ? '✅ Invoice sent successfully!' : '⚠️ Invoice email failed to send';
+        alert(`✅ Payment recorded successfully for ${result.client_name}!\n💰 Amount: TTD ${result.amount_paid}\n📅 Next payment due: ${result.new_next_payment_date}\n📧 ${invoiceStatus}`);
+        
+        // Close modal and refresh data
+        setQuickPaymentModal({ isOpen: false, client: null });
+        setQuickPaymentForm({
+          amount_paid: '',
+          payment_date: new Date().toISOString().split('T')[0],
+          payment_method: 'Cash',
+          notes: ''
+        });
+        
+        // Refresh clients data
+        await fetchClients(true); // Force refresh to get updated payment date
+      } else {
+        const error = await response.json();
+        console.error('Payment recording error:', error);
+        alert(`❌ Error recording payment: ${error.detail || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Error recording payment:', error);
+      alert('❌ Error recording payment. Please try again.');
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+
   const closeEditClientModal = () => {
     setEditClientModal({ isOpen: false, client: null });
   };
