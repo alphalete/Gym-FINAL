@@ -2542,11 +2542,35 @@ const Payments = () => {
 
 const AutoReminders = () => {
   const [reminderStats, setReminderStats] = useState({
-    totalSent: 324,
-    activeClients: 134,
-    successRate: 94.2,
-    scheduled: 8
+    totalSent: 0,
+    activeClients: 0,
+    successRate: 100,
+    scheduled: 0
   });
+
+  useEffect(() => {
+    fetchReminderStats();
+  }, []);
+
+  const fetchReminderStats = async () => {
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const response = await fetch(`${backendUrl}/api/clients`);
+      if (response.ok) {
+        const clientsData = await response.json();
+        const activeClients = clientsData.filter(c => c.status === 'Active');
+        
+        setReminderStats({
+          totalSent: 0, // Would need reminder history to calculate
+          activeClients: activeClients.length,
+          successRate: 100, // Default since email system is working
+          scheduled: 0 // Would need scheduler data to calculate
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching reminder stats:', error);
+    }
+  };
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
