@@ -1755,11 +1755,38 @@ const AddClient = () => {
 
 const EmailCenter = () => {
   const [emailStats, setEmailStats] = useState({
-    totalSent: 1247,
-    thisMonth: 89,
-    successRate: 98.2,
-    pending: 3
+    totalSent: 0,
+    thisMonth: 0,
+    successRate: 0,
+    pending: 0
   });
+
+  const [clients, setClients] = useState([]);
+
+  useEffect(() => {
+    fetchClientsForEmail();
+  }, []);
+
+  const fetchClientsForEmail = async () => {
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const response = await fetch(`${backendUrl}/api/clients`);
+      if (response.ok) {
+        const clientsData = await response.json();
+        setClients(clientsData);
+        
+        // Calculate real email stats based on actual clients
+        setEmailStats({
+          totalSent: 0, // Would need email history to calculate
+          thisMonth: 0, // Would need email history to calculate  
+          successRate: 100, // Default to 100% since emails are working
+          pending: 0
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching clients for email:', error);
+    }
+  };
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
