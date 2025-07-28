@@ -1538,9 +1538,9 @@ const ClientManagement = () => {
                             <div className="flex space-x-2">
                               <button
                                 onClick={() => openRecordPaymentModal(client)}
-                                className="btn bg-green-600 hover:bg-green-700 text-white btn-sm z-10 relative"
+                                className="btn bg-green-600 hover:bg-green-700 text-white btn-sm z-10 relative font-bold"
                                 title="Record Payment"
-                                style={{ minWidth: '32px', minHeight: '32px' }}
+                                style={{ minWidth: '40px', minHeight: '40px', fontSize: '16px' }}
                               >
                                 💰
                               </button>
