@@ -2361,6 +2361,11 @@ class AlphaleteAPITester:
         
         # Test sequence - organized by feature
         tests = [
+            # CRITICAL REVIEW REQUEST TEST - Multiple Payment Logic Issue
+            ("🚨 CRITICAL: Multiple Payment Logic Issue Testing", [
+                self.test_multiple_payment_logic_issue,
+            ]),
+            
             # SPECIFIC REVIEW REQUEST TEST - Professional Email Template
             ("🎯 REVIEW REQUEST: Professional Email Template Testing", [
                 self.test_professional_email_template,
