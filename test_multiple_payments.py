@@ -187,14 +187,38 @@ class MultiplePaymentTester:
         print(f"\n📋 STEP 4: Analyze Multiple Payment Logic Issue")
         print("=" * 60)
         
+        # Helper function to parse date strings in various formats
+        def parse_date_string(date_str):
+            """Parse date string in various formats"""
+            if not isinstance(date_str, str):
+                return date_str
+            try:
+                # Try ISO format first
+                return datetime.fromisoformat(date_str).date()
+            except ValueError:
+                try:
+                    # Try "Month DD, YYYY" format
+                    return datetime.strptime(date_str, "%B %d, %Y").date()
+                except ValueError:
+                    try:
+                        # Try "YYYY-MM-DD" format
+                        return datetime.strptime(date_str, "%Y-%m-%d").date()
+                    except ValueError:
+                        print(f"   ⚠️  Could not parse date: {date_str}")
+                        return None
+        
         # Calculate expected dates for different logic options
         payment_date = datetime.fromisoformat(today).date()
         
         # Option A: Extend from current due date (correct logic)
         if original_due_date:
-            original_due = datetime.fromisoformat(original_due_date).date() if isinstance(original_due_date, str) else original_due_date
-            option_a_after_first = original_due + timedelta(days=30)
-            option_a_after_second = option_a_after_first + timedelta(days=30)
+            original_due = parse_date_string(original_due_date)
+            if original_due:
+                option_a_after_first = original_due + timedelta(days=30)
+                option_a_after_second = option_a_after_first + timedelta(days=30)
+            else:
+                option_a_after_first = payment_date + timedelta(days=30)
+                option_a_after_second = option_a_after_first + timedelta(days=30)
         else:
             option_a_after_first = payment_date + timedelta(days=30)
             option_a_after_second = option_a_after_first + timedelta(days=30)
