@@ -1546,9 +1546,9 @@ const ClientManagement = () => {
                               </button>
                               <button
                                 onClick={() => sendPaymentReminder(client)}
-                                className="btn btn-primary btn-sm z-10 relative"
+                                className="btn bg-blue-600 hover:bg-blue-700 text-white btn-sm z-10 relative font-bold"
                                 title="Send Payment Reminder"
-                                style={{ minWidth: '32px', minHeight: '32px' }}
+                                style={{ minWidth: '40px', minHeight: '40px', fontSize: '16px' }}
                               >
                                 📧
                               </button>
