@@ -121,9 +121,9 @@ class ClientDeletionTester:
             ]
             
             for client in response:
-                client_name = client.get('name', '').lower()
-                client_email = client.get('email', '').lower()
-                client_phone = client.get('phone', '').lower()
+                client_name = (client.get('name') or '').lower()
+                client_email = (client.get('email') or '').lower()
+                client_phone = (client.get('phone') or '').lower()
                 
                 # Check if client matches test patterns
                 is_test_client = False
