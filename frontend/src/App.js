@@ -2686,7 +2686,7 @@ const Payments = () => {
               <ul className="mt-2 text-red-700 text-sm list-disc ml-5">
                 <li><strong>Total Clients:</strong> {clients.length} (includes test data)</li>
                 <li><strong>Active Members:</strong> {clients.filter(c => c.status === 'Active').length} (includes test data)</li>
-                <li><strong>Total Revenue:</strong> TTD {clients.filter(c => c.status === 'Active').reduce((sum, client) => sum + (client.monthly_fee || 0), 0).toFixed(2)} (includes fake revenue)</li>
+                <li><strong>Potential Revenue:</strong> TTD {clients.filter(c => c.status === 'Active').reduce((sum, client) => sum + (client.monthly_fee || 0), 0).toFixed(2)} (from membership fees, not actual payments)</li>
                 <li><strong>Test Clients Identified:</strong> {testClients.length}</li>
               </ul>
             </div>
