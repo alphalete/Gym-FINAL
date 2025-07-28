@@ -1854,7 +1854,42 @@ const Payments = () => {
     fetchClients();
     fetchOverdueClients();
     identifyTestClients();
+    calculateRealPaymentStats();
   }, []);
+
+  const calculateRealPaymentStats = async () => {
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const response = await fetch(`${backendUrl}/api/clients`);
+      if (response.ok) {
+        const clientsData = await response.json();
+        
+        const totalRevenue = clientsData.reduce((sum, client) => sum + (client.monthly_fee || 0), 0);
+        const activeClients = clientsData.filter(c => c.status === 'Active');
+        const today = new Date();
+        
+        const overdueClients = activeClients.filter(client => {
+          const nextPaymentDate = new Date(client.next_payment_date);
+          return nextPaymentDate < today;
+        });
+        
+        const pendingClients = activeClients.filter(client => {
+          const nextPaymentDate = new Date(client.next_payment_date);
+          const daysDiff = Math.ceil((nextPaymentDate - today) / (1000 * 60 * 60 * 24));
+          return daysDiff > 0 && daysDiff <= 7; // Due within 7 days
+        });
+        
+        setPaymentStats({
+          totalRevenue: totalRevenue,
+          pendingPayments: pendingClients.length,
+          overduePayments: overdueClients.length,
+          completedThisMonth: 0 // Would need payment history to calculate this accurately
+        });
+      }
+    } catch (error) {
+      console.error('Error calculating payment stats:', error);
+    }
+  };
 
   const fetchClients = async () => {
     try {
