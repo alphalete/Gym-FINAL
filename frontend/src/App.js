@@ -2917,7 +2917,7 @@ const Reports = () => {
         </div>
         <div className="ultra-contrast-modal rounded-lg p-6">
           <h3 className="ultra-contrast-text font-bold mb-2">Revenue</h3>
-          <p className="text-2xl font-bold text-green-600">${reportStats.revenue}</p>
+          <p className="text-2xl font-bold text-green-600">TTD {reportStats.revenue}</p>
           <p className="text-sm text-green-600">Monthly total</p>
         </div>
         <div className="ultra-contrast-modal rounded-lg p-6">
