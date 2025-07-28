@@ -2198,23 +2198,32 @@ class AlphaleteAPITester:
             return 1
 
 def main():
-    """Main function - Run email-focused tests with new Gmail app password"""
-    print("🏋️‍♂️ ALPHALETE ATHLETICS CLUB - EMAIL FUNCTIONALITY TESTING")
-    print("Testing email functionality with updated Gmail app password: difs xvgc ljue sxjr")
+    """Main function - Run critical email delivery verification with new Gmail app password"""
+    print("🏋️‍♂️ ALPHALETE ATHLETICS CLUB - CRITICAL EMAIL DELIVERY VERIFICATION")
+    print("Testing email functionality with updated Gmail app password: yauf mdwy rsrd lhai")
     print()
     
     tester = AlphaleteAPITester()
     
-    # Run email-focused tests
-    success_rate = tester.run_email_focused_tests()
+    # Run critical email delivery verification first
+    print("🎯 RUNNING CRITICAL EMAIL DELIVERY VERIFICATION...")
+    email_verification_passed = tester.test_critical_email_delivery_verification()
     
-    # Return appropriate exit code
-    if success_rate >= 0.9:
-        return 0  # Success
-    elif success_rate >= 0.7:
-        return 1  # Partial success with issues
+    if email_verification_passed:
+        print("\n🎉 CRITICAL EMAIL VERIFICATION PASSED - Running additional email tests...")
+        # Run additional email-focused tests
+        success_rate = tester.run_email_focused_tests()
+        
+        # Return appropriate exit code
+        if success_rate >= 0.9:
+            return 0  # Success
+        elif success_rate >= 0.7:
+            return 1  # Partial success with issues
+        else:
+            return 2  # Critical failures
     else:
-        return 2  # Critical failures
+        print("\n🚨 CRITICAL EMAIL VERIFICATION FAILED - Email delivery issues detected")
+        return 3  # Critical email delivery failure
 
 if __name__ == "__main__":
     sys.exit(main())
