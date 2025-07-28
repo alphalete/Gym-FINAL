@@ -1055,6 +1055,16 @@ const ClientManagement = () => {
     setEditClientModal({ isOpen: true, client });
   };
 
+  const openRecordPaymentModal = (client) => {
+    setQuickPaymentModal({ isOpen: true, client });
+    setQuickPaymentForm({
+      amount_paid: client.monthly_fee.toString(),
+      payment_date: new Date().toISOString().split('T')[0],
+      payment_method: 'Cash',
+      notes: ''
+    });
+  };
+
   const closeEditClientModal = () => {
     setEditClientModal({ isOpen: false, client: null });
   };
