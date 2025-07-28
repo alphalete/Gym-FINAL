@@ -2527,7 +2527,7 @@ const Payments = () => {
                 </div>
                 <div className="ultra-contrast-modal rounded p-4 text-center">
                   <h4 className="font-bold text-sm">Total Revenue</h4>
-                  <p className="text-xl font-bold text-green-600">TTD {clients.reduce((sum, client) => sum + (client.monthly_fee || 0), 0).toFixed(2)}</p>
+                  <p className="text-xl font-bold text-green-600">TTD {clients.filter(c => c.status === 'Active').reduce((sum, client) => sum + (client.monthly_fee || 0), 0).toFixed(2)}</p>
                 </div>
               </div>
 
