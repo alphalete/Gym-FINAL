@@ -36,7 +36,7 @@ class CriticalEmailDeliveryTester:
         
         # Gmail SMTP settings from backend/.env
         self.gmail_email = "alphaleteclub@gmail.com"
-        self.gmail_app_password = "difs xvgc ljue sxjr"
+        self.gmail_app_password = "yauf mdwy rsrd lhai"
         self.smtp_server = "smtp.gmail.com"
         self.smtp_port = 587
         
