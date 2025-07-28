@@ -2871,16 +2871,29 @@ const Reports = () => {
   const fetchReportStats = async () => {
     try {
       const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      
+      // Get actual payment revenue
+      let actualRevenue = 0;
+      try {
+        const paymentStatsResponse = await fetch(`${backendUrl}/api/payments/stats`);
+        if (paymentStatsResponse.ok) {
+          const paymentStats = await paymentStatsResponse.json();
+          actualRevenue = paymentStats.total_revenue || 0; // Use total revenue for reports
+          console.log(`✅ Reports: Actual total revenue: TTD ${actualRevenue}`);
+        }
+      } catch (error) {
+        console.error('❌ Error fetching payment stats for reports:', error);
+      }
+      
       const response = await fetch(`${backendUrl}/api/clients`);
       if (response.ok) {
         const clientsData = await response.json();
         const activeClients = clientsData.filter(c => c.status === 'Active');
-        const totalRevenue = clientsData.reduce((sum, client) => sum + (client.monthly_fee || 0), 0);
         
         setReportStats({
           totalMembers: clientsData.length,
           monthlyGrowth: 0, // Would need historical data to calculate
-          revenue: totalRevenue,
+          revenue: actualRevenue, // Use actual collected revenue
           retentionRate: 100 // Default since we don't have churn data
         });
       }
