@@ -369,9 +369,9 @@ test_plan:
 
   - task: "Email sending functionality (payment reminders and custom emails)"
     implemented: true
-    working: true
+    working: false
     file: "backend/email_service.py, backend/server.py, frontend/src/App.js"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: false
     status_history:
@@ -387,6 +387,9 @@ test_plan:
       - working: true
         agent: "testing"
         comment: "🎉 EMAIL FIX VERIFICATION COMPLETED - FRONTEND BUG RESOLVED! ✅ COMPREHENSIVE TESTING AFTER MAIN AGENT'S FIX: Verified that the main agent successfully added the missing client_id field to the sendPaymentReminder function in App.js (lines 1032-1039). ✅ API REQUEST VALIDATION: Confirmed that API requests now include the required client_id field in the request body: {'client_id': 'da306e02-ff7d-47d7-a2c6-5985d3a76533', 'client_email': 'johndoe@example.com', 'client_name': 'John Doe', 'amount': 75, 'due_date': '8/24/2025', 'template_name': 'default'}. ✅ BACKEND RESPONSE SUCCESS: Backend now responds with 200 OK status instead of 422 validation errors. ✅ NO MORE VALIDATION ERRORS: The 422 'Field required' error for client_id has been eliminated. ✅ EMAIL SENDING WORKFLOW: Payment reminder emails are now being sent successfully through the API. ✅ USER EXPERIENCE IMPROVED: Users should now see success messages instead of '❌ Failed to send reminder' errors. CONCLUSION: The 'Email still not sending' issue has been COMPLETELY RESOLVED. The frontend bug where client_id was missing from payment reminder requests has been fixed, and email functionality is now working properly."
+      - working: false
+        agent: "testing"
+        comment: "🚨 CRITICAL EMAIL DELIVERY INVESTIGATION COMPLETED - GMAIL RATE LIMITING CONFIRMED: ❌ ROOT CAUSE IDENTIFIED: Gmail SMTP authentication is being blocked with '454-4.7.0 Too many login attempts, please try again later' error, causing 100% email delivery failure. ✅ COMPREHENSIVE TESTING PERFORMED: Ran 10 critical email delivery tests including direct SMTP connection, backend email configuration, payment reminders, custom emails, bulk sending, and multiple email providers. ❌ ALL EMAIL TESTS FAILED: 0/10 tests passed (0.0% success rate) due to Gmail rate limiting. ✅ BACKEND APIS WORKING: All email endpoints return 200 OK status codes and success=true responses, but actual SMTP delivery fails with 'Connection unexpectedly closed' errors. ❌ GMAIL APP PASSWORD BLOCKED: Current app password 'difs xvgc ljue sxjr' is being rate limited by Gmail security systems. ✅ EMAIL SYSTEM ARCHITECTURE: All components (templates, endpoints, scheduler) are correctly implemented and functional. ❌ BULK EMAIL FAILURE: 146 clients tested, 0 sent successfully, 146 failed due to SMTP connection issues. 🔧 CRITICAL SOLUTION REQUIRED: Gmail app password must be regenerated immediately in Gmail Settings > Security > App Passwords, or alternative email service provider must be configured. CONCLUSION: The user's report of 'backend returns success=true but emails are not being sent' is CONFIRMED - this is a classic case of backend API success masking underlying SMTP delivery failures due to Gmail rate limiting."
 
   - task: "Client status updates (ACTIVATE/DEACTIVATE functionality)"
     implemented: true
