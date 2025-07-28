@@ -220,8 +220,27 @@ class MultiplePaymentTester:
         print(f"      After 2nd payment: {second_new_due_date}")
         
         # Determine which logic is being used
-        first_actual = datetime.fromisoformat(first_new_due_date).date() if isinstance(first_new_due_date, str) else first_new_due_date
-        second_actual = datetime.fromisoformat(second_new_due_date).date() if isinstance(second_new_due_date, str) else second_new_due_date
+        def parse_date_string(date_str):
+            """Parse date string in various formats"""
+            if not isinstance(date_str, str):
+                return date_str
+            try:
+                # Try ISO format first
+                return datetime.fromisoformat(date_str).date()
+            except ValueError:
+                try:
+                    # Try "Month DD, YYYY" format
+                    return datetime.strptime(date_str, "%B %d, %Y").date()
+                except ValueError:
+                    try:
+                        # Try "YYYY-MM-DD" format
+                        return datetime.strptime(date_str, "%Y-%m-%d").date()
+                    except ValueError:
+                        print(f"   ⚠️  Could not parse date: {date_str}")
+                        return None
+        
+        first_actual = parse_date_string(first_new_due_date)
+        second_actual = parse_date_string(second_new_due_date)
         
         print(f"\n🎯 ISSUE DEMONSTRATION:")
         
