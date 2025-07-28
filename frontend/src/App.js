@@ -1887,6 +1887,84 @@ const Payments = () => {
     }
   };
 
+  const identifyTestClients = async () => {
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const response = await fetch(`${backendUrl}/api/clients`);
+      if (response.ok) {
+        const clientsData = await response.json();
+        const testClientsList = clientsData.filter(client => {
+          const name = client.name?.toLowerCase() || '';
+          const email = client.email?.toLowerCase() || '';
+          const phone = client.phone || '';
+          
+          // Test indicators
+          const hasTestName = name.includes('test') || name.includes('demo') || name.includes('sample') || name.includes('john doe') || name.includes('jane doe');
+          const hasTestEmail = email.includes('@example.com') || email.includes('@test.com') || email.includes('test@') || email.includes('demo@');
+          const hasTestPhone = phone.includes('(555)') || phone.includes('555-') || phone.includes('123-456');
+          const hasUnrealisticFee = client.monthly_fee <= 10 || client.monthly_fee >= 500;
+          
+          return hasTestName || hasTestEmail || hasTestPhone || hasUnrealisticFee;
+        });
+        
+        setTestClients(testClientsList);
+      }
+    } catch (error) {
+      console.error('Error identifying test clients:', error);
+    }
+  };
+
+  const cleanupTestData = async () => {
+    if (testClients.length === 0) {
+      alert('No test clients identified for cleanup.');
+      return;
+    }
+
+    const confirmCleanup = window.confirm(
+      `⚠️ DATABASE CLEANUP WARNING!\n\nThis will permanently delete ${testClients.length} test clients from your database.\n\nDeleted clients:\n${testClients.slice(0, 5).map(c => `• ${c.name} (${c.email})`).join('\n')}${testClients.length > 5 ? `\n• ... and ${testClients.length - 5} more` : ''}\n\nThis action CANNOT be undone!\n\nProceed with cleanup?`
+    );
+
+    if (!confirmCleanup) return;
+
+    setLoading(true);
+    let deletedCount = 0;
+    let failedCount = 0;
+
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      
+      for (const client of testClients) {
+        try {
+          const response = await fetch(`${backendUrl}/api/clients/${client.id}`, {
+            method: 'DELETE'
+          });
+
+          if (response.ok) {
+            deletedCount++;
+          } else {
+            failedCount++;
+          }
+        } catch (error) {
+          failedCount++;
+        }
+      }
+
+      alert(`🧹 Database cleanup completed!\n\n✅ Successfully deleted: ${deletedCount} test clients\n❌ Failed to delete: ${failedCount} clients\n\nYour analytics will now show accurate data!`);
+      
+      // Refresh all data
+      fetchClients();
+      fetchOverdueClients();
+      identifyTestClients();
+      setShowCleanupModal(false);
+
+    } catch (error) {
+      console.error('Error during cleanup:', error);
+      alert('❌ Error during database cleanup. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const recordPayment = async () => {
     if (!paymentForm.client_id || !paymentForm.amount_paid) {
       alert('Please select a client and enter payment amount');
