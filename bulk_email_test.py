@@ -5,7 +5,7 @@ import json
 
 def test_bulk_email_quick():
     """Quick test of bulk email with shorter timeout"""
-    url = "https://bc0d3d40-9578-4667-9bfb-b44c2f8459c5.preview.emergentagent.com/api/email/payment-reminder/bulk"
+    url = "https://6fa63f6a-d735-4ffe-a386-1ff8ab24fd01.preview.emergentagent.com/api/email/payment-reminder/bulk"
     headers = {'Content-Type': 'application/json'}
     
     print("🔍 Testing Bulk Email with 60 second timeout...")

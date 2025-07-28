@@ -7,7 +7,7 @@ from datetime import datetime, date, timedelta
 from typing import Dict, Any
 
 class ClientNotFoundDebugger:
-    def __init__(self, base_url="https://bc0d3d40-9578-4667-9bfb-b44c2f8459c5.preview.emergentagent.com"):
+    def __init__(self, base_url="https://6fa63f6a-d735-4ffe-a386-1ff8ab24fd01.preview.emergentagent.com"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
         self.tests_run = 0
