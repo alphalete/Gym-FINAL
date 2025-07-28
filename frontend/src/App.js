@@ -573,7 +573,8 @@ const Dashboard = () => {
       const totalClients = clients.length || 0;
       const activeClients = clients.filter(c => c.status === 'Active').length || 0;
       const inactiveClients = clients.filter(c => c.status === 'Inactive').length || 0;
-      const totalRevenue = clients.reduce((sum, c) => sum + (c.monthly_fee || 0), 0) || 0;
+      // FIX: Only calculate revenue from ACTIVE clients
+      const totalRevenue = clients.filter(c => c.status === 'Active').reduce((sum, c) => sum + (c.monthly_fee || 0), 0) || 0;
       
       // Calculate payment statistics
       const today = new Date();
