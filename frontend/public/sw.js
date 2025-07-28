@@ -1,4 +1,4 @@
-const CACHE_NAME = 'alphalete-v4.4.0-final-changes';
+const CACHE_NAME = 'alphalete-v4.5.0-invoice-fix';
 
 console.log('Service Worker: Starting minimal version');
 
