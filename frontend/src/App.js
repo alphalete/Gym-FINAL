@@ -2638,11 +2638,36 @@ const AutoReminders = () => {
 
 const Reports = () => {
   const [reportStats, setReportStats] = useState({
-    totalMembers: 143,
-    monthlyGrowth: 8.2,
-    revenue: 12279.92,
-    retentionRate: 89.5
+    totalMembers: 0,
+    monthlyGrowth: 0,
+    revenue: 0,
+    retentionRate: 100
   });
+
+  useEffect(() => {
+    fetchReportStats();
+  }, []);
+
+  const fetchReportStats = async () => {
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const response = await fetch(`${backendUrl}/api/clients`);
+      if (response.ok) {
+        const clientsData = await response.json();
+        const activeClients = clientsData.filter(c => c.status === 'Active');
+        const totalRevenue = clientsData.reduce((sum, client) => sum + (client.monthly_fee || 0), 0);
+        
+        setReportStats({
+          totalMembers: clientsData.length,
+          monthlyGrowth: 0, // Would need historical data to calculate
+          revenue: totalRevenue,
+          retentionRate: 100 // Default since we don't have churn data
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching report stats:', error);
+    }
+  };
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
