@@ -1033,6 +1033,8 @@ const ClientManagement = () => {
     try {
       const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
+      console.log('Sending payment reminder for client:', client.id);
+      
       const response = await fetch(`${backendUrl}/api/email/payment-reminder`, {
         method: 'POST',
         headers: {
@@ -1040,18 +1042,25 @@ const ClientManagement = () => {
         },
         body: JSON.stringify({
           client_id: client.id,
-          client_email: client.email,
-          client_name: client.name,
-          amount: client.monthly_fee,
-          due_date: new Date(client.next_payment_date).toLocaleDateString(),
           template_name: 'default'
         })
       });
 
+      console.log('Payment reminder response status:', response.status);
+      
       if (response.ok) {
-        alert(`✅ Payment reminder sent to ${client.name}`);
+        const result = await response.json();
+        console.log('Payment reminder result:', result);
+        
+        if (result.success) {
+          alert(`✅ Payment reminder sent to ${client.name}`);
+        } else {
+          alert(`❌ Failed to send reminder: ${result.message}`);
+        }
       } else {
-        alert('❌ Failed to send reminder');
+        const error = await response.json();
+        console.error('Payment reminder error:', error);
+        alert(`❌ Failed to send reminder: ${error.detail || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Error sending reminder:', error);
