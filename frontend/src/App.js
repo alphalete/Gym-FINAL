@@ -1853,6 +1853,7 @@ const Payments = () => {
   useEffect(() => {
     fetchClients();
     fetchOverdueClients();
+    identifyTestClients();
   }, []);
 
   const fetchClients = async () => {
