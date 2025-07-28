@@ -624,13 +624,13 @@ const Dashboard = () => {
       // Set fallback demo data so dashboard always shows something
       console.log('🔄 Dashboard: Using fallback data...');
       setStats({
-        totalClients: 143,
-        activeClients: 134,
-        inactiveClients: 9,
-        totalRevenue: 12279.92,
-        pendingPayments: 12,
-        overduePayments: 78,
-        upcomingPayments: 44
+        totalClients: 0,
+        activeClients: 0,
+        inactiveClients: 0,
+        totalRevenue: 0,
+        pendingPayments: 0,
+        overduePayments: 0,
+        upcomingPayments: 0
       });
       
       setRecentClients([
