@@ -342,18 +342,19 @@ class MultiplePaymentTester:
                 
                 # Analyze the logic
                 early_payment_dt = datetime.fromisoformat(early_payment_date).date()
-                expected_option_a = datetime.fromisoformat(original_test_due).date() + timedelta(days=30)
+                expected_option_a = parse_date_string(original_test_due) + timedelta(days=30) if parse_date_string(original_test_due) else None
                 expected_option_b = early_payment_dt + timedelta(days=30)
-                actual_due = datetime.fromisoformat(early_new_due).date()
+                actual_due = parse_date_string(early_new_due)
                 
                 print(f"   🔍 Expected (Option A - extend from due): {expected_option_a}")
                 print(f"   🔍 Expected (Option B - payment + 30): {expected_option_b}")
                 print(f"   🔍 Actual result: {actual_due}")
                 
-                if actual_due == expected_option_b:
+                if actual_due and expected_option_b and actual_due == expected_option_b:
                     print(f"   ❌ Using Option B logic (payment_date + 30)")
-                    print(f"   ❌ Client loses {(expected_option_a - expected_option_b).days} days of membership")
-                elif actual_due == expected_option_a:
+                    if expected_option_a:
+                        print(f"   ❌ Client loses {(expected_option_a - expected_option_b).days} days of membership")
+                elif actual_due and expected_option_a and actual_due == expected_option_a:
                     print(f"   ✅ Using Option A logic (extend from due date)")
                 else:
                     print(f"   ❓ Using unknown logic")
