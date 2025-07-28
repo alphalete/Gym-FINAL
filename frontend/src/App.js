@@ -1003,6 +1003,13 @@ const ClientManagement = () => {
   const [editClientModal, setEditClientModal] = useState({ isOpen: false, client: null });
   const [customEmailModal, setCustomEmailModal] = useState({ isOpen: false, client: null });
   const [quickPaymentModal, setQuickPaymentModal] = useState({ isOpen: false, client: null });
+  const [quickPaymentForm, setQuickPaymentForm] = useState({
+    amount_paid: '',
+    payment_date: new Date().toISOString().split('T')[0],
+    payment_method: 'Cash',
+    notes: ''
+  });
+  const [paymentLoading, setPaymentLoading] = useState(false);
 
   useEffect(() => {
     fetchClients();
