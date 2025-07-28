@@ -623,7 +623,7 @@ const Dashboard = () => {
         totalClients,
         activeClients,
         inactiveClients,
-        totalRevenue,
+        totalRevenue: actualRevenue, // Use actual collected revenue
         pendingPayments,
         overduePayments,
         upcomingPayments
