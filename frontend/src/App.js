@@ -1118,8 +1118,8 @@ const ClientManagement = () => {
         
         // Refresh clients data
         await fetchClients(true); // Force refresh to get updated payment date
-        await fetchDashboardData(); // Refresh dashboard statistics
         await fetchOverdueClients(); // Refresh overdue data
+        await calculateRealPaymentStats(); // Refresh payment statistics
       } else {
         const error = await response.json();
         console.error('Payment recording error:', error);
