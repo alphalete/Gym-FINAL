@@ -1827,10 +1827,10 @@ const EmailCenter = () => {
 
 const Payments = () => {
   const [paymentStats, setPaymentStats] = useState({
-    totalRevenue: 12279.92,
-    pendingPayments: 12,
-    overduePayments: 78,
-    completedThisMonth: 65
+    totalRevenue: 0,
+    pendingPayments: 0,
+    overduePayments: 0,
+    completedThisMonth: 0
   });
   
   const [clients, setClients] = useState([]);
