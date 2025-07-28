@@ -61,6 +61,8 @@
     message: "CRITICAL FINDING: Backend testing shows 100% email delivery success. The reported issue appears to be resolved. User should check Gmail inbox/spam folder at deonaleong@gmail.com for recent emails from alphaleteclub@gmail.com. All email functionality working correctly."
   - agent: "testing"
     message: "EMAIL DELIVERY VERIFICATION COMPLETED: All email systems operational with 100% success rate. Gmail SMTP authentication working, backend APIs accurate, actual email delivery confirmed to deonaleong@gmail.com. Issue appears resolved."
+  - agent: "main"
+    message: "REVENUE CALCULATION ISSUE RESOLVED: Fixed critical problem where payments were not being stored in database and revenue was calculated from potential fees instead of actual payments. Added /api/payments/stats endpoint and updated frontend to display real collected revenue. Testing shows TTD 2,500 total revenue working correctly."
 
 # Protocol Guidelines for Main agent
 #
