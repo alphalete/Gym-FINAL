@@ -2270,8 +2270,15 @@ const Payments = () => {
         setShowPaymentModal(false);
         
         // Refresh clients data
+        console.log('✅ Payment recorded - refreshing all data...');
         fetchClients();
         fetchOverdueClients();
+        calculateRealPaymentStats();
+        
+        // Force page reload to update all statistics
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       } else {
         const error = await response.json();
         alert(`❌ Error recording payment: ${error.detail || 'Unknown error'}`);
