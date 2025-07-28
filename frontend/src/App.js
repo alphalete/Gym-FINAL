@@ -1002,6 +1002,7 @@ const ClientManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [editClientModal, setEditClientModal] = useState({ isOpen: false, client: null });
   const [customEmailModal, setCustomEmailModal] = useState({ isOpen: false, client: null });
+  const [quickPaymentModal, setQuickPaymentModal] = useState({ isOpen: false, client: null });
 
   useEffect(() => {
     fetchClients();
