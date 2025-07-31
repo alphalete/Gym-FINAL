@@ -3980,7 +3980,6 @@ function App() {
   }, []);
 
   return (
-    <>
     <Router>
       <div className="App">
         <Layout>
@@ -3997,7 +3996,6 @@ function App() {
         </Layout>
       </div>
     </Router>
-    </>
   );
 }
 
