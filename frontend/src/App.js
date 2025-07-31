@@ -1489,65 +1489,67 @@ const ClientManagement = () => {
             <>
               {/* Mobile Cards View */}
               <div className="md:hidden space-y-4">
-                {filteredClients.map((client) => (
-                  <div key={client.id} className="member-card p-6">
-                    <div className="flex items-center space-x-3 mb-4">
-                      <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center font-bold text-white">
-                        {client.name.charAt(0)}
+                {filteredClients.map((client) => {
+                  const getInitials = (name) => name.split(' ').map(word => word.charAt(0)).join('').toUpperCase().slice(0, 2);
+                  const getPaymentStatus = (client) => {
+                    if (!client.next_payment_date) return 'unknown';
+                    const today = new Date();
+                    const paymentDate = new Date(client.next_payment_date);
+                    const daysDiff = Math.ceil((paymentDate - today) / (1000 * 60 * 60 * 24));
+                    if (daysDiff < 0) return 'overdue';
+                    if (daysDiff <= 7) return 'due-soon';
+                    return 'paid';
+                  };
+
+                  return (
+                    <div key={client.id} className="member-card">
+                      <div className="member-avatar">
+                        {getInitials(client.name)}
                       </div>
-                      <div className="flex-1">
-                        <h3 className="member-name">{client.name}</h3>
-                        <p className="member-email">{client.email}</p>
+                      <div className="member-info">
+                        <div className="member-name">{client.name}</div>
+                        <div className="member-details">
+                          {client.email}<br/>
+                          {client.membership_type} - TTD {client.monthly_fee}/month<br/>
+                          Next Payment: {client.next_payment_date ? new Date(client.next_payment_date).toLocaleDateString() : 'Not set'}
+                        </div>
                       </div>
-                      <span className={`px-3 py-1 rounded-full text-xs ${
-                        client.status === 'Active' 
-                          ? 'member-status-active' 
-                          : 'member-status-inactive'
-                      }`}>
-                        {client.status}
-                      </span>
+                      <div className="member-actions">
+                        <div className={`status-badge ${client.status.toLowerCase()}`}>
+                          {client.status}
+                        </div>
+                        <div className={`status-badge ${getPaymentStatus(client)}`}>
+                          {getPaymentStatus(client) === 'overdue' ? 'Overdue' : 
+                           getPaymentStatus(client) === 'due-soon' ? 'Due Soon' : 'Paid'}
+                        </div>
+                        <div className="flex gap-sm mt-sm">
+                          <button 
+                            className="action-btn primary" 
+                            title="Send Payment Reminder"
+                            onClick={() => sendPaymentReminder(client)}
+                          >
+                            📧
+                          </button>
+                          <button 
+                            className="action-btn success" 
+                            title="Record Payment"
+                            onClick={() => openRecordPaymentModal(client)}
+                          >
+                            💰
+                          </button>
+                          <button 
+                            className="action-btn warning" 
+                            title="Edit Client"
+                            onClick={() => setEditClientModal({ isOpen: true, client })}
+                          >
+                            ✏️
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                    
-                    <div className="grid grid-cols-2 gap-4 text-sm mb-4">
-                      <div>
-                        <span className="member-label">Phone:</span>
-                        <p className="member-value">{client.phone || "N/A"}</p>
-                      </div>
-                      <div>
-                        <span className="member-label">Membership:</span>
-                        <p className="member-value">
-                          <span className="font-semibold">{client.membership_type}</span>
-                          <span className="text-sm text-gray-600 dark:text-gray-400 ml-2">
-                            (TTD {client.monthly_fee}/month)
-                          </span>
-                        </p>
-                      </div>
-                      <div>
-                        <span className="member-label">Monthly Fee:</span>
-                        <p className="member-fee">TTD {client.monthly_fee}</p>
-                      </div>
-                      <div>
-                        <span className="member-label">Member Since:</span>
-                        <p className="member-value">{client.start_date ? new Date(client.start_date + 'T00:00:00').toLocaleDateString() : 'N/A'}</p>
-                      </div>
-                      <div>
-                        <span className="member-label">Auto Reminders:</span>
-                        <p className={client.auto_reminders_enabled !== false ? "member-reminder-enabled" : "member-reminder-disabled"}>
-                          {client.auto_reminders_enabled !== false ? "✅ Enabled" : "❌ Disabled"}
-                        </p>
-                      </div>
-                      {client.current_period_start && client.current_period_end && (
-                        <>
-                          <div>
-                            <span className="member-label">Current Period:</span>
-                            <p className="member-value text-blue-700 dark:text-blue-300 font-bold">
-                              {new Date(client.current_period_start + 'T00:00:00').toLocaleDateString()} - {new Date(client.current_period_end + 'T00:00:00').toLocaleDateString()}
-                            </p>
-                          </div>
-                          <div>
-                            <span className="member-label">Next Payment:</span>
-                            <p className="member-value">{new Date(client.next_payment_date + 'T00:00:00').toLocaleDateString()}</p>
-                          </div>
+                  );
+                })}
+              </div>
                         </>
                       )}
                       {!client.current_period_start && (
