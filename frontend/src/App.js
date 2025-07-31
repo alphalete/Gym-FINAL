@@ -1550,8 +1550,6 @@ const ClientManagement = () => {
                   );
                 })}
               </div>
-                        </>
-                      )}
                       {!client.current_period_start && (
                         <div>
                           <span className="member-label">Next Payment:</span>
