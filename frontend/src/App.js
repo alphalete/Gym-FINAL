@@ -3651,12 +3651,22 @@ const Settings = () => {
   };
   
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-display ultra-contrast-text mb-2">Settings</h1>
-        <p className="ultra-contrast-secondary">Manage your gym management system settings</p>
+    <>
+      {/* Mobile Header for Settings Page */}
+      <div className="block md:hidden">
+        <div className="gogym-mobile-header">
+          <button className="gogym-hamburger">☰</button>
+          <h1>Settings</h1>
+          <button className="gogym-stats-icon" onClick={handleSaveSettings}>💾</button>
+        </div>
       </div>
+
+      <div className="p-6 max-w-6xl mx-auto">
+        {/* Desktop Header - Hidden on Mobile */}
+        <div className="mb-8 hidden md:block">
+          <h1 className="text-display ultra-contrast-text mb-2">Settings</h1>
+          <p className="ultra-contrast-secondary">Manage your gym management system settings</p>
+        </div>
       
       {/* Settings Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
