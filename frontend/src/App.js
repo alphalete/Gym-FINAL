@@ -805,9 +805,12 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
+      {/* Mobile Header */}
+      <MobileHeader title="Alphalete Club" subtitle="Gym Management Dashboard" />
+      
       <div className="max-w-7xl mx-auto">
-        {/* Modern Header */}
-        <div className="mb-8">
+        {/* Modern Header - Hidden on Mobile */}
+        <div className="mb-8 hidden md:block">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-display text-gray-900 dark:text-white mb-2">
@@ -833,8 +836,51 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Modern Statistics Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {/* Modern Statistics Grid - Mobile Responsive */}
+        <div className="stats-grid mb-8">
+          <div className="stat-card primary" onClick={() => navigate('/clients')}>
+            <div className="stat-value">{stats.activeClients || 0}</div>
+            <div className="stat-label">Active Members</div>
+          </div>
+          <div className="stat-card success" onClick={() => navigate('/payments')}>
+            <div className="stat-value">TTD {(stats.totalRevenue || 0).toFixed(0)}</div>
+            <div className="stat-label">Monthly Revenue</div>
+          </div>
+          <div className="stat-card warning">
+            <div className="stat-value">5</div>
+            <div className="stat-label">Payments Due Today</div>
+          </div>
+          <div className="stat-card danger" onClick={() => navigate('/payments')}>
+            <div className="stat-value">{stats.overduePayments || 0}</div>
+            <div className="stat-label">Overdue Accounts</div>
+          </div>
+        </div>
+
+        {/* Quick Actions - Mobile Only */}
+        <div className="quick-actions md:hidden">
+          <h3>Quick Actions</h3>
+          <div className="actions-grid">
+            <button className="action-button" onClick={() => navigate('/clients')}>
+              <div className="action-icon">👥</div>
+              <div className="action-label">Members</div>
+            </button>
+            <button className="action-button" onClick={() => navigate('/payments')}>
+              <div className="action-icon">💳</div>
+              <div className="action-label">Payments</div>
+            </button>
+            <button className="action-button" onClick={() => navigate('/email-center')}>
+              <div className="action-icon">📧</div>
+              <div className="action-label">Reminders</div>
+            </button>
+            <button className="action-button" onClick={() => navigate('/reports')}>
+              <div className="action-icon">📊</div>
+              <div className="action-label">Reports</div>
+            </button>
+          </div>
+        </div>
+
+        {/* Desktop Statistics Grid - Hidden on Mobile */}
+        <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <ModernStatCard
             title="Total Members"
             value={stats.totalClients || 0}
