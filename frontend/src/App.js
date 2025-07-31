@@ -815,13 +815,13 @@ const EditClientModal = ({ client, isOpen, onClose, onSave }) => {
 };
 
 // Dashboard Component - Modern Design
-// GoGym4U Dashboard Component - Exact Match
+// GoGym4U Dashboard Component - Fixed Navigation
 const GoGymDashboard = () => {
   const [stats, setStats] = useState({
-    activeMembers: 120,
-    paymentsDueToday: 5,
-    overdueAccounts: 2,
-    overdue: 2
+    activeMembers: 0,
+    paymentsDueToday: 0,
+    overdueAccounts: 0,
+    overdue: 0
   });
 
   const [clients, setClients] = useState([]);
@@ -907,19 +907,19 @@ const GoGymDashboard = () => {
 
         {/* Stats Grid */}
         <div className="gogym-stats-grid">
-          <div className="gogym-stat-card blue">
+          <div className="gogym-stat-card blue" onClick={() => navigate('/clients')}>
             <div className="gogym-stat-number">{stats.activeMembers}</div>
             <div className="gogym-stat-label">Active Members</div>
           </div>
-          <div className="gogym-stat-card green">
+          <div className="gogym-stat-card green" onClick={() => navigate('/payments')}>
             <div className="gogym-stat-number">{stats.paymentsDueToday}</div>
             <div className="gogym-stat-label">Payments Due Today</div>
           </div>
-          <div className="gogym-stat-card orange">
+          <div className="gogym-stat-card orange" onClick={() => navigate('/payments')}>
             <div className="gogym-stat-number">{stats.overdueAccounts}</div>
             <div className="gogym-stat-label">Overdue Accounts</div>
           </div>
-          <div className="gogym-stat-card dark-blue">
+          <div className="gogym-stat-card dark-blue" onClick={() => navigate('/payments')}>
             <div className="gogym-stat-number">{stats.overdue}</div>
             <div className="gogym-stat-label">Overdue</div>
           </div>
@@ -929,10 +929,10 @@ const GoGymDashboard = () => {
         <div className="gogym-payments-section">
           <div className="gogym-section-header">
             <h2 className="gogym-section-title">Payments</h2>
-            <span style={{fontSize: '18px', color: '#666'}}>›</span>
+            <button onClick={() => navigate('/payments')} style={{fontSize: '18px', color: '#666', background: 'none', border: 'none', cursor: 'pointer'}}>›</button>
           </div>
 
-          {/* Filter Tabs */}
+          {/* Filter Tabs - These would filter the current view */}
           <div className="gogym-filter-tabs">
             <button className="gogym-filter-tab active">All</button>
             <button className="gogym-filter-tab">Due Soon</button>
@@ -942,7 +942,7 @@ const GoGymDashboard = () => {
           {/* Payment Cards */}
           <div className="gogym-payment-cards">
             {paymentData.map(payment => (
-              <div key={payment.id} className="gogym-payment-card">
+              <div key={payment.id} className="gogym-payment-card" onClick={() => navigate('/payments')}>
                 <div className="gogym-payment-left">
                   <div className="gogym-avatar">
                     {payment.avatar}
@@ -962,41 +962,6 @@ const GoGymDashboard = () => {
             ))}
           </div>
         </div>
-
-        {/* Bottom Navigation */}
-        <div className="gogym-bottom-nav">
-          <button 
-            className="gogym-nav-bottom-item active"
-            onClick={() => navigate('/')}
-          >
-            <div className="gogym-nav-bottom-icon">🏠</div>
-            <div className="gogym-nav-bottom-label">Home</div>
-          </button>
-          <button 
-            className="gogym-nav-bottom-item"
-            onClick={() => navigate('/clients')}
-          >
-            <div className="gogym-nav-bottom-icon">👥</div>
-            <div className="gogym-nav-bottom-label">Members</div>
-          </button>
-          <button 
-            className="gogym-nav-bottom-item"
-            onClick={() => navigate('/payments')}
-          >
-            <div className="gogym-nav-bottom-icon">💳</div>
-            <div className="gogym-nav-bottom-label">Payments</div>
-          </button>
-          <button 
-            className="gogym-nav-bottom-item"
-            onClick={() => navigate('/settings')}
-          >
-            <div className="gogym-nav-bottom-icon">⚙️</div>
-            <div className="gogym-nav-bottom-label">Settings</div>
-          </button>
-        </div>
-
-        {/* Floating Action Button */}
-        <button className="gogym-fab">⏰</button>
       </div>
 
       {/* Desktop View - Use existing Dashboard */}
