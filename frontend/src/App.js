@@ -1550,57 +1550,6 @@ const ClientManagement = () => {
                   );
                 })}
               </div>
-                      {!client.current_period_start && (
-                        <div>
-                          <span className="member-label">Next Payment:</span>
-                          <p className="member-value">{new Date(client.next_payment_date + 'T00:00:00').toLocaleDateString()}</p>
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="flex space-x-2 mt-4">
-                      <button
-                        onClick={() => sendPaymentReminder(client)}
-                        className="btn btn-primary btn-sm flex-1"
-                      >
-                        📧 Remind
-                      </button>
-                      <button
-                        onClick={() => openCustomEmailModal(client)}
-                        className="btn btn-secondary btn-sm"
-                        title="Custom Email"
-                      >
-                        🎨
-                      </button>
-                      <button
-                        onClick={() => openEditClientModal(client)}
-                        className="btn btn-secondary btn-sm"
-                        title="Edit Client"
-                      >
-                        ✏️
-                      </button>
-                      <button
-                        onClick={() => toggleClientStatus(client)}
-                        className={`btn btn-sm ${
-                          client.status === 'Active' 
-                            ? 'bg-orange-600 hover:bg-orange-700 text-white' 
-                            : 'bg-green-600 hover:bg-green-700 text-white'
-                        }`}
-                        title={`Make ${client.status === 'Active' ? 'Inactive' : 'Active'}`}
-                      >
-                        {client.status === 'Active' ? '⏸️' : '▶️'}
-                      </button>
-                      <button
-                        onClick={() => deleteClient(client)}
-                        className="btn bg-red-600 hover:bg-red-700 text-white btn-sm"
-                        title="Delete Client"
-                      >
-                        🗑️
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
 
               {/* Desktop Table View */}
               <div className="hidden md:block card overflow-hidden">
