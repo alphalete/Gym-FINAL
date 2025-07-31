@@ -3954,6 +3954,7 @@ const Settings = () => {
         </button>
       </div>
     </div>
+    </>
   );
 };
 
