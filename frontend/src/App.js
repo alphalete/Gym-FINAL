@@ -815,6 +815,198 @@ const EditClientModal = ({ client, isOpen, onClose, onSave }) => {
 };
 
 // Dashboard Component - Modern Design
+// GoGym4U Dashboard Component - Exact Match
+const GoGymDashboard = () => {
+  const [stats, setStats] = useState({
+    activeMembers: 120,
+    paymentsDueToday: 5,
+    overdueAccounts: 2,
+    overdue: 2
+  });
+
+  const [clients, setClients] = useState([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+        const response = await fetch(`${backendUrl}/api/clients`);
+        if (response.ok) {
+          const clientsData = await response.json();
+          setClients(clientsData);
+          
+          const activeClients = clientsData.filter(c => c.status === 'Active');
+          const today = new Date();
+          
+          const overdueCount = activeClients.filter(client => {
+            if (!client.next_payment_date) return false;
+            return new Date(client.next_payment_date) < today;
+          }).length;
+          
+          const dueTodayCount = activeClients.filter(client => {
+            if (!client.next_payment_date) return false;
+            const paymentDate = new Date(client.next_payment_date);
+            const diffTime = paymentDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays >= 0 && diffDays <= 3;
+          }).length;
+
+          setStats({
+            activeMembers: activeClients.length,
+            paymentsDueToday: dueTodayCount,
+            overdueAccounts: overdueCount,
+            overdue: overdueCount
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Convert client data to payment format
+  const paymentData = clients.slice(0, 5).map((client, index) => {
+    const getInitials = (name) => name.split(' ').map(word => word.charAt(0)).join('').toUpperCase().slice(0, 2);
+    const getPaymentStatus = () => {
+      if (!client.next_payment_date) return { status: 'paid', label: 'Paid' };
+      const today = new Date();
+      const paymentDate = new Date(client.next_payment_date);
+      const diffDays = Math.ceil((paymentDate - today) / (1000 * 60 * 60 * 24));
+      
+      if (diffDays < 0) return { status: 'overdue', label: 'Overdue' };
+      if (diffDays <= 7) return { status: 'due-soon', label: 'Due Soon' };
+      return { status: 'paid', label: 'Paid' };
+    };
+
+    const statusInfo = getPaymentStatus();
+    
+    return {
+      id: client.id,
+      name: client.name,
+      date: client.next_payment_date ? new Date(client.next_payment_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A',
+      status: statusInfo.status,
+      statusLabel: statusInfo.label,
+      amount: `TTD ${client.monthly_fee || 0}`,
+      avatar: getInitials(client.name)
+    };
+  });
+
+  return (
+    <div className="gogym-dashboard">
+      {/* Mobile View */}
+      <div className="block md:hidden">
+        {/* Mobile Header */}
+        <div className="gogym-mobile-header">
+          <button className="gogym-hamburger">☰</button>
+          <h1>Alphalete Club</h1>
+          <button className="gogym-stats-icon">📊</button>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="gogym-stats-grid">
+          <div className="gogym-stat-card blue">
+            <div className="gogym-stat-number">{stats.activeMembers}</div>
+            <div className="gogym-stat-label">Active Members</div>
+          </div>
+          <div className="gogym-stat-card green">
+            <div className="gogym-stat-number">{stats.paymentsDueToday}</div>
+            <div className="gogym-stat-label">Payments Due Today</div>
+          </div>
+          <div className="gogym-stat-card orange">
+            <div className="gogym-stat-number">{stats.overdueAccounts}</div>
+            <div className="gogym-stat-label">Overdue Accounts</div>
+          </div>
+          <div className="gogym-stat-card dark-blue">
+            <div className="gogym-stat-number">{stats.overdue}</div>
+            <div className="gogym-stat-label">Overdue</div>
+          </div>
+        </div>
+
+        {/* Payments Section */}
+        <div className="gogym-payments-section">
+          <div className="gogym-section-header">
+            <h2 className="gogym-section-title">Payments</h2>
+            <span style={{fontSize: '18px', color: '#666'}}>›</span>
+          </div>
+
+          {/* Filter Tabs */}
+          <div className="gogym-filter-tabs">
+            <button className="gogym-filter-tab active">All</button>
+            <button className="gogym-filter-tab">Due Soon</button>
+            <button className="gogym-filter-tab">Overdue</button>
+          </div>
+
+          {/* Payment Cards */}
+          <div className="gogym-payment-cards">
+            {paymentData.map(payment => (
+              <div key={payment.id} className="gogym-payment-card">
+                <div className="gogym-payment-left">
+                  <div className="gogym-avatar">
+                    {payment.avatar}
+                  </div>
+                  <div className="gogym-payment-info">
+                    <h3>{payment.name}</h3>
+                    <p className="gogym-payment-date">{payment.date}</p>
+                  </div>
+                </div>
+                <div className="gogym-payment-right">
+                  <span className={`gogym-status-badge ${payment.status}`}>
+                    {payment.statusLabel}
+                  </span>
+                  <p className="gogym-payment-amount">{payment.amount}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Bottom Navigation */}
+        <div className="gogym-bottom-nav">
+          <button 
+            className="gogym-nav-bottom-item active"
+            onClick={() => navigate('/')}
+          >
+            <div className="gogym-nav-bottom-icon">🏠</div>
+            <div className="gogym-nav-bottom-label">Home</div>
+          </button>
+          <button 
+            className="gogym-nav-bottom-item"
+            onClick={() => navigate('/clients')}
+          >
+            <div className="gogym-nav-bottom-icon">👥</div>
+            <div className="gogym-nav-bottom-label">Members</div>
+          </button>
+          <button 
+            className="gogym-nav-bottom-item"
+            onClick={() => navigate('/payments')}
+          >
+            <div className="gogym-nav-bottom-icon">💳</div>
+            <div className="gogym-nav-bottom-label">Payments</div>
+          </button>
+          <button 
+            className="gogym-nav-bottom-item"
+            onClick={() => navigate('/settings')}
+          >
+            <div className="gogym-nav-bottom-icon">⚙️</div>
+            <div className="gogym-nav-bottom-label">Settings</div>
+          </button>
+        </div>
+
+        {/* Floating Action Button */}
+        <button className="gogym-fab">⏰</button>
+      </div>
+
+      {/* Desktop View - Use existing Dashboard */}
+      <div className="hidden md:block">
+        <Dashboard />
+      </div>
+    </div>
+  );
+};
+
 const Dashboard = () => {
   const [stats, setStats] = useState({
     totalClients: 0,
