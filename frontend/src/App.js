@@ -3935,7 +3935,7 @@ function App() {
       <div className="App">
         <Layout>
           <Routes>
-            <Route path="/" element={<Dashboard />} />
+            <Route path="/" element={<GoGymDashboard />} />
             <Route path="/clients" element={<ClientManagement />} />
             <Route path="/add-client" element={<AddClient />} />
             <Route path="/email-center" element={<EmailCenter />} />
