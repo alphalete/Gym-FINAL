@@ -5,6 +5,66 @@ import './App.css';
 
 const localDB = new LocalStorageManager();
 
+// Modern Mobile Navigation Component
+const MobileNavigation = ({ currentPage }) => {
+  const navigate = useNavigate();
+  const [isMobileView, setIsMobileView] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobileView(window.innerWidth <= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const navItems = [
+    { path: "/", icon: "🏠", label: "Home" },
+    { path: "/clients", icon: "👥", label: "Members" },
+    { path: "/payments", icon: "💳", label: "Payments" },
+    { path: "/settings", icon: "⚙️", label: "Settings" }
+  ];
+
+  if (!isMobileView) return null;
+
+  return (
+    <div className="bottom-nav">
+      {navItems.map(item => (
+        <button
+          key={item.path}
+          className={`nav-item ${currentPage === item.path ? 'active' : ''}`}
+          onClick={() => navigate(item.path)}
+        >
+          <div className="nav-icon">{item.icon}</div>
+          <div className="nav-label">{item.label}</div>
+        </button>
+      ))}
+    </div>
+  );
+};
+
+// Mobile Header Component
+const MobileHeader = ({ title, subtitle }) => {
+  const [isMobileView, setIsMobileView] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobileView(window.innerWidth <= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  if (!isMobileView) return null;
+
+  return (
+    <div className="app-header">
+      <h1>{title || 'Alphalete Club'}</h1>
+      <p>{subtitle || 'Gym Management Dashboard'}</p>
+    </div>
+  );
+};
+
 const Navigation = ({ currentPage }) => {
   const [isOpen, setIsOpen] = useState(false);
 
