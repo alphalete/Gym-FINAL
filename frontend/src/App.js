@@ -1810,10 +1810,19 @@ const ClientManagement = () => {
 
   return (
     <>
+      {/* Mobile Header for Members Page */}
+      <div className="block md:hidden">
+        <div className="gogym-mobile-header">
+          <button className="gogym-hamburger">☰</button>
+          <h1>Members</h1>
+          <Link to="/add-client" className="gogym-stats-icon" style={{textDecoration: 'none', color: 'white'}}>➕</Link>
+        </div>
+      </div>
+
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
         <div className="max-w-7xl mx-auto">
-          {/* Modern Header */}
-          <div className="mb-8">
+          {/* Modern Header - Hidden on Mobile */}
+          <div className="mb-8 hidden md:block">
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-display text-gray-900 dark:text-white mb-2">
