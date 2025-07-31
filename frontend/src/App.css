@@ -447,41 +447,81 @@ body {
   font-weight: 500 !important;
 }
 
-/* Mobile-First Override - Hide desktop elements on mobile */
+/* Complete Mobile-First Override - Simple approach */
 @media (max-width: 768px) {
-  /* Hide desktop sidebar completely on mobile */
-  .gogym-sidebar,
-  .fixed.left-0.top-0,
-  [class*="ml-64"],
-  [class*="md:ml-64"] {
-    display: none !important;
-  }
-  
-  /* Ensure mobile layout takes full width */
-  .mobile-container {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 !important;
-  }
-  
-  /* Force content to take full width on mobile */
-  .content-area {
-    width: 100% !important;
-    max-width: 100% !important;
-    padding: 0 !important;
-    margin: 0 !important;
-  }
-  
-  /* Hide any desktop navigation */
+  /* Hide desktop elements completely on mobile */
+  .fixed.left-0,
+  .ml-64,
+  .md\\:ml-64,
+  .desktop-only,
   nav:not(.gogym-bottom-nav) {
     display: none !important;
   }
   
-  /* Ensure body and main containers are full width */
-  body, .App, .min-h-screen {
+  /* Force mobile layout */
+  .App {
+    display: block !important;
     margin: 0 !important;
     padding: 0 !important;
-    width: 100% !important;
+  }
+  
+  /* Mobile page headers */
+  .min-h-screen.bg-gray-50 > div > div > .mb-8:first-child::before {
+    content: "";
+    display: block;
+    background: linear-gradient(135deg, #00BCD4, #26C6DA);
+    color: white;
+    padding: 16px 20px;
+    margin: -24px -24px 24px -24px;
+    border-radius: 0 0 20px 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+  
+  /* Hide desktop headers, show mobile-style content */
+  .text-display {
+    display: none !important;
+  }
+  
+  /* Style page content for mobile */
+  .p-6 {
+    padding: 16px !important;
+    padding-bottom: 100px !important;
+  }
+  
+  .max-w-6xl,
+  .max-w-7xl {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 16px !important;
+  }
+  
+  /* Ensure cards are mobile-friendly */
+  .card,
+  .rounded-lg {
+    margin-bottom: 16px !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+    border: none !important;
+  }
+  
+  /* Mobile-friendly buttons */
+  .btn {
+    padding: 12px 20px !important;
+    font-size: 14px !important;
+    border-radius: 12px !important;
+  }
+  
+  /* Ensure tables are responsive */
+  .overflow-x-auto {
+    border-radius: 12px !important;
+  }
+  
+  table {
+    font-size: 14px !important;
+  }
+  
+  /* Add space for bottom navigation */
+  body {
+    padding-bottom: 80px !important;
   }
 }
 
