@@ -447,14 +447,41 @@ body {
   font-weight: 500 !important;
 }
 
-/* Add padding to content area on mobile to account for bottom nav */
+/* Mobile-First Override - Hide desktop elements on mobile */
 @media (max-width: 768px) {
-  .content-area {
-    padding-bottom: 80px !important;
+  /* Hide desktop sidebar completely on mobile */
+  .gogym-sidebar,
+  .fixed.left-0.top-0,
+  [class*="ml-64"],
+  [class*="md:ml-64"] {
+    display: none !important;
   }
   
+  /* Ensure mobile layout takes full width */
   .mobile-container {
-    padding-bottom: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+  
+  /* Force content to take full width on mobile */
+  .content-area {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  
+  /* Hide any desktop navigation */
+  nav:not(.gogym-bottom-nav) {
+    display: none !important;
+  }
+  
+  /* Ensure body and main containers are full width */
+  body, .App, .min-h-screen {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
   }
 }
 
