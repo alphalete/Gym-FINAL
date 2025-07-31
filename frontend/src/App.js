@@ -393,15 +393,69 @@ const Navigation = ({ currentPage }) => {
 const Layout = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [isMobileView, setIsMobileView] = useState(window.innerWidth <= 768);
 
-  const handleNavigation = (path) => {
-    navigate(path);
-  };
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobileView(window.innerWidth <= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
-    <GoGymLayout currentPage={location.pathname} onNavigate={handleNavigation}>
-      {children}
-    </GoGymLayout>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Desktop Layout */}
+      {!isMobileView && (
+        <>
+          <Navigation currentPage={location.pathname} />
+          <div className="md:ml-64">
+            {children}
+          </div>
+        </>
+      )}
+
+      {/* Mobile Layout with GoGym4U Bottom Navigation */}
+      {isMobileView && (
+        <div className="mobile-container">
+          <div className="content-area">
+            {children}
+          </div>
+          
+          {/* GoGym4U Bottom Navigation */}
+          <div className="gogym-bottom-nav">
+            <button 
+              className={`gogym-nav-bottom-item ${location.pathname === '/' ? 'active' : ''}`}
+              onClick={() => navigate('/')}
+            >
+              <div className="gogym-nav-bottom-icon">🏠</div>
+              <div className="gogym-nav-bottom-label">Home</div>
+            </button>
+            <button 
+              className={`gogym-nav-bottom-item ${location.pathname === '/clients' ? 'active' : ''}`}
+              onClick={() => navigate('/clients')}
+            >
+              <div className="gogym-nav-bottom-icon">👥</div>
+              <div className="gogym-nav-bottom-label">Members</div>
+            </button>
+            <button 
+              className={`gogym-nav-bottom-item ${location.pathname === '/payments' ? 'active' : ''}`}
+              onClick={() => navigate('/payments')}
+            >
+              <div className="gogym-nav-bottom-icon">💳</div>
+              <div className="gogym-nav-bottom-label">Payments</div>
+            </button>
+            <button 
+              className={`gogym-nav-bottom-item ${location.pathname === '/settings' ? 'active' : ''}`}
+              onClick={() => navigate('/settings')}
+            >
+              <div className="gogym-nav-bottom-icon">⚙️</div>
+              <div className="gogym-nav-bottom-label">Settings</div>
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
