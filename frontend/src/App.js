@@ -385,6 +385,7 @@ const Navigation = ({ currentPage }) => {
           onClick={() => setIsOpen(false)}
         />
       )}
+    </div>
     </>
   );
 };
