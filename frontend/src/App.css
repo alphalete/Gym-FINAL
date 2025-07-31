@@ -1,52 +1,496 @@
-/* GoGym4U Inspired Modern UI Enhancement */
+/* GoGym4U Style Recreation - Exact Match */
 
-/* Enhanced Colors - Teal/Blue Theme */
 :root {
-  /* Primary Colors - Vibrant teal theme like GoGym4U */
-  --primary-color: #00BCD4;
-  --primary-dark: #0097A7;
-  --primary-light: #4DD0E1;
+  /* GoGym4U Colors from Reference */
+  --gogym-teal: #00BCD4;
+  --gogym-blue: #2196F3;
+  --gogym-green: #4CAF50;
+  --gogym-orange: #FF9800;
+  --gogym-sidebar: #FFFFFF;
+  --gogym-background: #F8F9FA;
+  --gogym-text-dark: #333333;
+  --gogym-text-light: #666666;
+  --gogym-border: #E1E5E9;
   
-  /* Accent Colors */
-  --accent-green: #4CAF50;
-  --accent-orange: #FF9800;
-  --accent-red: #F44336;
-  --accent-blue: #2196F3;
-  
-  /* Modern Background Colors */
-  --bg-primary: #F5F5F5;
-  --bg-white: #FFFFFF;
-  --bg-card: #FFFFFF;
-  
-  /* Text Colors */
-  --text-primary: #212121;
-  --text-secondary: #757575;
-  --text-white: #FFFFFF;
-  
-  /* Modern Shadows */
-  --shadow-card: 0 2px 8px rgba(0,0,0,0.1);
-  --shadow-elevated: 0 4px 16px rgba(0,0,0,0.15);
-  
-  /* Border Radius */
-  --radius-small: 8px;
-  --radius-medium: 12px;
-  --radius-large: 16px;
-  --radius-full: 50px;
-  
-  /* Spacing */
-  --spacing-xs: 4px;
-  --spacing-sm: 8px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-  --spacing-xl: 32px;
+  /* Card specific colors */
+  --card-blue: #4A90E2;
+  --card-green: #50E3C2;
+  --card-orange: #F5A623;
+  --card-dark-blue: #3498DB;
 }
 
-/* Enhanced Mobile Container */
+/* Reset and Base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background-color: var(--bg-primary);
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  background-color: var(--gogym-background);
+  color: var(--gogym-text-dark);
+  line-height: 1.5;
+}
+
+.App {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--gogym-background);
+}
+
+/* GoGym4U Sidebar Navigation */
+.gogym-sidebar {
+  width: 280px;
+  background: var(--gogym-sidebar);
+  border-right: 1px solid var(--gogym-border);
+  padding: 32px 24px;
+  position: fixed;
+  height: 100vh;
+  left: 0;
+  top: 0;
+  overflow-y: auto;
+}
+
+.gogym-sidebar h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--gogym-text-dark);
+  margin-bottom: 48px;
+  text-align: left;
+}
+
+.gogym-nav-list {
+  list-style: none;
+  padding: 0;
+}
+
+.gogym-nav-item {
+  margin-bottom: 8px;
+}
+
+.gogym-nav-link {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  color: var(--gogym-text-dark);
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+
+.gogym-nav-link:hover {
+  background-color: #F8F9FA;
+  color: var(--gogym-teal);
+}
+
+.gogym-nav-link.active {
+  background-color: var(--gogym-teal);
+  color: white;
+}
+
+.gogym-nav-icon {
+  margin-right: 12px;
+  font-size: 18px;
+}
+
+/* Main Content Area */
+.gogym-main {
+  flex: 1;
+  margin-left: 280px;
+  background-color: var(--gogym-background);
+  min-height: 100vh;
+}
+
+/* Mobile Header */
+.gogym-mobile-header {
+  background: linear-gradient(135deg, var(--gogym-teal), #26C6DA);
+  color: white;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 0 0 20px 20px;
+  margin-bottom: 24px;
+}
+
+.gogym-mobile-header h1 {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.gogym-hamburger {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.gogym-stats-icon {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* Stats Cards Grid - Exactly like GoGym4U */
+.gogym-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 0 20px 24px;
+}
+
+.gogym-stat-card {
+  border-radius: 16px;
+  padding: 24px 20px;
+  color: white;
+  text-align: left;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease;
+}
+
+.gogym-stat-card:hover {
+  transform: translateY(-2px);
+}
+
+.gogym-stat-card.blue {
+  background: linear-gradient(135deg, #4A90E2, #357ABD);
+}
+
+.gogym-stat-card.green {
+  background: linear-gradient(135deg, #50E3C2, #3DD8B3);
+}
+
+.gogym-stat-card.orange {
+  background: linear-gradient(135deg, #F5A623, #E0941A);
+}
+
+.gogym-stat-card.dark-blue {
+  background: linear-gradient(135deg, #3498DB, #2980B9);
+}
+
+.gogym-stat-number {
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.gogym-stat-label {
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.95;
+  line-height: 1.2;
+}
+
+/* Payments Section */
+.gogym-payments-section {
+  padding: 0 20px;
+}
+
+.gogym-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.gogym-section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--gogym-text-dark);
+}
+
+.gogym-filter-tabs {
+  display: flex;
+  background: white;
+  border-radius: 12px;
+  padding: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+
+.gogym-filter-tab {
+  padding: 12px 20px;
+  border: none;
+  background: none;
+  color: var(--gogym-text-light);
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1;
+  text-align: center;
+}
+
+.gogym-filter-tab.active {
+  background: var(--gogym-teal);
+  color: white;
+}
+
+.gogym-filter-tab:hover:not(.active) {
+  background: #F8F9FA;
+  color: var(--gogym-text-dark);
+}
+
+/* Payment Cards - Exactly like GoGym4U */
+.gogym-payment-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.gogym-payment-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: transform 0.2s ease;
+}
+
+.gogym-payment-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.gogym-payment-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.gogym-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 24px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, var(--gogym-teal), #26C6DA);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.gogym-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gogym-payment-info h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gogym-text-dark);
+  margin: 0 0 4px 0;
+}
+
+.gogym-payment-date {
+  font-size: 13px;
+  color: var(--gogym-text-light);
+  margin: 0;
+}
+
+.gogym-payment-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.gogym-status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.gogym-status-badge.overdue {
+  background: #FFE5E5;
+  color: #DC3545;
+}
+
+.gogym-status-badge.due-soon {
+  background: #FFF3E0;
+  color: #FF9800;
+}
+
+.gogym-status-badge.paid {
+  background: #E8F5E8;
+  color: #4CAF50;
+}
+
+.gogym-payment-amount {
+  font-size: 13px;
+  color: var(--gogym-text-light);
+  margin: 0;
+}
+
+/* Bottom Navigation */
+.gogym-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: 1px solid var(--gogym-border);
+  display: flex;
+  padding: 12px 0 8px;
+  z-index: 1000;
+}
+
+.gogym-nav-bottom-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px;
+  text-decoration: none;
+  color: var(--gogym-text-light);
+  transition: color 0.2s ease;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.gogym-nav-bottom-item.active {
+  color: var(--gogym-teal);
+}
+
+.gogym-nav-bottom-item:hover {
+  color: var(--gogym-teal);
+}
+
+.gogym-nav-bottom-icon {
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+.gogym-nav-bottom-label {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* Floating Action Button */
+.gogym-fab {
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 28px;
+  background: linear-gradient(135deg, var(--gogym-teal), #26C6DA);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 16px rgba(0, 188, 212, 0.4);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  transition: all 0.2s ease;
+  z-index: 999;
+}
+
+.gogym-fab:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(0, 188, 212, 0.5);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .gogym-sidebar {
+    display: none;
+  }
+  
+  .gogym-main {
+    margin-left: 0;
+  }
+  
+  .gogym-stats-grid {
+    padding: 0 16px 20px;
+  }
+  
+  .gogym-payments-section {
+    padding: 0 16px 100px;
+  }
+}
+
+@media (min-width: 769px) {
+  .gogym-mobile-header {
+    display: none;
+  }
+  
+  .gogym-bottom-nav {
+    display: none;
+  }
+  
+  .gogym-fab {
+    display: none;
+  }
+}
+
+/* Desktop Layout */
+@media (min-width: 769px) {
+  .gogym-stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+    padding: 32px;
+    gap: 24px;
+  }
+  
+  .gogym-payments-section {
+    padding: 0 32px 32px;
+  }
+}
+
+/* Hide existing styles that conflict */
+.min-h-screen.bg-gray-50.dark\:bg-gray-900 {
+  background: var(--gogym-background) !important;
+}
+
+/* Enhanced compatibility with existing components */
+.ultra-contrast-modal,
+.modal-overlay {
+  z-index: 2000;
+}
+
+.card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--gogym-teal), #26C6DA);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 188, 212, 0.3);
 }
 
 /* Modern Header Enhancements */
