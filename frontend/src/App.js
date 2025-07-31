@@ -392,38 +392,16 @@ const Navigation = ({ currentPage }) => {
 // Layout Component
 const Layout = ({ children }) => {
   const location = useLocation();
-  const [isMobileView, setIsMobileView] = useState(window.innerWidth <= 768);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobileView(window.innerWidth <= 768);
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-  
+  const handleNavigation = (path) => {
+    navigate(path);
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Desktop Layout */}
-      {!isMobileView && (
-        <>
-          <Navigation currentPage={location.pathname} />
-          <div className="md:ml-64">
-            {children}
-          </div>
-        </>
-      )}
-
-      {/* Mobile Layout */}
-      {isMobileView && (
-        <div className="mobile-container">
-          <div className="content-area">
-            {children}
-          </div>
-          <MobileNavigation currentPage={location.pathname} />
-        </div>
-      )}
-    </div>
+    <GoGymLayout currentPage={location.pathname} onNavigate={handleNavigation}>
+      {children}
+    </GoGymLayout>
   );
 };
 
