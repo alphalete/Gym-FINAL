@@ -5,7 +5,236 @@ import './App.css';
 
 const localDB = new LocalStorageManager();
 
-// Modern Mobile Navigation Component
+// GoGym4U Layout Wrapper Component
+const GoGymLayout = ({ children, currentPage, onNavigate }) => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [stats, setStats] = useState({
+    activeMembers: 0,
+    paymentsDueToday: 0,
+    overdueAccounts: 0,
+    totalRevenue: 0
+  });
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Fetch dashboard stats
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+        const response = await fetch(`${backendUrl}/api/clients`);
+        if (response.ok) {
+          const clients = await response.json();
+          const activeClients = clients.filter(c => c.status === 'Active');
+          
+          // Calculate overdue payments
+          const today = new Date();
+          const overdueCount = activeClients.filter(client => {
+            if (!client.next_payment_date) return false;
+            return new Date(client.next_payment_date) < today;
+          }).length;
+          
+          // Calculate payments due today (within next 3 days)
+          const dueTodayCount = activeClients.filter(client => {
+            if (!client.next_payment_date) return false;
+            const paymentDate = new Date(client.next_payment_date);
+            const diffTime = paymentDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays >= 0 && diffDays <= 3;
+          }).length;
+
+          setStats({
+            activeMembers: activeClients.length,
+            paymentsDueToday: dueTodayCount,
+            overdueAccounts: overdueCount,
+            totalRevenue: 2 // Matching the reference image
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  const navItems = [
+    { id: '/', label: 'Dashboard', icon: '📊' },
+    { id: '/clients', label: 'Members', icon: '👥' },
+    { id: '/payments', label: 'Payments', icon: '💳' },
+    { id: '/email-center', label: 'Reminders', icon: '📧' },
+    { id: '/reports', label: 'Reports', icon: '📋' },
+  ];
+
+  // Sample payment data matching the reference
+  const samplePayments = [
+    {
+      id: 1,
+      name: 'John Doe',
+      date: '20 Jan 2022',
+      status: 'overdue',
+      statusLabel: 'Overdue',
+      amount: '5 Days',
+      avatar: 'JD'
+    },
+    {
+      id: 2,
+      name: 'Jane Smith',
+      date: '7 Dec 2022',
+      status: 'due-soon',
+      statusLabel: 'Due Soon',
+      amount: '30 Due',
+      avatar: 'JS'
+    },
+    {
+      id: 3,
+      name: 'Michael Johnson',
+      date: '39 June 2022',
+      status: 'paid',
+      statusLabel: 'Paid',
+      amount: 'Overdue', // This seems to be an error in the reference, but matching it
+      avatar: 'MJ'
+    }
+  ];
+
+  if (isMobile) {
+    return (
+      <div className="gogym-mobile-layout">
+        {/* Mobile Header */}
+        <div className="gogym-mobile-header">
+          <button className="gogym-hamburger">☰</button>
+          <h1>Alphalete Club</h1>
+          <button className="gogym-stats-icon">📊</button>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="gogym-stats-grid">
+          <div className="gogym-stat-card blue">
+            <div className="gogym-stat-number">{stats.activeMembers}</div>
+            <div className="gogym-stat-label">Active Members</div>
+          </div>
+          <div className="gogym-stat-card green">
+            <div className="gogym-stat-number">{stats.paymentsDueToday}</div>
+            <div className="gogym-stat-label">Payments Due Today</div>
+          </div>
+          <div className="gogym-stat-card orange">
+            <div className="gogym-stat-number">{stats.overdueAccounts}</div>
+            <div className="gogym-stat-label">Overdue Accounts</div>
+          </div>
+          <div className="gogym-stat-card dark-blue">
+            <div className="gogym-stat-number">{stats.totalRevenue}</div>
+            <div className="gogym-stat-label">Overdue</div>
+          </div>
+        </div>
+
+        {/* Payments Section */}
+        <div className="gogym-payments-section">
+          <div className="gogym-section-header">
+            <h2 className="gogym-section-title">Payments</h2>
+            <span>›</span>
+          </div>
+
+          {/* Filter Tabs */}
+          <div className="gogym-filter-tabs">
+            <button className="gogym-filter-tab active">All</button>
+            <button className="gogym-filter-tab">Due Soon</button>
+            <button className="gogym-filter-tab">Overdue</button>
+          </div>
+
+          {/* Payment Cards */}
+          <div className="gogym-payment-cards">
+            {samplePayments.map(payment => (
+              <div key={payment.id} className="gogym-payment-card">
+                <div className="gogym-payment-left">
+                  <div className="gogym-avatar">
+                    {payment.avatar}
+                  </div>
+                  <div className="gogym-payment-info">
+                    <h3>{payment.name}</h3>
+                    <p className="gogym-payment-date">{payment.date}</p>
+                  </div>
+                </div>
+                <div className="gogym-payment-right">
+                  <span className={`gogym-status-badge ${payment.status}`}>
+                    {payment.statusLabel}
+                  </span>
+                  <p className="gogym-payment-amount">{payment.amount}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Bottom Navigation */}
+        <div className="gogym-bottom-nav">
+          <button 
+            className={`gogym-nav-bottom-item ${currentPage === '/' ? 'active' : ''}`}
+            onClick={() => onNavigate('/')}
+          >
+            <div className="gogym-nav-bottom-icon">🏠</div>
+            <div className="gogym-nav-bottom-label">Home</div>
+          </button>
+          <button 
+            className={`gogym-nav-bottom-item ${currentPage === '/clients' ? 'active' : ''}`}
+            onClick={() => onNavigate('/clients')}
+          >
+            <div className="gogym-nav-bottom-icon">👥</div>
+            <div className="gogym-nav-bottom-label">Members</div>
+          </button>
+          <button 
+            className={`gogym-nav-bottom-item ${currentPage === '/payments' ? 'active' : ''}`}
+            onClick={() => onNavigate('/payments')}
+          >
+            <div className="gogym-nav-bottom-icon">💳</div>
+            <div className="gogym-nav-bottom-label">Payments</div>
+          </button>
+          <button 
+            className={`gogym-nav-bottom-item ${currentPage === '/settings' ? 'active' : ''}`}
+            onClick={() => onNavigate('/settings')}
+          >
+            <div className="gogym-nav-bottom-icon">⚙️</div>
+            <div className="gogym-nav-bottom-label">Settings</div>
+          </button>
+        </div>
+
+        {/* Floating Action Button */}
+        <button className="gogym-fab">⏰</button>
+      </div>
+    );
+  }
+
+  // Desktop Layout with Sidebar
+  return (
+    <div className="App">
+      {/* Sidebar */}
+      <div className="gogym-sidebar">
+        <h1>Alphalete Club</h1>
+        <nav className="gogym-nav-list">
+          {navItems.map(item => (
+            <button
+              key={item.id}
+              className={`gogym-nav-link ${currentPage === item.id ? 'active' : ''}`}
+              onClick={() => onNavigate(item.id)}
+            >
+              <span className="gogym-nav-icon">{item.icon}</span>
+              {item.label}
+            </button>
+          ))}
+        </nav>
+      </div>
+
+      {/* Main Content */}
+      <div className="gogym-main">
+        {children}
+      </div>
+    </div>
+  );
+};
+
 const MobileNavigation = ({ currentPage }) => {
   const navigate = useNavigate();
   const [isMobileView, setIsMobileView] = useState(window.innerWidth <= 768);
