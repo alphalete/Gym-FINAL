@@ -2882,11 +2882,22 @@ const Payments = () => {
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-display ultra-contrast-text mb-2">Payment Tracking</h1>
-        <p className="ultra-contrast-secondary">Monitor and manage member payments</p>
+    <>
+      {/* Mobile Header for Payments Page */}
+      <div className="block md:hidden">
+        <div className="gogym-mobile-header">
+          <button className="gogym-hamburger">☰</button>
+          <h1>Payments</h1>
+          <button className="gogym-stats-icon" onClick={() => setShowPaymentModal(true)}>💰</button>
+        </div>
       </div>
+
+      <div className="p-6 max-w-6xl mx-auto">
+        {/* Desktop Header - Hidden on Mobile */}
+        <div className="mb-8 hidden md:block">
+          <h1 className="text-display ultra-contrast-text mb-2">Payment Tracking</h1>
+          <p className="ultra-contrast-secondary">Monitor and manage member payments</p>
+        </div>
       
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <div className="ultra-contrast-modal rounded-lg p-6">
