@@ -1143,8 +1143,8 @@ const Dashboard = () => {
       const activeClients = clients.filter(c => c.status === 'Active').length || 0;
       const inactiveClients = clients.filter(c => c.status === 'Inactive').length || 0;
       
-      // Calculate payment statistics
-      const today = new Date();
+      // Calculate payment statistics using AST timezone
+      const today = getASTDate();
       today.setHours(0, 0, 0, 0);
       
       let pendingPayments = 0;
