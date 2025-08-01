@@ -1284,9 +1284,17 @@ const GoGymDashboard = () => {
           <div className="gogym-status-right">
             <button 
               onClick={() => {
+                // EMERGENCY MOBILE URL FIX - Force correct backend URL
+                let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+                
+                // CRITICAL FIX: Override for mobile devices showing wrong URL
+                if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
+                  backendUrl = 'https://8beb6460-0117-4864-a970-463f629aa57c.preview.emergentagent.com';
+                }
+                
                 console.log('🚨 EMERGENCY DEBUG - Current stats state:', stats);
                 console.log('🚨 EMERGENCY DEBUG - Current clients state:', clients);
-                console.log('🚨 EMERGENCY DEBUG - Backend URL:', process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL);
+                console.log('🚨 EMERGENCY DEBUG - Backend URL:', backendUrl);
                 console.log('🚨 EMERGENCY DEBUG - User Agent:', navigator.userAgent);
                 console.log('🚨 EMERGENCY DEBUG - Current timestamp:', new Date().toISOString());
                 
@@ -1297,12 +1305,12 @@ Current Stats:
 - Active Members: ${stats.activeMembers}
 - Sync Status: ${syncStatus}
 
-Backend URL: ${process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL}
+Backend URL: ${backendUrl}
 
 Timestamp: ${new Date().toISOString()}
 
 Check console for full details!`);
-              }}
+              }}}
               className="mr-2 px-2 py-1 bg-yellow-600 text-white rounded text-xs font-bold"
               style={{ backgroundColor: '#d97706', color: 'white' }}
             >
