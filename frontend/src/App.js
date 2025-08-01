@@ -2004,6 +2004,26 @@ const ClientManagement = () => {
                     return 'paid';
                   };
 
+                  const getAmountOwed = (client) => {
+                    const status = getPaymentStatus(client);
+                    if (status === 'overdue' || status === 'due-soon') {
+                      return client.monthly_fee || 0;
+                    }
+                    return 0;
+                  };
+
+                  const getPaymentStatusWithAmount = (client) => {
+                    const status = getPaymentStatus(client);
+                    const amountOwed = getAmountOwed(client);
+                    
+                    if (status === 'overdue') {
+                      return `Owes TTD ${amountOwed}`;
+                    } else if (status === 'due-soon') {
+                      return `Due TTD ${amountOwed}`;
+                    }
+                    return 'Paid';
+                  };
+
                   return (
                     <div key={client.id} className="member-card">
                       <div className="member-avatar">
