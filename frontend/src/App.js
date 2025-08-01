@@ -2600,8 +2600,10 @@ const Payments = () => {
         const paymentStatsResponse = await fetch(`${backendUrl}/api/payments/stats`);
         if (paymentStatsResponse.ok) {
           const paymentStats = await paymentStatsResponse.json();
-          actualRevenue = paymentStats.monthly_revenue || 0;
-          console.log(`✅ Payment Stats: Actual monthly revenue: TTD ${actualRevenue}`);
+          // Use total_revenue instead of monthly_revenue for the payment page
+          actualRevenue = paymentStats.total_revenue || 0;
+          console.log(`✅ Payment Stats: Actual total revenue: TTD ${actualRevenue}`);
+          console.log(`✅ Payment Stats: Monthly revenue: TTD ${paymentStats.monthly_revenue || 0}`);
         }
       } catch (error) {
         console.error('❌ Error fetching payment stats:', error);
@@ -2612,18 +2614,55 @@ const Payments = () => {
         const clientsData = await response.json();
         
         const activeClients = clientsData.filter(c => c.status === 'Active');
-        const today = new Date();
+        
+        // Fix timezone issues by using Atlantic Standard Time (AST is UTC-4)
+        const now = new Date();
+        const astOffset = -4 * 60; // AST is UTC-4 (in minutes)
+        const astNow = new Date(now.getTime() + (astOffset * 60 * 1000));
+        console.log(`🕐 Current time in AST: ${astNow.toISOString()}`);
         
         const overdueClients = activeClients.filter(client => {
-          const nextPaymentDate = new Date(client.next_payment_date);
-          return nextPaymentDate < today;
+          if (!client.next_payment_date) return false;
+          try {
+            // Parse the payment date and compare with AST
+            const paymentDate = new Date(client.next_payment_date + 'T00:00:00');
+            const astPaymentDate = new Date(paymentDate.getTime() + (astOffset * 60 * 1000));
+            const isOverdue = astPaymentDate < astNow;
+            
+            if (isOverdue) {
+              console.log(`⚠️ Overdue: ${client.name} - Payment due: ${astPaymentDate.toDateString()}, Current: ${astNow.toDateString()}`);
+            }
+            
+            return isOverdue;
+          } catch (error) {
+            console.error(`Error parsing date for client ${client.name}:`, error);
+            return false;
+          }
         });
         
         const pendingClients = activeClients.filter(client => {
-          const nextPaymentDate = new Date(client.next_payment_date);
-          const daysDiff = Math.ceil((nextPaymentDate - today) / (1000 * 60 * 60 * 24));
-          return daysDiff > 0 && daysDiff <= 7; // Due within 7 days
+          if (!client.next_payment_date) return false;
+          try {
+            const paymentDate = new Date(client.next_payment_date + 'T00:00:00');
+            const astPaymentDate = new Date(paymentDate.getTime() + (astOffset * 60 * 1000));
+            const daysDiff = Math.ceil((astPaymentDate - astNow) / (1000 * 60 * 60 * 24));
+            const isPending = daysDiff > 0 && daysDiff <= 7; // Due within 7 days
+            
+            if (isPending) {
+              console.log(`📅 Pending: ${client.name} - Payment due in ${daysDiff} days`);
+            }
+            
+            return isPending;
+          } catch (error) {
+            console.error(`Error parsing date for client ${client.name}:`, error);
+            return false;
+          }
         });
+        
+        console.log(`📊 Payment Stats Summary:`);
+        console.log(`   Total Revenue: TTD ${actualRevenue}`);
+        console.log(`   Pending Payments: ${pendingClients.length}`);
+        console.log(`   Overdue Payments: ${overdueClients.length}`);
         
         setPaymentStats({
           totalRevenue: actualRevenue, // Use actual collected revenue
