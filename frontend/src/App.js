@@ -8,29 +8,42 @@ const localDB = new LocalStorageManager();
 // AST (Atlantic Standard Time) Utility Functions
 const getASTDate = () => {
   // Create a new date in AST (UTC-4)
+  // Use a more robust timezone calculation
   const now = new Date();
-  const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-  const ast = new Date(utc + (-4 * 3600000)); // AST is UTC-4
-  return ast;
+  
+  // Get current UTC time
+  const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
+  
+  // AST is UTC-4 (4 hours behind UTC)
+  const astTime = new Date(utcTime + (-4 * 3600000));
+  
+  return astTime;
 };
 
 const formatDateForInput = (date) => {
   // Format date for HTML date input (YYYY-MM-DD) in AST
   const astDate = date || getASTDate();
-  return astDate.toISOString().split('T')[0];
+  
+  // Ensure we're working with the date part only
+  const year = astDate.getFullYear();
+  const month = String(astDate.getMonth() + 1).padStart(2, '0');
+  const day = String(astDate.getDate()).padStart(2, '0');
+  
+  return `${year}-${month}-${day}`;
 };
 
 const formatDateForDisplay = (dateString, includeTime = false) => {
   // Format date string for display in AST
   if (!dateString) return 'N/A';
   try {
-    const date = new Date(dateString);
-    const utc = date.getTime() + (date.getTimezoneOffset() * 60000);
-    const ast = new Date(utc + (-4 * 3600000)); // Convert to AST
+    const date = new Date(dateString + 'T00:00:00'); // Ensure we parse as local date
     
     if (includeTime) {
-      return ast.toLocaleString('en-US', { 
-        timeZone: 'America/Barbados', // AST timezone
+      // Convert to AST for display
+      const utcTime = date.getTime() + (date.getTimezoneOffset() * 60000);
+      const astDate = new Date(utcTime + (-4 * 3600000));
+      
+      return astDate.toLocaleDateString('en-US', { 
         year: 'numeric',
         month: 'short',
         day: 'numeric',
@@ -38,8 +51,7 @@ const formatDateForDisplay = (dateString, includeTime = false) => {
         minute: '2-digit'
       });
     } else {
-      return ast.toLocaleDateString('en-US', { 
-        timeZone: 'America/Barbados', // AST timezone
+      return date.toLocaleDateString('en-US', { 
         year: 'numeric',
         month: 'short',
         day: 'numeric'
