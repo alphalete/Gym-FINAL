@@ -1022,9 +1022,19 @@ const GoGymDashboard = () => {
       try {
         setSyncStatus('syncing');
         const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-        const response = await fetch(`${backendUrl}/api/clients`);
-        if (response.ok) {
-          const clientsData = await response.json();
+        
+        // Fetch both clients and payment stats in parallel
+        const [clientsResponse, paymentsResponse] = await Promise.all([
+          fetch(`${backendUrl}/api/clients`),
+          fetch(`${backendUrl}/api/payments/stats`)
+        ]);
+        
+        if (clientsResponse.ok && paymentsResponse.ok) {
+          const [clientsData, paymentStats] = await Promise.all([
+            clientsResponse.json(),
+            paymentsResponse.json()
+          ]);
+          
           setClients(clientsData);
           
           const activeClients = clientsData.filter(c => c.status === 'Active');
@@ -1048,7 +1058,8 @@ const GoGymDashboard = () => {
             activeMembers: activeClients.length,
             paymentsDueToday: dueTodayCount,
             overdueAccounts: overdueCount,
-            overdue: overdueCount
+            overdue: overdueCount,
+            totalRevenue: paymentStats.total_revenue || 0
           });
           
           setSyncStatus('online');
