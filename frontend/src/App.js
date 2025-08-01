@@ -1311,7 +1311,7 @@ const Dashboard = () => {
           </div>
           <div className="stat-card success" onClick={() => navigate('/payments')}>
             <div className="stat-value">TTD {(stats.totalRevenue || 0).toFixed(0)}</div>
-            <div className="stat-label">Monthly Revenue</div>
+            <div className="stat-label">Total Revenue</div>
           </div>
           <div className="stat-card warning">
             <div className="stat-value">5</div>
