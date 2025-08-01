@@ -264,9 +264,20 @@ async def create_client(client_data: ClientCreate):
     """Create a new client"""
     client_dict = client_data.dict()
     
-    # Calculate next payment date (30 days after start date)
-    next_payment_date = calculate_next_payment_date(client_data.start_date)
+    # Handle next payment date logic based on payment_status
+    payment_status = client_dict.get('payment_status', 'due')  # Default to 'due' if not provided
+    
+    if payment_status == 'paid':
+        # If client paid on join, set next payment 30 days from start date
+        next_payment_date = calculate_next_payment_date(client_data.start_date)
+    else:
+        # If client didn't pay, payment is due immediately (on start date)
+        next_payment_date = client_data.start_date
+    
     client_dict['next_payment_date'] = next_payment_date
+    
+    # Add amount_owed field
+    client_dict['amount_owed'] = client_dict.get('amount_owed', 0)
     
     client_obj = Client(**client_dict)
     
