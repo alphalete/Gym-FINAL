@@ -3000,57 +3000,47 @@ const Payments = () => {
 
   const calculateRealPaymentStats = async () => {
     try {
-      console.log(`📱 Mobile Payment Stats: Starting mobile-optimized data fetch`);
+      console.log(`📱 Mobile Payment Stats: Using direct API calls to fix data issues`);
       
-      // For mobile apps, prioritize local storage with backend sync
-      const clientsResult = await localDB.getClients();
-      const clientsData = clientsResult.data || [];
-      console.log(`📱 Mobile: Found ${clientsData.length} clients (offline: ${clientsResult.offline})`);
-      
-      if (clientsResult.offline) {
-        console.log('📱 Mobile: Using offline data for payment calculations');
-      }
-      
-      // Get actual payment revenue from backend if online, otherwise use calculated revenue
-      let actualRevenue = 0;
       const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
-      if (!clientsResult.offline && backendUrl) {
+      // Force direct API calls instead of LocalStorageManager
+      let clientsData = [];
+      let actualRevenue = 0;
+      
+      if (backendUrl) {
         try {
-          console.log('📡 Mobile: Testing API connectivity...');
-          const healthResponse = await fetch(`${backendUrl}/api/health`);
-          if (healthResponse.ok) {
-            console.log('✅ Mobile: API connectivity confirmed');
-            
-            const paymentStatsResponse = await fetch(`${backendUrl}/api/payments/stats`);
-            if (paymentStatsResponse.ok) {
-              const paymentStats = await paymentStatsResponse.json();
-              actualRevenue = paymentStats.total_revenue || 0;
-              console.log(`✅ Mobile Payment Stats: Backend revenue: TTD ${actualRevenue}`);
-            } else {
-              console.warn('⚠️ Mobile: Payment stats API unavailable, calculating from client data');
-              throw new Error('Payment API unavailable');
-            }
-          } else {
-            throw new Error('Health check failed');
+          // Get clients directly from API
+          console.log('📱 Mobile: Direct API call for clients...');
+          const clientsResponse = await fetch(`${backendUrl}/api/clients`);
+          if (clientsResponse.ok) {
+            clientsData = await clientsResponse.json();
+            console.log(`📱 Mobile: SUCCESS - Got ${clientsData.length} clients from API`);
           }
+          
+          // Get payment stats directly from API
+          console.log('📱 Mobile: Direct API call for payment stats...');
+          const paymentStatsResponse = await fetch(`${backendUrl}/api/payments/stats`);
+          if (paymentStatsResponse.ok) {
+            const paymentStats = await paymentStatsResponse.json();
+            actualRevenue = paymentStats.total_revenue || 0;
+            console.log(`📱 Mobile: SUCCESS - Got TTD ${actualRevenue} total revenue from API`);
+          }
+          
         } catch (error) {
-          console.warn('📱 Mobile: Backend unavailable, using potential revenue (not actual payments):', error.message);
-          // Calculate potential revenue from active clients (fallback for mobile)
+          console.error('📱 Mobile: Direct API calls failed:', error);
+          
+          // Fallback to LocalStorageManager only if API completely fails
+          console.log('📱 Mobile: Falling back to LocalStorageManager...');
+          const clientsResult = await localDB.getClients(true); // Force refresh
+          clientsData = clientsResult.data || [];
+          
+          // Calculate potential revenue from client data
           actualRevenue = clientsData
             .filter(c => c.status === 'Active')
             .reduce((sum, client) => sum + (client.monthly_fee || 0), 0);
-          console.log(`📱 Mobile: Using potential revenue due to API failure: TTD ${actualRevenue}`);
-          console.log(`📱 Mobile: This is potential income, not actual collected payments`);
+          console.log(`📱 Mobile: Fallback - Using potential revenue: TTD ${actualRevenue}`);
         }
-      } else {
-        // Offline mode - calculate from local client data  
-        // NOTE: This shows potential revenue, not actual collected revenue
-        actualRevenue = clientsData
-          .filter(c => c.status === 'Active')
-          .reduce((sum, client) => sum + (client.monthly_fee || 0), 0);
-        console.log(`📱 Mobile Offline: Using potential revenue (not actual payments): TTD ${actualRevenue}`);
-        console.log(`📱 Mobile Offline: This is expected when offline - shows what clients owe, not what was collected`);
       }
       
       const activeClients = clientsData.filter(c => c.status === 'Active');
@@ -3098,13 +3088,12 @@ const Payments = () => {
         }
       });
       
-      console.log(`📊 Mobile Payment Stats Summary:`);
+      console.log(`📊 Mobile Payment Stats Summary (DIRECT API):`);
       console.log(`   Total Clients: ${clientsData.length}`);
       console.log(`   Active Clients: ${activeClients.length}`);
       console.log(`   Total Revenue: TTD ${actualRevenue}`);
       console.log(`   Pending Payments: ${pendingClients.length}`);
       console.log(`   Overdue Payments: ${overdueClients.length}`);
-      console.log(`   Data Source: ${clientsResult.offline ? 'Offline/Local' : 'Online/Backend'}`);
       
       setPaymentStats({
         totalRevenue: actualRevenue,
