@@ -587,6 +587,13 @@ const Layout = ({ children }) => {
               <div className="gogym-nav-bottom-label">Members</div>
             </button>
             <button 
+              className={`gogym-nav-bottom-item ${location.pathname === '/add-client' ? 'active' : ''}`}
+              onClick={() => navigate('/add-client')}
+            >
+              <div className="gogym-nav-bottom-icon">➕</div>
+              <div className="gogym-nav-bottom-label">Add Member</div>
+            </button>
+            <button 
               className={`gogym-nav-bottom-item ${location.pathname === '/payments' ? 'active' : ''}`}
               onClick={() => navigate('/payments')}
             >
