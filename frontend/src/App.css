@@ -823,28 +823,60 @@ select:focus {
   backdrop-filter: blur(4px);
 }
 
-/* Modern Action Buttons */
+/* Modern Action Buttons - Enhanced for consistent icon sizing */
 button[title*="Email"],
 button[title*="Edit"],
 button[title*="Delete"],
-.btn-sm {
+button[title*="Record Payment"],
+.btn-sm,
+.action-btn {
   border-radius: var(--radius-full);
   width: 36px;
   height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  font-size: 18px !important; /* Increased from 16px for better visibility */
   transition: all 0.2s ease;
   box-shadow: var(--shadow-card);
+  border: none;
+  cursor: pointer;
 }
 
 button[title*="Email"]:hover,
 button[title*="Edit"]:hover,
 button[title*="Delete"]:hover,
-.btn-sm:hover {
+button[title*="Record Payment"]:hover,
+.btn-sm:hover,
+.action-btn:hover {
   transform: scale(1.1);
   box-shadow: var(--shadow-elevated);
+}
+
+/* Specific Action Button Classes */
+.action-btn.primary {
+  background: var(--primary-color) !important;
+  color: var(--text-white) !important;
+}
+
+.action-btn.success {
+  background: var(--accent-green) !important;
+  color: var(--text-white) !important;
+}
+
+.action-btn.warning {
+  background: var(--accent-orange) !important;
+  color: var(--text-white) !important;
+}
+
+.action-btn.danger {
+  background: var(--accent-red) !important;
+  color: var(--text-white) !important;
+}
+
+.action-btn.danger:hover {
+  background: #D32F2F !important;
+  transform: scale(1.1) !important;
 }
 
 /* Payment Status Colors */
