@@ -2574,7 +2574,13 @@ const Payments = () => {
   const [paymentForm, setPaymentForm] = useState({
     client_id: '',
     amount_paid: '',
-    payment_date: new Date().toISOString().split('T')[0],
+    payment_date: (() => {
+      // Set default date to today in Atlantic Standard Time
+      const now = new Date();
+      const astOffset = -4 * 60; // AST is UTC-4 (in minutes)
+      const astNow = new Date(now.getTime() + (astOffset * 60 * 1000));
+      return astNow.toISOString().split('T')[0];
+    })(),
     payment_method: 'Cash',
     notes: ''
   });
