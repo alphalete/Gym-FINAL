@@ -1059,14 +1059,27 @@ const GoGymDashboard = () => {
         setSyncStatus('syncing');
         const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
         
+        console.log('🚨 EMERGENCY DEBUG: Starting data fetch...');
+        console.log('🚨 EMERGENCY DEBUG: Backend URL:', backendUrl);
+        console.log('🚨 EMERGENCY DEBUG: User Agent:', navigator.userAgent);
+        console.log('🚨 EMERGENCY DEBUG: Current timestamp:', new Date().toISOString());
+        
         // NUCLEAR MOBILE CACHE BUSTING - Add multiple cache-busting parameters
         const timestamp = Date.now();
         const randomId = Math.random().toString(36).substr(2, 9);
-        const cacheParams = `_t=${timestamp}&_r=${randomId}&_v=nuclear&_mobile=true`;
+        const cacheParams = `_t=${timestamp}&_r=${randomId}&_v=nuclear&_mobile=true&_emergency=${Date.now()}`;
+        
+        console.log('🚨 EMERGENCY DEBUG: Cache params:', cacheParams);
+        
+        const clientsUrl = `${backendUrl}/api/clients?${cacheParams}`;
+        const paymentsUrl = `${backendUrl}/api/payments/stats?${cacheParams}`;
+        
+        console.log('🚨 EMERGENCY DEBUG: Clients URL:', clientsUrl);
+        console.log('🚨 EMERGENCY DEBUG: Payments URL:', paymentsUrl);
         
         // Fetch both clients and payment stats in parallel with NUCLEAR cache busting
         const [clientsResponse, paymentsResponse] = await Promise.all([
-          fetch(`${backendUrl}/api/clients?${cacheParams}`, {
+          fetch(clientsUrl, {
             method: 'GET',
             headers: { 
               'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0', 
@@ -1074,13 +1087,14 @@ const GoGymDashboard = () => {
               'Expires': '0',
               'If-None-Match': '*',
               'X-Requested-With': 'XMLHttpRequest',
-              'X-Mobile-Cache-Bust': timestamp.toString()
+              'X-Mobile-Cache-Bust': timestamp.toString(),
+              'X-Emergency-Debug': 'true'
             },
             credentials: 'same-origin',
             mode: 'cors',
             cache: 'no-cache'
           }),
-          fetch(`${backendUrl}/api/payments/stats?${cacheParams}`, {
+          fetch(paymentsUrl, {
             method: 'GET',
             headers: { 
               'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0', 
@@ -1088,7 +1102,8 @@ const GoGymDashboard = () => {
               'Expires': '0',
               'If-None-Match': '*',
               'X-Requested-With': 'XMLHttpRequest',
-              'X-Mobile-Cache-Bust': timestamp.toString()
+              'X-Mobile-Cache-Bust': timestamp.toString(),
+              'X-Emergency-Debug': 'true'
             },
             credentials: 'same-origin',
             mode: 'cors',
@@ -1096,20 +1111,21 @@ const GoGymDashboard = () => {
           })
         ]);
         
+        console.log('🚨 EMERGENCY DEBUG: Clients response status:', clientsResponse.status);
+        console.log('🚨 EMERGENCY DEBUG: Payments response status:', paymentsResponse.status);
+        console.log('🚨 EMERGENCY DEBUG: Clients response headers:', Object.fromEntries(clientsResponse.headers.entries()));
+        console.log('🚨 EMERGENCY DEBUG: Payments response headers:', Object.fromEntries(paymentsResponse.headers.entries()));
+        
         if (clientsResponse.ok && paymentsResponse.ok) {
           const [clientsData, paymentStats] = await Promise.all([
             clientsResponse.json(),
             paymentsResponse.json()
           ]);
           
-          console.log('📱 Dashboard: NUCLEAR CACHE BUST - Fresh data loaded:', {
-            clients: clientsData.length,
-            totalRevenue: paymentStats.total_revenue,
-            timestamp: new Date().toISOString(),
-            backendTimestamp: paymentStats.timestamp,
-            cacheBuster: paymentStats.cache_buster,
-            fetchTimestamp: timestamp
-          });
+          console.log('🚨 EMERGENCY DEBUG: RAW CLIENTS DATA:', clientsData);
+          console.log('🚨 EMERGENCY DEBUG: RAW PAYMENT STATS DATA:', paymentStats);
+          console.log('🚨 EMERGENCY DEBUG: Payment stats total_revenue field:', paymentStats.total_revenue);
+          console.log('🚨 EMERGENCY DEBUG: Payment stats type of total_revenue:', typeof paymentStats.total_revenue);
           
           setClients(clientsData);
           
@@ -1130,20 +1146,31 @@ const GoGymDashboard = () => {
             return diffDays >= 0 && diffDays <= 3;
           }).length;
 
-          setStats({
+          const newStats = {
             activeMembers: activeClients.length,
             paymentsDueToday: dueTodayCount,
             overdueAccounts: overdueCount,
             overdue: overdueCount,
             totalRevenue: paymentStats.total_revenue || 0
-          });
+          };
+          
+          console.log('🚨 EMERGENCY DEBUG: CALCULATED STATS:', newStats);
+          console.log('🚨 EMERGENCY DEBUG: About to call setStats with totalRevenue:', newStats.totalRevenue);
+          
+          setStats(newStats);
+          
+          console.log('🚨 EMERGENCY DEBUG: Stats state should now be updated');
           
           setSyncStatus('online');
         } else {
+          console.log('🚨 EMERGENCY DEBUG: API responses not OK');
+          console.log('🚨 EMERGENCY DEBUG: Clients response:', clientsResponse.status, await clientsResponse.text());
+          console.log('🚨 EMERGENCY DEBUG: Payments response:', paymentsResponse.status, await paymentsResponse.text());
           setSyncStatus('offline');
         }
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('🚨 EMERGENCY DEBUG: Error fetching data:', error);
+        console.error('🚨 EMERGENCY DEBUG: Error stack:', error.stack);
         setSyncStatus('offline');
       }
     };
