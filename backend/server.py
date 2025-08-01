@@ -592,8 +592,18 @@ async def record_client_payment(payment_request: PaymentRecordRequest):
     }
 
 @api_router.get("/payments/stats")
-async def get_payment_statistics():
-    """Get payment statistics including total revenue from recorded payments"""
+async def get_payment_statistics(response: Response):
+    """Get payment statistics including total revenue from recorded payments - NUCLEAR MOBILE CACHE BUSTING"""
+    
+    # NUCLEAR MOBILE CACHE BUSTING HEADERS
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0, private"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    response.headers["ETag"] = f"no-cache-{datetime.now().timestamp()}"
+    response.headers["Last-Modified"] = datetime.now().strftime("%a, %d %b %Y %H:%M:%S GMT")
+    response.headers["Vary"] = "*"
+    response.headers["X-Mobile-Cache-Bust"] = str(datetime.now().timestamp())
+    
     try:
         # Get all payment records
         payments = await db.payment_records.find({}).to_list(1000)
@@ -616,17 +626,22 @@ async def get_payment_statistics():
                 except:
                     continue
         
+        # Add timestamp to response data for mobile cache detection
         return {
             "total_revenue": total_revenue,
             "monthly_revenue": monthly_revenue,
-            "payment_count": len(payments)
+            "payment_count": len(payments),
+            "timestamp": datetime.now().isoformat(),
+            "cache_buster": datetime.now().timestamp()
         }
     except Exception as e:
         logger.error(f"Error getting payment statistics: {str(e)}")
         return {
             "total_revenue": 0,
             "monthly_revenue": 0,
-            "payment_count": 0
+            "payment_count": 0,
+            "timestamp": datetime.now().isoformat(),
+            "cache_buster": datetime.now().timestamp()
         }
 
 @api_router.post("/email/payment-reminder/bulk")
