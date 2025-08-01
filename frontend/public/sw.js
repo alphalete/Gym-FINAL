@@ -55,27 +55,46 @@ self.addEventListener('message', event => {
   }
 });
 
-// Bypass ALL caching for API requests - always go to network
+// Bypass ALL caching for API requests - always go to network with mobile cache bypass
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   
-  // For API requests, ALWAYS go to network, never cache
+  // For API requests, ALWAYS go to network, never cache - Mobile aggressive approach
   if (url.pathname.startsWith('/api/')) {
-    console.log('📱 PWA v4.0.0: API request - FORCING network call:', url.pathname);
+    console.log('📱 PWA v5.1.0: API request - MOBILE AGGRESSIVE cache bypass:', url.pathname);
+    
+    // Create a new request with mobile-aggressive cache-busting
+    const newRequest = new Request(event.request.url + (event.request.url.includes('?') ? '&' : '?') + '_mobile_cb=' + Date.now(), {
+      method: event.request.method,
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        'If-None-Match': '*'
+      },
+      body: event.request.body,
+      mode: 'cors',
+      credentials: 'same-origin',
+      cache: 'no-cache',
+      redirect: 'follow'
+    });
     
     event.respondWith(
-      fetch(event.request, { 
-        cache: 'no-cache',
-        headers: {
-          ...event.request.headers,
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache'
-        }
-      }).then(response => {
-        console.log('📱 PWA v4.0.0: Fresh API response for:', url.pathname);
-        return response;
+      fetch(newRequest).then(response => {
+        console.log('📱 PWA v5.1.0: Fresh mobile API response for:', url.pathname);
+        // Clone response and add no-cache headers
+        const responseHeaders = new Headers(response.headers);
+        responseHeaders.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+        responseHeaders.set('Pragma', 'no-cache');
+        responseHeaders.set('Expires', '0');
+        
+        return new Response(response.body, {
+          status: response.status,
+          statusText: response.statusText,
+          headers: responseHeaders
+        });
       }).catch(error => {
-        console.error('📱 PWA v4.0.0: API request failed:', url.pathname, error);
+        console.error('📱 PWA v5.1.0: Mobile API request failed:', url.pathname, error);
         return new Response(JSON.stringify({ error: 'API unavailable' }), {
           status: 503,
           headers: { 'Content-Type': 'application/json' }
