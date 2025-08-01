@@ -6,7 +6,7 @@ from datetime import datetime
 
 class ClientUpdateTester:
     def __init__(self):
-        self.base_url = "https://6fa63f6a-d735-4ffe-a386-1ff8ab24fd01.preview.emergentagent.com"
+        self.base_url = "https://413cf26f-b3f7-4bfe-b0d4-96a01530ff67.preview.emergentagent.com"
         self.api_url = f"{self.base_url}/api"
         self.tests_run = 0
         self.tests_passed = 0
