@@ -154,6 +154,27 @@ body {
   50% { opacity: 0.7; }
 }
 
+/* Mobile Status Bar for Payment Page */
+.mobile-status-bar {
+  background-color: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.mobile-status-bar .text-green-600 {
+  color: #16a34a;
+}
+
+.mobile-status-bar .text-yellow-600 {
+  color: #ca8a04;
+}
+
 /* Stats Cards Grid - Exactly like GoGym4U */
 .gogym-stats-grid {
   display: grid !important;
