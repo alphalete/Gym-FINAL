@@ -980,7 +980,8 @@ const GoGymDashboard = () => {
     activeMembers: 0,
     paymentsDueToday: 0,
     overdueAccounts: 0,
-    overdue: 0
+    overdue: 0,
+    totalRevenue: 0
   });
 
   const [clients, setClients] = useState([]);
