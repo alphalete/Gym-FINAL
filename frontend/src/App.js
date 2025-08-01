@@ -84,43 +84,39 @@ const GoGymLayout = ({ children, currentPage, onNavigate }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Fetch dashboard stats
+  // Fetch dashboard stats with mobile-first approach
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        console.log('📱 Dashboard: Using direct API calls to fix mobile data issues');
+        setSyncStatus('syncing');
         
         const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
         
         if (!backendUrl) {
-          console.error('📱 Dashboard: No backend URL configured');
+          setSyncStatus('offline');
           return;
         }
         
-        // Get clients directly from API
-        let clientsData = [];
-        try {
-          console.log('📱 Dashboard: Direct API call for clients...');
-          const clientsResponse = await fetch(`${backendUrl}/api/clients`);
-          
-          console.log('📱 Dashboard: Client response status:', clientsResponse.status);
-          console.log('📱 Dashboard: Client response ok:', clientsResponse.ok);
-          
-          if (clientsResponse.ok) {
-            clientsData = await clientsResponse.json();
-            console.log(`📱 Dashboard: SUCCESS - Got ${clientsData.length} clients from API`);
-            console.log('📱 Dashboard: First client:', clientsData[0]?.name);
-          } else {
-            console.error(`📱 Dashboard: Clients API failed with status ${clientsResponse.status}`);
-            throw new Error(`Clients API returned status ${clientsResponse.status}`);
-          }
-        } catch (error) {
-          console.error('📱 Dashboard: Error fetching clients:', error);
-          console.error('📱 Dashboard: This is why you see 1 member instead of 26!');
-          throw error; // Re-throw to trigger fallback
-        }
+        // Get clients and payment stats in parallel for faster mobile loading
+        const [clientsResponse, paymentsResponse] = await Promise.all([
+          fetch(`${backendUrl}/api/clients`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' }
+          }),
+          fetch(`${backendUrl}/api/payments/stats`, {
+            method: 'GET', 
+            headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' }
+          })
+        ]);
         
-        if (clientsData.length > 0) {
+        if (clientsResponse.ok && paymentsResponse.ok) {
+          const [clientsData, paymentStats] = await Promise.all([
+            clientsResponse.json(),
+            paymentsResponse.json()
+          ]);
+          
+          setClients(clientsData);
+          
           const activeClients = clientsData.filter(c => c.status === 'Active');
           
           // Calculate payment statistics using AST timezone
@@ -133,7 +129,6 @@ const GoGymLayout = ({ children, currentPage, onNavigate }) => {
             return paymentDate < today;
           }).length;
           
-          // Calculate payments due today (within next 3 days)
           const dueTodayCount = activeClients.filter(client => {
             if (!client.next_payment_date) return false;
             const paymentDate = new Date(client.next_payment_date);
@@ -142,41 +137,23 @@ const GoGymLayout = ({ children, currentPage, onNavigate }) => {
             return diffDays >= 0 && diffDays <= 3;
           }).length;
 
-          // Fetch actual payment revenue like main Dashboard
-          let actualRevenue = 0;
-          try {
-            console.log('📱 Dashboard: Direct API call for payment stats...');
-            const paymentStatsResponse = await fetch(`${backendUrl}/api/payments/stats`);
-            
-            console.log('📱 Dashboard: Payment stats response status:', paymentStatsResponse.status);
-            console.log('📱 Dashboard: Payment stats response ok:', paymentStatsResponse.ok);
-            
-            if (paymentStatsResponse.ok) {
-              const paymentStats = await paymentStatsResponse.json();
-              actualRevenue = paymentStats.total_revenue || 0;
-              console.log(`📱 Dashboard: SUCCESS - Got TTD ${actualRevenue} total revenue from API`);
-              console.log('📱 Dashboard: Full payment stats:', paymentStats);
-            } else {
-              console.error(`📱 Dashboard: Payment stats API failed with status ${paymentStatsResponse.status}`);
-              throw new Error(`Payment stats API returned status ${paymentStatsResponse.status}`);
-            }
-          } catch (error) {
-            console.error('📱 Dashboard: Error fetching payment stats:', error);
-            console.error('📱 Dashboard: This is why you see TTD 0 instead of TTD 2630!');
-          }
-
-          console.log(`📱 Dashboard: Final stats - Clients: ${clientsData.length}, Active: ${activeClients.length}, Overdue: ${overdueCount}, Revenue: TTD ${actualRevenue}`);
-
           setStats({
             activeMembers: activeClients.length,
             paymentsDueToday: dueTodayCount,
             overdueAccounts: overdueCount,
-            overdue: overdueCount, // Add this field for the duplicate overdue card  
-            totalRevenue: actualRevenue // Use actual revenue instead of hardcoded
+            overdue: overdueCount,
+            totalRevenue: paymentStats.total_revenue || 0
           });
+          
+          setSyncStatus('online');
+          setLastSyncTime(new Date());
+          
+        } else {
+          throw new Error('API calls failed');
         }
       } catch (error) {
-        console.error('📱 Dashboard: Error fetching stats:', error);
+        setSyncStatus('offline');
+        // Keep existing data if available, don't reset to zeros
       }
     };
 
