@@ -1,4 +1,4 @@
-const CACHE_NAME = 'alphalete-mobile-v5.3.0-nuclear-cache-bust';
+const CACHE_NAME = 'alphalete-mobile-v6.0.0-ultimate-nuclear-cache-bust';
 const OFFLINE_DATA_KEY = 'alphalete-offline-data';
 
 console.log('📱 Mobile PWA Service Worker: v5.3.0 NUCLEAR CACHE BUST - Nuclear-level mobile cache busting with backend headers');
