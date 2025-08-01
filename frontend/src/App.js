@@ -1026,13 +1026,31 @@ const GoGymDashboard = () => {
         // Add cache-busting headers to ensure fresh data
         const cacheBuster = Date.now();
         
-        // Fetch both clients and payment stats in parallel
+        // Fetch both clients and payment stats in parallel with mobile-aggressive cache busting
         const [clientsResponse, paymentsResponse] = await Promise.all([
           fetch(`${backendUrl}/api/clients?_cb=${cacheBuster}`, {
-            headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+            method: 'GET',
+            headers: { 
+              'Cache-Control': 'no-cache, no-store, must-revalidate', 
+              'Pragma': 'no-cache',
+              'Expires': '0',
+              'If-None-Match': '*'
+            },
+            credentials: 'same-origin',
+            mode: 'cors',
+            cache: 'no-cache'
           }),
           fetch(`${backendUrl}/api/payments/stats?_cb=${cacheBuster}`, {
-            headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+            method: 'GET',
+            headers: { 
+              'Cache-Control': 'no-cache, no-store, must-revalidate', 
+              'Pragma': 'no-cache',
+              'Expires': '0',
+              'If-None-Match': '*'
+            },
+            credentials: 'same-origin',
+            mode: 'cors',
+            cache: 'no-cache'
           })
         ]);
         
