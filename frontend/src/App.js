@@ -2695,11 +2695,26 @@ const Payments = () => {
       const response = await fetch(`${backendUrl}/api/clients`);
       if (response.ok) {
         const clientsData = await response.json();
-        const today = new Date();
+        
+        // Fix timezone issues by using Atlantic Standard Time (AST is UTC-4)
+        const now = new Date();
+        const astOffset = -4 * 60; // AST is UTC-4 (in minutes)
+        const astNow = new Date(now.getTime() + (astOffset * 60 * 1000));
+        
         const overdue = clientsData.filter(client => {
-          const nextPaymentDate = new Date(client.next_payment_date);
-          return nextPaymentDate < today && client.status === 'Active';
+          if (!client.next_payment_date || client.status !== 'Active') return false;
+          
+          try {
+            const paymentDate = new Date(client.next_payment_date + 'T00:00:00');
+            const astPaymentDate = new Date(paymentDate.getTime() + (astOffset * 60 * 1000));
+            return astPaymentDate < astNow;
+          } catch (error) {
+            console.error(`Error parsing date for client ${client.name}:`, error);
+            return false;
+          }
         });
+        
+        console.log(`🔍 Overdue Clients (AST): ${overdue.length} found`);
         setOverdueClients(overdue);
       }
     } catch (error) {
