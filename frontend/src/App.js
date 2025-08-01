@@ -106,11 +106,25 @@ const GoGymLayout = ({ children, currentPage, onNavigate }) => {
             return diffDays >= 0 && diffDays <= 3;
           }).length;
 
+          // Fetch actual payment revenue like main Dashboard
+          let actualRevenue = 0;
+          try {
+            const paymentStatsResponse = await fetch(`${backendUrl}/api/payments/stats`);
+            if (paymentStatsResponse.ok) {
+              const paymentStats = await paymentStatsResponse.json();
+              actualRevenue = paymentStats.total_revenue || 0;
+              console.log(`✅ GoGymLayout: Total revenue from payments: TTD ${actualRevenue}`);
+            }
+          } catch (error) {
+            console.error('❌ GoGymLayout: Error fetching payment stats:', error);
+          }
+
           setStats({
             activeMembers: activeClients.length,
             paymentsDueToday: dueTodayCount,
             overdueAccounts: overdueCount,
-            totalRevenue: 0 // Will be fetched from API, don't hardcode
+            overdue: overdueCount, // Add this field for the duplicate overdue card  
+            totalRevenue: actualRevenue // Use actual revenue instead of hardcoded
           });
         }
       } catch (error) {
