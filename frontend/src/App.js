@@ -1023,10 +1023,17 @@ const GoGymDashboard = () => {
         setSyncStatus('syncing');
         const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
         
+        // Add cache-busting headers to ensure fresh data
+        const cacheBuster = Date.now();
+        
         // Fetch both clients and payment stats in parallel
         const [clientsResponse, paymentsResponse] = await Promise.all([
-          fetch(`${backendUrl}/api/clients`),
-          fetch(`${backendUrl}/api/payments/stats`)
+          fetch(`${backendUrl}/api/clients?_cb=${cacheBuster}`, {
+            headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+          }),
+          fetch(`${backendUrl}/api/payments/stats?_cb=${cacheBuster}`, {
+            headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+          })
         ]);
         
         if (clientsResponse.ok && paymentsResponse.ok) {
@@ -1034,6 +1041,12 @@ const GoGymDashboard = () => {
             clientsResponse.json(),
             paymentsResponse.json()
           ]);
+          
+          console.log('📱 Dashboard: Fresh data loaded:', {
+            clients: clientsData.length,
+            totalRevenue: paymentStats.total_revenue,
+            timestamp: new Date().toISOString()
+          });
           
           setClients(clientsData);
           
@@ -1072,7 +1085,28 @@ const GoGymDashboard = () => {
       }
     };
 
+    // Initial fetch
     fetchData();
+    
+    // Refresh data when window gains focus (user returns to tab/app)
+    const handleFocus = () => {
+      console.log('📱 Dashboard: Window focus detected, refreshing data...');
+      fetchData();
+    };
+    
+    // Refresh data periodically (every 30 seconds for fresh revenue data)
+    const interval = setInterval(() => {
+      console.log('📱 Dashboard: Periodic refresh triggered...');
+      fetchData();
+    }, 30000);
+    
+    window.addEventListener('focus', handleFocus);
+    
+    // Cleanup
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      clearInterval(interval);
+    };
   }, []);
 
   // Convert client data to payment format
