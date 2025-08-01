@@ -327,6 +327,13 @@ const GoGymLayout = ({ children, currentPage, onNavigate }) => {
             <div className="gogym-nav-bottom-label">Members</div>
           </button>
           <button 
+            className={`gogym-nav-bottom-item ${currentPage === '/add-client' ? 'active' : ''}`}
+            onClick={() => onNavigate('/add-client')}
+          >
+            <div className="gogym-nav-bottom-icon">➕</div>
+            <div className="gogym-nav-bottom-label">Add Member</div>
+          </button>
+          <button 
             className={`gogym-nav-bottom-item ${currentPage === '/payments' ? 'active' : ''}`}
             onClick={() => onNavigate('/payments')}
           >
