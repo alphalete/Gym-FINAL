@@ -1240,12 +1240,52 @@ const GoGymDashboard = () => {
     <div className="gogym-dashboard">
       {/* Mobile View */}
       <div className="block md:hidden">
-        {/* Mobile Status Bar with Manual Refresh Button */}
+        {/* Mobile Status Bar with Ultimate Cache Clear Button */}
         <div className="gogym-status-bar">
           <div className="gogym-status-left">
             <h1 className="gogym-app-title">ALPHALETE CLUB</h1>
           </div>
           <div className="gogym-status-right">
+            <button 
+              onClick={() => {
+                console.log('📱 ULTIMATE CACHE CLEAR requested by user');
+                
+                // Show confirmation dialog
+                if (window.confirm('🚨 ULTIMATE CACHE CLEAR\n\nThis will:\n- Clear ALL browser cache\n- Clear ALL local storage\n- Force reload the app\n- Get completely fresh data\n\nThis may take a moment. Continue?')) {
+                  setSyncStatus('syncing');
+                  
+                  // Clear all possible storage
+                  try {
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    if ('indexedDB' in window) {
+                      indexedDB.deleteDatabase('AlphaleteDB');
+                    }
+                    
+                    // Clear service worker cache
+                    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                      navigator.serviceWorker.controller.postMessage({ 
+                        type: 'CLEAR_ALL_DATA',
+                        ultimate: true 
+                      });
+                    }
+                    
+                    // Force hard reload after clearing everything
+                    setTimeout(() => {
+                      window.location.replace(window.location.href + '?ultimate_clear=' + Date.now());
+                    }, 500);
+                    
+                  } catch (error) {
+                    console.error('Ultimate cache clear error:', error);
+                    window.location.reload(true);
+                  }
+                }
+              }}
+              className="mr-2 px-2 py-1 bg-red-600 text-white rounded text-xs font-bold"
+              style={{ backgroundColor: '#dc2626', color: 'white' }}
+            >
+              🚨 CLEAR ALL
+            </button>
             <button 
               onClick={() => {
                 console.log('📱 Manual refresh triggered by user');
