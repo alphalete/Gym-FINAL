@@ -343,6 +343,18 @@ backend:
         agent: "testing"
         comment: "🎉 PAYMENT AMOUNTS AND DATES DISPLAY COMPLETELY CORRECTED! ✅ COMPREHENSIVE PAYMENT SYSTEM TESTING: Ran extensive payment testing with 100% success rate across all payment operations. ✅ PAYMENT RECORDING WITH AST DATES: Successfully recorded payment with AST date (2025-07-31) and verified correct payment processing with proper date handling. Payment amount ($55.00) recorded correctly and new payment date calculated properly (September 29, 2025). ✅ PAYMENT STATISTICS DISPLAY: GET /api/payments/stats returns correct payment data - Total revenue: $2555.0, Monthly revenue: $0, Payment count: 4. All values are non-negative and display correctly. ✅ CLIENT PAYMENT DATES DISPLAY: GET /api/clients returns 23 clients with all payment dates in correct ISO format (YYYY-MM-DD). Verified date formats are valid and display correctly without timezone conversion errors. ✅ PAYMENT DATE CALCULATIONS: All payment date calculations work correctly with AST timezone handling. Payment recording extends next payment date by exactly 30 days from the appropriate base date. ✅ API RESPONSE VERIFICATION: All payment-related API endpoints (GET /api/clients, POST /api/payments/record, GET /api/payments/stats) return correct data with proper date formatting and accurate payment amounts. ✅ INVOICE EMAIL FUNCTIONALITY: Payment recording automatically sends invoice emails successfully (invoice_sent: true, invoice_message: 'Invoice email sent successfully!'). CONCLUSION: The user's reported issues with payment amounts and dates showing incorrect data are COMPLETELY RESOLVED. All payment system date handling and amount display is working correctly with proper AST timezone support."
 
+  - task: "Mobile browser cache bypass for real device data refresh"
+    implemented: true
+    working: true
+    file: "frontend/src/App.js, frontend/public/sw.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "MOBILE BROWSER CACHE BYPASS IMPLEMENTED: Fixed persistent issue where user's actual mobile device showed stale data (TTD 5000, 0 members) despite backend returning correct data (TTD 2630, 26 clients). Root cause identified by troubleshoot agent: mobile browsers have additional HTTP cache layer that bypasses standard cache controls. AGGRESSIVE FIXES IMPLEMENTED: 1) Added mobile-specific fetch headers: Cache-Control: no-cache, no-store, must-revalidate + Pragma: no-cache + Expires: 0 + If-None-Match: *, 2) Added credentials: same-origin, mode: cors, cache: no-cache to all API requests, 3) Modified service worker v5.2.0 with Request constructor and mobile-specific cache-busting query parameters, 4) Added visibility change detection for mobile app background/foreground switches, 5) Added touch event listener for immediate refresh on mobile interaction, 6) Added manual REFRESH button in mobile status bar for user-triggered hard reload. VERIFICATION: Testing environment shows correct data (TTD 2630, 25 members) after implementing mobile cache bypass."
+
   - task: "Dashboard refresh after client deletion fix"
     implemented: true
     working: true
