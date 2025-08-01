@@ -185,7 +185,7 @@ const GoGymLayout = ({ children, currentPage, onNavigate }) => {
             <div className="gogym-stat-label">Overdue Accounts</div>
           </div>
           <div className="gogym-stat-card dark-blue">
-            <div className="gogym-stat-number">{stats.totalRevenue}</div>
+            <div className="gogym-stat-number">{stats.overdue}</div>
             <div className="gogym-stat-label">Overdue</div>
           </div>
         </div>
