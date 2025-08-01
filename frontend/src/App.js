@@ -1195,12 +1195,22 @@ const GoGymDashboard = () => {
     <div className="gogym-dashboard">
       {/* Mobile View */}
       <div className="block md:hidden">
-        {/* Mobile Status Bar */}
+        {/* Mobile Status Bar with Manual Refresh Button */}
         <div className="gogym-status-bar">
           <div className="gogym-status-left">
             <h1 className="gogym-app-title">ALPHALETE CLUB</h1>
           </div>
           <div className="gogym-status-right">
+            <button 
+              onClick={() => {
+                console.log('📱 Manual refresh triggered by user');
+                setSyncStatus('syncing');
+                window.location.reload(true); // Force hard reload
+              }}
+              className="mr-2 px-2 py-1 bg-white bg-opacity-20 rounded text-xs font-bold"
+            >
+              🔄 REFRESH
+            </button>
             <div className={`gogym-sync-indicator ${syncStatus}`}>
               {syncStatus === 'syncing' && <span>🔄</span>}
               {syncStatus === 'online' && <span>✅</span>}
