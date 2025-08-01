@@ -5,6 +5,52 @@ import './App.css';
 
 const localDB = new LocalStorageManager();
 
+// AST (Atlantic Standard Time) Utility Functions
+const getASTDate = () => {
+  // Create a new date in AST (UTC-4)
+  const now = new Date();
+  const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+  const ast = new Date(utc + (-4 * 3600000)); // AST is UTC-4
+  return ast;
+};
+
+const formatDateForInput = (date) => {
+  // Format date for HTML date input (YYYY-MM-DD) in AST
+  const astDate = date || getASTDate();
+  return astDate.toISOString().split('T')[0];
+};
+
+const formatDateForDisplay = (dateString, includeTime = false) => {
+  // Format date string for display in AST
+  if (!dateString) return 'N/A';
+  try {
+    const date = new Date(dateString);
+    const utc = date.getTime() + (date.getTimezoneOffset() * 60000);
+    const ast = new Date(utc + (-4 * 3600000)); // Convert to AST
+    
+    if (includeTime) {
+      return ast.toLocaleString('en-US', { 
+        timeZone: 'America/Barbados', // AST timezone
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } else {
+      return ast.toLocaleDateString('en-US', { 
+        timeZone: 'America/Barbados', // AST timezone
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+  } catch (error) {
+    console.warn('Date formatting error:', error);
+    return dateString;
+  }
+};
+
 // GoGym4U Layout Wrapper Component
 const GoGymLayout = ({ children, currentPage, onNavigate }) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
