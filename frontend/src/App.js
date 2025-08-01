@@ -2295,7 +2295,7 @@ const AddClient = () => {
     phone: "",
     membership_type: "",
     monthly_fee: 50.00,
-    start_date: new Date().toISOString().split('T')[0],
+    start_date: formatDateForInput(getASTDate()), // Use AST date
     auto_reminders_enabled: true
   });
 
