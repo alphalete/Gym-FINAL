@@ -380,11 +380,27 @@ async def update_client(client_id: str, client_update: ClientUpdate):
 
 @api_router.delete("/clients/{client_id}")
 async def delete_client(client_id: str):
-    """Delete a client"""
-    result = await db.clients.delete_one({"id": client_id})
-    if result.deleted_count == 0:
+    """Delete a client and their payment history"""
+    # First check if client exists
+    client = await db.clients.find_one({"id": client_id})
+    if not client:
         raise HTTPException(status_code=404, detail="Client not found")
-    return {"message": "Client deleted successfully"}
+    
+    client_name = client.get('name', 'Unknown')
+    
+    # Delete all payment records for this client
+    payment_deletion_result = await db.payment_records.delete_many({"client_id": client_id})
+    
+    # Delete the client
+    client_deletion_result = await db.clients.delete_one({"id": client_id})
+    
+    return {
+        "message": "Client deleted successfully",
+        "client_name": client_name,
+        "client_deleted": client_deletion_result.deleted_count > 0,
+        "payment_records_deleted": payment_deletion_result.deleted_count,
+        "details": f"Deleted client '{client_name}' and {payment_deletion_result.deleted_count} associated payment records"
+    }
 
 # Email Routes (Updated to handle new client structure)
 @api_router.post("/email/test")
