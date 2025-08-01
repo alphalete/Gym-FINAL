@@ -1,7 +1,7 @@
-const CACHE_NAME = 'alphalete-mobile-v5.1.0-dashboard-refresh-fix';
+const CACHE_NAME = 'alphalete-mobile-v5.2.0-mobile-cache-bypass';
 const OFFLINE_DATA_KEY = 'alphalete-offline-data';
 
-console.log('📱 Mobile PWA Service Worker: v5.1.0 DASHBOARD REFRESH FIX - Mobile dashboard now refreshes after client deletion');
+console.log('📱 Mobile PWA Service Worker: v5.2.0 MOBILE CACHE BYPASS - Aggressive mobile browser cache bypass implemented');
 
 // FORCE DELETE ALL CACHES AND RELOAD IMMEDIATELY
 self.addEventListener('install', event => {
