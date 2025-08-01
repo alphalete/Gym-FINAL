@@ -2398,10 +2398,60 @@ const AddClient = () => {
       return;
     }
 
+    // Validate payment data if payment recording is enabled
+    if (recordPayment) {
+      if (!paymentData.amount_paid || parseFloat(paymentData.amount_paid) <= 0) {
+        alert('Please enter a valid payment amount');
+        return;
+      }
+    }
+
     setLoading(true);
     try {
-      await localDB.addClient(formData);
-      alert(`✅ ${formData.name} added successfully!`);
+      // First, add the client
+      const clientResult = await localDB.addClient(formData);
+      console.log('✅ Client added:', clientResult);
+      
+      // If payment recording is enabled, record the payment
+      if (recordPayment && clientResult.success) {
+        try {
+          const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+          
+          const paymentRecord = {
+            client_id: clientResult.data.id,
+            client_name: formData.name,
+            amount_paid: parseFloat(paymentData.amount_paid),
+            payment_date: paymentData.payment_date,
+            payment_method: paymentData.payment_method,
+            notes: paymentData.notes || `Initial payment for ${formData.name}`,
+            recorded_by: 'system',
+            recorded_at: new Date().toISOString()
+          };
+
+          console.log('💳 Recording initial payment:', paymentRecord);
+          
+          const paymentResponse = await fetch(`${backendUrl}/api/payments/record`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(paymentRecord)
+          });
+
+          if (paymentResponse.ok) {
+            const paymentResult = await paymentResponse.json();
+            console.log('✅ Initial payment recorded:', paymentResult);
+            alert(`✅ ${formData.name} added successfully with initial payment of TTD ${paymentData.amount_paid}!`);
+          } else {
+            console.warn('⚠️ Client added but payment recording failed');
+            alert(`✅ ${formData.name} added successfully, but payment recording failed. You can record the payment manually.`);
+          }
+        } catch (paymentError) {
+          console.error('Error recording initial payment:', paymentError);
+          alert(`✅ ${formData.name} added successfully, but payment recording failed. You can record the payment manually.`);
+        }
+      } else {
+        alert(`✅ ${formData.name} added successfully!`);
+      }
+      
       navigate('/clients');
     } catch (error) {
       console.error('Error adding client:', error);
