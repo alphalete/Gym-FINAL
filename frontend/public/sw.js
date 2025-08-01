@@ -1,7 +1,7 @@
-const CACHE_NAME = 'alphalete-mobile-v5.2.0-mobile-cache-bypass';
+const CACHE_NAME = 'alphalete-mobile-v5.3.0-nuclear-cache-bust';
 const OFFLINE_DATA_KEY = 'alphalete-offline-data';
 
-console.log('📱 Mobile PWA Service Worker: v5.2.0 MOBILE CACHE BYPASS - Aggressive mobile browser cache bypass implemented');
+console.log('📱 Mobile PWA Service Worker: v5.3.0 NUCLEAR CACHE BUST - Nuclear-level mobile cache busting with backend headers');
 
 // FORCE DELETE ALL CACHES AND RELOAD IMMEDIATELY
 self.addEventListener('install', event => {
