@@ -2408,8 +2408,33 @@ const AddClient = () => {
 
     setLoading(true);
     try {
+      // Prepare client data with proper payment due logic
+      const clientDataToSubmit = {
+        ...formData,
+        // Set next payment date based on payment status
+        next_payment_date: recordPayment 
+          ? (() => {
+              // If payment recorded, next payment is 30 days from start date
+              const startDate = new Date(formData.start_date);
+              const nextPaymentDate = new Date(startDate);
+              nextPaymentDate.setDate(startDate.getDate() + 30);
+              return nextPaymentDate.toISOString().split('T')[0];
+            })()
+          : formData.start_date, // If no payment, payment is due immediately (on start date)
+        payment_status: recordPayment ? 'paid' : 'due',
+        amount_owed: recordPayment ? 0 : formData.monthly_fee
+      };
+
+      console.log('💡 Client payment logic:', {
+        recordPayment,
+        start_date: formData.start_date,
+        next_payment_date: clientDataToSubmit.next_payment_date,
+        payment_status: clientDataToSubmit.payment_status,
+        amount_owed: clientDataToSubmit.amount_owed
+      });
+      
       // First, add the client
-      const clientResult = await localDB.addClient(formData);
+      const clientResult = await localDB.addClient(clientDataToSubmit);
       console.log('✅ Client added:', clientResult);
       
       // If payment recording is enabled, record the payment
@@ -2449,7 +2474,8 @@ const AddClient = () => {
           alert(`✅ ${formData.name} added successfully, but payment recording failed. You can record the payment manually.`);
         }
       } else {
-        alert(`✅ ${formData.name} added successfully!`);
+        // No payment recorded - client owes money immediately
+        alert(`✅ ${formData.name} added successfully! Payment of TTD ${formData.monthly_fee} is due immediately.`);
       }
       
       navigate('/clients');
