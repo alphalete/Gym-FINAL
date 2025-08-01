@@ -1127,8 +1127,8 @@ const Dashboard = () => {
         const paymentStatsResponse = await fetch(`${backendUrl}/api/payments/stats`);
         if (paymentStatsResponse.ok) {
           const paymentStats = await paymentStatsResponse.json();
-          actualRevenue = paymentStats.monthly_revenue || 0;
-          console.log(`✅ Dashboard: Actual revenue from payments: TTD ${actualRevenue}`);
+          actualRevenue = paymentStats.total_revenue || 0; // Use total_revenue instead of monthly_revenue
+          console.log(`✅ Dashboard: Total revenue from payments: TTD ${actualRevenue}`);
         } else {
           console.warn('⚠️ Dashboard: Could not fetch payment stats, using potential revenue');
           actualRevenue = clients.filter(c => c.status === 'Active').reduce((sum, c) => sum + (c.monthly_fee || 0), 0) || 0;
