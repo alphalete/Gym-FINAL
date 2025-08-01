@@ -7,7 +7,7 @@ from datetime import datetime, date, timedelta
 from typing import Dict, Any
 
 class MultiplePaymentLogicTester:
-    def __init__(self, base_url="https://a2eb3b6a-2c20-4e9f-b52b-bd4f318d28fc.preview.emergentagent.com"):
+    def __init__(self, base_url="https://8beb6460-0117-4864-a970-463f629aa57c.preview.emergentagent.com"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
         self.tests_run = 0
