@@ -142,13 +142,22 @@ const GoGymLayout = ({ children, currentPage, onNavigate }) => {
           try {
             console.log('📱 Dashboard: Direct API call for payment stats...');
             const paymentStatsResponse = await fetch(`${backendUrl}/api/payments/stats`);
+            
+            console.log('📱 Dashboard: Payment stats response status:', paymentStatsResponse.status);
+            console.log('📱 Dashboard: Payment stats response ok:', paymentStatsResponse.ok);
+            
             if (paymentStatsResponse.ok) {
               const paymentStats = await paymentStatsResponse.json();
               actualRevenue = paymentStats.total_revenue || 0;
               console.log(`📱 Dashboard: SUCCESS - Got TTD ${actualRevenue} total revenue from API`);
+              console.log('📱 Dashboard: Full payment stats:', paymentStats);
+            } else {
+              console.error(`📱 Dashboard: Payment stats API failed with status ${paymentStatsResponse.status}`);
+              throw new Error(`Payment stats API returned status ${paymentStatsResponse.status}`);
             }
           } catch (error) {
             console.error('📱 Dashboard: Error fetching payment stats:', error);
+            console.error('📱 Dashboard: This is why you see TTD 0 instead of TTD 2630!');
           }
 
           console.log(`📱 Dashboard: Final stats - Clients: ${clientsData.length}, Active: ${activeClients.length}, Overdue: ${overdueCount}, Revenue: TTD ${actualRevenue}`);
