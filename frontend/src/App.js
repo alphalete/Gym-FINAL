@@ -97,14 +97,22 @@ const GoGymLayout = ({ children, currentPage, onNavigate }) => {
         try {
           console.log('📱 Dashboard: Direct API call for clients...');
           const clientsResponse = await fetch(`${backendUrl}/api/clients`);
+          
+          console.log('📱 Dashboard: Client response status:', clientsResponse.status);
+          console.log('📱 Dashboard: Client response ok:', clientsResponse.ok);
+          
           if (clientsResponse.ok) {
             clientsData = await clientsResponse.json();
             console.log(`📱 Dashboard: SUCCESS - Got ${clientsData.length} clients from API`);
+            console.log('📱 Dashboard: First client:', clientsData[0]?.name);
           } else {
             console.error(`📱 Dashboard: Clients API failed with status ${clientsResponse.status}`);
+            throw new Error(`Clients API returned status ${clientsResponse.status}`);
           }
         } catch (error) {
           console.error('📱 Dashboard: Error fetching clients:', error);
+          console.error('📱 Dashboard: This is why you see 1 member instead of 26!');
+          throw error; // Re-throw to trigger fallback
         }
         
         if (clientsData.length > 0) {
