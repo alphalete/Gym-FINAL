@@ -1266,108 +1266,83 @@ const Dashboard = () => {
     setLoading(true);
     
     try {
-      console.log('🔍 Dashboard: Starting DIRECT API data fetch (no LocalStorage)...');
-      
       const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-      console.log('🔍 Dashboard: Backend URL:', backendUrl);
       
       if (!backendUrl) {
         throw new Error('No backend URL configured');
       }
       
-      // DIRECT API CALL - Bypass LocalStorageManager completely
-      console.log('📡 Dashboard: Direct API call to fetch clients...');
-      const clientsResponse = await fetch(`${backendUrl}/api/clients`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-cache'
-        }
-      });
+      // Mobile-optimized parallel API calls
+      const [clientsResponse, paymentsResponse] = await Promise.all([
+        fetch(`${backendUrl}/api/clients`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' }
+        }),
+        fetch(`${backendUrl}/api/payments/stats`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' }
+        })
+      ]);
       
-      console.log('📡 Dashboard: Clients response status:', clientsResponse.status);
-      
-      if (!clientsResponse.ok) {
-        throw new Error(`Clients API failed with status ${clientsResponse.status}`);
+      if (clientsResponse.ok && paymentsResponse.ok) {
+        const [clients, paymentStats] = await Promise.all([
+          clientsResponse.json(),
+          paymentsResponse.json()
+        ]);
+        
+        // Calculate real statistics
+        const activeClients = clients.filter(c => c.status === 'Active');
+        const inactiveClients = clients.filter(c => c.status !== 'Active');
+        
+        // Calculate overdue payments using AST
+        const today = getASTDate();
+        today.setHours(0, 0, 0, 0);
+        
+        const overdueClients = activeClients.filter(client => {
+          if (!client.next_payment_date) return false;
+          const paymentDate = new Date(client.next_payment_date);
+          return paymentDate < today;
+        });
+        
+        const upcomingClients = activeClients.filter(client => {
+          if (!client.next_payment_date) return false;
+          const paymentDate = new Date(client.next_payment_date);
+          const diffTime = paymentDate - today;
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          return diffDays >= 0 && diffDays <= 7;
+        });
+        
+        const newStats = {
+          totalClients: clients.length,
+          activeClients: activeClients.length,
+          inactiveClients: inactiveClients.length,
+          totalRevenue: paymentStats.total_revenue || 0,
+          pendingPayments: upcomingClients.length,
+          overduePayments: overdueClients.length,
+          upcomingPayments: upcomingClients.length
+        };
+        
+        setStats(newStats);
+        setRecentClients(clients.slice(0, 5));
+        
+      } else {
+        throw new Error('API calls failed');
       }
-      
-      const clients = await clientsResponse.json();
-      console.log(`✅ Dashboard: SUCCESS - Fetched ${clients.length} clients directly from API`);
-      console.log('✅ Dashboard: First 3 clients:', clients.slice(0, 3).map(c => c.name));
-      
-      // DIRECT API CALL for payment stats
-      console.log('📡 Dashboard: Direct API call to fetch payment stats...');
-      const paymentStatsResponse = await fetch(`${backendUrl}/api/payments/stats`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-cache'
-        }
-      });
-      
-      console.log('📡 Dashboard: Payment stats response status:', paymentStatsResponse.status);
-      
-      if (!paymentStatsResponse.ok) {
-        throw new Error(`Payment stats API failed with status ${paymentStatsResponse.status}`);
-      }
-      
-      const paymentStats = await paymentStatsResponse.json();
-      console.log('✅ Dashboard: SUCCESS - Payment stats from API:', paymentStats);
-      
-      // Calculate real statistics
-      const activeClients = clients.filter(c => c.status === 'Active');
-      const inactiveClients = clients.filter(c => c.status !== 'Active');
-      
-      // Calculate overdue payments using AST
-      const today = getASTDate();
-      today.setHours(0, 0, 0, 0);
-      
-      const overdueClients = activeClients.filter(client => {
-        if (!client.next_payment_date) return false;
-        const paymentDate = new Date(client.next_payment_date);
-        return paymentDate < today;
-      });
-      
-      const upcomingClients = activeClients.filter(client => {
-        if (!client.next_payment_date) return false;
-        const paymentDate = new Date(client.next_payment_date);
-        const diffTime = paymentDate - today;
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        return diffDays >= 0 && diffDays <= 7;
-      });
-      
-      const newStats = {
-        totalClients: clients.length,
-        activeClients: activeClients.length,
-        inactiveClients: inactiveClients.length,
-        totalRevenue: paymentStats.total_revenue || 0, // Use ACTUAL revenue from API
-        pendingPayments: upcomingClients.length,
-        overduePayments: overdueClients.length,
-        upcomingPayments: upcomingClients.length
-      };
-      
-      console.log('📈 Dashboard: Final calculated stats:', newStats);
-      setStats(newStats);
-      
-      // Set recent clients
-      setRecentClients(clients.slice(0, 5));
       
     } catch (error) {
-      console.error('❌ Dashboard: DIRECT API FAILED:', error);
-      console.error('❌ Dashboard: This is why you see wrong data!');
+      // Graceful fallback - keep existing data if available
+      setStats(prevStats => ({
+        ...prevStats,
+        totalClients: prevStats.totalClients || 0,
+        activeClients: prevStats.activeClients || 0,
+        inactiveClients: prevStats.inactiveClients || 0,
+        totalRevenue: prevStats.totalRevenue || 0,
+        pendingPayments: prevStats.pendingPayments || 0,
+        overduePayments: prevStats.overduePayments || 0,
+        upcomingPayments: prevStats.upcomingPayments || 0
+      }));
       
-      // Set empty fallback instead of demo data
-      setStats({
-        totalClients: 0,
-        activeClients: 0,
-        inactiveClients: 0,
-        totalRevenue: 0,
-        pendingPayments: 0,
-        overduePayments: 0,
-        upcomingPayments: 0
-      });
-      
-      setRecentClients([]);
+      setRecentClients(prevClients => prevClients.length > 0 ? prevClients : []);
     } finally {
       setLoading(false);
     }
