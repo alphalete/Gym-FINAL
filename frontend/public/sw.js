@@ -163,4 +163,4 @@ self.addEventListener('fetch', event => {
   );
 });
 
-console.log('📱 Mobile PWA Service Worker v4.0.0: COMPLETE FIX ready - Will force reload all pages');
+console.log('📱 Mobile PWA Service Worker v6.0.0: ULTIMATE NUCLEAR CACHE BUST - Final mobile cache solution ready');
