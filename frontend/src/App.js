@@ -2815,22 +2815,31 @@ const Payments = () => {
 
   const fetchClients = async () => {
     try {
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-      console.log(`🔍 Fetching clients from: ${backendUrl}/api/clients`);
+      console.log(`📱 Mobile: Fetching clients using mobile-optimized approach`);
       
-      const response = await fetch(`${backendUrl}/api/clients`);
-      if (response.ok) {
-        const clientsData = await response.json();
-        console.log(`✅ Successfully fetched ${clientsData.length} clients`);
-        setClients(clientsData);
+      // Use LocalStorageManager for mobile-first data management
+      const result = await localDB.getClients();
+      const clientsData = result.data || [];
+      
+      console.log(`📱 Mobile: Retrieved ${clientsData.length} clients (offline: ${result.offline})`);
+      
+      if (result.offline) {
+        console.log('📱 Mobile: Using offline/cached data');
       } else {
-        console.error('❌ Failed to fetch clients - HTTP status:', response.status);
-        throw new Error(`HTTP ${response.status}`);
+        console.log('📱 Mobile: Using fresh backend data');
       }
+      
+      setClients(clientsData);
+      
+      // Show user-friendly status
+      if (result.error) {
+        console.error('📱 Mobile: Data fetch had errors:', result.error);
+      }
+      
     } catch (error) {
-      console.error('❌ Error fetching clients:', error);
-      // Show user-friendly error message
-      console.error('🚨 API Connection Failed. Check network connectivity.');
+      console.error('📱 Mobile: Error fetching clients:', error);
+      // Fallback to empty array but don't crash the app
+      setClients([]);
     }
   };
 
