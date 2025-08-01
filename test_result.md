@@ -63,6 +63,8 @@
     message: "EMAIL DELIVERY VERIFICATION COMPLETED: All email systems operational with 100% success rate. Gmail SMTP authentication working, backend APIs accurate, actual email delivery confirmed to deonaleong@gmail.com. Issue appears resolved."
   - agent: "main"
     message: "REVENUE CALCULATION ISSUE RESOLVED: Fixed critical problem where payments were not being stored in database and revenue was calculated from potential fees instead of actual payments. Added /api/payments/stats endpoint and updated frontend to display real collected revenue. Testing shows TTD 2,500 total revenue working correctly."
+  - agent: "main"
+    message: "CRITICAL ISSUES IDENTIFIED: User reports date display problems (showing August 1st instead of current AST date) and member addition failing with email uniqueness constraint error. Also reports wrong payment amounts and dates. Root causes: 1) Date initialization using UTC instead of AST (Atlantic Standard Time, UTC-4), 2) MongoDB email index constraint issue, 3) Timezone inconsistencies throughout the application."
 
 # Protocol Guidelines for Main agent
 #
