@@ -1019,6 +1019,7 @@ const GoGymDashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setSyncStatus('syncing');
         const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
         const response = await fetch(`${backendUrl}/api/clients`);
         if (response.ok) {
@@ -1048,9 +1049,14 @@ const GoGymDashboard = () => {
             overdueAccounts: overdueCount,
             overdue: overdueCount
           });
+          
+          setSyncStatus('online');
+        } else {
+          setSyncStatus('offline');
         }
       } catch (error) {
         console.error('Error fetching data:', error);
+        setSyncStatus('offline');
       }
     };
 
