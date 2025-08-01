@@ -2675,7 +2675,7 @@ const AddClient = () => {
                 disabled={loading}
                 className="ultra-contrast-button-primary px-6 py-3 rounded-lg flex-1"
               >
-                {loading ? 'Adding...' : '➕ Add Member'}
+                {loading ? 'Processing...' : (recordPayment ? '➕ Add Member & Record Payment' : '➕ Add Member')}
               </button>
               <button
                 type="button"
