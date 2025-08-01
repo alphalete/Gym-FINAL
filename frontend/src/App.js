@@ -1260,103 +1260,100 @@ const Dashboard = () => {
   }, []);
 
   const fetchDashboardData = async () => {
+    setLoading(true);
+    
     try {
-      setLoading(true);
-      console.log('🔍 Dashboard: Starting data fetch...');
+      console.log('🔍 Dashboard: Starting DIRECT API data fetch (no LocalStorage)...');
       
-      // Try to fetch from backend API
       const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       console.log('🔍 Dashboard: Backend URL:', backendUrl);
       
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+      if (!backendUrl) {
+        throw new Error('No backend URL configured');
+      }
       
-      const response = await fetch(`${backendUrl}/api/clients`, {
+      // DIRECT API CALL - Bypass LocalStorageManager completely
+      console.log('📡 Dashboard: Direct API call to fetch clients...');
+      const clientsResponse = await fetch(`${backendUrl}/api/clients`, {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-        signal: controller.signal
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache'
+        }
       });
       
-      clearTimeout(timeoutId);
+      console.log('📡 Dashboard: Clients response status:', clientsResponse.status);
       
-      if (!response.ok) {
-        throw new Error(`Backend API failed: ${response.status} ${response.statusText}`);
+      if (!clientsResponse.ok) {
+        throw new Error(`Clients API failed with status ${clientsResponse.status}`);
       }
       
-      const clients = await response.json();
-      console.log(`✅ Dashboard: Fetched ${clients.length} clients from backend`);
+      const clients = await clientsResponse.json();
+      console.log(`✅ Dashboard: SUCCESS - Fetched ${clients.length} clients directly from API`);
+      console.log('✅ Dashboard: First 3 clients:', clients.slice(0, 3).map(c => c.name));
       
-      // Fetch actual payment revenue
-      console.log('🔄 Dashboard: Fetching payment statistics...');
-      let actualRevenue = 0;
-      try {
-        const paymentStatsResponse = await fetch(`${backendUrl}/api/payments/stats`);
-        if (paymentStatsResponse.ok) {
-          const paymentStats = await paymentStatsResponse.json();
-          actualRevenue = paymentStats.total_revenue || 0; // Use total_revenue instead of monthly_revenue
-          console.log(`✅ Dashboard: Total revenue from payments: TTD ${actualRevenue}`);
-        } else {
-          console.warn('⚠️ Dashboard: Could not fetch payment stats, using potential revenue');
-          actualRevenue = clients.filter(c => c.status === 'Active').reduce((sum, c) => sum + (c.monthly_fee || 0), 0) || 0;
+      // DIRECT API CALL for payment stats
+      console.log('📡 Dashboard: Direct API call to fetch payment stats...');
+      const paymentStatsResponse = await fetch(`${backendUrl}/api/payments/stats`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache'
         }
-      } catch (error) {
-        console.error('❌ Dashboard: Error fetching payment stats:', error);
-        actualRevenue = clients.filter(c => c.status === 'Active').reduce((sum, c) => sum + (c.monthly_fee || 0), 0) || 0;
+      });
+      
+      console.log('📡 Dashboard: Payment stats response status:', paymentStatsResponse.status);
+      
+      if (!paymentStatsResponse.ok) {
+        throw new Error(`Payment stats API failed with status ${paymentStatsResponse.status}`);
       }
       
-      // Calculate statistics with fallback values
-      const totalClients = clients.length || 0;
-      const activeClients = clients.filter(c => c.status === 'Active').length || 0;
-      const inactiveClients = clients.filter(c => c.status === 'Inactive').length || 0;
+      const paymentStats = await paymentStatsResponse.json();
+      console.log('✅ Dashboard: SUCCESS - Payment stats from API:', paymentStats);
       
-      // Calculate payment statistics using AST timezone
+      // Calculate real statistics
+      const activeClients = clients.filter(c => c.status === 'Active');
+      const inactiveClients = clients.filter(c => c.status !== 'Active');
+      
+      // Calculate overdue payments using AST
       const today = getASTDate();
       today.setHours(0, 0, 0, 0);
       
-      let pendingPayments = 0;
-      let overduePayments = 0;
-      let upcomingPayments = 0;
+      const overdueClients = activeClients.filter(client => {
+        if (!client.next_payment_date) return false;
+        const paymentDate = new Date(client.next_payment_date);
+        return paymentDate < today;
+      });
       
-      clients.forEach(client => {
-        if (client.status === 'Active' && client.next_payment_date) {
-          try {
-            const paymentDate = new Date(client.next_payment_date + 'T00:00:00');
-            const daysUntilDue = Math.ceil((paymentDate - today) / (1000 * 60 * 60 * 24));
-            
-            if (daysUntilDue < 0) {
-              overduePayments++;
-            } else if (daysUntilDue <= 7) {
-              pendingPayments++;
-            } else {
-              upcomingPayments++;
-            }
-          } catch (dateError) {
-            console.warn('Date parsing error for client:', client.name, dateError);
-          }
-        }
+      const upcomingClients = activeClients.filter(client => {
+        if (!client.next_payment_date) return false;
+        const paymentDate = new Date(client.next_payment_date);
+        const diffTime = paymentDate - today;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays >= 0 && diffDays <= 7;
       });
       
       const newStats = {
-        totalClients,
-        activeClients,
-        inactiveClients,
-        totalRevenue: actualRevenue, // Use actual collected revenue
-        pendingPayments,
-        overduePayments,
-        upcomingPayments
+        totalClients: clients.length,
+        activeClients: activeClients.length,
+        inactiveClients: inactiveClients.length,
+        totalRevenue: paymentStats.total_revenue || 0, // Use ACTUAL revenue from API
+        pendingPayments: upcomingClients.length,
+        overduePayments: overdueClients.length,
+        upcomingPayments: upcomingClients.length
       };
       
-      console.log('📈 Dashboard: Setting stats:', newStats);
+      console.log('📈 Dashboard: Final calculated stats:', newStats);
       setStats(newStats);
       
       // Set recent clients
       setRecentClients(clients.slice(0, 5));
       
     } catch (error) {
-      console.error('❌ Dashboard: Error fetching data:', error);
+      console.error('❌ Dashboard: DIRECT API FAILED:', error);
+      console.error('❌ Dashboard: This is why you see wrong data!');
       
-      // Set fallback demo data so dashboard always shows something
-      console.log('🔄 Dashboard: Using fallback data...');
+      // Set empty fallback instead of demo data
       setStats({
         totalClients: 0,
         activeClients: 0,
@@ -1367,14 +1364,9 @@ const Dashboard = () => {
         upcomingPayments: 0
       });
       
-      setRecentClients([
-        { id: '1', name: 'John Doe', membership_type: 'Premium', monthly_fee: 75 },
-        { id: '2', name: 'Jane Smith', membership_type: 'Standard', monthly_fee: 50 },
-        { id: '3', name: 'Mike Johnson', membership_type: 'Elite', monthly_fee: 100 }
-      ]);
+      setRecentClients([]);
     } finally {
       setLoading(false);
-      console.log('✅ Dashboard: Loading completed');
     }
   };
 
