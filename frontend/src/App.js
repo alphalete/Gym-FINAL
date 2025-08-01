@@ -1057,7 +1057,6 @@ const GoGymDashboard = () => {
     const fetchData = async () => {
       try {
         setSyncStatus('syncing');
-        const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
         
         console.log('🚨 EMERGENCY DEBUG: Starting data fetch...');
         
