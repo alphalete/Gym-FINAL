@@ -83,18 +83,42 @@ const GoGymLayout = ({ children, currentPage, onNavigate }) => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
+        console.log('📱 Dashboard: Using direct API calls to fix mobile data issues');
+        
         const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-        const response = await fetch(`${backendUrl}/api/clients`);
-        if (response.ok) {
-          const clients = await response.json();
-          const activeClients = clients.filter(c => c.status === 'Active');
+        
+        if (!backendUrl) {
+          console.error('📱 Dashboard: No backend URL configured');
+          return;
+        }
+        
+        // Get clients directly from API
+        let clientsData = [];
+        try {
+          console.log('📱 Dashboard: Direct API call for clients...');
+          const clientsResponse = await fetch(`${backendUrl}/api/clients`);
+          if (clientsResponse.ok) {
+            clientsData = await clientsResponse.json();
+            console.log(`📱 Dashboard: SUCCESS - Got ${clientsData.length} clients from API`);
+            setClients(clientsData); // Update clients state
+          } else {
+            console.error(`📱 Dashboard: Clients API failed with status ${clientsResponse.status}`);
+          }
+        } catch (error) {
+          console.error('📱 Dashboard: Error fetching clients:', error);
+        }
+        
+        if (clientsData.length > 0) {
+          const activeClients = clientsData.filter(c => c.status === 'Active');
           
-          // Calculate overdue payments using AST timezone
+          // Calculate payment statistics using AST timezone
           const today = getASTDate();
           today.setHours(0, 0, 0, 0);
+          
           const overdueCount = activeClients.filter(client => {
             if (!client.next_payment_date) return false;
-            return new Date(client.next_payment_date) < today;
+            const paymentDate = new Date(client.next_payment_date);
+            return paymentDate < today;
           }).length;
           
           // Calculate payments due today (within next 3 days)
@@ -109,15 +133,18 @@ const GoGymLayout = ({ children, currentPage, onNavigate }) => {
           // Fetch actual payment revenue like main Dashboard
           let actualRevenue = 0;
           try {
+            console.log('📱 Dashboard: Direct API call for payment stats...');
             const paymentStatsResponse = await fetch(`${backendUrl}/api/payments/stats`);
             if (paymentStatsResponse.ok) {
               const paymentStats = await paymentStatsResponse.json();
               actualRevenue = paymentStats.total_revenue || 0;
-              console.log(`✅ GoGymLayout: Total revenue from payments: TTD ${actualRevenue}`);
+              console.log(`📱 Dashboard: SUCCESS - Got TTD ${actualRevenue} total revenue from API`);
             }
           } catch (error) {
-            console.error('❌ GoGymLayout: Error fetching payment stats:', error);
+            console.error('📱 Dashboard: Error fetching payment stats:', error);
           }
+
+          console.log(`📱 Dashboard: Final stats - Clients: ${clientsData.length}, Active: ${activeClients.length}, Overdue: ${overdueCount}, Revenue: TTD ${actualRevenue}`);
 
           setStats({
             activeMembers: activeClients.length,
@@ -128,7 +155,7 @@ const GoGymLayout = ({ children, currentPage, onNavigate }) => {
           });
         }
       } catch (error) {
-        console.error('Error fetching stats:', error);
+        console.error('📱 Dashboard: Error fetching stats:', error);
       }
     };
 
