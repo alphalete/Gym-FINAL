@@ -2575,6 +2575,100 @@ const AddClient = () => {
               </div>
             </div>
 
+            {/* Payment Recording Section */}
+            <div className="payment-recording-section mt-6 p-4 border-2 border-dashed border-gray-300 rounded-lg">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <label className="ultra-contrast-label block mb-1">Record Initial Payment</label>
+                  <p className="ultra-contrast-secondary text-xs">Some clients pay when they join, others pay later</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={recordPayment}
+                    onChange={(e) => {
+                      setRecordPayment(e.target.checked);
+                      if (e.target.checked) {
+                        // Auto-fill payment amount with monthly fee
+                        setPaymentData(prev => ({
+                          ...prev,
+                          amount_paid: formData.monthly_fee.toString()
+                        }));
+                      }
+                    }}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                </label>
+              </div>
+
+              {recordPayment && (
+                <div className="space-y-4 mt-4 p-4 bg-green-50 rounded-lg">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="ultra-contrast-label block mb-2">Amount Paid (TTD) *</label>
+                      <input
+                        type="number"
+                        value={paymentData.amount_paid}
+                        onChange={(e) => setPaymentData(prev => ({ ...prev, amount_paid: e.target.value }))}
+                        className="ultra-contrast-input w-full p-3 rounded-lg"
+                        placeholder="0.00"
+                        step="0.01"
+                        min="0"
+                        required={recordPayment}
+                      />
+                      <p className="text-xs text-gray-600 mt-1">Monthly fee: TTD {formData.monthly_fee}</p>
+                    </div>
+                    <div>
+                      <label className="ultra-contrast-label block mb-2">Payment Date *</label>
+                      <input
+                        type="date"
+                        value={paymentData.payment_date}
+                        onChange={(e) => setPaymentData(prev => ({ ...prev, payment_date: e.target.value }))}
+                        className="ultra-contrast-input w-full p-3 rounded-lg"
+                        required={recordPayment}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="ultra-contrast-label block mb-2">Payment Method</label>
+                      <select
+                        value={paymentData.payment_method}
+                        onChange={(e) => setPaymentData(prev => ({ ...prev, payment_method: e.target.value }))}
+                        className="ultra-contrast-input w-full p-3 rounded-lg"
+                      >
+                        <option value="Cash">Cash</option>
+                        <option value="Card">Card</option>
+                        <option value="Bank Transfer">Bank Transfer</option>
+                        <option value="Check">Check</option>
+                        <option value="Online Payment">Online Payment</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="ultra-contrast-label block mb-2">Notes (Optional)</label>
+                      <input
+                        type="text"
+                        value={paymentData.notes}
+                        onChange={(e) => setPaymentData(prev => ({ ...prev, notes: e.target.value }))}
+                        className="ultra-contrast-input w-full p-3 rounded-lg"
+                        placeholder="e.g., First month payment, Partial payment"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center p-3 bg-blue-100 rounded-lg">
+                    <div className="text-blue-600 text-lg mr-3">💡</div>
+                    <div>
+                      <p className="text-sm text-blue-800 font-medium">Payment Recording</p>
+                      <p className="text-xs text-blue-700">This payment will be recorded immediately and update the member's next payment date.</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
             <div className="flex space-x-3 pt-4">
               <button
                 type="submit"
