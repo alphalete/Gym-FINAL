@@ -1731,7 +1731,7 @@ const ClientManagement = () => {
         setQuickPaymentModal({ isOpen: false, client: null });
         setQuickPaymentForm({
           amount_paid: '',
-          payment_date: new Date().toISOString().split('T')[0],
+          payment_date: formatDateForInput(getASTDate()),
           payment_method: 'Cash',
           notes: ''
         });
