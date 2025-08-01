@@ -1,7 +1,7 @@
-const CACHE_NAME = 'alphalete-mobile-v2.0.0-force-update';
+const CACHE_NAME = 'alphalete-mobile-v3.0.0-toggle-fix';
 const OFFLINE_DATA_KEY = 'alphalete-offline-data';
 
-console.log('📱 Mobile PWA Service Worker: Force Update v2.0.0 - Starting');
+console.log('📱 Mobile PWA Service Worker: v3.0.0 Toggle Fix - Starting');
 
 // Immediately delete all old caches on install
 self.addEventListener('install', event => {
