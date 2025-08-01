@@ -1079,11 +1079,26 @@ const GoGymDashboard = () => {
             <button onClick={() => navigate('/payments')} style={{fontSize: '18px', color: '#666', background: 'none', border: 'none', cursor: 'pointer'}}>›</button>
           </div>
 
-          {/* Filter Tabs - These would filter the current view */}
+          {/* Filter Tabs - Now with working functionality */}
           <div className="gogym-filter-tabs">
-            <button className="gogym-filter-tab active">All</button>
-            <button className="gogym-filter-tab">Due Soon</button>
-            <button className="gogym-filter-tab">Overdue</button>
+            <button 
+              className={`gogym-filter-tab ${currentFilter === 'all' ? 'active' : ''}`}
+              onClick={() => setCurrentFilter('all')}
+            >
+              All ({clients.filter(c => c.status === 'Active').length})
+            </button>
+            <button 
+              className={`gogym-filter-tab ${currentFilter === 'due-soon' ? 'active' : ''}`}
+              onClick={() => setCurrentFilter('due-soon')}
+            >
+              Due Soon ({clients.filter(c => c.status === 'Active' && getClientPaymentStatus(c) === 'due-soon').length})
+            </button>
+            <button 
+              className={`gogym-filter-tab ${currentFilter === 'overdue' ? 'active' : ''}`}
+              onClick={() => setCurrentFilter('overdue')}
+            >
+              Overdue ({clients.filter(c => c.status === 'Active' && getClientPaymentStatus(c) === 'overdue').length})
+            </button>
           </div>
 
           {/* Payment Cards */}
