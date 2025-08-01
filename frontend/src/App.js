@@ -1240,15 +1240,41 @@ const GoGymDashboard = () => {
     <div className="gogym-dashboard">
       {/* Mobile View */}
       <div className="block md:hidden">
-        {/* Mobile Status Bar with Ultimate Cache Clear Button */}
+        {/* EMERGENCY DEBUG MODE - Mobile Status Bar with Ultimate Cache Clear Button */}
         <div className="gogym-status-bar">
           <div className="gogym-status-left">
-            <h1 className="gogym-app-title">ALPHALETE CLUB</h1>
+            <h1 className="gogym-app-title">ALPHALETE CLUB - DEBUG v{Date.now()}</h1>
           </div>
           <div className="gogym-status-right">
             <button 
               onClick={() => {
-                console.log('📱 ULTIMATE CACHE CLEAR requested by user');
+                console.log('🚨 EMERGENCY DEBUG - Current stats state:', stats);
+                console.log('🚨 EMERGENCY DEBUG - Current clients state:', clients);
+                console.log('🚨 EMERGENCY DEBUG - Backend URL:', process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL);
+                console.log('🚨 EMERGENCY DEBUG - User Agent:', navigator.userAgent);
+                console.log('🚨 EMERGENCY DEBUG - Current timestamp:', new Date().toISOString());
+                
+                alert(`🚨 EMERGENCY DEBUG INFO:
+                
+Current Stats:
+- Total Revenue: ${stats.totalRevenue}
+- Active Members: ${stats.activeMembers}
+- Sync Status: ${syncStatus}
+
+Backend URL: ${process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL}
+
+Timestamp: ${new Date().toISOString()}
+
+Check console for full details!`);
+              }}
+              className="mr-2 px-2 py-1 bg-yellow-600 text-white rounded text-xs font-bold"
+              style={{ backgroundColor: '#d97706', color: 'white' }}
+            >
+              🔍 DEBUG
+            </button>
+            <button 
+              onClick={() => {
+                console.log('🚨 ULTIMATE CACHE CLEAR requested by user');
                 
                 // Show confirmation dialog
                 if (window.confirm('🚨 ULTIMATE CACHE CLEAR\n\nThis will:\n- Clear ALL browser cache\n- Clear ALL local storage\n- Force reload the app\n- Get completely fresh data\n\nThis may take a moment. Continue?')) {
