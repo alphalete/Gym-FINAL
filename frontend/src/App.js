@@ -2325,8 +2325,17 @@ const AddClient = () => {
     phone: "",
     membership_type: "",
     monthly_fee: 50.00,
-    start_date: formatDateForInput(getASTDate()), // Use AST date
+    start_date: formatDateForInput(getASTDate()),
     auto_reminders_enabled: true
+  });
+
+  // Payment recording state
+  const [recordPayment, setRecordPayment] = useState(false);
+  const [paymentData, setPaymentData] = useState({
+    amount_paid: "",
+    payment_date: formatDateForInput(getASTDate()),
+    payment_method: "Cash",
+    notes: ""
   });
 
   const [membershipTypes, setMembershipTypes] = useState([]);
