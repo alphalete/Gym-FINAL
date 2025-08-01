@@ -100,7 +100,6 @@ const GoGymLayout = ({ children, currentPage, onNavigate }) => {
           if (clientsResponse.ok) {
             clientsData = await clientsResponse.json();
             console.log(`📱 Dashboard: SUCCESS - Got ${clientsData.length} clients from API`);
-            setClients(clientsData); // Update clients state
           } else {
             console.error(`📱 Dashboard: Clients API failed with status ${clientsResponse.status}`);
           }
