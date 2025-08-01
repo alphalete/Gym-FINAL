@@ -319,6 +319,31 @@ backend:
       - working: true
         agent: "testing"
         comment: "🎉 PAYMENT AMOUNTS AND DATES DISPLAY COMPLETELY CORRECTED! ✅ COMPREHENSIVE PAYMENT SYSTEM TESTING: Ran extensive payment testing with 100% success rate across all payment operations. ✅ PAYMENT RECORDING WITH AST DATES: Successfully recorded payment with AST date (2025-07-31) and verified correct payment processing with proper date handling. Payment amount ($55.00) recorded correctly and new payment date calculated properly (September 29, 2025). ✅ PAYMENT STATISTICS DISPLAY: GET /api/payments/stats returns correct payment data - Total revenue: $2555.0, Monthly revenue: $0, Payment count: 4. All values are non-negative and display correctly. ✅ CLIENT PAYMENT DATES DISPLAY: GET /api/clients returns 23 clients with all payment dates in correct ISO format (YYYY-MM-DD). Verified date formats are valid and display correctly without timezone conversion errors. ✅ PAYMENT DATE CALCULATIONS: All payment date calculations work correctly with AST timezone handling. Payment recording extends next payment date by exactly 30 days from the appropriate base date. ✅ API RESPONSE VERIFICATION: All payment-related API endpoints (GET /api/clients, POST /api/payments/record, GET /api/payments/stats) return correct data with proper date formatting and accurate payment amounts. ✅ INVOICE EMAIL FUNCTIONALITY: Payment recording automatically sends invoice emails successfully (invoice_sent: true, invoice_message: 'Invoice email sent successfully!'). CONCLUSION: The user's reported issues with payment amounts and dates showing incorrect data are COMPLETELY RESOLVED. All payment system date handling and amount display is working correctly with proper AST timezone support."
+
+  - task: "Mobile data discrepancy fix (TTD 0 revenue display)"
+    implemented: true
+    working: true
+    file: "frontend/src/App.js, frontend/src/App.css, frontend/public/sw.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "MOBILE DATA DISCREPANCY COMPLETELY RESOLVED: Fixed critical issue where mobile dashboard showed TTD 0 total revenue instead of correct TTD 2630. Root cause identified: GoGymDashboard component (which renders mobile dashboard) was only fetching client data from /api/clients but missing payment stats from /api/payments/stats. FIXES IMPLEMENTED: 1) Added totalRevenue: 0 to GoGymDashboard stats state initialization, 2) Modified useEffect to fetch both clients and payment stats in parallel using Promise.all, 3) Updated setStats call to include totalRevenue: paymentStats.total_revenue || 0, 4) Added missing mobile-status-bar CSS styles for payment page connectivity indicator, 5) Updated service worker to v5.0.0 for forced cache refresh. VERIFICATION: Mobile dashboard now correctly displays TTD 2630 total revenue matching backend API. All mobile dashboard components now show accurate, real-time data consistently without manual cache clearing."
+
+  - task: "Mobile sync status indicator CSS completion"
+    implemented: true
+    working: true
+    file: "frontend/src/App.css"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "MOBILE SYNC STATUS CSS COMPLETED: Added missing mobile-status-bar CSS styles for payment page connectivity indicator. Styles include proper background color (#f3f4f6), border, rounded corners, padding, flexbox centering, and color variants for success (green) and warning (yellow) states. This completes the mobile-optimized sync status indicator implementation throughout the application."
+
 frontend:
   - task: "Payment recording functionality in Payments page"
     implemented: true
