@@ -3105,6 +3105,15 @@ const Payments = () => {
         <div className="mb-8 hidden md:block">
           <h1 className="text-display ultra-contrast-text mb-2">Payment Tracking</h1>
           <p className="ultra-contrast-secondary">Monitor and manage member payments</p>
+          
+          {/* Mobile connectivity status */}
+          <div className="mobile-status-bar mt-3 p-3 rounded-lg text-sm bg-gray-100">
+            {navigator.onLine ? (
+              <span className="text-green-600 font-medium">📱 Online - Real-time data</span>
+            ) : (
+              <span className="text-yellow-600 font-medium">📱 Offline - Using cached data</span>
+            )}
+          </div>
         </div>
       
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
