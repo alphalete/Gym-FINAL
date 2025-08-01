@@ -1113,11 +1113,18 @@ const GoGymDashboard = () => {
     <div className="gogym-dashboard">
       {/* Mobile View */}
       <div className="block md:hidden">
-        {/* Mobile Header */}
-        <div className="gogym-mobile-header">
-          <button className="gogym-hamburger">☰</button>
-          <h1>Alphalete Club</h1>
-          <button className="gogym-stats-icon">📊</button>
+        {/* Mobile Status Bar */}
+        <div className="gogym-status-bar">
+          <div className="gogym-status-left">
+            <h1 className="gogym-app-title">ALPHALETE CLUB</h1>
+          </div>
+          <div className="gogym-status-right">
+            <div className={`gogym-sync-indicator ${syncStatus}`}>
+              {syncStatus === 'syncing' && <span>🔄</span>}
+              {syncStatus === 'online' && <span>✅</span>}
+              {syncStatus === 'offline' && <span>📶</span>}
+            </div>
+          </div>
         </div>
 
         {/* Stats Grid */}
