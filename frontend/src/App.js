@@ -1049,8 +1049,8 @@ const GoGymDashboard = () => {
             <div className="gogym-stat-label">Overdue Accounts</div>
           </div>
           <div className="gogym-stat-card dark-blue" onClick={() => navigate('/payments')}>
-            <div className="gogym-stat-number">{stats.overdue}</div>
-            <div className="gogym-stat-label">Overdue</div>
+            <div className="gogym-stat-number">TTD {stats.totalRevenue || 0}</div>
+            <div className="gogym-stat-label">Total Revenue</div>
           </div>
         </div>
 
