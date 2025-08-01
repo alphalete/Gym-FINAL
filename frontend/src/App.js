@@ -2689,9 +2689,28 @@ const Payments = () => {
   const calculateRealPaymentStats = async () => {
     try {
       const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      console.log(`🔍 Payment Stats: Testing backend connectivity to ${backendUrl}`);
+      
+      // Test basic connectivity first
+      let actualRevenue = 0;
+      try {
+        console.log('📡 Testing API health...');
+        const healthResponse = await fetch(`${backendUrl}/api/health`);
+        if (healthResponse.ok) {
+          const healthData = await healthResponse.json();
+          console.log('✅ API Health Check passed:', healthData.message);
+        } else {
+          console.warn('⚠️ API Health Check failed with status:', healthResponse.status);
+        }
+      } catch (healthError) {
+        console.error('❌ API Health Check failed:', healthError);
+        console.error('🚨 Your device cannot connect to the backend API. This may be due to:');
+        console.error('   - Network connectivity issues');
+        console.error('   - HTTPS/Security restrictions on mobile');
+        console.error('   - CORS or firewall blocking');
+      }
       
       // Get actual payment revenue
-      let actualRevenue = 0;
       try {
         const paymentStatsResponse = await fetch(`${backendUrl}/api/payments/stats`);
         if (paymentStatsResponse.ok) {
@@ -2700,9 +2719,14 @@ const Payments = () => {
           actualRevenue = paymentStats.total_revenue || 0;
           console.log(`✅ Payment Stats: Actual total revenue: TTD ${actualRevenue}`);
           console.log(`✅ Payment Stats: Monthly revenue: TTD ${paymentStats.monthly_revenue || 0}`);
+        } else {
+          console.error('❌ Payment stats API failed with status:', paymentStatsResponse.status);
         }
       } catch (error) {
         console.error('❌ Error fetching payment stats:', error);
+        console.error('🚨 Using fallback data due to API connection failure');
+        // Set a default value to show something rather than empty state
+        actualRevenue = 0;
       }
       
       const response = await fetch(`${backendUrl}/api/clients`);
