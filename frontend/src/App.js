@@ -1060,6 +1060,16 @@ const GoGymDashboard = () => {
         const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
         
         console.log('🚨 EMERGENCY DEBUG: Starting data fetch...');
+        
+        // EMERGENCY MOBILE URL FIX - Force correct backend URL
+        let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+        
+        // CRITICAL FIX: Override for mobile devices showing wrong URL
+        if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
+          backendUrl = 'https://8beb6460-0117-4864-a970-463f629aa57c.preview.emergentagent.com';
+          console.log('🚨 EMERGENCY DEBUG: OVERRIDING backend URL for mobile fix');
+        }
+        
         console.log('🚨 EMERGENCY DEBUG: Backend URL:', backendUrl);
         console.log('🚨 EMERGENCY DEBUG: User Agent:', navigator.userAgent);
         console.log('🚨 EMERGENCY DEBUG: Current timestamp:', new Date().toISOString());
