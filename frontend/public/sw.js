@@ -38,23 +38,28 @@ self.addEventListener('install', event => {
   );
 });
 
-// Take control immediately and reload all pages
+// Take control immediately and force ALL pages to reload with fresh data
 self.addEventListener('activate', event => {
-  console.log('📱 PWA v5.2.0: ACTIVATE - Taking control and reloading all pages');
+  console.log('📱 PWA v6.0.0: ULTIMATE ACTIVATE - Taking control and force reloading with fresh data');
   
   event.waitUntil(
-    self.clients.claim().then(() => {
-      // Force reload all open pages to get new data
-      return self.clients.matchAll().then(clients => {
+    Promise.all([
+      // Take control of all clients
+      self.clients.claim(),
+      // Clear ALL possible caches
+      caches.keys().then(keys => Promise.all(keys.map(key => caches.delete(key)))),
+      // Force all clients to reload with hard refresh
+      self.clients.matchAll().then(clients => {
         clients.forEach(client => {
-          console.log('📱 PWA v4.0.0: Force reloading client:', client.url);
+          console.log('📱 PWA v6.0.0: ULTIMATE - Force hard reload client:', client.url);
           client.postMessage({ 
-            type: 'FORCE_RELOAD_NEW_DATA',
-            message: 'New service worker active - reloading to get fresh data'
+            type: 'ULTIMATE_FORCE_RELOAD',
+            message: 'Ultimate cache clear - hard reloading with location.replace',
+            action: 'HARD_RELOAD_NOW'
           });
         });
-      });
-    })
+      })
+    ])
   );
 });
 
