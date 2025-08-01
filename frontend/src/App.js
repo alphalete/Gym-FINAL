@@ -659,7 +659,7 @@ const EditClientModal = ({ client, isOpen, onClose, onSave }) => {
         phone: client.phone || '',
         membership_type: client.membership_type || 'Standard',
         monthly_fee: client.monthly_fee || 0,
-        start_date: client.start_date ? new Date(client.start_date).toISOString().split('T')[0] : '',
+        start_date: client.start_date ? formatDateForInput(new Date(client.start_date)) : formatDateForInput(getASTDate()),
         status: client.status || 'Active',
         auto_reminders_enabled: client.auto_reminders_enabled !== undefined ? client.auto_reminders_enabled : true
       });
