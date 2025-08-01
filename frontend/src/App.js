@@ -938,7 +938,8 @@ const GoGymDashboard = () => {
           setClients(clientsData);
           
           const activeClients = clientsData.filter(c => c.status === 'Active');
-          const today = new Date();
+          const today = getASTDate();
+          today.setHours(0, 0, 0, 0);
           
           const overdueCount = activeClients.filter(client => {
             if (!client.next_payment_date) return false;
