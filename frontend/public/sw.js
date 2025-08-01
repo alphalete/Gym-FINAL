@@ -26,7 +26,7 @@ self.addEventListener('install', event => {
 
 // Take control immediately and reload all pages
 self.addEventListener('activate', event => {
-  console.log('📱 PWA v5.0.0: ACTIVATE - Taking control and reloading all pages');
+  console.log('📱 PWA v5.1.0: ACTIVATE - Taking control and reloading all pages');
   
   event.waitUntil(
     self.clients.claim().then(() => {
