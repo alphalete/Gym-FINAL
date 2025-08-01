@@ -110,7 +110,7 @@ const GoGymLayout = ({ children, currentPage, onNavigate }) => {
             activeMembers: activeClients.length,
             paymentsDueToday: dueTodayCount,
             overdueAccounts: overdueCount,
-            totalRevenue: 2 // Matching the reference image
+            totalRevenue: 0 // Will be fetched from API, don't hardcode
           });
         }
       } catch (error) {
