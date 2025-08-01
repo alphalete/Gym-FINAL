@@ -1367,9 +1367,9 @@ const Dashboard = () => {
             onClick={() => navigate('/clients')}
           />
           <ModernStatCard
-            title="Monthly Revenue"
+            title="Total Revenue"
             value={`TTD ${(stats.totalRevenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-            subtitle="Total potential revenue"
+            subtitle="Total collected revenue"
             icon="💰"
             trend={+12.3}
             color="secondary"
