@@ -2882,6 +2882,7 @@ const Payments = () => {
   });
   
   const [clients, setClients] = useState([]);
+  const [currentFilter, setCurrentFilter] = useState('all'); // 'all', 'due-soon', 'overdue'
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showReportsModal, setShowReportsModal] = useState(false);
   const [showOverdueModal, setShowOverdueModal] = useState(false);
