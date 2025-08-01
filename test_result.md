@@ -116,6 +116,18 @@
 
 user_problem_statement: "Implement automatic payment reminders that send 3 days before due date and on due date, with individual client settings to enable/disable automatic reminders for each client"
 
+  - task: "Cascading client deletion with payment history cleanup"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "CASCADING DELETION IMPLEMENTED: Modified DELETE /api/clients/{client_id} endpoint to delete both client and their associated payment history. When a client is deleted, the system now: 1) Checks if client exists (404 if not found), 2) Retrieves client name for response details, 3) Deletes all payment records from db.payment_records collection matching client_id, 4) Deletes the client record from db.clients collection, 5) Returns detailed response including client name, deletion counts, and confirmation message. This ensures data consistency and prevents orphaned payment records when clients are removed from the system."
+
 backend:
   - task: "Professional email template implementation"
     implemented: true
