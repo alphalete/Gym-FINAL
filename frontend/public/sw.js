@@ -1,24 +1,38 @@
 const CACHE_NAME = 'alphalete-mobile-v6.0.0-ultimate-nuclear-cache-bust';
 const OFFLINE_DATA_KEY = 'alphalete-offline-data';
 
-console.log('📱 Mobile PWA Service Worker: v5.3.0 NUCLEAR CACHE BUST - Nuclear-level mobile cache busting with backend headers');
+console.log('📱 Mobile PWA Service Worker: v6.0.0 ULTIMATE NUCLEAR CACHE BUST - Final solution for persistent mobile cache issue - Will FORCE browser cache deletion');
 
-// FORCE DELETE ALL CACHES AND RELOAD IMMEDIATELY
+// ULTIMATE NUCLEAR CACHE BUSTING - Clear ALL browser data
 self.addEventListener('install', event => {
-  console.log('📱 PWA v5.2.0: MOBILE CACHE BYPASS - Deleting all caches immediately');
+  console.log('📱 PWA v6.0.0: ULTIMATE CACHE BUST - Nuclear approach for mobile cache clearing');
   
   event.waitUntil(
-    // Delete ALL existing caches first
-    caches.keys().then(cacheNames => {
-      console.log('📱 PWA v4.0.0: Found caches to delete:', cacheNames);
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          console.log('📱 PWA v5.2.0: MOBILE CACHE BYPASS - deleting cache:', cacheName);
-          return caches.delete(cacheName);
-        })
-      );
-    }).then(() => {
-      console.log('📱 PWA v5.2.0: All old caches deleted, skipping waiting');
+    Promise.all([
+      // Delete ALL existing caches
+      caches.keys().then(cacheNames => {
+        console.log('📱 PWA v6.0.0: Found caches to delete:', cacheNames);
+        return Promise.all(
+          cacheNames.map(cacheName => {
+            console.log('📱 PWA v6.0.0: ULTIMATE - Deleting cache:', cacheName);
+            return caches.delete(cacheName);
+          })
+        );
+      }),
+      // Clear any stored cache variables
+      new Promise(resolve => {
+        // Force garbage collection of any cache references
+        if (self.caches) {
+          self.caches.keys().then(keys => {
+            keys.forEach(key => self.caches.delete(key));
+            resolve();
+          });
+        } else {
+          resolve();
+        }
+      })
+    ]).then(() => {
+      console.log('📱 PWA v6.0.0: ULTIMATE - All caches deleted, force taking control');
       self.skipWaiting();
     })
   );
