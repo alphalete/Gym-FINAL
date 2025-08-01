@@ -2688,111 +2688,128 @@ const Payments = () => {
 
   const calculateRealPaymentStats = async () => {
     try {
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-      console.log(`🔍 Payment Stats: Testing backend connectivity to ${backendUrl}`);
+      console.log(`📱 Mobile Payment Stats: Starting mobile-optimized data fetch`);
       
-      // Test basic connectivity first
+      // For mobile apps, prioritize local storage with backend sync
+      const clientsResult = await localDB.getClients();
+      const clientsData = clientsResult.data || [];
+      console.log(`📱 Mobile: Found ${clientsData.length} clients (offline: ${clientsResult.offline})`);
+      
+      if (clientsResult.offline) {
+        console.log('📱 Mobile: Using offline data for payment calculations');
+      }
+      
+      // Get actual payment revenue from backend if online, otherwise use calculated revenue
       let actualRevenue = 0;
-      try {
-        console.log('📡 Testing API health...');
-        const healthResponse = await fetch(`${backendUrl}/api/health`);
-        if (healthResponse.ok) {
-          const healthData = await healthResponse.json();
-          console.log('✅ API Health Check passed:', healthData.message);
-        } else {
-          console.warn('⚠️ API Health Check failed with status:', healthResponse.status);
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      
+      if (!clientsResult.offline && backendUrl) {
+        try {
+          console.log('📡 Mobile: Testing API connectivity...');
+          const healthResponse = await fetch(`${backendUrl}/api/health`);
+          if (healthResponse.ok) {
+            console.log('✅ Mobile: API connectivity confirmed');
+            
+            const paymentStatsResponse = await fetch(`${backendUrl}/api/payments/stats`);
+            if (paymentStatsResponse.ok) {
+              const paymentStats = await paymentStatsResponse.json();
+              actualRevenue = paymentStats.total_revenue || 0;
+              console.log(`✅ Mobile Payment Stats: Backend revenue: TTD ${actualRevenue}`);
+            } else {
+              console.warn('⚠️ Mobile: Payment stats API unavailable, calculating from client data');
+              throw new Error('Payment API unavailable');
+            }
+          } else {
+            throw new Error('Health check failed');
+          }
+        } catch (error) {
+          console.warn('📱 Mobile: Backend unavailable, calculating revenue from local data:', error.message);
+          // Calculate revenue from active clients (fallback for mobile)
+          actualRevenue = clientsData
+            .filter(c => c.status === 'Active')
+            .reduce((sum, client) => sum + (client.monthly_fee || 0), 0);
+          console.log(`📱 Mobile: Calculated potential revenue: TTD ${actualRevenue}`);
         }
-      } catch (healthError) {
-        console.error('❌ API Health Check failed:', healthError);
-        console.error('🚨 Your device cannot connect to the backend API. This may be due to:');
-        console.error('   - Network connectivity issues');
-        console.error('   - HTTPS/Security restrictions on mobile');
-        console.error('   - CORS or firewall blocking');
+      } else {
+        // Offline mode - calculate from local client data
+        actualRevenue = clientsData
+          .filter(c => c.status === 'Active')
+          .reduce((sum, client) => sum + (client.monthly_fee || 0), 0);
+        console.log(`📱 Mobile Offline: Calculated revenue from ${clientsData.filter(c => c.status === 'Active').length} active clients: TTD ${actualRevenue}`);
       }
       
-      // Get actual payment revenue
-      try {
-        const paymentStatsResponse = await fetch(`${backendUrl}/api/payments/stats`);
-        if (paymentStatsResponse.ok) {
-          const paymentStats = await paymentStatsResponse.json();
-          // Use total_revenue instead of monthly_revenue for the payment page
-          actualRevenue = paymentStats.total_revenue || 0;
-          console.log(`✅ Payment Stats: Actual total revenue: TTD ${actualRevenue}`);
-          console.log(`✅ Payment Stats: Monthly revenue: TTD ${paymentStats.monthly_revenue || 0}`);
-        } else {
-          console.error('❌ Payment stats API failed with status:', paymentStatsResponse.status);
-        }
-      } catch (error) {
-        console.error('❌ Error fetching payment stats:', error);
-        console.error('🚨 Using fallback data due to API connection failure');
-        // Set a default value to show something rather than empty state
-        actualRevenue = 0;
-      }
+      const activeClients = clientsData.filter(c => c.status === 'Active');
       
-      const response = await fetch(`${backendUrl}/api/clients`);
-      if (response.ok) {
-        const clientsData = await response.json();
-        
-        const activeClients = clientsData.filter(c => c.status === 'Active');
-        
-        // Fix timezone issues by using Atlantic Standard Time (AST is UTC-4)
-        const now = new Date();
-        const astOffset = -4 * 60; // AST is UTC-4 (in minutes)
-        const astNow = new Date(now.getTime() + (astOffset * 60 * 1000));
-        console.log(`🕐 Current time in AST: ${astNow.toISOString()}`);
-        
-        const overdueClients = activeClients.filter(client => {
-          if (!client.next_payment_date) return false;
-          try {
-            // Parse the payment date and compare with AST
-            const paymentDate = new Date(client.next_payment_date + 'T00:00:00');
-            const astPaymentDate = new Date(paymentDate.getTime() + (astOffset * 60 * 1000));
-            const isOverdue = astPaymentDate < astNow;
-            
-            if (isOverdue) {
-              console.log(`⚠️ Overdue: ${client.name} - Payment due: ${astPaymentDate.toDateString()}, Current: ${astNow.toDateString()}`);
-            }
-            
-            return isOverdue;
-          } catch (error) {
-            console.error(`Error parsing date for client ${client.name}:`, error);
-            return false;
+      // Calculate payment statistics using AST timezone
+      const now = new Date();
+      const astOffset = -4 * 60; // AST is UTC-4 (in minutes)
+      const astNow = new Date(now.getTime() + (astOffset * 60 * 1000));
+      console.log(`📱 Mobile: Current time in AST: ${astNow.toISOString()}`);
+      
+      const overdueClients = activeClients.filter(client => {
+        if (!client.next_payment_date) return false;
+        try {
+          const paymentDate = new Date(client.next_payment_date + 'T00:00:00');
+          const astPaymentDate = new Date(paymentDate.getTime() + (astOffset * 60 * 1000));
+          const isOverdue = astPaymentDate < astNow;
+          
+          if (isOverdue) {
+            console.log(`⚠️ Mobile Overdue: ${client.name} - Due: ${astPaymentDate.toDateString()}, Current: ${astNow.toDateString()}`);
           }
-        });
-        
-        const pendingClients = activeClients.filter(client => {
-          if (!client.next_payment_date) return false;
-          try {
-            const paymentDate = new Date(client.next_payment_date + 'T00:00:00');
-            const astPaymentDate = new Date(paymentDate.getTime() + (astOffset * 60 * 1000));
-            const daysDiff = Math.ceil((astPaymentDate - astNow) / (1000 * 60 * 60 * 24));
-            const isPending = daysDiff > 0 && daysDiff <= 7; // Due within 7 days
-            
-            if (isPending) {
-              console.log(`📅 Pending: ${client.name} - Payment due in ${daysDiff} days`);
-            }
-            
-            return isPending;
-          } catch (error) {
-            console.error(`Error parsing date for client ${client.name}:`, error);
-            return false;
+          
+          return isOverdue;
+        } catch (error) {
+          console.error(`Mobile: Error parsing date for client ${client.name}:`, error);
+          return false;
+        }
+      });
+      
+      const pendingClients = activeClients.filter(client => {
+        if (!client.next_payment_date) return false;
+        try {
+          const paymentDate = new Date(client.next_payment_date + 'T00:00:00');
+          const astPaymentDate = new Date(paymentDate.getTime() + (astOffset * 60 * 1000));
+          const daysDiff = Math.ceil((astPaymentDate - astNow) / (1000 * 60 * 60 * 24));
+          const isPending = daysDiff > 0 && daysDiff <= 7;
+          
+          if (isPending) {
+            console.log(`📅 Mobile Pending: ${client.name} - Due in ${daysDiff} days`);
           }
-        });
-        
-        console.log(`📊 Payment Stats Summary:`);
-        console.log(`   Total Revenue: TTD ${actualRevenue}`);
-        console.log(`   Pending Payments: ${pendingClients.length}`);
-        console.log(`   Overdue Payments: ${overdueClients.length}`);
-        
-        setPaymentStats({
-          totalRevenue: actualRevenue, // Use actual collected revenue
-          pendingPayments: pendingClients.length,
-          overduePayments: overdueClients.length,
-          completedThisMonth: 0 // Would need payment history to calculate this accurately
-        });
-      }
+          
+          return isPending;
+        } catch (error) {
+          console.error(`Mobile: Error parsing date for client ${client.name}:`, error);
+          return false;
+        }
+      });
+      
+      console.log(`📊 Mobile Payment Stats Summary:`);
+      console.log(`   Total Clients: ${clientsData.length}`);
+      console.log(`   Active Clients: ${activeClients.length}`);
+      console.log(`   Total Revenue: TTD ${actualRevenue}`);
+      console.log(`   Pending Payments: ${pendingClients.length}`);
+      console.log(`   Overdue Payments: ${overdueClients.length}`);
+      console.log(`   Data Source: ${clientsResult.offline ? 'Offline/Local' : 'Online/Backend'}`);
+      
+      setPaymentStats({
+        totalRevenue: actualRevenue,
+        pendingPayments: pendingClients.length,
+        overduePayments: overdueClients.length,
+        completedThisMonth: 0
+      });
+      
+      // Also update client list for display
+      setClients(clientsData);
+      
     } catch (error) {
-      console.error('Error calculating payment stats:', error);
+      console.error('📱 Mobile: Error calculating payment stats:', error);
+      // Set safe fallback values
+      setPaymentStats({
+        totalRevenue: 0,
+        pendingPayments: 0,
+        overduePayments: 0,
+        completedThisMonth: 0
+      });
     }
   };
 
