@@ -5,7 +5,7 @@ console.log('📱 Mobile PWA Service Worker: v5.2.0 MOBILE CACHE BYPASS - Aggres
 
 // FORCE DELETE ALL CACHES AND RELOAD IMMEDIATELY
 self.addEventListener('install', event => {
-  console.log('📱 PWA v5.1.0: DASHBOARD REFRESH FIX - Deleting all caches immediately');
+  console.log('📱 PWA v5.2.0: MOBILE CACHE BYPASS - Deleting all caches immediately');
   
   event.waitUntil(
     // Delete ALL existing caches first
