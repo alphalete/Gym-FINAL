@@ -300,8 +300,18 @@ async def create_client(client_data: ClientCreate):
     return client_obj
 
 @api_router.get("/clients", response_model=List[Client])
-async def get_clients():
-    """Get all clients"""
+async def get_clients(response: Response):
+    """Get all clients - NUCLEAR MOBILE CACHE BUSTING"""
+    
+    # NUCLEAR MOBILE CACHE BUSTING HEADERS
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0, private"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    response.headers["ETag"] = f"no-cache-{datetime.now().timestamp()}"
+    response.headers["Last-Modified"] = datetime.now().strftime("%a, %d %b %Y %H:%M:%S GMT")
+    response.headers["Vary"] = "*"
+    response.headers["X-Mobile-Cache-Bust"] = str(datetime.now().timestamp())
+    
     clients = await db.clients.find().to_list(1000)
     
     # Convert date strings back to date objects
