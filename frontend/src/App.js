@@ -2582,11 +2582,18 @@ const Payments = () => {
     client_id: '',
     amount_paid: '',
     payment_date: (() => {
-      // Set default date to today in Atlantic Standard Time
+      // Set default date to today in Atlantic Standard Time (AST = UTC-4)
       const now = new Date();
-      const astOffset = -4 * 60; // AST is UTC-4 (in minutes)
-      const astNow = new Date(now.getTime() + (astOffset * 60 * 1000));
-      return astNow.toISOString().split('T')[0];
+      // AST is UTC-4, but we need to adjust for the local date
+      const astTime = new Date(now.getTime() - (4 * 60 * 60 * 1000)); // Subtract 4 hours
+      
+      // Format as YYYY-MM-DD for the date input
+      const year = astTime.getFullYear();
+      const month = String(astTime.getMonth() + 1).padStart(2, '0');
+      const day = String(astTime.getDate()).padStart(2, '0');
+      
+      console.log(`🕐 Setting payment form date to AST: ${year}-${month}-${day}`);
+      return `${year}-${month}-${day}`;
     })(),
     payment_method: 'Cash',
     notes: ''
