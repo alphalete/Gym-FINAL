@@ -2042,8 +2042,7 @@ const ClientManagement = () => {
                           {client.status}
                         </div>
                         <div className={`status-badge ${getPaymentStatus(client)}`}>
-                          {getPaymentStatus(client) === 'overdue' ? 'Overdue' : 
-                           getPaymentStatus(client) === 'due-soon' ? 'Due Soon' : 'Paid'}
+                          {getPaymentStatusWithAmount(client)}
                         </div>
                         <div className="flex gap-sm mt-sm">
                           <button 
