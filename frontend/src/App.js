@@ -3215,7 +3215,8 @@ const Payments = () => {
                 <div className="space-y-2">
                   {clients.slice(0, 10).map(client => {
                     const nextPaymentDate = new Date(client.next_payment_date);
-                    const today = new Date();
+                    const today = getASTDate();
+                    today.setHours(0, 0, 0, 0);
                     const isOverdue = nextPaymentDate < today;
                     const daysDiff = Math.ceil((nextPaymentDate - today) / (1000 * 60 * 60 * 24));
                     
