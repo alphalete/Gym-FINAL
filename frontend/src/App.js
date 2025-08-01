@@ -80,8 +80,44 @@ const GoGymLayout = ({ children, currentPage, onNavigate }) => {
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    
+    // ULTIMATE MOBILE CACHE BUST - Listen for service worker messages
+    const handleServiceWorkerMessage = (event) => {
+      if (event.data && event.data.type === 'ULTIMATE_FORCE_RELOAD') {
+        console.log('📱 ULTIMATE CACHE BUST: Service worker requesting hard reload');
+        
+        // Clear all possible local storage
+        try {
+          localStorage.clear();
+          sessionStorage.clear();
+          if ('indexedDB' in window) {
+            indexedDB.deleteDatabase('AlphaleteDB');
+          }
+        } catch (e) {
+          console.log('Local storage clear error:', e);
+        }
+        
+        // Force hard reload with location.replace to bypass ALL cache
+        setTimeout(() => {
+          console.log('📱 ULTIMATE: Performing hard reload with location.replace');
+          window.location.replace(window.location.href + '?ultimate_cache_bust=' + Date.now());
+        }, 100);
+      }
+    };
+    
+    // Register service worker message listener
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', handleServiceWorkerMessage);
+    }
+    
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.removeEventListener('message', handleServiceWorkerMessage);
+      }
+    };
   }, []);
 
   // Fetch dashboard stats with mobile-first approach
