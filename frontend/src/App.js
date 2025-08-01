@@ -1971,6 +1971,13 @@ const ClientManagement = () => {
                           >
                             ✏️
                           </button>
+                          <button 
+                            className="action-btn danger" 
+                            title="Delete Client"
+                            onClick={() => deleteClient(client)}
+                          >
+                            🗑️
+                          </button>
                         </div>
                       </div>
                     </div>
