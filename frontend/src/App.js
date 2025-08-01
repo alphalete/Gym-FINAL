@@ -1023,30 +1023,36 @@ const GoGymDashboard = () => {
         setSyncStatus('syncing');
         const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
         
-        // Add cache-busting headers to ensure fresh data
-        const cacheBuster = Date.now();
+        // NUCLEAR MOBILE CACHE BUSTING - Add multiple cache-busting parameters
+        const timestamp = Date.now();
+        const randomId = Math.random().toString(36).substr(2, 9);
+        const cacheParams = `_t=${timestamp}&_r=${randomId}&_v=nuclear&_mobile=true`;
         
-        // Fetch both clients and payment stats in parallel with mobile-aggressive cache busting
+        // Fetch both clients and payment stats in parallel with NUCLEAR cache busting
         const [clientsResponse, paymentsResponse] = await Promise.all([
-          fetch(`${backendUrl}/api/clients?_cb=${cacheBuster}`, {
+          fetch(`${backendUrl}/api/clients?${cacheParams}`, {
             method: 'GET',
             headers: { 
-              'Cache-Control': 'no-cache, no-store, must-revalidate', 
+              'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0', 
               'Pragma': 'no-cache',
               'Expires': '0',
-              'If-None-Match': '*'
+              'If-None-Match': '*',
+              'X-Requested-With': 'XMLHttpRequest',
+              'X-Mobile-Cache-Bust': timestamp.toString()
             },
             credentials: 'same-origin',
             mode: 'cors',
             cache: 'no-cache'
           }),
-          fetch(`${backendUrl}/api/payments/stats?_cb=${cacheBuster}`, {
+          fetch(`${backendUrl}/api/payments/stats?${cacheParams}`, {
             method: 'GET',
             headers: { 
-              'Cache-Control': 'no-cache, no-store, must-revalidate', 
+              'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0', 
               'Pragma': 'no-cache',
               'Expires': '0',
-              'If-None-Match': '*'
+              'If-None-Match': '*',
+              'X-Requested-With': 'XMLHttpRequest',
+              'X-Mobile-Cache-Bust': timestamp.toString()
             },
             credentials: 'same-origin',
             mode: 'cors',
