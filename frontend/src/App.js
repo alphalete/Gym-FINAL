@@ -77,8 +77,9 @@ const GoGymLayout = ({ children, currentPage, onNavigate }) => {
           const clients = await response.json();
           const activeClients = clients.filter(c => c.status === 'Active');
           
-          // Calculate overdue payments
-          const today = new Date();
+          // Calculate overdue payments using AST timezone
+          const today = getASTDate();
+          today.setHours(0, 0, 0, 0);
           const overdueCount = activeClients.filter(client => {
             if (!client.next_payment_date) return false;
             return new Date(client.next_payment_date) < today;
