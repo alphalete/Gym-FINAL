@@ -1,66 +1,43 @@
-const CACHE_NAME = 'alphalete-mobile-v3.0.0-toggle-fix';
+const CACHE_NAME = 'alphalete-mobile-v4.0.0-complete-fix';
 const OFFLINE_DATA_KEY = 'alphalete-offline-data';
 
-console.log('📱 Mobile PWA Service Worker: v3.0.0 Toggle Fix - Starting');
+console.log('📱 Mobile PWA Service Worker: v4.0.0 COMPLETE FIX - Force updating all cached data');
 
-// Immediately delete all old caches on install
+// FORCE DELETE ALL CACHES AND RELOAD IMMEDIATELY
 self.addEventListener('install', event => {
-  console.log('📱 PWA: Force installing v2.0.0 for mobile');
+  console.log('📱 PWA v4.0.0: FORCE INSTALL - Deleting all caches immediately');
   
   event.waitUntil(
-    // Delete all existing caches first
+    // Delete ALL existing caches first
     caches.keys().then(cacheNames => {
-      console.log('📱 PWA: Deleting all old caches:', cacheNames);
+      console.log('📱 PWA v4.0.0: Found caches to delete:', cacheNames);
       return Promise.all(
         cacheNames.map(cacheName => {
-          console.log('📱 PWA: Deleting cache:', cacheName);
+          console.log('📱 PWA v4.0.0: FORCE deleting cache:', cacheName);
           return caches.delete(cacheName);
         })
       );
     }).then(() => {
-      // Create new cache
-      return caches.open(CACHE_NAME).then(cache => {
-        console.log('📱 PWA: Created new cache:', CACHE_NAME);
-        return cache.addAll([
-          '/',
-          '/static/js/bundle.js',
-          '/static/css/main.css',
-          '/manifest.json'
-        ]).catch(err => {
-          console.log('📱 PWA: Cache add failed (expected in dev):', err);
-        });
-      });
-    }).then(() => {
-      console.log('📱 PWA: Force skipping waiting');
+      console.log('📱 PWA v4.0.0: All old caches deleted, skipping waiting');
       self.skipWaiting();
     })
   );
 });
 
-// Force take control immediately
+// Take control immediately and reload all pages
 self.addEventListener('activate', event => {
-  console.log('📱 PWA: Force activating v2.0.0');
+  console.log('📱 PWA v4.0.0: ACTIVATE - Taking control and reloading all pages');
   
   event.waitUntil(
-    // Clear any remaining old caches
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('📱 PWA: Deleting remaining old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => {
-      console.log('📱 PWA: Force claiming all clients');
-      return self.clients.claim();
-    }).then(() => {
-      // Force reload all open pages
+    self.clients.claim().then(() => {
+      // Force reload all open pages to get new data
       return self.clients.matchAll().then(clients => {
         clients.forEach(client => {
-          console.log('📱 PWA: Force reloading client:', client.url);
-          client.postMessage({ type: 'FORCE_RELOAD' });
+          console.log('📱 PWA v4.0.0: Force reloading client:', client.url);
+          client.postMessage({ 
+            type: 'FORCE_RELOAD_NEW_DATA',
+            message: 'New service worker active - reloading to get fresh data'
+          });
         });
       });
     })
@@ -69,144 +46,59 @@ self.addEventListener('activate', event => {
 
 // Handle messages from app
 self.addEventListener('message', event => {
-  if (event.data && event.data.type === 'FORCE_UPDATE') {
-    console.log('📱 PWA: Received force update request');
-    self.skipWaiting();
+  if (event.data && event.data.type === 'CLEAR_ALL_DATA') {
+    console.log('📱 PWA v4.0.0: Received clear all data request');
+    // Clear all caches
+    caches.keys().then(cacheNames => {
+      return Promise.all(cacheNames.map(name => caches.delete(name)));
+    });
   }
 });
 
-// Store data for offline use
-function storeOfflineData(key, data) {
-  try {
-    const timestamp = new Date().toISOString();
-    const offlineData = {
-      data: data,
-      timestamp: timestamp,
-      cached: true,
-      version: '2.0.0'
-    };
-    
-    caches.open(CACHE_NAME).then(cache => {
-      const response = new Response(JSON.stringify(offlineData), {
-        headers: { 
-          'Content-Type': 'application/json',
-          'X-PWA-Version': '2.0.0'
-        }
-      });
-      cache.put(key, response);
-      console.log(`📱 PWA v2.0.0: Stored offline data for ${key}`);
-    });
-  } catch (error) {
-    console.error('📱 PWA: Failed to store offline data:', error);
-  }
-}
-
-// Get offline data
-async function getOfflineData(key) {
-  try {
-    const cache = await caches.open(CACHE_NAME);
-    const response = await cache.match(key);
-    if (response) {
-      const data = await response.json();
-      console.log(`📱 PWA v2.0.0: Retrieved offline data for ${key}`);
-      return data;
-    }
-  } catch (error) {
-    console.error('📱 PWA: Failed to get offline data:', error);
-  }
-  return null;
-}
-
-// Fetch event - mobile-optimized with force update
+// Bypass ALL caching for API requests - always go to network
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   
-  // Handle API requests with offline fallback
+  // For API requests, ALWAYS go to network, never cache
   if (url.pathname.startsWith('/api/')) {
+    console.log('📱 PWA v4.0.0: API request - FORCING network call:', url.pathname);
+    
     event.respondWith(
-      fetch(event.request)
-        .then(response => {
-          if (response.ok) {
-            console.log('📱 PWA v2.0.0: API success:', url.pathname);
-            
-            // Store successful API responses for offline use
-            const responseClone = response.clone();
-            responseClone.json().then(data => {
-              storeOfflineData(url.pathname, data);
-            });
-            
-            return response;
-          } else {
-            throw new Error(`HTTP ${response.status}`);
-          }
-        })
-        .catch(async (error) => {
-          console.log('📱 PWA v2.0.0: API failed, trying offline data:', url.pathname);
-          
-          // Try to get offline data
-          const offlineData = await getOfflineData(url.pathname);
-          if (offlineData) {
-            console.log('📱 PWA v2.0.0: Using offline data for:', url.pathname);
-            return new Response(JSON.stringify(offlineData.data), {
-              headers: { 
-                'Content-Type': 'application/json',
-                'X-Offline-Data': 'true',
-                'X-PWA-Version': '2.0.0'
-              }
-            });
-          }
-          
-          // Return proper fallback data based on endpoint
-          let fallbackData = [];
-          if (url.pathname.includes('stats')) {
-            fallbackData = { total_revenue: 2630, monthly_revenue: 0, payment_count: 5 };
-          } else if (url.pathname.includes('clients')) {
-            // Return empty array but log the issue
-            console.log('📱 PWA v2.0.0: No offline client data available');
-            fallbackData = [];
-          }
-          
-          console.log('📱 PWA v2.0.0: Using fallback data for:', url.pathname);
-          return new Response(JSON.stringify(fallbackData), {
-            headers: { 
-              'Content-Type': 'application/json',
-              'X-Fallback-Data': 'true',
-              'X-PWA-Version': '2.0.0'
-            }
-          });
-        })
+      fetch(event.request, { 
+        cache: 'no-cache',
+        headers: {
+          ...event.request.headers,
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      }).then(response => {
+        console.log('📱 PWA v4.0.0: Fresh API response for:', url.pathname);
+        return response;
+      }).catch(error => {
+        console.error('📱 PWA v4.0.0: API request failed:', url.pathname, error);
+        return new Response(JSON.stringify({ error: 'API unavailable' }), {
+          status: 503,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      })
     );
     return;
   }
   
-  // Handle app shell requests - always go to network first for updates
+  // For app resources, go to network first, fallback to cache
   event.respondWith(
-    fetch(event.request)
+    fetch(event.request, { cache: 'no-cache' })
       .then(response => {
-        console.log('📱 PWA v2.0.0: Network success:', url.pathname);
-        // Cache the response for offline use
-        if (response.ok) {
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, responseClone);
-          });
-        }
+        console.log('📱 PWA v4.0.0: Fresh resource:', url.pathname);
         return response;
       })
       .catch(error => {
-        console.log('📱 PWA v2.0.0: Network failed, trying cache:', url.pathname);
+        console.log('📱 PWA v4.0.0: Network failed, trying cache:', url.pathname);
         return caches.match(event.request).then(cachedResponse => {
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-          // Return index.html for navigation requests
-          if (event.request.mode === 'navigate') {
-            return caches.match('/');
-          }
-          return new Response('Offline', { status: 503 });
+          return cachedResponse || new Response('Offline', { status: 503 });
         });
       })
   );
 });
 
-console.log('📱 Mobile PWA Service Worker v2.0.0: Force Update Ready - Will clear all old cache');
+console.log('📱 Mobile PWA Service Worker v4.0.0: COMPLETE FIX ready - Will force reload all pages');
