@@ -2955,12 +2955,13 @@ const Payments = () => {
             throw new Error('Health check failed');
           }
         } catch (error) {
-          console.warn('📱 Mobile: Backend unavailable, calculating revenue from local data:', error.message);
-          // Calculate revenue from active clients (fallback for mobile)
+          console.warn('📱 Mobile: Backend unavailable, using potential revenue (not actual payments):', error.message);
+          // Calculate potential revenue from active clients (fallback for mobile)
           actualRevenue = clientsData
             .filter(c => c.status === 'Active')
             .reduce((sum, client) => sum + (client.monthly_fee || 0), 0);
-          console.log(`📱 Mobile: Calculated potential revenue: TTD ${actualRevenue}`);
+          console.log(`📱 Mobile: Using potential revenue due to API failure: TTD ${actualRevenue}`);
+          console.log(`📱 Mobile: This is potential income, not actual collected payments`);
         }
       } else {
         // Offline mode - calculate from local client data  
