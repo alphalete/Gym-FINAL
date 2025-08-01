@@ -73,6 +73,11 @@ const GoGymLayout = ({ children, currentPage, onNavigate }) => {
     totalRevenue: 0
   });
 
+  // Mobile-optimized data sync with user-friendly status
+  const [syncStatus, setSyncStatus] = useState('syncing'); // 'syncing', 'online', 'offline'
+  const [lastSyncTime, setLastSyncTime] = useState(null);
+  const [clients, setClients] = useState([]);
+
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener('resize', handleResize);
