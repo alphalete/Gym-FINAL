@@ -952,6 +952,7 @@ const GoGymDashboard = () => {
   });
 
   const [clients, setClients] = useState([]);
+  const [currentFilter, setCurrentFilter] = useState('all'); // Add filter state
   const navigate = useNavigate();
 
   useEffect(() => {
