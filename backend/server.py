@@ -130,8 +130,23 @@ def calculate_next_payment_date(start_date: date) -> date:
 
 # Existing routes
 @api_router.get("/")
-async def root():
-    return {"message": "Alphalete Athletics Club API - Ready to Rock!"}
+async def api_status():
+    """API status endpoint"""
+    return {
+        "status": "active",
+        "message": "Alphalete Athletics Club API",
+        "version": "1.0.0",
+        "endpoints": ["/clients", "/payments", "/reminders"]
+    }
+
+@api_router.get("/health")
+async def health_check():
+    """Simple health check endpoint for mobile debugging"""
+    return {
+        "status": "healthy",
+        "message": "API is working",
+        "timestamp": datetime.utcnow().isoformat()
+    }
 
 @api_router.post("/status", response_model=StatusCheck)
 async def create_status_check(input: StatusCheckCreate):
