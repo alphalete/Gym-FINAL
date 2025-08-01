@@ -3130,30 +3130,48 @@ const Payments = () => {
 
   const fetchClients = async () => {
     try {
-      console.log(`📱 Mobile: Fetching clients using mobile-optimized approach`);
+      console.log(`📱 Mobile: Fetching clients directly from API to bypass LocalStorage issues`);
       
-      // Use LocalStorageManager for mobile-first data management
-      const result = await localDB.getClients();
+      // Force direct API call instead of LocalStorageManager to fix data corruption
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      
+      if (backendUrl) {
+        try {
+          console.log(`📱 Mobile: Direct API call to ${backendUrl}/api/clients`);
+          const response = await fetch(`${backendUrl}/api/clients`);
+          
+          if (response.ok) {
+            const clientsData = await response.json();
+            console.log(`📱 Mobile: SUCCESS - Fetched ${clientsData.length} clients directly from API`);
+            
+            // Clear corrupted LocalStorage
+            try {
+              localStorage.clear();
+              console.log(`📱 Mobile: Cleared corrupted localStorage`);
+            } catch (e) {
+              console.warn('Could not clear localStorage:', e);
+            }
+            
+            setClients(clientsData);
+            return;
+          } else {
+            console.error(`📱 Mobile: API call failed with status ${response.status}`);
+          }
+        } catch (apiError) {
+          console.error(`📱 Mobile: API call error:`, apiError);
+        }
+      }
+      
+      // Fallback: Try LocalStorageManager only if API fails
+      console.log(`📱 Mobile: API failed, trying LocalStorageManager as fallback`);
+      const result = await localDB.getClients(true); // Force refresh
       const clientsData = result.data || [];
       
-      console.log(`📱 Mobile: Retrieved ${clientsData.length} clients (offline: ${result.offline})`);
-      
-      if (result.offline) {
-        console.log('📱 Mobile: Using offline/cached data');
-      } else {
-        console.log('📱 Mobile: Using fresh backend data');
-      }
-      
+      console.log(`📱 Mobile: LocalStorageManager returned ${clientsData.length} clients`);
       setClients(clientsData);
       
-      // Show user-friendly status
-      if (result.error) {
-        console.error('📱 Mobile: Data fetch had errors:', result.error);
-      }
-      
     } catch (error) {
-      console.error('📱 Mobile: Error fetching clients:', error);
-      // Fallback to empty array but don't crash the app
+      console.error('📱 Mobile: All client fetch methods failed:', error);
       setClients([]);
     }
   };
