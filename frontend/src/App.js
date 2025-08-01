@@ -1616,7 +1616,7 @@ const ClientManagement = () => {
   const [quickPaymentModal, setQuickPaymentModal] = useState({ isOpen: false, client: null });
   const [quickPaymentForm, setQuickPaymentForm] = useState({
     amount_paid: '',
-    payment_date: new Date().toISOString().split('T')[0],
+    payment_date: formatDateForInput(getASTDate()), // Use AST date
     payment_method: 'Cash',
     notes: ''
   });
