@@ -18,7 +18,7 @@ self.addEventListener('install', event => {
         })
       );
     }).then(() => {
-      console.log('📱 PWA v4.0.0: All old caches deleted, skipping waiting');
+      console.log('📱 PWA v5.0.0: All old caches deleted, skipping waiting');
       self.skipWaiting();
     })
   );
