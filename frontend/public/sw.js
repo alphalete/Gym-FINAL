@@ -13,7 +13,7 @@ self.addEventListener('install', event => {
       console.log('📱 PWA v4.0.0: Found caches to delete:', cacheNames);
       return Promise.all(
         cacheNames.map(cacheName => {
-          console.log('📱 PWA v4.0.0: FORCE deleting cache:', cacheName);
+          console.log('📱 PWA v5.0.0: REVENUE FIX - deleting cache:', cacheName);
           return caches.delete(cacheName);
         })
       );
