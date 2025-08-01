@@ -341,6 +341,18 @@ backend:
         agent: "testing"
         comment: "🎉 PAYMENT AMOUNTS AND DATES DISPLAY COMPLETELY CORRECTED! ✅ COMPREHENSIVE PAYMENT SYSTEM TESTING: Ran extensive payment testing with 100% success rate across all payment operations. ✅ PAYMENT RECORDING WITH AST DATES: Successfully recorded payment with AST date (2025-07-31) and verified correct payment processing with proper date handling. Payment amount ($55.00) recorded correctly and new payment date calculated properly (September 29, 2025). ✅ PAYMENT STATISTICS DISPLAY: GET /api/payments/stats returns correct payment data - Total revenue: $2555.0, Monthly revenue: $0, Payment count: 4. All values are non-negative and display correctly. ✅ CLIENT PAYMENT DATES DISPLAY: GET /api/clients returns 23 clients with all payment dates in correct ISO format (YYYY-MM-DD). Verified date formats are valid and display correctly without timezone conversion errors. ✅ PAYMENT DATE CALCULATIONS: All payment date calculations work correctly with AST timezone handling. Payment recording extends next payment date by exactly 30 days from the appropriate base date. ✅ API RESPONSE VERIFICATION: All payment-related API endpoints (GET /api/clients, POST /api/payments/record, GET /api/payments/stats) return correct data with proper date formatting and accurate payment amounts. ✅ INVOICE EMAIL FUNCTIONALITY: Payment recording automatically sends invoice emails successfully (invoice_sent: true, invoice_message: 'Invoice email sent successfully!'). CONCLUSION: The user's reported issues with payment amounts and dates showing incorrect data are COMPLETELY RESOLVED. All payment system date handling and amount display is working correctly with proper AST timezone support."
 
+  - task: "Dashboard refresh after client deletion fix"
+    implemented: true
+    working: true
+    file: "frontend/src/App.js, frontend/public/sw.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "DASHBOARD REFRESH ISSUE RESOLVED: Fixed bug where mobile dashboard showed stale revenue data (5000) after client deletion instead of updated amount (2630). Root cause: GoGymDashboard component only fetched data once on mount, not refreshing after navigation. FIXES IMPLEMENTED: 1) Added cache-busting headers and query parameters to prevent stale data, 2) Added window focus event listener to refresh data when user returns to dashboard, 3) Added periodic refresh every 30 seconds for real-time data, 4) Added console logging to track refresh events, 5) Updated service worker to v5.1.0 for forced cache refresh. VERIFICATION: Mobile dashboard now shows correct TTD 2630 revenue and refreshes automatically after client deletion operations."
+
   - task: "Mobile data discrepancy fix (TTD 0 revenue display)"
     implemented: true
     working: true
