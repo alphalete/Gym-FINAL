@@ -3278,7 +3278,8 @@ const Payments = () => {
               ) : (
                 overdueClients.map(client => {
                   const nextPaymentDate = new Date(client.next_payment_date);
-                  const today = new Date();
+                  const today = getASTDate();
+                  today.setHours(0, 0, 0, 0);
                   const overdueDays = Math.ceil((today - nextPaymentDate) / (1000 * 60 * 60 * 24));
                   
                   return (
