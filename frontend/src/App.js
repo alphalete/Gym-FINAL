@@ -3262,7 +3262,16 @@ const Payments = () => {
     try {
       console.log(`📱 Mobile Payment Stats: Using direct API calls to fix data issues`);
       
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      // EMERGENCY MOBILE URL FIX - Force correct backend URL
+      let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      
+      // CRITICAL FIX: Override for mobile devices showing wrong URL
+      if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
+        backendUrl = 'https://8beb6460-0117-4864-a970-463f629aa57c.preview.emergentagent.com';
+        console.log('🚨 PAYMENTS PAGE: OVERRIDING backend URL for mobile fix');
+      }
+      
+      console.log('🚨 PAYMENTS PAGE: Backend URL:', backendUrl);
       
       // Force direct API calls instead of LocalStorageManager
       let clientsData = [];
