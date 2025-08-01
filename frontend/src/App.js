@@ -1112,17 +1112,35 @@ const GoGymDashboard = () => {
       fetchData();
     };
     
+    // Refresh data when page becomes visible (mobile app returns from background)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        console.log('📱 Dashboard: Page visibility change - refreshing data...');
+        fetchData();
+      }
+    };
+    
     // Refresh data periodically (every 30 seconds for fresh revenue data)
     const interval = setInterval(() => {
       console.log('📱 Dashboard: Periodic refresh triggered...');
       fetchData();
     }, 30000);
     
+    // Mobile-specific: refresh immediately when component is interacted with
+    const handleTouchStart = () => {
+      console.log('📱 Dashboard: Touch interaction detected - refreshing data...');
+      fetchData();
+    };
+    
     window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener('touchstart', handleTouchStart, { once: true });
     
     // Cleanup
     return () => {
       window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      document.removeEventListener('touchstart', handleTouchStart);
       clearInterval(interval);
     };
   }, []);
