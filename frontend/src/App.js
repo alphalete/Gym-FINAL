@@ -1066,10 +1066,13 @@ const GoGymDashboard = () => {
             paymentsResponse.json()
           ]);
           
-          console.log('📱 Dashboard: Fresh data loaded:', {
+          console.log('📱 Dashboard: NUCLEAR CACHE BUST - Fresh data loaded:', {
             clients: clientsData.length,
             totalRevenue: paymentStats.total_revenue,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            backendTimestamp: paymentStats.timestamp,
+            cacheBuster: paymentStats.cache_buster,
+            fetchTimestamp: timestamp
           });
           
           setClients(clientsData);
