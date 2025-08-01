@@ -88,7 +88,9 @@ class ClientCreate(BaseModel):
     membership_type: str = "Standard"
     monthly_fee: float
     start_date: date
-    auto_reminders_enabled: bool = True  # New field for automatic reminders
+    auto_reminders_enabled: bool = True
+    payment_status: Optional[str] = "due"  # Whether client paid on joining
+    amount_owed: Optional[float] = 0.0  # New field for automatic reminders
 
 class ClientUpdate(BaseModel):
     name: Optional[str] = None
