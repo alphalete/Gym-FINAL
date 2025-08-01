@@ -1310,7 +1310,7 @@ Backend URL: ${backendUrl}
 Timestamp: ${new Date().toISOString()}
 
 Check console for full details!`);
-              }}}
+              }}
               className="mr-2 px-2 py-1 bg-yellow-600 text-white rounded text-xs font-bold"
               style={{ backgroundColor: '#d97706', color: 'white' }}
             >
