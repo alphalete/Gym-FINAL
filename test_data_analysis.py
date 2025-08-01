@@ -9,7 +9,7 @@ from typing import Dict, Any, List
 from collections import defaultdict
 
 class TestDataAnalyzer:
-    def __init__(self, base_url="https://413cf26f-b3f7-4bfe-b0d4-96a01530ff67.preview.emergentagent.com"):
+    def __init__(self, base_url="https://a2eb3b6a-2c20-4e9f-b52b-bd4f318d28fc.preview.emergentagent.com"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
         self.all_clients = []
