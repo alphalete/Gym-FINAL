@@ -2963,11 +2963,13 @@ const Payments = () => {
           console.log(`📱 Mobile: Calculated potential revenue: TTD ${actualRevenue}`);
         }
       } else {
-        // Offline mode - calculate from local client data
+        // Offline mode - calculate from local client data  
+        // NOTE: This shows potential revenue, not actual collected revenue
         actualRevenue = clientsData
           .filter(c => c.status === 'Active')
           .reduce((sum, client) => sum + (client.monthly_fee || 0), 0);
-        console.log(`📱 Mobile Offline: Calculated revenue from ${clientsData.filter(c => c.status === 'Active').length} active clients: TTD ${actualRevenue}`);
+        console.log(`📱 Mobile Offline: Using potential revenue (not actual payments): TTD ${actualRevenue}`);
+        console.log(`📱 Mobile Offline: This is expected when offline - shows what clients owe, not what was collected`);
       }
       
       const activeClients = clientsData.filter(c => c.status === 'Active');
