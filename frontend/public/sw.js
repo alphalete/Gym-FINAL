@@ -1,11 +1,11 @@
-const CACHE_NAME = 'alphalete-mobile-v4.0.0-complete-fix';
+const CACHE_NAME = 'alphalete-mobile-v5.0.0-revenue-fix';
 const OFFLINE_DATA_KEY = 'alphalete-offline-data';
 
-console.log('📱 Mobile PWA Service Worker: v4.0.0 COMPLETE FIX - Force updating all cached data');
+console.log('📱 Mobile PWA Service Worker: v5.0.0 REVENUE FIX - Mobile dashboard now shows correct total revenue');
 
 // FORCE DELETE ALL CACHES AND RELOAD IMMEDIATELY
 self.addEventListener('install', event => {
-  console.log('📱 PWA v4.0.0: FORCE INSTALL - Deleting all caches immediately');
+  console.log('📱 PWA v5.0.0: REVENUE FIX - Deleting all caches immediately');
   
   event.waitUntil(
     // Delete ALL existing caches first
