@@ -1366,3 +1366,14 @@ html {
   }
 }
 
+/* Action Button Danger Styles */
+.action-btn.danger {
+  background: var(--accent-red) !important;
+  color: var(--text-white) !important;
+}
+
+.action-btn.danger:hover {
+  background: #D32F2F !important;
+  transform: scale(1.1) !important;
+}
+
