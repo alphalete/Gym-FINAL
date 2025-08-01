@@ -134,11 +134,31 @@
                 const registration = await navigator.serviceWorker.register('/sw.js');
                 console.log('Service Worker registered successfully:', registration);
                 
+                // Force update check for mobile
+                registration.addEventListener('updatefound', () => {
+                  console.log('📱 New service worker available - forcing update');
+                  const newWorker = registration.installing;
+                  newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                      console.log('📱 New service worker installed - reloading page');
+                      // Force reload to use new service worker
+                      window.location.reload();
+                    }
+                  });
+                });
+                
+                // Check for updates immediately
+                registration.update();
+                
                 // Listen for service worker messages
                 navigator.serviceWorker.addEventListener('message', (event) => {
                   if (event.data.type === 'SYNC_COMPLETE') {
                     console.log('Sync complete:', event.data.message);
                     // Show notification or update UI
+                  }
+                  if (event.data && event.data.type === 'FORCE_RELOAD') {
+                    console.log('📱 Received force reload message from service worker');
+                    window.location.reload();
                   }
                 });
               } catch (error) {
