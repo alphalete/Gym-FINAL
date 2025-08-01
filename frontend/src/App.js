@@ -1101,27 +1101,62 @@ const GoGymDashboard = () => {
             </button>
           </div>
 
-          {/* Payment Cards */}
+          {/* Payment Cards - Now using filtered data */}
           <div className="gogym-payment-cards">
-            {paymentData.map(payment => (
-              <div key={payment.id} className="gogym-payment-card" onClick={() => navigate('/payments')}>
-                <div className="gogym-payment-left">
-                  <div className="gogym-avatar">
-                    {payment.avatar}
+            {filteredClients.slice(0, 5).map((client, index) => {
+              const getInitials = (name) => name.split(' ').map(word => word.charAt(0)).join('').toUpperCase().slice(0, 2);
+              const getPaymentStatus = () => {
+                if (!client.next_payment_date) return { status: 'paid', label: 'Paid', amount: 0 };
+                const today = getASTDate();
+                today.setHours(0, 0, 0, 0);
+                const paymentDate = new Date(client.next_payment_date);
+                const diffDays = Math.ceil((paymentDate - today) / (1000 * 60 * 60 * 24));
+                
+                const monthlyFee = client.monthly_fee || 0;
+                
+                if (diffDays < 0) {
+                  return { 
+                    status: 'overdue', 
+                    label: `Owes TTD ${monthlyFee}`,
+                    amount: monthlyFee
+                  };
+                }
+                if (diffDays <= 7) {
+                  return { 
+                    status: 'due-soon', 
+                    label: `Due TTD ${monthlyFee}`, 
+                    amount: monthlyFee
+                  };
+                }
+                return { 
+                  status: 'paid', 
+                  label: 'Paid',
+                  amount: 0
+                };
+              };
+              
+              const status = getPaymentStatus();
+              
+              return (
+                <div key={client.id} className="gogym-payment-card" onClick={() => navigate('/payments')}>
+                  <div className="gogym-payment-left">
+                    <div className="gogym-avatar">
+                      {getInitials(client.name)}
+                    </div>
+                    <div className="gogym-payment-info">
+                      <h3>{client.name}</h3>
+                      <p className="gogym-payment-date">{client.next_payment_date ? new Date(client.next_payment_date).toLocaleDateString() : 'No date'}</p>
+                    </div>
                   </div>
-                  <div className="gogym-payment-info">
-                    <h3>{payment.name}</h3>
-                    <p className="gogym-payment-date">{payment.date}</p>
+                  <div className="gogym-payment-right">
+                    <span className={`gogym-status-badge ${status.status}`}>
+                      {status.label}
+                    </span>
+                    <p className="gogym-payment-amount">TTD {client.monthly_fee}</p>
                   </div>
                 </div>
-                <div className="gogym-payment-right">
-                  <span className={`gogym-status-badge ${payment.status}`}>
-                    {payment.statusLabel}
-                  </span>
-                  <p className="gogym-payment-amount">{payment.amount}</p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
