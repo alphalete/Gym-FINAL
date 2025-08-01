@@ -1969,7 +1969,8 @@ const ClientManagement = () => {
                   const getInitials = (name) => name.split(' ').map(word => word.charAt(0)).join('').toUpperCase().slice(0, 2);
                   const getPaymentStatus = (client) => {
                     if (!client.next_payment_date) return 'unknown';
-                    const today = new Date();
+                    const today = getASTDate();
+                    today.setHours(0, 0, 0, 0);
                     const paymentDate = new Date(client.next_payment_date);
                     const daysDiff = Math.ceil((paymentDate - today) / (1000 * 60 * 60 * 24));
                     if (daysDiff < 0) return 'overdue';
