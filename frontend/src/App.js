@@ -2775,13 +2775,21 @@ const Payments = () => {
   const fetchClients = async () => {
     try {
       const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      console.log(`🔍 Fetching clients from: ${backendUrl}/api/clients`);
+      
       const response = await fetch(`${backendUrl}/api/clients`);
       if (response.ok) {
         const clientsData = await response.json();
+        console.log(`✅ Successfully fetched ${clientsData.length} clients`);
         setClients(clientsData);
+      } else {
+        console.error('❌ Failed to fetch clients - HTTP status:', response.status);
+        throw new Error(`HTTP ${response.status}`);
       }
     } catch (error) {
-      console.error('Error fetching clients:', error);
+      console.error('❌ Error fetching clients:', error);
+      // Show user-friendly error message
+      console.error('🚨 API Connection Failed. Check network connectivity.');
     }
   };
 
