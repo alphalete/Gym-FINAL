@@ -2183,6 +2183,13 @@ const Dashboard = () => {
           )}
         </div>
       </div>
+
+      {/* Member Info Modal */}
+      <MemberInfoModal
+        client={memberInfoModal.client}
+        isOpen={memberInfoModal.isOpen}
+        onClose={closeMemberInfoModal}
+      />
     </div>
   );
 };
