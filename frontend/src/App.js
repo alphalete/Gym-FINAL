@@ -2636,10 +2636,18 @@ const ClientManagement = () => {
                               <button
                                 onClick={() => sendPaymentReminder(client)}
                                 className="btn bg-blue-600 hover:bg-blue-700 text-white btn-sm z-10 relative font-bold"
-                                title="Send Payment Reminder"
+                                title="Send Email Reminder"
                                 style={{ minWidth: '40px', minHeight: '40px', fontSize: '16px' }}
                               >
                                 📧
+                              </button>
+                              <button
+                                onClick={() => sendWhatsAppReminder(client)}
+                                className="btn bg-green-500 hover:bg-green-600 text-white btn-sm z-10 relative font-bold"
+                                title="Send WhatsApp Reminder"
+                                style={{ minWidth: '40px', minHeight: '40px', fontSize: '16px' }}
+                              >
+                                💬
                               </button>
                               <button
                                 onClick={() => openCustomEmailModal(client)}
