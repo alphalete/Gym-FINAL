@@ -2078,6 +2078,68 @@ const ClientManagement = () => {
     }
   };
 
+  const sendWhatsAppReminder = (client) => {
+    try {
+      // Validate client has phone number
+      if (!client.phone) {
+        alert(`❌ ${client.name} does not have a phone number on file. Please add their phone number to send WhatsApp reminders.`);
+        return;
+      }
+
+      // Format phone number for WhatsApp (remove any non-digits)
+      let phoneNumber = client.phone.replace(/\D/g, '');
+      
+      // Ensure phone number starts with country code (default to Trinidad +1868 if no country code)
+      if (phoneNumber.length === 7) {
+        phoneNumber = '1868' + phoneNumber; // Trinidad format
+      } else if (phoneNumber.length === 10 && phoneNumber.startsWith('868')) {
+        phoneNumber = '1' + phoneNumber; // Add country code 1
+      } else if (phoneNumber.length === 11 && phoneNumber.startsWith('1868')) {
+        // Already has full country code
+      } else if (!phoneNumber.startsWith('1') && phoneNumber.length >= 10) {
+        phoneNumber = '1' + phoneNumber; // Default to NANP +1
+      }
+
+      // Get today's date in "Month Day, Year" format
+      const today = new Date();
+      const todayFormatted = today.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+
+      // Get due date in "Month Day, Year" format
+      let dueDateFormatted = 'Not Set';
+      if (client.next_payment_date) {
+        const dueDate = new Date(client.next_payment_date + 'T00:00:00');
+        dueDateFormatted = dueDate.toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        });
+      }
+
+      // Create the WhatsApp message
+      const message = `Hello ${client.name}, today is ${todayFormatted}. Your Alphalete Club payment is due on ${dueDateFormatted}. Please make payment to continue your membership. 💪`;
+      
+      // Encode the message for URL
+      const encodedMessage = encodeURIComponent(message);
+      
+      // Create WhatsApp Click-to-Chat URL
+      const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+      
+      console.log('Opening WhatsApp for client:', client.name, 'Phone:', phoneNumber);
+      console.log('WhatsApp URL:', whatsappUrl);
+      
+      // Open WhatsApp in new tab/window
+      window.open(whatsappUrl, '_blank');
+      
+    } catch (error) {
+      console.error('Error creating WhatsApp reminder:', error);
+      alert('❌ Error creating WhatsApp reminder');
+    }
+  };
+
   const openEditClientModal = (client) => {
     setEditClientModal({ isOpen: true, client });
   };
