@@ -743,6 +743,167 @@ const EmailModal = ({ isOpen, onClose, client }) => {
   );
 };
 
+// Member Info Modal Component - Display Only
+const MemberInfoModal = ({ client, isOpen, onClose }) => {
+  if (!isOpen || !client) return null;
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Not set';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  };
+
+  const getStatusColor = (status) => {
+    return status === 'Active' ? 'text-green-600' : 'text-red-600';
+  };
+
+  const getPaymentStatus = () => {
+    if (!client.next_payment_date) return { text: 'No due date set', color: 'text-gray-500' };
+    
+    const today = new Date();
+    const dueDate = new Date(client.next_payment_date);
+    const diffTime = dueDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 0) {
+      return { text: `Overdue by ${Math.abs(diffDays)} days`, color: 'text-red-600' };
+    } else if (diffDays === 0) {
+      return { text: 'Due today', color: 'text-orange-600' };
+    } else if (diffDays <= 3) {
+      return { text: `Due in ${diffDays} days`, color: 'text-yellow-600' };
+    } else {
+      return { text: `Due in ${diffDays} days`, color: 'text-green-600' };
+    }
+  };
+
+  const paymentStatus = getPaymentStatus();
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center space-x-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-full flex items-center justify-center">
+              <span className="text-white font-semibold text-lg">{client.name.charAt(0)}</span>
+            </div>
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{client.name}</h2>
+              <span className={`text-sm font-medium ${getStatusColor(client.status)}`}>
+                {client.status} Member
+              </span>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 space-y-6">
+          {/* Contact Information */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Contact Information</h3>
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <span className="text-gray-400">📧</span>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Email</p>
+                  <p className="text-gray-900 dark:text-white">{client.email || 'Not provided'}</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <span className="text-gray-400">📱</span>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Phone</p>
+                  <p className="text-gray-900 dark:text-white">{client.phone || 'Not provided'}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Membership Information */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Membership Details</h3>
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <span className="text-gray-400">🏋️</span>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Membership Type</p>
+                  <p className="text-gray-900 dark:text-white">{client.membership_type || 'Standard'}</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <span className="text-gray-400">💰</span>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Monthly Fee</p>
+                  <p className="text-gray-900 dark:text-white">TTD {client.monthly_fee || 0}</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <span className="text-gray-400">📅</span>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Start Date</p>
+                  <p className="text-gray-900 dark:text-white">{formatDate(client.start_date)}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Payment Information */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Payment Status</h3>
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <span className="text-gray-400">⏰</span>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Next Payment Due</p>
+                  <p className="text-gray-900 dark:text-white">{formatDate(client.next_payment_date)}</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <span className="text-gray-400">📊</span>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Payment Status</p>
+                  <p className={`font-medium ${paymentStatus.color}`}>{paymentStatus.text}</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <span className="text-gray-400">🔔</span>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Auto Reminders</p>
+                  <p className="text-gray-900 dark:text-white">
+                    {client.auto_reminders_enabled ? 'Enabled' : 'Disabled'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer Actions */}
+        <div className="flex items-center justify-end space-x-3 p-6 border-t border-gray-200 dark:border-gray-700">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Edit Client Modal Component - Ultra High Contrast
 const EditClientModal = ({ client, isOpen, onClose, onSave }) => {
   const [clientData, setClientData] = useState({
