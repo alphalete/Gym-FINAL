@@ -2542,7 +2542,6 @@ const ClientManagement = () => {
       {/* Mobile Header for Members Page */}
       <div className="block md:hidden">
         <div className="gogym-mobile-header">
-          <button className="gogym-hamburger">☰</button>
           <h1>Members</h1>
           <Link to="/add-client" className="gogym-stats-icon" style={{textDecoration: 'none', color: 'white'}}>➕</Link>
         </div>
