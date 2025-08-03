@@ -4043,7 +4043,6 @@ const Payments = () => {
       {/* Mobile Header for Payments Page */}
       <div className="block md:hidden">
         <div className="gogym-mobile-header">
-          <button className="gogym-hamburger">☰</button>
           <h1>Payments</h1>
           <button className="gogym-stats-icon" onClick={() => setShowPaymentModal(true)}>💰</button>
         </div>
