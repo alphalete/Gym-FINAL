@@ -2495,10 +2495,17 @@ const ClientManagement = () => {
                         <div className="flex gap-sm mt-sm">
                           <button 
                             className="action-btn primary" 
-                            title="Send Payment Reminder"
+                            title="Send Email Reminder"
                             onClick={() => sendPaymentReminder(client)}
                           >
                             📧
+                          </button>
+                          <button 
+                            className="action-btn success" 
+                            title="Send WhatsApp Reminder"
+                            onClick={() => sendWhatsAppReminder(client)}
+                          >
+                            💬
                           </button>
                           <button 
                             className="action-btn success" 
