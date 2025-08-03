@@ -1229,6 +1229,15 @@ const GoGymDashboard = () => {
 
   const filteredClients = getFilteredClients();
 
+  // Functions to handle member info modal
+  const openMemberInfoModal = (client) => {
+    setMemberInfoModal({ isOpen: true, client });
+  };
+
+  const closeMemberInfoModal = () => {
+    setMemberInfoModal({ isOpen: false, client: null });
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
