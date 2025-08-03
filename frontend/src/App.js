@@ -4823,7 +4823,6 @@ const Settings = () => {
       {/* Mobile Header for Settings Page */}
       <div className="block md:hidden">
         <div className="gogym-mobile-header">
-          <button className="gogym-hamburger">☰</button>
           <h1>Settings</h1>
           <button className="gogym-stats-icon" onClick={handleSaveSettings}>💾</button>
         </div>
