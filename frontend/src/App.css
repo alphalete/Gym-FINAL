@@ -944,6 +944,16 @@ button[title*="WhatsApp"]:hover,
   color: var(--text-white) !important;
 }
 
+/* WhatsApp-specific button styling */
+button[title*="WhatsApp"] {
+  background: #25D366 !important; /* WhatsApp green */
+  color: white !important;
+}
+
+button[title*="WhatsApp"]:hover {
+  background: #128C7E !important; /* Darker WhatsApp green */
+}
+
 .action-btn.warning {
   background: var(--accent-orange) !important;
   color: var(--text-white) !important;
