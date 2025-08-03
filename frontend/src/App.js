@@ -4831,7 +4831,7 @@ const Settings = () => {
         </div>
       </div>
 
-      <div className="p-6 max-w-6xl mx-auto">
+      <div className="p-4 md:p-6 max-w-6xl mx-auto pb-24 md:pb-8">
         {/* Desktop Header - Hidden on Mobile */}
         <div className="mb-8 hidden md:block">
           <h1 className="text-display ultra-contrast-text mb-2">Settings</h1>
