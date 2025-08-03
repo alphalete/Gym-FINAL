@@ -5114,12 +5114,12 @@ const Settings = () => {
         </div>
       </div>
       
-      {/* Save Button */}
-      <div className="mt-8 flex justify-end">
+      {/* Save Button - Mobile Optimized */}
+      <div className="mt-8 mb-20 flex justify-end">
         <button
           onClick={handleSaveSettings}
           disabled={loading}
-          className="ultra-contrast-button-primary px-6 py-2 rounded font-medium"
+          className="ultra-contrast-button-primary px-6 py-3 rounded font-medium w-full md:w-auto"
         >
           {loading ? 'Saving...' : 'Save Settings'}
         </button>
