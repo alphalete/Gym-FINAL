@@ -906,6 +906,7 @@ button[title*="Email"],
 button[title*="Edit"],
 button[title*="Delete"],
 button[title*="Record Payment"],
+button[title*="WhatsApp"],
 .btn-sm,
 .action-btn {
   border-radius: var(--radius-full);
@@ -925,6 +926,7 @@ button[title*="Email"]:hover,
 button[title*="Edit"]:hover,
 button[title*="Delete"]:hover,
 button[title*="Record Payment"]:hover,
+button[title*="WhatsApp"]:hover,
 .btn-sm:hover,
 .action-btn:hover {
   transform: scale(1.1);
