@@ -1805,14 +1805,20 @@ const Dashboard = () => {
     </div>
   );
 
-  const ModernClientCard = ({ client }) => (
+  const ModernClientCard = ({ client, onClientClick }) => (
     <div className="card p-4 animate-slide-in">
       <div className="flex items-center space-x-3">
         <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-full flex items-center justify-center">
           <span className="text-white font-semibold text-sm">{client.name.charAt(0)}</span>
         </div>
         <div className="flex-1">
-          <h4 className="font-semibold text-gray-900 dark:text-white">{client.name}</h4>
+          <h4 
+            className="font-semibold text-gray-900 dark:text-white cursor-pointer hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+            onClick={() => onClientClick && onClientClick(client)}
+            title="Click to view member details"
+          >
+            {client.name}
+          </h4>
           <p className="text-sm text-gray-500 dark:text-gray-400">{client.email}</p>
         </div>
         <div className="text-right">
