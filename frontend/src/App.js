@@ -2173,7 +2173,11 @@ const Dashboard = () => {
           ) : (
             <div className="space-y-4">
               {recentClients.map((client) => (
-                <ModernClientCard key={client.id} client={client} />
+                <ModernClientCard 
+                  key={client.id} 
+                  client={client} 
+                  onClientClick={openMemberInfoModal}
+                />
               ))}
             </div>
           )}
