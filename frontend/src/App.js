@@ -1689,6 +1689,16 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [recentClients, setRecentClients] = useState([]);
   const [activeTab, setActiveTab] = useState('overview');
+  const [memberInfoModal, setMemberInfoModal] = useState({ isOpen: false, client: null }); // Add member info modal state
+
+  // Functions to handle member info modal
+  const openMemberInfoModal = (client) => {
+    setMemberInfoModal({ isOpen: true, client });
+  };
+
+  const closeMemberInfoModal = () => {
+    setMemberInfoModal({ isOpen: false, client: null });
+  };
 
   useEffect(() => {
     fetchDashboardData();
