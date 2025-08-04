@@ -1198,6 +1198,7 @@ const GoGymDashboard = () => {
   const [clients, setClients] = useState([]);
   const [currentFilter, setCurrentFilter] = useState('all');
   const [memberInfoModal, setMemberInfoModal] = useState({ isOpen: false, client: null });
+  const [syncStatus, setSyncStatus] = useState('online'); // Add syncStatus for debug section
   const navigate = useNavigate();
 
   const getClientPaymentStatus = (client) => {
