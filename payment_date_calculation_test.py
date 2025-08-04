@@ -55,7 +55,7 @@ class PaymentDateCalculationTester:
         try:
             client_data = {
                 "name": "Payment Date Test Client",
-                "email": "payment_date_test@example.com",
+                "email": f"payment_date_test_{datetime.now().strftime('%Y%m%d_%H%M%S')}@example.com",
                 "phone": "+18685551234",
                 "membership_type": "Standard",
                 "monthly_fee": 55.0,
