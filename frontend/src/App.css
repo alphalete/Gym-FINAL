@@ -1,3 +1,277 @@
+/* Alphalete Club - Clean Dashboard Styles */
+.alphalete-dashboard {
+  min-height: 100vh !important;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%) !important;
+  padding: 0 0 80px 0 !important; /* Bottom padding for mobile nav */
+}
+
+/* Clean Header */
+.dashboard-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+  padding: 24px 20px !important;
+  text-align: center !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.app-title {
+  font-size: 28px !important;
+  font-weight: 800 !important;
+  margin: 0 !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  color: white !important;
+}
+
+/* Dashboard Cards - 2x2 Grid */
+.dashboard-cards {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 16px !important;
+  padding: 20px !important;
+  margin-bottom: 24px !important;
+}
+
+.dashboard-card {
+  background: white !important;
+  border-radius: 16px !important;
+  padding: 24px 16px !important;
+  text-align: center !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  border: none !important;
+  min-height: 120px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+}
+
+.dashboard-card.blue {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+}
+
+.dashboard-card.green {
+  background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%) !important;
+  color: white !important;
+}
+
+.dashboard-card.orange {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+  color: white !important;
+}
+
+.card-value {
+  font-size: 32px !important;
+  font-weight: 800 !important;
+  margin-bottom: 8px !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+  color: white !important;
+}
+
+.card-label {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  opacity: 0.9 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  color: white !important;
+}
+
+/* Payments Section */
+.payments-section {
+  padding: 0 20px !important;
+}
+
+.section-title {
+  font-size: 24px !important;
+  font-weight: 800 !important;
+  color: #2d3748 !important;
+  margin-bottom: 16px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+/* Payment Filter Tabs */
+.payment-tabs {
+  display: flex !important;
+  gap: 8px !important;
+  margin-bottom: 20px !important;
+  padding: 4px !important;
+  background: #f7fafc !important;
+  border-radius: 12px !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06) !important;
+}
+
+.tab-pill {
+  flex: 1 !important;
+  padding: 12px 16px !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  background: transparent !important;
+  color: #718096 !important;
+}
+
+.tab-pill.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4) !important;
+}
+
+.tab-pill:hover:not(.active) {
+  background: #e2e8f0 !important;
+  color: #4a5568 !important;
+}
+
+/* Payment List */
+.payment-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+
+.payment-card {
+  background: white !important;
+  border-radius: 12px !important;
+  padding: 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+.payment-card:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+  border-color: #cbd5e0 !important;
+}
+
+.payment-card-left {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  flex: 1 !important;
+}
+
+.member-avatar {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: white !important;
+  font-weight: 700 !important;
+  font-size: 18px !important;
+  text-transform: uppercase !important;
+}
+
+.member-info {
+  flex: 1 !important;
+}
+
+.member-name {
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: #2d3748 !important;
+  margin-bottom: 4px !important;
+}
+
+.member-status {
+  font-size: 13px !important;
+  color: #718096 !important;
+  font-weight: 500 !important;
+}
+
+.payment-card-right {
+  flex-shrink: 0 !important;
+}
+
+/* Status Pills */
+.status-pill {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 8px 12px !important;
+  border-radius: 20px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.status-pill.paid {
+  background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%) !important;
+  color: white !important;
+}
+
+.status-pill.overdue {
+  background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%) !important;
+  color: white !important;
+}
+
+.status-icon {
+  font-size: 14px !important;
+}
+
+.status-amount {
+  margin-left: 4px !important;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center !important;
+  padding: 40px 20px !important;
+  color: #718096 !important;
+}
+
+.empty-state p {
+  font-size: 16px !important;
+  font-weight: 500 !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dashboard-cards {
+    padding: 16px !important;
+    gap: 12px !important;
+  }
+  
+  .dashboard-card {
+    min-height: 100px !important;
+    padding: 16px 12px !important;
+  }
+  
+  .card-value {
+    font-size: 24px !important;
+  }
+  
+  .card-label {
+    font-size: 12px !important;
+  }
+  
+  .payments-section {
+    padding: 0 16px !important;
+  }
+}
+
 /* GoGym4U Style Recreation - Exact Match */
 
 :root {
