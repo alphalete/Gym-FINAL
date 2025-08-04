@@ -1922,7 +1922,7 @@ const ClientManagement = () => {
   const [quickPaymentModal, setQuickPaymentModal] = useState({ isOpen: false, client: null });
 
   // Filter clients based on search term
-  const filteredClients = clients.filter(client =>
+  const searchFilteredClients = clients.filter(client =>
     client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     client.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
