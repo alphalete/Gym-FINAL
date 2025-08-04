@@ -195,13 +195,16 @@ frontend:
     implemented: true
     working: false
     file: "backend/server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "main"
         comment: "CRITICAL BUG FIX: User reported 'Next payment date calculation is wrong'. Investigation revealed the system was using 30-day increments (timedelta(days=30)) instead of proper monthly calculations. This caused systematic date drift - January 15th → February 14th → March 16th instead of proper monthly cycles (January 15th → February 15th → March 15th). Fixed calculate_next_payment_date function to use proper monthly arithmetic with month boundary handling (e.g., Jan 31st → Feb 28th). Also fixed payment recording logic to use the corrected calculation function instead of hardcoded 30-day increments."
+      - working: false
+        agent: "testing"
+        comment: "🎯 NEXT PAYMENT DATE CALCULATION FIX COMPREHENSIVE TESTING COMPLETED - CRITICAL ISSUE IDENTIFIED! ✅ PAYMENT RECORDING LOGIC: WORKING CORRECTLY - Payment recording uses proper monthly arithmetic (Jan 15th → Feb 15th → Mar 15th → Apr 15th → May 15th → Jun 15th). No date drift detected across 5 consecutive payments. Monthly cycles maintained perfectly. ✅ PAYMENT STATISTICS: ACCURATE - Revenue and payment counts update correctly after payments. ❌ CRITICAL ISSUE: INITIAL CLIENT CREATION LOGIC BROKEN - All new clients get start_date as next_payment_date instead of calculating one month ahead. Test cases show: Jan 15th → Jan 15th (should be Feb 15th), Jan 31st → Jan 31st (should be Feb 28th), all edge cases fail. ❌ ROOT CAUSE: Client creation logic (lines 299-332) only uses calculate_next_payment_date() when payment_status='paid', but defaults to start_date when payment_status='due'. The calculate_next_payment_date function itself is correct, but not being used for initial payment date calculation. ❌ INCOMPLETE FIX: The main agent fixed the calculation function but didn't update the client creation logic to use proper monthly arithmetic for initial payment dates. CONCLUSION: Payment recording works perfectly, but initial client creation is broken. Fix is incomplete - need to update client creation logic to always use proper monthly arithmetic for next_payment_date calculation."
 
 backend:
   - task: "Professional email template implementation"
