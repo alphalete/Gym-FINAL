@@ -1922,12 +1922,6 @@ const ClientManagement = () => {
   const [quickPaymentModal, setQuickPaymentModal] = useState({ isOpen: false, client: null });
   const navigate = useNavigate();
 
-  // Filter clients based on search term
-  const searchFilteredClients = clients.filter(client =>
-    client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    client.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   // Get member initials for avatar
   const getInitials = (name) => {
     return name.split(' ').map(word => word.charAt(0)).join('').toUpperCase().slice(0, 2);
