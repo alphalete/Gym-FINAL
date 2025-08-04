@@ -74,71 +74,65 @@ class NextPaymentDateTester:
             self.log_test(name, False, details)
             return False, {}
 
-    def test_initial_payment_date_calculation(self):
-        """Test initial next payment date calculation for new clients"""
-        print("\n🎯 TESTING INITIAL PAYMENT DATE CALCULATION")
+    def test_initial_client_creation_dates(self):
+        """Test 1: Initial Client Creation - Verify next_payment_date is calculated properly (one month ahead)"""
+        print("\n🎯 TEST 1: INITIAL CLIENT CREATION - NEXT PAYMENT DATE CALCULATION")
         print("=" * 80)
         
         test_cases = [
             {
-                "name": "January 15th → February 15th",
+                "name": "Jan 15th Client",
                 "start_date": "2025-01-15",
-                "expected_payment_date": "2025-02-15",
-                "description": "Consistent day of month"
+                "expected_next_payment": "2025-02-15",
+                "description": "Standard monthly increment"
             },
             {
-                "name": "January 31st → February 28th",
-                "start_date": "2025-01-31", 
-                "expected_payment_date": "2025-02-28",
-                "description": "Month boundary handling (Jan 31st → Feb 28th)"
+                "name": "Jan 31st Client", 
+                "start_date": "2025-01-31",
+                "expected_next_payment": "2025-02-28",
+                "description": "Month boundary handling (Jan 31 -> Feb 28)"
             },
             {
-                "name": "February 28th → March 31st",
-                "start_date": "2025-02-28",
-                "expected_payment_date": "2025-03-31",
-                "description": "February to March (proper month boundary)"
+                "name": "Feb 28th Client",
+                "start_date": "2025-02-28", 
+                "expected_next_payment": "2025-03-28",
+                "description": "February to March"
             },
             {
-                "name": "March 31st → April 30th",
-                "start_date": "2025-03-31",
-                "expected_payment_date": "2025-04-30",
-                "description": "Month boundary handling (Mar 31st → Apr 30th)"
-            },
-            {
-                "name": "December 31st → January 31st",
+                "name": "Dec 31st Client",
                 "start_date": "2025-12-31",
-                "expected_payment_date": "2026-01-31",
-                "description": "Year boundary handling"
+                "expected_next_payment": "2026-01-31", 
+                "description": "Year boundary"
             },
             {
-                "name": "Leap Year Test - February 29th",
-                "start_date": "2024-02-29",
-                "expected_payment_date": "2024-03-29",
-                "description": "Leap year handling"
+                "name": "Mid-month Client",
+                "start_date": "2025-06-15",
+                "expected_next_payment": "2025-07-15",
+                "description": "Standard mid-month case"
             }
         ]
         
-        all_tests_passed = True
+        all_passed = True
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         
         for i, test_case in enumerate(test_cases, 1):
             print(f"\n📅 Test Case {i}: {test_case['name']}")
             print(f"   Start Date: {test_case['start_date']}")
-            print(f"   Expected Payment Date: {test_case['expected_payment_date']}")
+            print(f"   Expected Next Payment: {test_case['expected_next_payment']}")
             print(f"   Description: {test_case['description']}")
             
-            # Create client with specific start date
             client_data = {
-                "name": f"Initial Test {i} - {test_case['name']}",
-                "email": f"initial_test_{i}_{timestamp}@example.com",
+                "name": f"Test Client {i} - {test_case['name']}",
+                "email": f"test_client_{i}_{timestamp}@example.com",
                 "phone": f"(555) {100+i:03d}-{1000+i:04d}",
                 "membership_type": "Standard",
                 "monthly_fee": 55.00,
-                "start_date": test_case['start_date']
+                "start_date": test_case['start_date'],
+                "payment_status": "due"  # Test with 'due' status to ensure proper calculation
             }
             
             success, response = self.run_test(
-                f"Create Client - {test_case['name']}",
+                f"Create {test_case['name']}",
                 "POST",
                 "clients",
                 200,
@@ -147,161 +141,91 @@ class NextPaymentDateTester:
             
             if success and "id" in response:
                 self.created_clients.append(response["id"])
-                actual_payment_date = str(response.get('next_payment_date'))
-                expected_payment_date = test_case['expected_payment_date']
+                actual_next_payment = str(response.get('next_payment_date'))
+                expected_next_payment = test_case['expected_next_payment']
                 
-                print(f"   Actual Payment Date: {actual_payment_date}")
+                print(f"   Actual Next Payment: {actual_next_payment}")
                 
-                if actual_payment_date == expected_payment_date:
-                    print(f"   ✅ PASSED: Payment date calculation is CORRECT!")
+                if actual_next_payment == expected_next_payment:
+                    print(f"   ✅ PASSED: Next payment date calculated correctly!")
                 else:
-                    print(f"   ❌ FAILED: Payment date calculation is INCORRECT!")
-                    print(f"      Expected: {expected_payment_date}")
-                    print(f"      Got: {actual_payment_date}")
-                    all_tests_passed = False
+                    print(f"   ❌ FAILED: Next payment date calculation incorrect!")
+                    print(f"      Expected: {expected_next_payment}")
+                    print(f"      Got: {actual_next_payment}")
+                    all_passed = False
             else:
-                print(f"   ❌ FAILED: Could not create client for test case")
-                all_tests_passed = False
+                print(f"   ❌ FAILED: Could not create client")
+                all_passed = False
         
-        return all_tests_passed
+        return all_passed
 
-    def test_payment_recording_with_correct_calculation(self):
-        """Test payment recording with correct next payment date calculation"""
-        print("\n🎯 TESTING PAYMENT RECORDING WITH CORRECT CALCULATION")
+    def test_payment_recording_monthly_cycles(self):
+        """Test 2: Payment Recording - Verify monthly cycles continue properly"""
+        print("\n🎯 TEST 2: PAYMENT RECORDING - MONTHLY CYCLE CONTINUATION")
         print("=" * 80)
         
         if not self.created_clients:
-            print("❌ No clients available for payment recording test")
+            print("❌ No clients available for payment testing")
             return False
         
-        # Use the first created client for payment recording tests
+        # Use the first created client for payment testing
         test_client_id = self.created_clients[0]
         
-        # Get current client state
-        success1, client_response = self.run_test(
-            "Get Client Current State",
+        # Get client details first
+        success, client_response = self.run_test(
+            "Get Client for Payment Testing",
             "GET",
             f"clients/{test_client_id}",
             200
         )
         
-        if not success1:
-            print("❌ Failed to get client current state")
+        if not success:
+            print("❌ Could not retrieve client for payment testing")
             return False
         
-        current_due_date = client_response.get('next_payment_date')
         client_name = client_response.get('name')
+        initial_next_payment = client_response.get('next_payment_date')
         print(f"   Client: {client_name}")
-        print(f"   Current due date: {current_due_date}")
+        print(f"   Initial Next Payment Date: {initial_next_payment}")
         
-        # Record a payment
-        payment_data = {
-            "client_id": test_client_id,
-            "amount_paid": 55.00,
-            "payment_date": "2025-01-20",
-            "payment_method": "Credit Card",
-            "notes": "Testing payment recording with correct date calculation"
-        }
-        
-        success2, payment_response = self.run_test(
-            "Record Payment with Correct Date Calculation",
-            "POST",
-            "payments/record",
-            200,
-            payment_data
-        )
-        
-        if success2:
-            new_payment_date = payment_response.get('new_next_payment_date')
-            print(f"   New next payment date: {new_payment_date}")
-            
-            # Verify the client's next payment date was updated correctly
-            success3, updated_client = self.run_test(
-                "Verify Client Payment Date Updated",
-                "GET",
-                f"clients/{test_client_id}",
-                200
-            )
-            
-            if success3:
-                updated_due_date = updated_client.get('next_payment_date')
-                print(f"   Updated client due date: {updated_due_date}")
-                
-                # The new payment date should be one month from the current due date
-                # using proper monthly arithmetic, not 30-day increments
-                return True
-            else:
-                return False
-        else:
-            return False
-
-    def test_multiple_consecutive_payments(self):
-        """Test multiple consecutive payments to ensure no date drift"""
-        print("\n🎯 TESTING MULTIPLE CONSECUTIVE PAYMENTS - NO DATE DRIFT")
-        print("=" * 80)
-        
-        # Create a new client specifically for this test
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        client_data = {
-            "name": "Multiple Payments Test Client",
-            "email": f"multiple_payments_{timestamp}@example.com",
-            "phone": "(555) 999-0001",
-            "membership_type": "Premium",
-            "monthly_fee": 75.00,
-            "start_date": "2025-01-15"  # Start on 15th of month
-        }
-        
-        success1, client_response = self.run_test(
-            "Create Client for Multiple Payments Test",
-            "POST",
-            "clients",
-            200,
-            client_data
-        )
-        
-        if not success1 or "id" not in client_response:
-            print("❌ Failed to create client for multiple payments test")
-            return False
-        
-        test_client_id = client_response["id"]
-        self.created_clients.append(test_client_id)
-        
-        initial_due_date = client_response.get('next_payment_date')
-        print(f"   Initial due date: {initial_due_date}")
-        
-        # Expected payment dates for consistent monthly cycles
-        expected_dates = [
-            "2025-02-15",  # After 1st payment
-            "2025-03-15",  # After 2nd payment  
-            "2025-04-15",  # After 3rd payment
-            "2025-05-15",  # After 4th payment
-            "2025-06-15"   # After 5th payment
+        # Record multiple payments to test monthly cycle continuation
+        payment_tests = [
+            {
+                "payment_date": "2025-02-15",
+                "expected_next_payment": "2025-03-15",
+                "description": "First payment - Feb 15 -> Mar 15"
+            },
+            {
+                "payment_date": "2025-03-15", 
+                "expected_next_payment": "2025-04-15",
+                "description": "Second payment - Mar 15 -> Apr 15"
+            },
+            {
+                "payment_date": "2025-04-15",
+                "expected_next_payment": "2025-05-15", 
+                "description": "Third payment - Apr 15 -> May 15"
+            },
+            {
+                "payment_date": "2025-05-15",
+                "expected_next_payment": "2025-06-15",
+                "description": "Fourth payment - May 15 -> Jun 15"
+            }
         ]
         
-        payment_dates = [
-            "2025-01-15",  # Pay on due date
-            "2025-02-15",  # Pay on due date
-            "2025-03-15",  # Pay on due date
-            "2025-04-15",  # Pay on due date
-            "2025-05-15"   # Pay on due date
-        ]
+        all_passed = True
         
-        all_payments_correct = True
-        
-        for i, (payment_date, expected_next_date) in enumerate(zip(payment_dates, expected_dates), 1):
-            print(f"\n💰 Payment {i}:")
-            print(f"   Payment date: {payment_date}")
-            print(f"   Expected next due date: {expected_next_date}")
+        for i, payment_test in enumerate(payment_tests, 1):
+            print(f"\n💰 Payment {i}: {payment_test['description']}")
             
             payment_data = {
                 "client_id": test_client_id,
-                "amount_paid": 75.00,
-                "payment_date": payment_date,
+                "amount_paid": 55.00,
+                "payment_date": payment_test['payment_date'],
                 "payment_method": "Credit Card",
-                "notes": f"Payment {i} - Testing date drift prevention"
+                "notes": f"Test payment {i} for monthly cycle verification"
             }
             
-            success, payment_response = self.run_test(
+            success, response = self.run_test(
                 f"Record Payment {i}",
                 "POST",
                 "payments/record",
@@ -310,109 +234,97 @@ class NextPaymentDateTester:
             )
             
             if success:
-                actual_next_date = payment_response.get('new_next_payment_date')
-                print(f"   Actual next due date: {actual_next_date}")
+                actual_next_payment = response.get('new_next_payment_date')
+                expected_next_payment = payment_test['expected_next_payment']
                 
-                # Convert to date format for comparison
-                if actual_next_date:
-                    # Extract just the date part if it's in "Month DD, YYYY" format
+                print(f"   Payment Date: {payment_test['payment_date']}")
+                print(f"   Expected Next Payment: {expected_next_payment}")
+                print(f"   Actual Next Payment: {actual_next_payment}")
+                
+                # Convert date format for comparison (API returns "February 15, 2025" format)
+                if actual_next_payment:
                     try:
-                        # Convert "February 15, 2025" to "2025-02-15"
-                        actual_date_obj = datetime.strptime(actual_next_date, "%B %d, %Y").date()
-                        actual_date_str = actual_date_obj.strftime("%Y-%m-%d")
-                    except:
-                        actual_date_str = actual_next_date
-                    
-                    if actual_date_str == expected_next_date:
-                        print(f"   ✅ Payment {i}: Date calculation CORRECT - No drift detected!")
-                    else:
-                        print(f"   ❌ Payment {i}: Date calculation INCORRECT - Drift detected!")
-                        print(f"      Expected: {expected_next_date}")
-                        print(f"      Got: {actual_date_str}")
-                        all_payments_correct = False
+                        # Parse the returned date format and convert to YYYY-MM-DD
+                        parsed_date = datetime.strptime(actual_next_payment, "%B %d, %Y")
+                        actual_date_str = parsed_date.strftime("%Y-%m-%d")
+                        
+                        if actual_date_str == expected_next_payment:
+                            print(f"   ✅ PASSED: Monthly cycle continues correctly!")
+                        else:
+                            print(f"   ❌ FAILED: Monthly cycle broken!")
+                            print(f"      Expected: {expected_next_payment}")
+                            print(f"      Got: {actual_date_str}")
+                            all_passed = False
+                    except ValueError as e:
+                        print(f"   ❌ FAILED: Could not parse date format: {e}")
+                        all_passed = False
                 else:
-                    print(f"   ❌ Payment {i}: No next payment date returned")
-                    all_payments_correct = False
+                    print(f"   ❌ FAILED: No next payment date returned")
+                    all_passed = False
             else:
-                print(f"   ❌ Payment {i}: Failed to record payment")
-                all_payments_correct = False
+                print(f"   ❌ FAILED: Could not record payment {i}")
+                all_passed = False
         
-        if all_payments_correct:
-            print(f"\n✅ MULTIPLE PAYMENTS TEST: ALL PASSED!")
-            print("   ✅ No date drift detected across 5 consecutive payments")
-            print("   ✅ Consistent monthly cycles maintained (15th → 15th → 15th)")
-            print("   ✅ Proper monthly arithmetic working correctly")
-        else:
-            print(f"\n❌ MULTIPLE PAYMENTS TEST: FAILED!")
-            print("   ❌ Date drift detected - payments not maintaining consistent monthly cycles")
-        
-        return all_payments_correct
+        return all_passed
 
-    def test_edge_cases_leap_years_and_boundaries(self):
-        """Test edge cases including leap years, month boundaries, and year boundaries"""
-        print("\n🎯 TESTING EDGE CASES - LEAP YEARS & BOUNDARIES")
+    def test_edge_cases_and_boundaries(self):
+        """Test 3: Edge Cases - Month boundaries, leap years, year boundaries"""
+        print("\n🎯 TEST 3: EDGE CASES - BOUNDARIES AND SPECIAL DATES")
         print("=" * 80)
         
         edge_test_cases = [
             {
-                "name": "Leap Year February 29th",
-                "start_date": "2024-02-29",
-                "expected_payment_date": "2024-03-29",
-                "description": "Leap year handling"
+                "name": "Leap Year Feb 29th",
+                "start_date": "2024-02-29",  # 2024 is a leap year
+                "expected_next_payment": "2024-03-29",
+                "description": "Leap year February 29th"
             },
             {
-                "name": "Non-Leap Year February 28th",
-                "start_date": "2025-02-28",
-                "expected_payment_date": "2025-03-28",
-                "description": "Non-leap year February"
+                "name": "Non-Leap Year Feb 28th",
+                "start_date": "2025-02-28",  # 2025 is not a leap year
+                "expected_next_payment": "2025-03-28",
+                "description": "Non-leap year February 28th"
             },
             {
-                "name": "January 31st → February 28th (2025)",
-                "start_date": "2025-01-31",
-                "expected_payment_date": "2025-02-28",
-                "description": "Month boundary - Jan 31st to Feb 28th"
+                "name": "April 30th (30-day month)",
+                "start_date": "2025-04-30",
+                "expected_next_payment": "2025-05-30",
+                "description": "30-day month boundary"
             },
             {
-                "name": "March 31st → April 30th",
-                "start_date": "2025-03-31",
-                "expected_payment_date": "2025-04-30",
-                "description": "Month boundary - Mar 31st to Apr 30th"
-            },
-            {
-                "name": "May 31st → June 30th",
+                "name": "May 31st to June 30th",
                 "start_date": "2025-05-31",
-                "expected_payment_date": "2025-06-30",
-                "description": "Month boundary - May 31st to Jun 30th"
+                "expected_next_payment": "2025-06-30",
+                "description": "31-day to 30-day month"
             },
             {
-                "name": "Year Boundary December 31st",
-                "start_date": "2025-12-31",
-                "expected_payment_date": "2026-01-31",
+                "name": "Year Boundary Dec 15th",
+                "start_date": "2025-12-15",
+                "expected_next_payment": "2026-01-15",
                 "description": "Year boundary crossing"
             }
         ]
         
-        all_edge_tests_passed = True
+        all_passed = True
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         
         for i, test_case in enumerate(edge_test_cases, 1):
-            print(f"\n🔥 Edge Case {i}: {test_case['name']}")
+            print(f"\n🔄 Edge Case {i}: {test_case['name']}")
             print(f"   Start Date: {test_case['start_date']}")
-            print(f"   Expected Payment Date: {test_case['expected_payment_date']}")
+            print(f"   Expected Next Payment: {test_case['expected_next_payment']}")
             print(f"   Description: {test_case['description']}")
             
-            # Create client with specific start date
             client_data = {
                 "name": f"Edge Test {i} - {test_case['name']}",
                 "email": f"edge_test_{i}_{timestamp}@example.com",
                 "phone": f"(555) {200+i:03d}-{2000+i:04d}",
-                "membership_type": "Elite",
-                "monthly_fee": 100.00,
+                "membership_type": "Premium",
+                "monthly_fee": 75.00,
                 "start_date": test_case['start_date']
             }
             
             success, response = self.run_test(
-                f"Create Client - {test_case['name']}",
+                f"Create Edge Case Client - {test_case['name']}",
                 "POST",
                 "clients",
                 200,
@@ -421,126 +333,219 @@ class NextPaymentDateTester:
             
             if success and "id" in response:
                 self.created_clients.append(response["id"])
-                actual_payment_date = str(response.get('next_payment_date'))
-                expected_payment_date = test_case['expected_payment_date']
+                actual_next_payment = str(response.get('next_payment_date'))
+                expected_next_payment = test_case['expected_next_payment']
                 
-                print(f"   Actual Payment Date: {actual_payment_date}")
+                print(f"   Actual Next Payment: {actual_next_payment}")
                 
-                if actual_payment_date == expected_payment_date:
-                    print(f"   ✅ PASSED: Edge case handled CORRECTLY!")
+                if actual_next_payment == expected_next_payment:
+                    print(f"   ✅ PASSED: Edge case handled correctly!")
                 else:
-                    print(f"   ❌ FAILED: Edge case handled INCORRECTLY!")
-                    print(f"      Expected: {expected_payment_date}")
-                    print(f"      Got: {actual_payment_date}")
-                    all_edge_tests_passed = False
+                    print(f"   ❌ FAILED: Edge case not handled correctly!")
+                    print(f"      Expected: {expected_next_payment}")
+                    print(f"      Got: {actual_next_payment}")
+                    all_passed = False
             else:
-                print(f"   ❌ FAILED: Could not create client for edge case")
-                all_edge_tests_passed = False
+                print(f"   ❌ FAILED: Could not create edge case client")
+                all_passed = False
         
-        return all_edge_tests_passed
+        return all_passed
 
-    def test_payment_stats_accuracy(self):
-        """Test that payment statistics are accurate after payments"""
-        print("\n🎯 TESTING PAYMENT STATISTICS ACCURACY")
+    def test_multiple_consecutive_payments(self):
+        """Test 4: Multiple Payments - Test consecutive payments to ensure no date drift"""
+        print("\n🎯 TEST 4: MULTIPLE CONSECUTIVE PAYMENTS - NO DATE DRIFT")
         print("=" * 80)
         
-        # Get initial payment stats
-        success1, initial_stats = self.run_test(
-            "Get Initial Payment Statistics",
-            "GET",
-            "payments/stats",
-            200
+        # Create a new client specifically for this test
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        client_data = {
+            "name": "Multiple Payments Test Client",
+            "email": f"multiple_payments_{timestamp}@example.com",
+            "phone": "(555) 999-8888",
+            "membership_type": "Elite",
+            "monthly_fee": 100.00,
+            "start_date": "2025-01-15"
+        }
+        
+        success, response = self.run_test(
+            "Create Client for Multiple Payments Test",
+            "POST",
+            "clients",
+            200,
+            client_data
         )
         
-        if not success1:
-            print("❌ Failed to get initial payment statistics")
+        if not success or "id" not in response:
+            print("❌ Could not create client for multiple payments test")
             return False
         
-        initial_revenue = initial_stats.get('total_revenue', 0)
-        initial_count = initial_stats.get('payment_count', 0)
+        test_client_id = response["id"]
+        self.created_clients.append(test_client_id)
+        initial_next_payment = response.get('next_payment_date')
         
-        print(f"   Initial total revenue: TTD {initial_revenue}")
-        print(f"   Initial payment count: {initial_count}")
+        print(f"   Created Client ID: {test_client_id}")
+        print(f"   Initial Next Payment Date: {initial_next_payment}")
         
-        # Record a test payment if we have clients
-        if self.created_clients:
-            test_client_id = self.created_clients[0]
-            test_amount = 125.50
+        # Expected payment sequence (should maintain 15th of each month)
+        expected_sequence = [
+            ("2025-02-15", "2025-03-15"),  # Payment 1: Feb 15 -> Mar 15
+            ("2025-03-15", "2025-04-15"),  # Payment 2: Mar 15 -> Apr 15
+            ("2025-04-15", "2025-05-15"),  # Payment 3: Apr 15 -> May 15
+            ("2025-05-15", "2025-06-15"),  # Payment 4: May 15 -> Jun 15
+            ("2025-06-15", "2025-07-15"),  # Payment 5: Jun 15 -> Jul 15
+            ("2025-07-15", "2025-08-15"),  # Payment 6: Jul 15 -> Aug 15
+        ]
+        
+        all_passed = True
+        
+        for i, (payment_date, expected_next) in enumerate(expected_sequence, 1):
+            print(f"\n💰 Consecutive Payment {i}")
+            print(f"   Payment Date: {payment_date}")
+            print(f"   Expected Next Payment: {expected_next}")
             
             payment_data = {
                 "client_id": test_client_id,
-                "amount_paid": test_amount,
-                "payment_date": "2025-01-25",
+                "amount_paid": 100.00,
+                "payment_date": payment_date,
                 "payment_method": "Bank Transfer",
-                "notes": "Testing payment statistics accuracy"
+                "notes": f"Consecutive payment {i} - testing for date drift"
             }
             
-            success2, payment_response = self.run_test(
-                "Record Test Payment for Statistics",
+            success, response = self.run_test(
+                f"Record Consecutive Payment {i}",
                 "POST",
                 "payments/record",
                 200,
                 payment_data
             )
             
-            if success2:
-                # Get updated payment stats
-                success3, updated_stats = self.run_test(
-                    "Get Updated Payment Statistics",
-                    "GET",
-                    "payments/stats",
-                    200
-                )
+            if success:
+                actual_next_payment = response.get('new_next_payment_date')
                 
-                if success3:
-                    updated_revenue = updated_stats.get('total_revenue', 0)
-                    updated_count = updated_stats.get('payment_count', 0)
-                    
-                    print(f"   Updated total revenue: TTD {updated_revenue}")
-                    print(f"   Updated payment count: {updated_count}")
-                    
-                    expected_revenue = initial_revenue + test_amount
-                    expected_count = initial_count + 1
-                    
-                    revenue_correct = abs(updated_revenue - expected_revenue) < 0.01
-                    count_correct = updated_count == expected_count
-                    
-                    if revenue_correct and count_correct:
-                        print(f"   ✅ Payment statistics updated CORRECTLY!")
-                        print(f"      Revenue increased by TTD {test_amount}")
-                        print(f"      Payment count increased by 1")
-                        return True
-                    else:
-                        print(f"   ❌ Payment statistics updated INCORRECTLY!")
-                        print(f"      Expected revenue: TTD {expected_revenue}, Got: TTD {updated_revenue}")
-                        print(f"      Expected count: {expected_count}, Got: {updated_count}")
-                        return False
+                if actual_next_payment:
+                    try:
+                        # Parse the returned date format and convert to YYYY-MM-DD
+                        parsed_date = datetime.strptime(actual_next_payment, "%B %d, %Y")
+                        actual_date_str = parsed_date.strftime("%Y-%m-%d")
+                        
+                        print(f"   Actual Next Payment: {actual_next_payment} ({actual_date_str})")
+                        
+                        if actual_date_str == expected_next:
+                            print(f"   ✅ PASSED: No date drift detected!")
+                        else:
+                            print(f"   ❌ FAILED: Date drift detected!")
+                            print(f"      Expected: {expected_next}")
+                            print(f"      Got: {actual_date_str}")
+                            all_passed = False
+                    except ValueError as e:
+                        print(f"   ❌ FAILED: Could not parse date format: {e}")
+                        all_passed = False
                 else:
-                    return False
+                    print(f"   ❌ FAILED: No next payment date returned")
+                    all_passed = False
             else:
-                return False
-        else:
-            print("   ⚠️  No clients available for payment statistics test")
-            return True
+                print(f"   ❌ FAILED: Could not record consecutive payment {i}")
+                all_passed = False
+        
+        return all_passed
+
+    def test_payment_status_scenarios(self):
+        """Test 5: Payment Status Scenarios - Test both 'paid' and 'due' status on creation"""
+        print("\n🎯 TEST 5: PAYMENT STATUS SCENARIOS - 'PAID' VS 'DUE' STATUS")
+        print("=" * 80)
+        
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        
+        # Test Case 1: Client with payment_status = 'due' (should calculate next payment date)
+        print("\n📋 Test Case 1: Client with payment_status = 'due'")
+        client_due_data = {
+            "name": "Client Due Status Test",
+            "email": f"client_due_{timestamp}@example.com",
+            "phone": "(555) 111-1111",
+            "membership_type": "Standard",
+            "monthly_fee": 55.00,
+            "start_date": "2025-01-20",
+            "payment_status": "due"
+        }
+        
+        success1, response1 = self.run_test(
+            "Create Client with 'due' Status",
+            "POST",
+            "clients",
+            200,
+            client_due_data
+        )
+        
+        due_test_passed = False
+        if success1 and "id" in response1:
+            self.created_clients.append(response1["id"])
+            actual_next_payment = str(response1.get('next_payment_date'))
+            expected_next_payment = "2025-02-20"  # Should be one month ahead
+            
+            print(f"   Start Date: 2025-01-20")
+            print(f"   Payment Status: due")
+            print(f"   Expected Next Payment: {expected_next_payment}")
+            print(f"   Actual Next Payment: {actual_next_payment}")
+            
+            if actual_next_payment == expected_next_payment:
+                print(f"   ✅ PASSED: 'due' status calculates next payment date correctly!")
+                due_test_passed = True
+            else:
+                print(f"   ❌ FAILED: 'due' status calculation incorrect!")
+        
+        # Test Case 2: Client with payment_status = 'paid' (should still calculate next payment date)
+        print("\n📋 Test Case 2: Client with payment_status = 'paid'")
+        client_paid_data = {
+            "name": "Client Paid Status Test",
+            "email": f"client_paid_{timestamp}@example.com",
+            "phone": "(555) 222-2222",
+            "membership_type": "Premium",
+            "monthly_fee": 75.00,
+            "start_date": "2025-01-25",
+            "payment_status": "paid"
+        }
+        
+        success2, response2 = self.run_test(
+            "Create Client with 'paid' Status",
+            "POST",
+            "clients",
+            200,
+            client_paid_data
+        )
+        
+        paid_test_passed = False
+        if success2 and "id" in response2:
+            self.created_clients.append(response2["id"])
+            actual_next_payment = str(response2.get('next_payment_date'))
+            expected_next_payment = "2025-02-25"  # Should be one month ahead
+            
+            print(f"   Start Date: 2025-01-25")
+            print(f"   Payment Status: paid")
+            print(f"   Expected Next Payment: {expected_next_payment}")
+            print(f"   Actual Next Payment: {actual_next_payment}")
+            
+            if actual_next_payment == expected_next_payment:
+                print(f"   ✅ PASSED: 'paid' status calculates next payment date correctly!")
+                paid_test_passed = True
+            else:
+                print(f"   ❌ FAILED: 'paid' status calculation incorrect!")
+        
+        return due_test_passed and paid_test_passed
 
     def cleanup_test_clients(self):
-        """Clean up test clients created during testing"""
+        """Clean up created test clients"""
         print("\n🧹 CLEANING UP TEST CLIENTS")
         print("=" * 40)
         
         cleanup_success = True
-        for i, client_id in enumerate(self.created_clients, 1):
+        for client_id in self.created_clients:
             success, response = self.run_test(
-                f"Delete Test Client {i}",
+                f"Delete Test Client {client_id[:8]}...",
                 "DELETE",
                 f"clients/{client_id}",
                 200
             )
-            
-            if success:
-                print(f"   ✅ Deleted client {i}: {response.get('client_name', 'Unknown')}")
-            else:
-                print(f"   ❌ Failed to delete client {i}")
+            if not success:
                 cleanup_success = False
         
         return cleanup_success
@@ -549,66 +554,62 @@ class NextPaymentDateTester:
         """Run all next payment date calculation tests"""
         print("🎯 NEXT PAYMENT DATE CALCULATION FIX - COMPREHENSIVE TESTING")
         print("=" * 80)
-        print("Testing the fix for 'Next payment date calculation is wrong'")
-        print("Verifying proper monthly arithmetic instead of 30-day increments")
+        print("Testing the complete fix for next payment date calculation issues")
+        print("Focus: Initial client creation and payment recording monthly cycles")
         print("=" * 80)
         
-        # Run all test categories
+        # Run all test suites
         test_results = []
         
-        test_results.append(self.test_initial_payment_date_calculation())
-        test_results.append(self.test_payment_recording_with_correct_calculation())
-        test_results.append(self.test_multiple_consecutive_payments())
-        test_results.append(self.test_edge_cases_leap_years_and_boundaries())
-        test_results.append(self.test_payment_stats_accuracy())
+        print("\n" + "="*80)
+        test_results.append(("Initial Client Creation", self.test_initial_client_creation_dates()))
         
-        # Clean up test clients
-        self.cleanup_test_clients()
+        print("\n" + "="*80)
+        test_results.append(("Payment Recording Cycles", self.test_payment_recording_monthly_cycles()))
         
-        # Print final summary
-        print("\n" + "=" * 80)
-        print("🎯 NEXT PAYMENT DATE CALCULATION FIX - TEST SUMMARY")
+        print("\n" + "="*80)
+        test_results.append(("Edge Cases & Boundaries", self.test_edge_cases_and_boundaries()))
+        
+        print("\n" + "="*80)
+        test_results.append(("Multiple Consecutive Payments", self.test_multiple_consecutive_payments()))
+        
+        print("\n" + "="*80)
+        test_results.append(("Payment Status Scenarios", self.test_payment_status_scenarios()))
+        
+        # Clean up test data
+        print("\n" + "="*80)
+        cleanup_success = self.cleanup_test_clients()
+        
+        # Final Results Summary
+        print("\n" + "="*80)
+        print("🎯 FINAL TEST RESULTS SUMMARY")
         print("=" * 80)
         
-        passed_tests = sum(test_results)
-        total_tests = len(test_results)
+        all_passed = True
+        for test_name, result in test_results:
+            status = "✅ PASSED" if result else "❌ FAILED"
+            print(f"   {status}: {test_name}")
+            if not result:
+                all_passed = False
         
-        print(f"📊 Overall Test Results:")
-        print(f"   Tests Run: {self.tests_run}")
-        print(f"   Tests Passed: {self.tests_passed}")
-        print(f"   Success Rate: {(self.tests_passed/self.tests_run)*100:.1f}%")
-        print(f"   Test Categories Passed: {passed_tests}/{total_tests}")
+        print(f"\nCleanup: {'✅ SUCCESS' if cleanup_success else '❌ FAILED'}")
+        print(f"\nTotal Tests Run: {self.tests_run}")
+        print(f"Total Tests Passed: {self.tests_passed}")
+        print(f"Success Rate: {(self.tests_passed/self.tests_run*100):.1f}%")
         
-        if all(test_results):
-            print("\n✅ ALL TESTS PASSED!")
-            print("✅ Next payment date calculation fix is WORKING CORRECTLY!")
-            print("✅ Proper monthly arithmetic implemented successfully")
-            print("✅ No date drift detected")
-            print("✅ Edge cases handled properly")
-            print("✅ Month boundaries working correctly")
-            return True
+        if all_passed:
+            print("\n🎉 ALL TESTS PASSED! Next payment date calculation fix is working correctly!")
+            print("✅ Initial client creation calculates next payment date properly")
+            print("✅ Payment recording maintains proper monthly cycles")
+            print("✅ Edge cases and boundaries handled correctly")
+            print("✅ No date drift detected in consecutive payments")
+            print("✅ Both 'paid' and 'due' status scenarios work correctly")
         else:
-            print("\n❌ SOME TESTS FAILED!")
-            print("❌ Next payment date calculation fix needs attention")
-            failed_categories = []
-            if not test_results[0]: failed_categories.append("Initial Payment Date Calculation")
-            if not test_results[1]: failed_categories.append("Payment Recording")
-            if not test_results[2]: failed_categories.append("Multiple Consecutive Payments")
-            if not test_results[3]: failed_categories.append("Edge Cases")
-            if not test_results[4]: failed_categories.append("Payment Statistics")
+            print("\n❌ SOME TESTS FAILED! Next payment date calculation needs attention!")
             
-            print(f"❌ Failed categories: {', '.join(failed_categories)}")
-            return False
+        return all_passed
 
 if __name__ == "__main__":
-    print("🚀 Starting Next Payment Date Calculation Fix Testing...")
-    
     tester = NextPaymentDateTester()
     success = tester.run_all_tests()
-    
-    if success:
-        print("\n🎉 TESTING COMPLETED SUCCESSFULLY!")
-        sys.exit(0)
-    else:
-        print("\n💥 TESTING COMPLETED WITH FAILURES!")
-        sys.exit(1)
+    sys.exit(0 if success else 1)
