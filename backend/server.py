@@ -576,7 +576,7 @@ async def record_client_payment(payment_request: PaymentRecordRequest):
     # Use the later of current due date or payment date as the base
     # This prevents losing days when paying early, and accumulates multiple payments
     base_date = max(current_due_date, payment_date)
-    new_next_payment_date = base_date + timedelta(days=30)
+    new_next_payment_date = calculate_next_payment_date(base_date)
     
     # Update client's next payment date
     await db.clients.update_one(
