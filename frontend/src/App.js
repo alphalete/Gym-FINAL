@@ -3181,6 +3181,7 @@ const Payments = () => {
   const [currentFilter, setCurrentFilter] = useState('all'); // 'all', 'paid', 'overdue', 'due-soon'
   const [loading, setLoading] = useState(true);
   const [testClients, setTestClients] = useState([]);
+  const [showCleanupModal, setShowCleanupModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
