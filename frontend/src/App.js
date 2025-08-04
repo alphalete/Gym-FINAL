@@ -1920,6 +1920,7 @@ const ClientManagement = () => {
   const [editClientModal, setEditClientModal] = useState({ isOpen: false, client: null });
   const [customEmailModal, setCustomEmailModal] = useState({ isOpen: false, client: null });
   const [quickPaymentModal, setQuickPaymentModal] = useState({ isOpen: false, client: null });
+  const navigate = useNavigate();
 
   // Filter clients based on search term
   const searchFilteredClients = clients.filter(client =>
@@ -1934,7 +1935,7 @@ const ClientManagement = () => {
 
   // Get payment status
   const getPaymentStatus = (client) => {
-    if (!client.next_payment_date) return 'unknown';
+    if (!client.next_payment_date) return 'paid';
     const today = getASTDate();
     today.setHours(0, 0, 0, 0);
     const paymentDate = new Date(client.next_payment_date);
@@ -1951,6 +1952,22 @@ const ClientManagement = () => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
+
+  // Get payment status with amount for display
+  const getPaymentStatusDisplay = (client) => {
+    const status = getPaymentStatus(client);
+    const amount = client.monthly_fee || 0;
+    
+    switch (status) {
+      case 'overdue':
+        return { text: `OWES TTD ${amount}`, class: 'overdue' };
+      case 'due-soon':
+        return { text: `DUE TTD ${amount}`, class: 'due-soon' };
+      default:
+        return { text: 'PAID', class: 'paid' };
+    }
+  };
+
   const [quickPaymentForm, setQuickPaymentForm] = useState({
     amount_paid: '',
     payment_date: formatDateForInput(getASTDate()), // Use AST date
