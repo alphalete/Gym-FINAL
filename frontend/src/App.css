@@ -272,6 +272,422 @@
   }
 }
 
+/* Modern Members Page Styles */
+.modern-members-page {
+  min-height: 100vh !important;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%) !important;
+  padding: 0 0 80px 0 !important; /* Bottom padding for mobile nav */
+}
+
+/* Members Header */
+.members-header {
+  background: linear-gradient(135deg, #00BCD4 0%, #2196F3 100%) !important;
+  color: white !important;
+  padding: 24px 20px !important;
+  text-align: center !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  position: relative !important;
+}
+
+.members-title {
+  font-size: 28px !important;
+  font-weight: 800 !important;
+  margin: 0 !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  color: white !important;
+}
+
+/* Floating Add Button */
+.floating-add-button {
+  position: absolute !important;
+  top: 20px !important;
+  right: 20px !important;
+  width: 48px !important;
+  height: 48px !important;
+  background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%) !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 12px rgba(86, 171, 47, 0.3) !important;
+  transition: all 0.3s ease !important;
+}
+
+.floating-add-button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 16px rgba(86, 171, 47, 0.4) !important;
+}
+
+.floating-add-button .add-icon {
+  color: white !important;
+  font-size: 24px !important;
+  font-weight: 700 !important;
+}
+
+/* Search Section */
+.members-search-section {
+  padding: 20px !important;
+  margin-bottom: 20px !important;
+}
+
+.search-container {
+  background: white !important;
+  border-radius: 12px !important;
+  padding: 20px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  margin-bottom: 20px !important;
+}
+
+.search-input-container {
+  position: relative !important;
+  margin-bottom: 12px !important;
+}
+
+.search-input {
+  width: 100% !important;
+  padding: 12px 16px 12px 44px !important;
+  border: 2px solid #e2e8f0 !important;
+  border-radius: 25px !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  background: #f7fafc !important;
+  transition: all 0.2s ease !important;
+}
+
+.search-input:focus {
+  outline: none !important;
+  border-color: #00BCD4 !important;
+  background: white !important;
+  box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.1) !important;
+}
+
+.search-icon {
+  position: absolute !important;
+  left: 16px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  font-size: 18px !important;
+  color: #718096 !important;
+}
+
+.member-count {
+  text-align: center !important;
+  font-size: 14px !important;
+  color: #718096 !important;
+  font-weight: 600 !important;
+}
+
+/* Stats Card - Single Total Members */
+.members-stats-section {
+  padding: 0 20px 20px 20px !important;
+}
+
+.members-stats-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+  border-radius: 16px !important;
+  padding: 24px !important;
+  text-align: center !important;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3) !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+}
+
+.members-stats-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4) !important;
+}
+
+.stats-card-value {
+  font-size: 48px !important;
+  font-weight: 800 !important;
+  margin-bottom: 8px !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  color: white !important;
+}
+
+.stats-card-label {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  opacity: 0.9 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  color: white !important;
+}
+
+.stats-card-icon {
+  font-size: 20px !important;
+}
+
+/* Members List */
+.members-list-section {
+  padding: 0 20px !important;
+}
+
+.members-list-title {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  color: #2d3748 !important;
+  margin-bottom: 16px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.members-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+}
+
+/* Modern Member Card */
+.modern-member-card {
+  background: white !important;
+  border-radius: 16px !important;
+  padding: 20px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+  transition: all 0.3s ease !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+.modern-member-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+  border-color: #00BCD4 !important;
+}
+
+/* Member Card Header */
+.member-card-header {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  margin-bottom: 16px !important;
+}
+
+.member-card-left {
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  flex: 1 !important;
+}
+
+.member-card-avatar {
+  width: 56px !important;
+  height: 56px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: white !important;
+  font-weight: 700 !important;
+  font-size: 20px !important;
+  text-transform: uppercase !important;
+  box-shadow: 0 3px 8px rgba(102, 126, 234, 0.3) !important;
+}
+
+.member-card-info {
+  flex: 1 !important;
+}
+
+.member-card-name {
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  color: #2d3748 !important;
+  margin-bottom: 4px !important;
+}
+
+.member-card-plan {
+  font-size: 14px !important;
+  color: #718096 !important;
+  font-weight: 500 !important;
+  margin-bottom: 4px !important;
+}
+
+.member-card-date {
+  font-size: 13px !important;
+  color: #a0aec0 !important;
+  font-weight: 500 !important;
+}
+
+/* Status Badges */
+.member-card-status {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  align-items: flex-end !important;
+}
+
+.status-badge {
+  padding: 6px 12px !important;
+  border-radius: 15px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.status-badge.active {
+  background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%) !important;
+  color: white !important;
+}
+
+.status-badge.inactive {
+  background: linear-gradient(135deg, #6c757d 0%, #adb5bd 100%) !important;
+  color: white !important;
+}
+
+.status-badge.paid {
+  background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%) !important;
+  color: white !important;
+}
+
+.status-badge.overdue {
+  background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%) !important;
+  color: white !important;
+}
+
+.status-badge.due-soon {
+  background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%) !important;
+  color: white !important;
+}
+
+/* Action Toolbar */
+.member-action-toolbar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  padding-top: 16px !important;
+  border-top: 1px solid #e2e8f0 !important;
+  margin-top: 16px !important;
+}
+
+.action-btn {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50% !important;
+  border: none !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+.action-btn:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.action-btn.email {
+  background: linear-gradient(135deg, #2196F3 0%, #21CBF3 100%) !important;
+  color: white !important;
+}
+
+.action-btn.whatsapp {
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%) !important;
+  color: white !important;
+}
+
+.action-btn.payment {
+  background: linear-gradient(135deg, #4CAF50 0%, #8BC34A 100%) !important;
+  color: white !important;
+}
+
+.action-btn.edit {
+  background: linear-gradient(135deg, #FF9800 0%, #FFC107 100%) !important;
+  color: white !important;
+}
+
+.action-btn.delete {
+  background: linear-gradient(135deg, #F44336 0%, #E91E63 100%) !important;
+  color: white !important;
+}
+
+/* Empty State */
+.members-empty-state {
+  text-align: center !important;
+  padding: 60px 20px !important;
+  color: #718096 !important;
+}
+
+.empty-state-icon {
+  font-size: 64px !important;
+  margin-bottom: 16px !important;
+  opacity: 0.5 !important;
+}
+
+.empty-state-title {
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  margin-bottom: 8px !important;
+  color: #2d3748 !important;
+}
+
+.empty-state-message {
+  font-size: 16px !important;
+  margin-bottom: 24px !important;
+  color: #718096 !important;
+}
+
+.empty-state-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+  padding: 12px 24px !important;
+  border: none !important;
+  border-radius: 25px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.empty-state-button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4) !important;
+}
+
+/* Loading State */
+.members-loading {
+  text-align: center !important;
+  padding: 60px 20px !important;
+}
+
+.loading-spinner {
+  width: 48px !important;
+  height: 48px !important;
+  border: 4px solid #e2e8f0 !important;
+  border-top: 4px solid #00BCD4 !important;
+  border-radius: 50% !important;
+  animation: spin 1s linear infinite !important;
+  margin: 0 auto 16px auto !important;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 18px !important;
+  color: #718096 !important;
+  font-weight: 500 !important;
+}
+
 /* GoGym4U Style Recreation - Exact Match */
 
 :root {
