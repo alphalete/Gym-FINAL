@@ -4024,15 +4024,6 @@ const Payments = () => {
       </div>
     </div>
   );
-
-  // Helper functions for the new payment actions
-  const sendPaymentReminder = async (client) => {
-    alert(`Sending payment reminder to ${client.name}`);
-  };
-
-  const markAsPaid = async (client) => {
-    alert(`Marking ${client.name} as paid`);
-  };
 };
 
 const AutoReminders = () => {
