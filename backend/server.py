@@ -301,20 +301,19 @@ async def create_client(client_data: ClientCreate):
     """Create a new client"""
     client_dict = client_data.dict()
     
-    # Handle next payment date logic based on payment_status
-    payment_status = client_dict.get('payment_status', 'due')  # Default to 'due' if not provided
-    
-    if payment_status == 'paid':
-        # If client paid on join, set next payment 30 days from start date
-        next_payment_date = calculate_next_payment_date(client_data.start_date)
-    else:
-        # If client didn't pay, payment is due immediately (on start date)
-        next_payment_date = client_data.start_date
-    
+    # Handle next payment date logic - always calculate one month ahead for consistency
+    # This ensures proper monthly billing cycles regardless of payment status
+    next_payment_date = calculate_next_payment_date(client_data.start_date)
     client_dict['next_payment_date'] = next_payment_date
     
-    # Add amount_owed field
-    client_dict['amount_owed'] = client_dict.get('amount_owed', 0)
+    # Handle amount owed based on payment status
+    payment_status = client_dict.get('payment_status', 'due')  # Default to 'due' if not provided
+    if payment_status == 'paid':
+        # Client paid on joining, no amount owed
+        client_dict['amount_owed'] = 0.0
+    else:
+        # Client hasn't paid yet, they owe the monthly fee
+        client_dict['amount_owed'] = client_dict.get('amount_owed', client_dict['monthly_fee'])
     
     client_obj = Client(**client_dict)
     
