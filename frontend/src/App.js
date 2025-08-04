@@ -3152,42 +3152,471 @@ const Payments = () => {
   });
   
   const [clients, setClients] = useState([]);
-  const [currentFilter, setCurrentFilter] = useState('all'); // 'all', 'due-soon', 'overdue'
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [showReportsModal, setShowReportsModal] = useState(false);
-  const [showOverdueModal, setShowOverdueModal] = useState(false);
-  const [showCleanupModal, setShowCleanupModal] = useState(false);
-  const [paymentForm, setPaymentForm] = useState({
-    client_id: '',
-    amount_paid: '',
-    payment_date: (() => {
-      // Set default date to today in Atlantic Standard Time (AST = UTC-4)
-      const now = new Date();
-      // AST is UTC-4, but we need to adjust for the local date
-      const astTime = new Date(now.getTime() - (4 * 60 * 60 * 1000)); // Subtract 4 hours
-      
-      // Format as YYYY-MM-DD for the date input
-      const year = astTime.getFullYear();
-      const month = String(astTime.getMonth() + 1).padStart(2, '0');
-      const day = String(astTime.getDate()).padStart(2, '0');
-      
-      console.log(`🕐 Setting payment form date to AST: ${year}-${month}-${day}`);
-      return `${year}-${month}-${day}`;
-    })(),
-    payment_method: 'Cash',
-    notes: ''
-  });
-  const [loading, setLoading] = useState(false);
-  const [overdueClients, setOverdueClients] = useState([]);
-  const [paymentReports, setPaymentReports] = useState([]);
-  const [testClients, setTestClients] = useState([]);
+  const [currentFilter, setCurrentFilter] = useState('all'); // 'all', 'paid', 'overdue', 'due-soon'
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchClients();
-    fetchOverdueClients();
-    identifyTestClients();
     calculateRealPaymentStats();
   }, []);
+
+  // Get member initials for avatar
+  const getInitials = (name) => {
+    return name.split(' ').map(word => word.charAt(0)).join('').toUpperCase().slice(0, 2);
+  };
+
+  // Get payment status for each client
+  const getPaymentStatus = (client) => {
+    if (!client.next_payment_date) return 'paid';
+    const today = getASTDate();
+    today.setHours(0, 0, 0, 0);
+    const paymentDate = new Date(client.next_payment_date);
+    const daysDiff = Math.ceil((paymentDate - today) / (1000 * 60 * 60 * 24));
+    
+    if (daysDiff < 0) return 'overdue';
+    if (daysDiff <= 7) return 'due-soon';
+    return 'paid';
+  };
+
+  // Format date for display
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Not set';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
+  // Filter clients based on current filter
+  const filteredClients = clients.filter(client => {
+    if (currentFilter === 'all') return true;
+    const status = getPaymentStatus(client);
+    if (currentFilter === 'paid') return status === 'paid';
+    if (currentFilter === 'overdue') return status === 'overdue';
+    if (currentFilter === 'due-soon') return status === 'due-soon';
+    return true;
+  });
+
+  // Get counts for filter tabs
+  const getStatusCounts = () => {
+    const counts = {
+      all: clients.length,
+      paid: 0,
+      overdue: 0,
+      'due-soon': 0
+    };
+    
+    clients.forEach(client => {
+      const status = getPaymentStatus(client);
+      counts[status]++;
+    });
+    
+    return counts;
+  };
+
+  const statusCounts = getStatusCounts();
+
+  const calculateRealPaymentStats = async () => {
+    try {
+      console.log(`📱 Mobile Payment Stats: Using direct API calls to fix data issues`);
+      
+      // EMERGENCY MOBILE URL FIX - Force correct backend URL
+      let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      
+      // CRITICAL FIX: Override for mobile devices showing wrong URL
+      if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
+        backendUrl = 'https://276b2f1f-9d6e-4215-a382-5da8671edad7.preview.emergentagent.com';
+        console.log('🚨 PAYMENTS PAGE: OVERRIDING backend URL for mobile fix');
+      }
+      
+      console.log('🚨 PAYMENTS PAGE: Backend URL:', backendUrl);
+      
+      // Force direct API calls instead of LocalStorageManager
+      let clientsData = [];
+      let actualRevenue = 0;
+      
+      if (backendUrl) {
+        try {
+          // Get clients directly from API
+          console.log('📱 Mobile: Direct API call for clients...');
+          const clientsResponse = await fetch(`${backendUrl}/api/clients`);
+          if (clientsResponse.ok) {
+            clientsData = await clientsResponse.json();
+            console.log(`📱 Mobile: SUCCESS - Got ${clientsData.length} clients from API`);
+          }
+          
+          // Get payment stats directly from API
+          console.log('📱 Mobile: Direct API call for payment stats...');
+          const paymentStatsResponse = await fetch(`${backendUrl}/api/payments/stats`);
+          if (paymentStatsResponse.ok) {
+            const paymentStats = await paymentStatsResponse.json();
+            actualRevenue = paymentStats.total_revenue || 0;
+            console.log(`📱 Mobile: SUCCESS - Got TTD ${actualRevenue} total revenue from API`);
+          }
+          
+        } catch (error) {
+          console.error('📱 Mobile: Direct API calls failed:', error);
+          
+          // Fallback to LocalStorageManager only if API completely fails
+          console.log('📱 Mobile: Falling back to LocalStorageManager...');
+          const clientsResult = await localDB.getClients(true); // Force refresh
+          clientsData = clientsResult.data || [];
+          
+          // Calculate potential revenue from client data
+          actualRevenue = clientsData
+            .filter(c => c.status === 'Active')
+            .reduce((sum, client) => sum + (client.monthly_fee || 0), 0);
+          console.log(`📱 Mobile: Fallback - Using potential revenue: TTD ${actualRevenue}`);
+        }
+      }
+      
+      const activeClients = clientsData.filter(c => c.status === 'Active');
+      
+      // Calculate payment statistics using AST timezone
+      const now = new Date();
+      const astOffset = -4 * 60; // AST is UTC-4 (in minutes)
+      const astNow = new Date(now.getTime() + (astOffset * 60 * 1000));
+      console.log(`📱 Mobile: Current time in AST: ${astNow.toISOString()}`);
+      
+      const overdueClients = activeClients.filter(client => {
+        if (!client.next_payment_date) return false;
+        try {
+          const paymentDate = new Date(client.next_payment_date + 'T00:00:00');
+          const astPaymentDate = new Date(paymentDate.getTime() + (astOffset * 60 * 1000));
+          const isOverdue = astPaymentDate < astNow;
+          
+          if (isOverdue) {
+            console.log(`⚠️ Mobile Overdue: ${client.name} - Due: ${astPaymentDate.toDateString()}, Current: ${astNow.toDateString()}`);
+          }
+          
+          return isOverdue;
+        } catch (error) {
+          console.error(`Mobile: Error parsing date for client ${client.name}:`, error);
+          return false;
+        }
+      });
+      
+      const pendingClients = activeClients.filter(client => {
+        if (!client.next_payment_date) return false;
+        try {
+          const paymentDate = new Date(client.next_payment_date + 'T00:00:00');
+          const astPaymentDate = new Date(paymentDate.getTime() + (astOffset * 60 * 1000));
+          const daysDiff = Math.ceil((astPaymentDate - astNow) / (1000 * 60 * 60 * 24));
+          const isPending = daysDiff > 0 && daysDiff <= 7;
+          
+          if (isPending) {
+            console.log(`📅 Mobile Pending: ${client.name} - Due in ${daysDiff} days`);
+          }
+          
+          return isPending;
+        } catch (error) {
+          console.error(`Mobile: Error parsing date for client ${client.name}:`, error);
+          return false;
+        }
+      });
+      
+      console.log(`📊 Mobile Payment Stats Summary (DIRECT API):`);
+      console.log(`   Total Clients: ${clientsData.length}`);
+      console.log(`   Active Clients: ${activeClients.length}`);
+      console.log(`   Total Revenue: TTD ${actualRevenue}`);
+      console.log(`   Pending Payments: ${pendingClients.length}`);
+      console.log(`   Overdue Payments: ${overdueClients.length}`);
+      
+      setPaymentStats({
+        totalRevenue: actualRevenue,
+        pendingPayments: pendingClients.length,
+        overduePayments: overdueClients.length,
+        completedThisMonth: 0
+      });
+      
+      // Also update client list for display
+      setClients(clientsData);
+      
+    } catch (error) {
+      console.error('📱 Mobile: Error calculating payment stats:', error);
+      // Set safe fallback values
+      setPaymentStats({
+        totalRevenue: 0,
+        pendingPayments: 0,
+        overduePayments: 0,
+        completedThisMonth: 0
+      });
+    }
+  };
+
+  const fetchClients = async () => {
+    try {
+      setLoading(true);
+      console.log(`📱 Mobile: Fetching clients directly from API to bypass LocalStorage issues`);
+      
+      // Force direct API call instead of LocalStorageManager to fix data corruption
+      // EMERGENCY MOBILE URL FIX - Force correct backend URL
+      let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      
+      // CRITICAL FIX: Override for mobile devices showing wrong URL
+      if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
+        backendUrl = 'https://276b2f1f-9d6e-4215-a382-5da8671edad7.preview.emergentagent.com';
+        console.log('🚨 PAYMENTS PAGE fetchClients: OVERRIDING backend URL for mobile fix');
+      }
+      
+      console.log('🚨 PAYMENTS PAGE fetchClients: Backend URL:', backendUrl);
+      
+      if (backendUrl) {
+        try {
+          console.log(`📱 Mobile: Direct API call to ${backendUrl}/api/clients`);
+          const response = await fetch(`${backendUrl}/api/clients`);
+          
+          if (response.ok) {
+            const clientsData = await response.json();
+            console.log(`📱 Mobile: SUCCESS - Fetched ${clientsData.length} clients directly from API`);
+            
+            setClients(clientsData);
+            return;
+          } else {
+            console.error(`📱 Mobile: API call failed with status ${response.status}`);
+          }
+        } catch (apiError) {
+          console.error(`📱 Mobile: API call error:`, apiError);
+        }
+      }
+      
+      // Fallback: Try LocalStorageManager only if API fails
+      console.log(`📱 Mobile: API failed, trying LocalStorageManager as fallback`);
+      const result = await localDB.getClients(true); // Force refresh
+      const clientsData = result.data || [];
+      
+      console.log(`📱 Mobile: LocalStorageManager returned ${clientsData.length} clients`);
+      setClients(clientsData);
+      
+    } catch (error) {
+      console.error('📱 Mobile: All client fetch methods failed:', error);
+      setClients([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const sendPaymentReminder = async (client) => {
+    try {
+      // EMERGENCY MOBILE URL FIX
+      let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
+        backendUrl = 'https://276b2f1f-9d6e-4215-a382-5da8671edad7.preview.emergentagent.com';
+      }
+      
+      const response = await fetch(`${backendUrl}/api/send-reminder`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ client_id: client.id })
+      });
+      
+      if (response.ok) {
+        alert(`✅ Payment reminder sent to ${client.name}`);
+      } else {
+        throw new Error('Failed to send reminder');
+      }
+    } catch (error) {
+      console.error('Error sending reminder:', error);
+      alert('❌ Error sending payment reminder');
+    }
+  };
+
+  const markAsPaid = async (client) => {
+    const amount = prompt(`Enter payment amount for ${client.name}:`, client.monthly_fee);
+    if (amount && parseFloat(amount) > 0) {
+      try {
+        // EMERGENCY MOBILE URL FIX
+        let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+        if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
+          backendUrl = 'https://276b2f1f-9d6e-4215-a382-5da8671edad7.preview.emergentagent.com';
+        }
+        
+        const response = await fetch(`${backendUrl}/api/payments`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            client_id: client.id,
+            amount_paid: parseFloat(amount),
+            payment_date: formatDateForInput(getASTDate()),
+            payment_method: 'Cash',
+            notes: 'Marked as paid from Payments page'
+          })
+        });
+        
+        if (response.ok) {
+          alert(`✅ Payment recorded for ${client.name}`);
+          fetchClients();
+          calculateRealPaymentStats();
+        } else {
+          throw new Error('Failed to record payment');
+        }
+      } catch (error) {
+        console.error('Error recording payment:', error);
+        alert('❌ Error recording payment');
+      }
+    }
+  };
+
+  return (
+    <div className="modern-payments-page">
+      {/* Modern Payments Header */}
+      <div className="payments-header">
+        <Link to="/clients" className="floating-back-button">
+          <span className="back-arrow">←</span>
+        </Link>
+        <h1 className="payments-title">Payments</h1>
+      </div>
+
+      {/* Summary Cards Section */}
+      <div className="payments-summary-section">
+        <div className="summary-cards-container">
+          {/* Total Revenue Card */}
+          <div className="summary-card blue" onClick={() => setCurrentFilter('all')}>
+            <span className="summary-card-icon">💰</span>
+            <div className="summary-card-title">Total Revenue</div>
+            <div className="summary-card-amount">TTD {paymentStats.totalRevenue}</div>
+          </div>
+
+          {/* Paid This Month Card */}
+          <div className="summary-card green" onClick={() => setCurrentFilter('paid')}>
+            <span className="summary-card-icon">✅</span>
+            <div className="summary-card-title">Paid This Month</div>
+            <div className="summary-card-count">{paymentStats.completedThisMonth}</div>
+          </div>
+
+          {/* Overdue Amount Card */}
+          <div className="summary-card red" onClick={() => setCurrentFilter('overdue')}>
+            <span className="summary-card-icon">⚠️</span>
+            <div className="summary-card-title">Overdue Amount</div>
+            <div className="summary-card-count">{paymentStats.overduePayments}</div>
+          </div>
+
+          {/* Due Soon Card */}
+          <div className="summary-card orange" onClick={() => setCurrentFilter('due-soon')}>
+            <span className="summary-card-icon">⏰</span>
+            <div className="summary-card-title">Due Soon</div>
+            <div className="summary-card-count">{paymentStats.pendingPayments}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Filter Tabs */}
+      <div className="payments-filter-section">
+        <div className="filter-tabs-container">
+          <button
+            className={`filter-tab ${currentFilter === 'all' ? 'active' : ''}`}
+            onClick={() => setCurrentFilter('all')}
+          >
+            All
+            <span className="filter-count">({statusCounts.all})</span>
+          </button>
+          <button
+            className={`filter-tab green ${currentFilter === 'paid' ? 'active' : ''}`}
+            onClick={() => setCurrentFilter('paid')}
+          >
+            Paid
+            <span className="filter-count">({statusCounts.paid})</span>
+          </button>
+          <button
+            className={`filter-tab red ${currentFilter === 'overdue' ? 'active' : ''}`}
+            onClick={() => setCurrentFilter('overdue')}
+          >
+            Overdue
+            <span className="filter-count">({statusCounts.overdue})</span>
+          </button>
+          <button
+            className={`filter-tab orange ${currentFilter === 'due-soon' ? 'active' : ''}`}
+            onClick={() => setCurrentFilter('due-soon')}
+          >
+            Due Soon
+            <span className="filter-count">({statusCounts['due-soon']})</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Payment List */}
+      <div className="payments-list-section">
+        {loading ? (
+          <div className="payments-loading">
+            <div className="payments-loading-spinner"></div>
+            <div className="payments-loading-text">Loading payments...</div>
+          </div>
+        ) : filteredClients.length === 0 ? (
+          <div className="payments-empty-state">
+            <div className="payments-empty-icon">💳</div>
+            <div className="payments-empty-title">No payments found</div>
+            <div className="payments-empty-message">
+              {currentFilter === 'all' 
+                ? 'No payment records available' 
+                : `No ${currentFilter} payments found`}
+            </div>
+          </div>
+        ) : (
+          <div className="payments-list">
+            {filteredClients.map((client) => {
+              const status = getPaymentStatus(client);
+              const statusConfig = {
+                paid: { label: 'PAID', icon: '✓', class: 'paid' },
+                overdue: { label: 'OVERDUE', icon: '⚠', class: 'overdue' },
+                'due-soon': { label: 'DUE SOON', icon: '⏰', class: 'due-soon' }
+              };
+              const currentStatusConfig = statusConfig[status] || statusConfig.paid;
+              
+              return (
+                <div key={client.id} className="modern-payment-card">
+                  {/* Card Header */}
+                  <div className="payment-card-header">
+                    <div className="payment-card-left">
+                      <div className="payment-card-avatar">
+                        {getInitials(client.name)}
+                      </div>
+                      <div className="payment-card-info">
+                        <div className="payment-card-name">{client.name}</div>
+                        <div className="payment-card-amount">TTD {client.monthly_fee}</div>
+                        <div className="payment-card-details">
+                          Due: {client.next_payment_date ? formatDate(client.next_payment_date) : 'Not set'} • TTD {client.monthly_fee}/{client.membership_type?.toLowerCase() || 'month'}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="payment-card-status">
+                      <div className={`payment-status-badge ${currentStatusConfig.class}`}>
+                        <span className="payment-status-icon">{currentStatusConfig.icon}</span>
+                        <span>{currentStatusConfig.label}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Toolbar */}
+                  <div className="payment-action-toolbar">
+                    <button
+                      className="payment-action-btn reminder"
+                      data-tooltip="Send Reminder"
+                      onClick={() => sendPaymentReminder(client)}
+                    >
+                      📧
+                    </button>
+                    <button
+                      className="payment-action-btn mark-paid"
+                      data-tooltip="Mark as Paid"
+                      onClick={() => markAsPaid(client)}
+                    >
+                      ✓
+                    </button>
+                    <button
+                      className="payment-action-btn edit"
+                      data-tooltip="Edit Payment"
+                      onClick={() => navigate(`/add-client?edit=${client.id}`)}
+                    >
+                      ✏️
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 
   const calculateRealPaymentStats = async () => {
     try {
