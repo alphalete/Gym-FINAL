@@ -760,7 +760,7 @@ const EmailModal = ({ isOpen, onClose, client }) => {
   );
 };
 
-// Member Info Modal Component - Display Only
+// Modern Member Info Modal Component
 const MemberInfoModal = ({ client, isOpen, onClose }) => {
   if (!isOpen || !client) return null;
 
@@ -774,12 +774,16 @@ const MemberInfoModal = ({ client, isOpen, onClose }) => {
     });
   };
 
-  const getStatusColor = (status) => {
-    return status === 'Active' ? 'text-green-600' : 'text-red-600';
+  const getInitials = (name) => {
+    return name.split(' ').map(word => word.charAt(0)).join('').toUpperCase().slice(0, 2);
   };
 
   const getPaymentStatus = () => {
-    if (!client.next_payment_date) return { text: 'No due date set', color: 'text-gray-500' };
+    if (!client.next_payment_date) return { 
+      text: 'No due date set', 
+      class: 'status disabled',
+      icon: '❓'
+    };
     
     const today = new Date();
     const dueDate = new Date(client.next_payment_date);
@@ -787,137 +791,160 @@ const MemberInfoModal = ({ client, isOpen, onClose }) => {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
     if (diffDays < 0) {
-      return { text: `Overdue by ${Math.abs(diffDays)} days`, color: 'text-red-600' };
+      return { 
+        text: `Overdue by ${Math.abs(diffDays)} days`, 
+        class: 'status overdue',
+        icon: '⚠️'
+      };
     } else if (diffDays === 0) {
-      return { text: 'Due today', color: 'text-orange-600' };
+      return { 
+        text: 'Due today', 
+        class: 'status due-soon',
+        icon: '⏰'
+      };
     } else if (diffDays <= 3) {
-      return { text: `Due in ${diffDays} days`, color: 'text-yellow-600' };
+      return { 
+        text: `Due in ${diffDays} days`, 
+        class: 'status due-soon',
+        icon: '⏰'
+      };
     } else {
-      return { text: `Due in ${diffDays} days`, color: 'text-green-600' };
+      return { 
+        text: `Due in ${diffDays} days`, 
+        class: 'status paid',
+        icon: '✅'
+      };
     }
   };
 
   const paymentStatus = getPaymentStatus();
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-full flex items-center justify-center">
-              <span className="text-white font-semibold text-lg">{client.name.charAt(0)}</span>
+    <div className="modern-member-modal-overlay" onClick={onClose}>
+      <div className="modern-member-modal" onClick={(e) => e.stopPropagation()}>
+        
+        {/* Modern Header */}
+        <div className="modal-header">
+          <div className="modal-header-content">
+            <div className="modal-member-avatar">
+              {getInitials(client.name)}
             </div>
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{client.name}</h2>
-              <span className={`text-sm font-medium ${getStatusColor(client.status)}`}>
-                {client.status} Member
-              </span>
+            <div className="modal-member-info">
+              <div className="modal-member-name">{client.name}</div>
+              <div className={`modal-member-status ${client.status.toLowerCase()}`}>
+                <span>{client.status === 'Active' ? '🟢' : '⚪'}</span>
+                <span>{client.status} Member</span>
+              </div>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+          <button className="modal-close-button" onClick={onClose}>
+            ×
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-6 space-y-6">
-          {/* Contact Information */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Contact Information</h3>
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <span className="text-gray-400">📧</span>
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Email</p>
-                  <p className="text-gray-900 dark:text-white">{client.email || 'Not provided'}</p>
+        {/* Modal Content */}
+        <div className="modal-content">
+          
+          {/* Contact Information Section */}
+          <div className="modal-section">
+            <div className="modal-section-title">
+              <div className="modal-section-icon blue">👤</div>
+              Contact Information
+            </div>
+            <div className="modal-info-items">
+              <div className="modal-info-item">
+                <div className="modal-info-icon">📧</div>
+                <div className="modal-info-content">
+                  <div className="modal-info-label">Email Address</div>
+                  <div className="modal-info-value">{client.email || 'Not provided'}</div>
                 </div>
               </div>
-              <div className="flex items-center space-x-3">
-                <span className="text-gray-400">📱</span>
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Phone</p>
-                  <p className="text-gray-900 dark:text-white">{client.phone || 'Not provided'}</p>
+              <div className="modal-info-item">
+                <div className="modal-info-icon">📱</div>
+                <div className="modal-info-content">
+                  <div className="modal-info-label">Phone Number</div>
+                  <div className="modal-info-value">{client.phone || 'Not provided'}</div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Membership Information */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Membership Details</h3>
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <span className="text-gray-400">🏋️</span>
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Membership Type</p>
-                  <p className="text-gray-900 dark:text-white">{client.membership_type || 'Standard'}</p>
+          {/* Membership Details Section */}
+          <div className="modal-section">
+            <div className="modal-section-title">
+              <div className="modal-section-icon green">🏋️</div>
+              Membership Details
+            </div>
+            <div className="modal-info-items">
+              <div className="modal-info-item">
+                <div className="modal-info-icon">🎫</div>
+                <div className="modal-info-content">
+                  <div className="modal-info-label">Membership Type</div>
+                  <div className="modal-info-value">{client.membership_type || 'Standard'}</div>
                 </div>
               </div>
-              <div className="flex items-center space-x-3">
-                <span className="text-gray-400">💰</span>
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Monthly Fee</p>
-                  <p className="text-gray-900 dark:text-white">TTD {client.monthly_fee || 0}</p>
+              <div className="modal-info-item">
+                <div className="modal-info-icon">💰</div>
+                <div className="modal-info-content">
+                  <div className="modal-info-label">Monthly Fee</div>
+                  <div className="modal-info-value">TTD {client.monthly_fee || 0}</div>
                 </div>
               </div>
-              <div className="flex items-center space-x-3">
-                <span className="text-gray-400">📅</span>
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Start Date</p>
-                  <p className="text-gray-900 dark:text-white">{formatDate(client.start_date)}</p>
+              <div className="modal-info-item">
+                <div className="modal-info-icon">📅</div>
+                <div className="modal-info-content">
+                  <div className="modal-info-label">Start Date</div>
+                  <div className="modal-info-value">{formatDate(client.start_date)}</div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Payment Information */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Payment Status</h3>
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <span className="text-gray-400">⏰</span>
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Next Payment Due</p>
-                  <p className="text-gray-900 dark:text-white">{formatDate(client.next_payment_date)}</p>
+          {/* Payment Status Section */}
+          <div className="modal-section">
+            <div className="modal-section-title">
+              <div className="modal-section-icon orange">💳</div>
+              Payment Status
+            </div>
+            <div className="modal-info-items">
+              <div className="modal-info-item">
+                <div className="modal-info-icon">📆</div>
+                <div className="modal-info-content">
+                  <div className="modal-info-label">Next Payment Due</div>
+                  <div className="modal-info-value">{formatDate(client.next_payment_date)}</div>
                 </div>
               </div>
-              <div className="flex items-center space-x-3">
-                <span className="text-gray-400">📊</span>
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Payment Status</p>
-                  <p className={`font-medium ${paymentStatus.color}`}>{paymentStatus.text}</p>
+              <div className="modal-info-item">
+                <div className="modal-info-icon">{paymentStatus.icon}</div>
+                <div className="modal-info-content">
+                  <div className="modal-info-label">Payment Status</div>
+                  <div className={`modal-info-value ${paymentStatus.class}`}>
+                    {paymentStatus.text}
+                  </div>
                 </div>
               </div>
-              <div className="flex items-center space-x-3">
-                <span className="text-gray-400">🔔</span>
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Auto Reminders</p>
-                  <p className="text-gray-900 dark:text-white">
-                    {client.auto_reminders_enabled ? 'Enabled' : 'Disabled'}
-                  </p>
+              <div className="modal-info-item">
+                <div className="modal-info-icon">🔔</div>
+                <div className="modal-info-content">
+                  <div className="modal-info-label">Auto Reminders</div>
+                  <div className={`modal-info-value status ${client.auto_reminders_enabled !== false ? 'enabled' : 'disabled'}`}>
+                    {client.auto_reminders_enabled !== false ? '✅ Enabled' : '❌ Disabled'}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Footer Actions */}
-        <div className="flex items-center justify-end space-x-3 p-6 border-t border-gray-200 dark:border-gray-700">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
-          >
+        {/* Modal Actions */}
+        <div className="modal-actions">
+          <button className="modal-action-btn secondary" onClick={onClose}>
             Close
           </button>
         </div>
       </div>
     </div>
+  );
   );
 };
 
