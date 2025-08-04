@@ -1306,7 +1306,7 @@ const GoGymDashboard = () => {
         
         // CRITICAL FIX: Override for mobile devices showing wrong URL
         if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
-          backendUrl = 'https://276b2f1f-9d6e-4215-a382-5da8671edad7.preview.emergentagent.com';
+          backendUrl = 'https://65d688ea-a807-4f80-b037-f168ea1491e4.preview.emergentagent.com';
         }
         
         // Add cache-busting parameters
@@ -2146,7 +2146,7 @@ const ClientManagement = () => {
       
       // CRITICAL FIX: Override for mobile devices showing wrong URL
       if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
-        backendUrl = 'https://276b2f1f-9d6e-4215-a382-5da8671edad7.preview.emergentagent.com';
+        backendUrl = 'https://65d688ea-a807-4f80-b037-f168ea1491e4.preview.emergentagent.com';
         console.log('🚨 QUICK PAYMENT: OVERRIDING backend URL for mobile fix');
       }
       
@@ -2279,7 +2279,7 @@ const ClientManagement = () => {
       
       // CRITICAL FIX: Override for mobile devices showing wrong URL
       if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
-        backendUrl = 'https://276b2f1f-9d6e-4215-a382-5da8671edad7.preview.emergentagent.com';
+        backendUrl = 'https://65d688ea-a807-4f80-b037-f168ea1491e4.preview.emergentagent.com';
         console.log('🚨 DELETE CLIENT: OVERRIDING backend URL for mobile fix');
       }
       
@@ -2676,7 +2676,7 @@ const AddClient = () => {
           
           // CRITICAL FIX: Override for mobile devices showing wrong URL
           if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
-            backendUrl = 'https://276b2f1f-9d6e-4215-a382-5da8671edad7.preview.emergentagent.com';
+            backendUrl = 'https://65d688ea-a807-4f80-b037-f168ea1491e4.preview.emergentagent.com';
             console.log('🚨 ADD CLIENT PAYMENT: OVERRIDING backend URL for mobile fix');
           }
           
@@ -3250,7 +3250,7 @@ const Payments = () => {
       
       // CRITICAL FIX: Override for mobile devices showing wrong URL
       if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
-        backendUrl = 'https://276b2f1f-9d6e-4215-a382-5da8671edad7.preview.emergentagent.com';
+        backendUrl = 'https://65d688ea-a807-4f80-b037-f168ea1491e4.preview.emergentagent.com';
         console.log('🚨 PAYMENTS PAGE: OVERRIDING backend URL for mobile fix');
       }
       
@@ -3380,7 +3380,7 @@ const Payments = () => {
       
       // CRITICAL FIX: Override for mobile devices showing wrong URL
       if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
-        backendUrl = 'https://276b2f1f-9d6e-4215-a382-5da8671edad7.preview.emergentagent.com';
+        backendUrl = 'https://65d688ea-a807-4f80-b037-f168ea1491e4.preview.emergentagent.com';
         console.log('🚨 PAYMENTS PAGE fetchClients: OVERRIDING backend URL for mobile fix');
       }
       
@@ -3426,7 +3426,7 @@ const Payments = () => {
       // EMERGENCY MOBILE URL FIX
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
-        backendUrl = 'https://276b2f1f-9d6e-4215-a382-5da8671edad7.preview.emergentagent.com';
+        backendUrl = 'https://65d688ea-a807-4f80-b037-f168ea1491e4.preview.emergentagent.com';
       }
       
       const response = await fetch(`${backendUrl}/api/send-reminder`, {
@@ -3453,7 +3453,7 @@ const Payments = () => {
         // EMERGENCY MOBILE URL FIX
         let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
         if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
-          backendUrl = 'https://276b2f1f-9d6e-4215-a382-5da8671edad7.preview.emergentagent.com';
+          backendUrl = 'https://65d688ea-a807-4f80-b037-f168ea1491e4.preview.emergentagent.com';
         }
         
         const response = await fetch(`${backendUrl}/api/payments`, {
@@ -3651,7 +3651,7 @@ const Payments = () => {
       
       // CRITICAL FIX: Override for mobile devices showing wrong URL
       if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
-        backendUrl = 'https://276b2f1f-9d6e-4215-a382-5da8671edad7.preview.emergentagent.com';
+        backendUrl = 'https://65d688ea-a807-4f80-b037-f168ea1491e4.preview.emergentagent.com';
         console.log('🚨 PAYMENTS PAGE identifyTestClients: OVERRIDING backend URL for mobile fix');
       }
       
@@ -3706,7 +3706,7 @@ const Payments = () => {
       
       // CRITICAL FIX: Override for mobile devices showing wrong URL
       if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
-        backendUrl = 'https://276b2f1f-9d6e-4215-a382-5da8671edad7.preview.emergentagent.com';
+        backendUrl = 'https://65d688ea-a807-4f80-b037-f168ea1491e4.preview.emergentagent.com';
         console.log('🚨 CLEANUP: OVERRIDING backend URL for mobile fix');
       }
       
@@ -3780,7 +3780,7 @@ const Payments = () => {
       
       // CRITICAL FIX: Override for mobile devices showing wrong URL
       if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
-        backendUrl = 'https://276b2f1f-9d6e-4215-a382-5da8671edad7.preview.emergentagent.com';
+        backendUrl = 'https://65d688ea-a807-4f80-b037-f168ea1491e4.preview.emergentagent.com';
         console.log('🚨 PAYMENTS PAGE recordPayment: OVERRIDING backend URL for mobile fix');
       }
       

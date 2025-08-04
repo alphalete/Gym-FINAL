@@ -119,7 +119,7 @@ class LocalStorageManager {
           
           // CRITICAL FIX: Override for mobile devices showing wrong URL
           if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
-            backendUrl = 'https://276b2f1f-9d6e-4215-a382-5da8671edad7.preview.emergentagent.com';
+            backendUrl = 'https://65d688ea-a807-4f80-b037-f168ea1491e4.preview.emergentagent.com';
             console.log('🚨 LocalStorageManager GET CLIENTS: OVERRIDING backend URL for mobile fix');
           }
           
@@ -208,7 +208,7 @@ class LocalStorageManager {
           
           // CRITICAL FIX: Override for mobile devices showing wrong URL
           if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
-            backendUrl = 'https://276b2f1f-9d6e-4215-a382-5da8671edad7.preview.emergentagent.com';
+            backendUrl = 'https://65d688ea-a807-4f80-b037-f168ea1491e4.preview.emergentagent.com';
             console.log('🚨 LocalStorageManager ADD CLIENT: OVERRIDING backend URL for mobile fix');
           }
           
@@ -261,7 +261,7 @@ class LocalStorageManager {
       
       // CRITICAL FIX: Override for mobile devices showing wrong URL
       if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
-        backendUrl = 'https://276b2f1f-9d6e-4215-a382-5da8671edad7.preview.emergentagent.com';
+        backendUrl = 'https://65d688ea-a807-4f80-b037-f168ea1491e4.preview.emergentagent.com';
         console.log('🚨 LocalStorageManager FORCE REFRESH: OVERRIDING backend URL for mobile fix');
       }
       
@@ -562,7 +562,7 @@ class LocalStorageManager {
     
     // CRITICAL FIX: Override for mobile devices showing wrong URL
     if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
-      backendUrl = 'https://276b2f1f-9d6e-4215-a382-5da8671edad7.preview.emergentagent.com';
+      backendUrl = 'https://65d688ea-a807-4f80-b037-f168ea1491e4.preview.emergentagent.com';
       console.log('🚨 LocalStorageManager SYNC: OVERRIDING backend URL for mobile fix');
     }
     
@@ -746,7 +746,7 @@ class LocalStorageManager {
       
       // CRITICAL FIX: Override for mobile devices showing wrong URL
       if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
-        backendUrl = 'https://276b2f1f-9d6e-4215-a382-5da8671edad7.preview.emergentagent.com';
+        backendUrl = 'https://65d688ea-a807-4f80-b037-f168ea1491e4.preview.emergentagent.com';
         console.log('🚨 LocalStorageManager GET REMINDERS: OVERRIDING backend URL for mobile fix');
       }
       
@@ -774,7 +774,7 @@ class LocalStorageManager {
       
       // CRITICAL FIX: Override for mobile devices showing wrong URL
       if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
-        backendUrl = 'https://276b2f1f-9d6e-4215-a382-5da8671edad7.preview.emergentagent.com';
+        backendUrl = 'https://65d688ea-a807-4f80-b037-f168ea1491e4.preview.emergentagent.com';
         console.log('🚨 LocalStorageManager GET REMINDER HISTORY: OVERRIDING backend URL for mobile fix');
       }
       
@@ -806,7 +806,7 @@ class LocalStorageManager {
       
       // CRITICAL FIX: Override for mobile devices showing wrong URL
       if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
-        backendUrl = 'https://276b2f1f-9d6e-4215-a382-5da8671edad7.preview.emergentagent.com';
+        backendUrl = 'https://65d688ea-a807-4f80-b037-f168ea1491e4.preview.emergentagent.com';
         console.log('🚨 LocalStorageManager GET REMINDER STATS: OVERRIDING backend URL for mobile fix');
       }
       
@@ -834,7 +834,7 @@ class LocalStorageManager {
       
       // CRITICAL FIX: Override for mobile devices showing wrong URL
       if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
-        backendUrl = 'https://276b2f1f-9d6e-4215-a382-5da8671edad7.preview.emergentagent.com';
+        backendUrl = 'https://65d688ea-a807-4f80-b037-f168ea1491e4.preview.emergentagent.com';
         console.log('🚨 LocalStorageManager UPDATE REMINDER SETTINGS: OVERRIDING backend URL for mobile fix');
       }
       
@@ -881,7 +881,7 @@ class LocalStorageManager {
       
       // CRITICAL FIX: Override for mobile devices showing wrong URL
       if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
-        backendUrl = 'https://276b2f1f-9d6e-4215-a382-5da8671edad7.preview.emergentagent.com';
+        backendUrl = 'https://65d688ea-a807-4f80-b037-f168ea1491e4.preview.emergentagent.com';
         console.log('🚨 LocalStorageManager TRIGGER TEST REMINDER: OVERRIDING backend URL for mobile fix');
       }
       
