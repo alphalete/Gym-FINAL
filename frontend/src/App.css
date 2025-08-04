@@ -1956,6 +1956,7 @@
   color: #2d3748 !important;
 }
 
+/* Toast Animation */
 @keyframes slideInRight {
   from {
     transform: translateX(100%) !important;
@@ -1965,6 +1966,320 @@
     transform: translateX(0) !important;
     opacity: 1 !important;
   }
+}
+
+/* Modern Member Info Modal Styles */
+.modern-member-modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background: rgba(0, 0, 0, 0.6) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 1000 !important;
+  padding: 20px !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+.modern-member-modal {
+  background: white !important;
+  border-radius: 20px !important;
+  max-width: 480px !important;
+  width: 100% !important;
+  max-height: 90vh !important;
+  overflow-y: auto !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
+  transform: scale(1) !important;
+  animation: modalSlideIn 0.3s ease !important;
+}
+
+@keyframes modalSlideIn {
+  from {
+    transform: scale(0.9) translateY(20px) !important;
+    opacity: 0 !important;
+  }
+  to {
+    transform: scale(1) translateY(0) !important;
+    opacity: 1 !important;
+  }
+}
+
+/* Modal Header */
+.modal-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+  padding: 24px !important;
+  border-radius: 20px 20px 0 0 !important;
+  position: relative !important;
+}
+
+.modal-header-content {
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+}
+
+.modal-member-avatar {
+  width: 64px !important;
+  height: 64px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  border: 3px solid rgba(255, 255, 255, 0.3) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  color: white !important;
+  flex-shrink: 0 !important;
+}
+
+.modal-member-info {
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+.modal-member-name {
+  font-size: 24px !important;
+  font-weight: 800 !important;
+  margin-bottom: 4px !important;
+  color: white !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.modal-member-status {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 6px 12px !important;
+  border-radius: 15px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+}
+
+.modal-close-button {
+  position: absolute !important;
+  top: 20px !important;
+  right: 20px !important;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  border: none !important;
+  color: white !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  transition: all 0.3s ease !important;
+}
+
+.modal-close-button:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+  transform: rotate(90deg) !important;
+}
+
+/* Modal Content */
+.modal-content {
+  padding: 0 !important;
+}
+
+.modal-section {
+  padding: 24px !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+}
+
+.modal-section:last-child {
+  border-bottom: none !important;
+}
+
+.modal-section-title {
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  color: #2d3748 !important;
+  margin-bottom: 16px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.modal-section-icon {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 16px !important;
+  color: white !important;
+}
+
+.modal-section-icon.blue {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+.modal-section-icon.green {
+  background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%) !important;
+}
+
+.modal-section-icon.orange {
+  background: linear-gradient(135deg, #FF9800 0%, #FFC107 100%) !important;
+}
+
+/* Modal Info Items */
+.modal-info-items {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+}
+
+.modal-info-item {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 12px !important;
+  padding: 12px 0 !important;
+}
+
+.modal-info-icon {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 8px !important;
+  background: #f7fafc !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 16px !important;
+  flex-shrink: 0 !important;
+}
+
+.modal-info-content {
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+.modal-info-label {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #718096 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  margin-bottom: 4px !important;
+}
+
+.modal-info-value {
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  color: #2d3748 !important;
+  line-height: 1.4 !important;
+}
+
+.modal-info-value.status {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 4px 8px !important;
+  border-radius: 12px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.modal-info-value.status.active {
+  background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%) !important;
+  color: white !important;
+}
+
+.modal-info-value.status.inactive {
+  background: linear-gradient(135deg, #6c757d 0%, #adb5bd 100%) !important;
+  color: white !important;
+}
+
+.modal-info-value.status.paid {
+  background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%) !important;
+  color: white !important;
+}
+
+.modal-info-value.status.overdue {
+  background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%) !important;
+  color: white !important;
+}
+
+.modal-info-value.status.due-soon {
+  background: linear-gradient(135deg, #FF9800 0%, #FFC107 100%) !important;
+  color: white !important;
+}
+
+.modal-info-value.status.enabled {
+  background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%) !important;
+  color: white !important;
+}
+
+.modal-info-value.status.disabled {
+  background: linear-gradient(135deg, #6c757d 0%, #adb5bd 100%) !important;
+  color: white !important;
+}
+
+/* Modal Actions */
+.modal-actions {
+  padding: 24px !important;
+  background: #f8fafc !important;
+  border-radius: 0 0 20px 20px !important;
+  display: flex !important;
+  gap: 12px !important;
+  justify-content: flex-end !important;
+}
+
+.modal-action-btn {
+  padding: 12px 24px !important;
+  border: none !important;
+  border-radius: 10px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+}
+
+.modal-action-btn.primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+}
+
+.modal-action-btn.primary:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4) !important;
+  text-decoration: none !important;
+  color: white !important;
+}
+
+.modal-action-btn.secondary {
+  background: transparent !important;
+  color: #718096 !important;
+  border: 2px solid #e2e8f0 !important;
+}
+
+.modal-action-btn.secondary:hover {
+  border-color: #cbd5e0 !important;
+  background: #f7fafc !important;
+  color: #4a5568 !important;
+  text-decoration: none !important;
 }
 
 /* GoGym4U Style Recreation - Exact Match */
