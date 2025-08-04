@@ -1920,6 +1920,37 @@ const ClientManagement = () => {
   const [editClientModal, setEditClientModal] = useState({ isOpen: false, client: null });
   const [customEmailModal, setCustomEmailModal] = useState({ isOpen: false, client: null });
   const [quickPaymentModal, setQuickPaymentModal] = useState({ isOpen: false, client: null });
+
+  // Filter clients based on search term
+  const filteredClients = clients.filter(client =>
+    client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    client.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Get member initials for avatar
+  const getInitials = (name) => {
+    return name.split(' ').map(word => word.charAt(0)).join('').toUpperCase().slice(0, 2);
+  };
+
+  // Get payment status
+  const getPaymentStatus = (client) => {
+    if (!client.next_payment_date) return 'unknown';
+    const today = getASTDate();
+    today.setHours(0, 0, 0, 0);
+    const paymentDate = new Date(client.next_payment_date);
+    const daysDiff = Math.ceil((paymentDate - today) / (1000 * 60 * 60 * 24));
+    
+    if (daysDiff < 0) return 'overdue';
+    if (daysDiff <= 7) return 'due-soon';
+    return 'paid';
+  };
+
+  // Format date for display
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Not set';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
   const [quickPaymentForm, setQuickPaymentForm] = useState({
     amount_paid: '',
     payment_date: formatDateForInput(getASTDate()), // Use AST date
