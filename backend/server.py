@@ -91,7 +91,7 @@ class ClientCreate(BaseModel):
     start_date: date
     auto_reminders_enabled: bool = True
     payment_status: Optional[str] = "due"  # Whether client paid on joining
-    amount_owed: Optional[float] = 0.0  # New field for automatic reminders
+    amount_owed: Optional[float] = None  # Will be set based on payment_status
 
 class ClientUpdate(BaseModel):
     name: Optional[str] = None
