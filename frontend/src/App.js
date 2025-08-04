@@ -3432,7 +3432,16 @@ const Payments = () => {
       const response = await fetch(`${backendUrl}/api/email/payment-reminder`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ client_id: client.id })
+        body: JSON.stringify({ 
+          client_id: client.id,
+          client_email: client.email,
+          client_name: client.name,
+          amount: client.monthly_fee,
+          due_date: client.next_payment_date,
+          template_name: 'professional',
+          custom_subject: '',
+          custom_message: ''
+        })
       });
       
       if (response.ok) {
