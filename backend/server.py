@@ -567,15 +567,11 @@ async def record_client_payment(payment_request: PaymentRecordRequest):
     
     client_obj = Client(**client)
     
-    # Calculate new next payment date (extend from current due date)
-    # This ensures multiple payments accumulate properly
+    # Calculate new next payment date (maintain consistent billing cycle)
+    # Always advance from the current due date to maintain monthly consistency
+    # This prevents billing cycle drift when payments are made early or late
     current_due_date = client_obj.next_payment_date
-    payment_date = payment_request.payment_date
-    
-    # Use the later of current due date or payment date as the base
-    # This prevents losing days when paying early, and accumulates multiple payments
-    base_date = max(current_due_date, payment_date)
-    new_next_payment_date = calculate_next_payment_date(base_date)
+    new_next_payment_date = calculate_next_payment_date(current_due_date)
     
     # Update client's next payment date
     await db.clients.update_one(
