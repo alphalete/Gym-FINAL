@@ -3782,6 +3782,21 @@ const Payments = () => {
     try {
       const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
+      // Calculate overdue clients from current client data
+      const today = getASTDate();
+      today.setHours(0, 0, 0, 0);
+      
+      const overdueClients = clients.filter(client => {
+        if (!client.next_payment_date || client.status !== 'Active') return false;
+        try {
+          const paymentDate = new Date(client.next_payment_date + 'T00:00:00');
+          return paymentDate < today;
+        } catch (error) {
+          console.error(`Error parsing date for client ${client.name}:`, error);
+          return false;
+        }
+      });
+      
       let successCount = 0;
       let failCount = 0;
 
