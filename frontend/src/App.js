@@ -1435,124 +1435,118 @@ const GoGymDashboard = () => {
   });
 
   return (
-    <div className="gogym-dashboard">
-      {/* Mobile View */}
-      <div className="block md:hidden">
+    <div className="alphalete-dashboard">
+      {/* Clean Header */}
+      <div className="dashboard-header">
+        <h1 className="app-title">Alphalete Club</h1>
+      </div>
 
+      {/* Dashboard Cards - 2x2 Grid */}
+      <div className="dashboard-cards">
+        <div className="dashboard-card blue" onClick={() => navigate('/clients')}>
+          <div className="card-value">{stats.activeMembers}</div>
+          <div className="card-label">Active Members</div>
+        </div>
+        
+        <div className="dashboard-card green">
+          <div className="card-value">{stats.paymentsDueToday}</div>
+          <div className="card-label">Payments Due Today</div>
+        </div>
+        
+        <div className="dashboard-card orange">
+          <div className="card-value">{stats.overdueAccounts}</div>
+          <div className="card-label">Overdue Accounts</div>
+        </div>
+        
+        <div className="dashboard-card blue" onClick={() => navigate('/payments')}>
+          <div className="card-value">{formatCurrency(stats.totalRevenue)}</div>
+          <div className="card-label">Total Revenue</div>
+        </div>
+      </div>
 
-        {/* Stats Grid */}
-        <div className="gogym-stats-grid">
-          <div className="gogym-stat-card blue" onClick={() => navigate('/clients')}>
-            <div className="gogym-stat-number">{stats.activeMembers}</div>
-            <div className="gogym-stat-label">Active Members</div>
-          </div>
-          <div className="gogym-stat-card green" onClick={() => navigate('/payments')}>
-            <div className="gogym-stat-number">{stats.paymentsDueToday}</div>
-            <div className="gogym-stat-label">Payments Due Today</div>
-          </div>
-          <div className="gogym-stat-card orange" onClick={() => navigate('/payments')}>
-            <div className="gogym-stat-number">{stats.overdueAccounts}</div>
-            <div className="gogym-stat-label">Overdue Accounts</div>
-          </div>
-          <div className="gogym-stat-card dark-blue" onClick={() => navigate('/payments')}>
-            <div className="gogym-stat-number">TTD {stats.totalRevenue || 0}</div>
-            <div className="gogym-stat-label">Total Revenue</div>
-          </div>
+      {/* Payments Section */}
+      <div className="payments-section">
+        <h2 className="section-title">Payments</h2>
+        
+        {/* Payment Filter Tabs */}
+        <div className="payment-tabs">
+          <button 
+            className={`tab-pill ${currentFilter === 'all' ? 'active' : ''}`}
+            onClick={() => setCurrentFilter('all')}
+          >
+            All
+          </button>
+          <button 
+            className={`tab-pill ${currentFilter === 'due-soon' ? 'active' : ''}`}
+            onClick={() => setCurrentFilter('due-soon')}
+          >
+            Due Soon
+          </button>
+          <button 
+            className={`tab-pill ${currentFilter === 'overdue' ? 'active' : ''}`}
+            onClick={() => setCurrentFilter('overdue')}
+          >
+            Overdue
+          </button>
         </div>
 
-        {/* Payments Section */}
-        <div className="gogym-payments-section">
-          <div className="gogym-section-header">
-            <h2 className="gogym-section-title">Payments</h2>
-            <button onClick={() => navigate('/payments')} style={{fontSize: '18px', color: '#666', background: 'none', border: 'none', cursor: 'pointer'}}>›</button>
-          </div>
-
-          {/* Filter Tabs - Now with working functionality */}
-          <div className="gogym-filter-tabs">
-            <button 
-              className={`gogym-filter-tab ${currentFilter === 'all' ? 'active' : ''}`}
-              onClick={() => setCurrentFilter('all')}
-            >
-              All ({clients.filter(c => c.status === 'Active').length})
-            </button>
-            <button 
-              className={`gogym-filter-tab ${currentFilter === 'due-soon' ? 'active' : ''}`}
-              onClick={() => setCurrentFilter('due-soon')}
-            >
-              Due Soon ({clients.filter(c => c.status === 'Active' && getClientPaymentStatus(c) === 'due-soon').length})
-            </button>
-            <button 
-              className={`gogym-filter-tab ${currentFilter === 'overdue' ? 'active' : ''}`}
-              onClick={() => setCurrentFilter('overdue')}
-            >
-              Overdue ({clients.filter(c => c.status === 'Active' && getClientPaymentStatus(c) === 'overdue').length})
-            </button>
-          </div>
-
-          {/* Payment Cards - Now using filtered data */}
-          <div className="gogym-payment-cards">
-            {filteredClients.slice(0, 5).map((client, index) => {
-              const getInitials = (name) => name.split(' ').map(word => word.charAt(0)).join('').toUpperCase().slice(0, 2);
-              const getPaymentStatus = () => {
-                if (!client.next_payment_date) return { status: 'paid', label: 'Paid', amount: 0 };
-                const today = getASTDate();
-                today.setHours(0, 0, 0, 0);
-                const paymentDate = new Date(client.next_payment_date);
-                const diffDays = Math.ceil((paymentDate - today) / (1000 * 60 * 60 * 24));
-                
-                const monthlyFee = client.monthly_fee || 0;
-                
-                if (diffDays < 0) {
-                  return { 
-                    status: 'overdue', 
-                    label: `Owes TTD ${monthlyFee}`,
-                    amount: monthlyFee
-                  };
-                }
-                if (diffDays <= 7) {
-                  return { 
-                    status: 'due-soon', 
-                    label: `Due TTD ${monthlyFee}`, 
-                    amount: monthlyFee
-                  };
-                }
-                return { 
-                  status: 'paid', 
-                  label: 'Paid',
-                  amount: 0
-                };
-              };
-              
-              const status = getPaymentStatus();
-              
+        {/* Payment List */}
+        <div className="payment-list">
+          {filteredClients.length > 0 ? (
+            filteredClients.map((client) => {
+              const paymentStatus = getClientPaymentStatus(client);
               return (
-                <div key={client.id} className="gogym-payment-card" onClick={() => navigate('/payments')}>
-                  <div className="gogym-payment-left">
-                    <div className="gogym-avatar">
-                      {getInitials(client.name)}
+                <div 
+                  key={client.id} 
+                  className="payment-card"
+                  onClick={() => openMemberInfoModal(client)}
+                >
+                  <div className="payment-card-left">
+                    <div className="member-avatar">
+                      {getAvatarPlaceholder(client.name)}
                     </div>
-                    <div className="gogym-payment-info">
-                      <h3>{client.name}</h3>
-                      <p className="gogym-payment-date">{client.next_payment_date ? new Date(client.next_payment_date).toLocaleDateString() : 'No date'}</p>
+                    <div className="member-info">
+                      <div className="member-name">{client.name}</div>
+                      <div className="member-status">
+                        {client.next_payment_date ? 
+                          `Due ${formatDate(client.next_payment_date)}` : 
+                          'No due date set'
+                        }
+                      </div>
                     </div>
                   </div>
-                  <div className="gogym-payment-right">
-                    <span className={`gogym-status-badge ${status.status}`}>
-                      {status.label}
-                    </span>
-                    <p className="gogym-payment-amount">TTD {client.monthly_fee}</p>
+                  
+                  <div className="payment-card-right">
+                    {paymentStatus === 'paid' ? (
+                      <div className="status-pill paid">
+                        <span className="status-icon">✔️</span>
+                        <span>PAID</span>
+                        <span className="status-amount">{formatCurrency(client.monthly_fee)}</span>
+                      </div>
+                    ) : (
+                      <div className="status-pill overdue">
+                        <span className="status-icon">⚠️</span>
+                        <span>OWES {formatCurrency(client.monthly_fee)}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               );
-            })}
-          </div>
+            })
+          ) : (
+            <div className="empty-state">
+              <p>No payments found for the selected filter.</p>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Desktop View - Use existing Dashboard */}
-      <div className="hidden md:block">
-        <Dashboard />
-      </div>
+      {/* Member Info Modal */}
+      <MemberInfoModal
+        client={memberInfoModal.client}
+        isOpen={memberInfoModal.isOpen}
+        onClose={closeMemberInfoModal}
+      />
     </div>
   );
 };
