@@ -2292,6 +2292,9 @@ const ClientManagement = () => {
 
   return (
     <div className="modern-members-page">
+      {/* Debug info */}
+      {console.log('🔍 ClientManagement Render - loading:', loading, 'clients.length:', clients.length, 'searchFilteredClients.length:', searchFilteredClients.length)}
+      
       {/* Modern Members Header */}
       <div className="members-header">
         <h1 className="members-title">Members</h1>
