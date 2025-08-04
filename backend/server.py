@@ -131,7 +131,39 @@ class PaymentRecordRequest(BaseModel):
 
 # Helper function to calculate next payment date
 def calculate_next_payment_date(start_date: date) -> date:
-    return start_date + timedelta(days=30)
+    """
+    Calculate the next payment date by adding one month to the start date.
+    Handles month boundaries properly (e.g., Jan 31st -> Feb 28th, not Mar 2nd).
+    """
+    # Get the year and month for next month
+    if start_date.month == 12:
+        next_year = start_date.year + 1
+        next_month = 1
+    else:
+        next_year = start_date.year
+        next_month = start_date.month + 1
+    
+    # Handle day overflow (e.g., Jan 31st -> Feb 28th)
+    try:
+        # Try to use the same day of the month
+        next_payment_date = start_date.replace(year=next_year, month=next_month)
+    except ValueError:
+        # If the day doesn't exist in the next month (e.g., Jan 31st -> Feb 31st doesn't exist)
+        # Use the last day of that month
+        if next_month == 2:  # February
+            # Handle leap year
+            if next_year % 4 == 0 and (next_year % 100 != 0 or next_year % 400 == 0):
+                last_day = 29
+            else:
+                last_day = 28
+        elif next_month in [4, 6, 9, 11]:  # April, June, September, November
+            last_day = 30
+        else:  # All other months
+            last_day = 31
+        
+        next_payment_date = start_date.replace(year=next_year, month=next_month, day=last_day)
+    
+    return next_payment_date
 
 # Existing routes
 @api_router.get("/")
