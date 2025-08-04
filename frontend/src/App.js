@@ -1218,6 +1218,23 @@ const GoGymDashboard = () => {
   const [syncStatus, setSyncStatus] = useState('online'); // Add syncStatus for debug section
   const navigate = useNavigate();
 
+  // Format currency for TT$
+  const formatCurrency = (amount) => {
+    return `TTD ${(amount || 0).toFixed(0)}`;
+  };
+
+  // Format date for display
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Not set';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
+  // Get avatar placeholder
+  const getAvatarPlaceholder = (name) => {
+    return name ? name.charAt(0).toUpperCase() : '?';
+  };
+
   const getClientPaymentStatus = (client) => {
     if (!client.next_payment_date) return 'paid';
     const today = getASTDate();
