@@ -2094,20 +2094,6 @@ const ClientManagement = () => {
     }
   };
 
-  const openEditClientModal = (client) => {
-    setEditClientModal({ isOpen: true, client });
-  };
-
-  const openRecordPaymentModal = (client) => {
-    setQuickPaymentModal({ isOpen: true, client });
-    setQuickPaymentForm({
-      amount_paid: client.monthly_fee.toString(),
-      payment_date: formatDateForInput(getASTDate()),
-      payment_method: 'Cash',
-      notes: ''
-    });
-  };
-
   const recordQuickPayment = async () => {
     if (!quickPaymentModal.client || !quickPaymentForm.amount_paid) {
       alert('Please enter payment amount');
