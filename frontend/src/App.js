@@ -3618,47 +3618,6 @@ const Payments = () => {
     </div>
   );
 
-  const fetchOverdueClients = async () => {
-    try {
-      // EMERGENCY MOBILE URL FIX - Force correct backend URL
-      let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-      
-      // CRITICAL FIX: Override for mobile devices showing wrong URL
-      if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
-        backendUrl = 'https://276b2f1f-9d6e-4215-a382-5da8671edad7.preview.emergentagent.com';
-        console.log('🚨 PAYMENTS PAGE fetchOverdueClients: OVERRIDING backend URL for mobile fix');
-      }
-      
-      const response = await fetch(`${backendUrl}/api/clients`);
-      if (response.ok) {
-        const clientsData = await response.json();
-        
-        // Fix timezone issues by using Atlantic Standard Time (AST is UTC-4)
-        const now = new Date();
-        const astOffset = -4 * 60; // AST is UTC-4 (in minutes)
-        const astNow = new Date(now.getTime() + (astOffset * 60 * 1000));
-        
-        const overdue = clientsData.filter(client => {
-          if (!client.next_payment_date || client.status !== 'Active') return false;
-          
-          try {
-            const paymentDate = new Date(client.next_payment_date + 'T00:00:00');
-            const astPaymentDate = new Date(paymentDate.getTime() + (astOffset * 60 * 1000));
-            return astPaymentDate < astNow;
-          } catch (error) {
-            console.error(`Error parsing date for client ${client.name}:`, error);
-            return false;
-          }
-        });
-        
-        console.log(`🔍 Overdue Clients (AST): ${overdue.length} found`);
-        setOverdueClients(overdue);
-      }
-    } catch (error) {
-      console.error('Error fetching overdue clients:', error);
-    }
-  };
-
   const identifyTestClients = async () => {
     try {
       // EMERGENCY MOBILE URL FIX - Force correct backend URL
