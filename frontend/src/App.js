@@ -2529,7 +2529,9 @@ const AddClient = () => {
     membership_type: "",
     monthly_fee: 50.00,
     start_date: formatDateForInput(getASTDate()),
-    auto_reminders_enabled: true
+    auto_reminders_enabled: true,
+    status: "Active", // Add status field
+    notes: ""
   });
 
   // Payment recording state
