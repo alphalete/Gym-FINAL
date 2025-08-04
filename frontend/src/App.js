@@ -1240,37 +1240,23 @@ const GoGymDashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setSyncStatus('syncing');
-        
-        console.log('🚨 EMERGENCY DEBUG: Starting data fetch...');
-        
         // EMERGENCY MOBILE URL FIX - Force correct backend URL
         let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
         
         // CRITICAL FIX: Override for mobile devices showing wrong URL
         if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
           backendUrl = 'https://8beb6460-0117-4864-a970-463f629aa57c.preview.emergentagent.com';
-          console.log('🚨 EMERGENCY DEBUG: OVERRIDING backend URL for mobile fix');
         }
         
-        console.log('🚨 EMERGENCY DEBUG: Backend URL:', backendUrl);
-        console.log('🚨 EMERGENCY DEBUG: User Agent:', navigator.userAgent);
-        console.log('🚨 EMERGENCY DEBUG: Current timestamp:', new Date().toISOString());
-        
-        // NUCLEAR MOBILE CACHE BUSTING - Add multiple cache-busting parameters
+        // Add cache-busting parameters
         const timestamp = Date.now();
         const randomId = Math.random().toString(36).substr(2, 9);
-        const cacheParams = `_t=${timestamp}&_r=${randomId}&_v=nuclear&_mobile=true&_emergency=${Date.now()}`;
-        
-        console.log('🚨 EMERGENCY DEBUG: Cache params:', cacheParams);
+        const cacheParams = `_t=${timestamp}&_r=${randomId}&_v=clean&_mobile=true`;
         
         const clientsUrl = `${backendUrl}/api/clients?${cacheParams}`;
         const paymentsUrl = `${backendUrl}/api/payments/stats?${cacheParams}`;
         
-        console.log('🚨 EMERGENCY DEBUG: Clients URL:', clientsUrl);
-        console.log('🚨 EMERGENCY DEBUG: Payments URL:', paymentsUrl);
-        
-        // Fetch both clients and payment stats in parallel with NUCLEAR cache busting
+        // Fetch both clients and payment stats in parallel
         const [clientsResponse, paymentsResponse] = await Promise.all([
           fetch(clientsUrl, {
             method: 'GET',
@@ -1280,8 +1266,7 @@ const GoGymDashboard = () => {
               'Expires': '0',
               'If-None-Match': '*',
               'X-Requested-With': 'XMLHttpRequest',
-              'X-Mobile-Cache-Bust': timestamp.toString(),
-              'X-Emergency-Debug': 'true'
+              'X-Mobile-Cache-Bust': timestamp.toString()
             },
             credentials: 'same-origin',
             mode: 'cors',
@@ -1295,8 +1280,7 @@ const GoGymDashboard = () => {
               'Expires': '0',
               'If-None-Match': '*',
               'X-Requested-With': 'XMLHttpRequest',
-              'X-Mobile-Cache-Bust': timestamp.toString(),
-              'X-Emergency-Debug': 'true'
+              'X-Mobile-Cache-Bust': timestamp.toString()
             },
             credentials: 'same-origin',
             mode: 'cors',
@@ -1304,21 +1288,11 @@ const GoGymDashboard = () => {
           })
         ]);
         
-        console.log('🚨 EMERGENCY DEBUG: Clients response status:', clientsResponse.status);
-        console.log('🚨 EMERGENCY DEBUG: Payments response status:', paymentsResponse.status);
-        console.log('🚨 EMERGENCY DEBUG: Clients response headers:', Object.fromEntries(clientsResponse.headers.entries()));
-        console.log('🚨 EMERGENCY DEBUG: Payments response headers:', Object.fromEntries(paymentsResponse.headers.entries()));
-        
         if (clientsResponse.ok && paymentsResponse.ok) {
           const [clientsData, paymentStats] = await Promise.all([
             clientsResponse.json(),
             paymentsResponse.json()
           ]);
-          
-          console.log('🚨 EMERGENCY DEBUG: RAW CLIENTS DATA:', clientsData);
-          console.log('🚨 EMERGENCY DEBUG: RAW PAYMENT STATS DATA:', paymentStats);
-          console.log('🚨 EMERGENCY DEBUG: Payment stats total_revenue field:', paymentStats.total_revenue);
-          console.log('🚨 EMERGENCY DEBUG: Payment stats type of total_revenue:', typeof paymentStats.total_revenue);
           
           setClients(clientsData);
           
@@ -1347,24 +1321,10 @@ const GoGymDashboard = () => {
             totalRevenue: paymentStats.total_revenue || 0
           };
           
-          console.log('🚨 EMERGENCY DEBUG: CALCULATED STATS:', newStats);
-          console.log('🚨 EMERGENCY DEBUG: About to call setStats with totalRevenue:', newStats.totalRevenue);
-          
           setStats(newStats);
-          
-          console.log('🚨 EMERGENCY DEBUG: Stats state should now be updated');
-          
-          setSyncStatus('online');
-        } else {
-          console.log('🚨 EMERGENCY DEBUG: API responses not OK');
-          console.log('🚨 EMERGENCY DEBUG: Clients response:', clientsResponse.status, await clientsResponse.text());
-          console.log('🚨 EMERGENCY DEBUG: Payments response:', paymentsResponse.status, await paymentsResponse.text());
-          setSyncStatus('offline');
         }
       } catch (error) {
-        console.error('🚨 EMERGENCY DEBUG: Error fetching data:', error);
-        console.error('🚨 EMERGENCY DEBUG: Error stack:', error.stack);
-        setSyncStatus('offline');
+        console.error('Error fetching data:', error);
       }
     };
 
