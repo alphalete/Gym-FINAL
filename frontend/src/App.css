@@ -1550,6 +1550,423 @@
   font-weight: 500 !important;
 }
 
+/* Modern Settings Page Styles */
+.modern-settings-page {
+  min-height: 100vh !important;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%) !important;
+  padding: 0 0 80px 0 !important; /* Bottom padding for mobile nav */
+}
+
+/* Settings Header */
+.settings-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+  padding: 24px 20px !important;
+  text-align: center !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  position: relative !important;
+}
+
+.settings-title {
+  font-size: 28px !important;
+  font-weight: 800 !important;
+  margin: 0 !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  color: white !important;
+}
+
+/* Settings Content */
+.settings-content {
+  padding: 24px 20px !important;
+  max-width: 600px !important;
+  margin: 0 auto !important;
+}
+
+/* Settings Section */
+.settings-section {
+  margin-bottom: 32px !important;
+}
+
+.section-title {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  color: #2d3748 !important;
+  margin-bottom: 16px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  padding: 0 4px !important;
+}
+
+/* Settings Item Card */
+.settings-item {
+  background: white !important;
+  border-radius: 12px !important;
+  padding: 16px 20px !important;
+  margin-bottom: 12px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid #e2e8f0 !important;
+  transition: all 0.3s ease !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.settings-item:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
+  border-color: #cbd5e0 !important;
+}
+
+.settings-item.disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+}
+
+.settings-item.disabled:hover {
+  transform: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Settings Item Content */
+.settings-item-left {
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  flex: 1 !important;
+}
+
+.settings-item-icon {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 20px !important;
+  flex-shrink: 0 !important;
+}
+
+.settings-item-icon.blue {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+}
+
+.settings-item-icon.green {
+  background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%) !important;
+  color: white !important;
+}
+
+.settings-item-icon.orange {
+  background: linear-gradient(135deg, #FF9800 0%, #FFC107 100%) !important;
+  color: white !important;
+}
+
+.settings-item-icon.red {
+  background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%) !important;
+  color: white !important;
+}
+
+.settings-item-icon.gray {
+  background: linear-gradient(135deg, #6c757d 0%, #adb5bd 100%) !important;
+  color: white !important;
+}
+
+.settings-item-info {
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+.settings-item-title {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: #2d3748 !important;
+  margin-bottom: 2px !important;
+}
+
+.settings-item-subtitle {
+  font-size: 13px !important;
+  color: #718096 !important;
+  line-height: 1.4 !important;
+}
+
+/* Settings Item Right Side */
+.settings-item-right {
+  display: flex !important;
+  align-items: center !important;
+  flex-shrink: 0 !important;
+}
+
+.settings-item-arrow {
+  font-size: 16px !important;
+  color: #a0aec0 !important;
+  transition: color 0.3s ease !important;
+}
+
+.settings-item:hover .settings-item-arrow {
+  color: #667eea !important;
+}
+
+/* Toggle Switch */
+.settings-toggle-switch {
+  position: relative !important;
+  width: 56px !important;
+  height: 32px !important;
+  background: #e2e8f0 !important;
+  border-radius: 16px !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+}
+
+.settings-toggle-switch.active {
+  background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%) !important;
+}
+
+.toggle-knob {
+  position: absolute !important;
+  top: 4px !important;
+  left: 4px !important;
+  width: 24px !important;
+  height: 24px !important;
+  background: white !important;
+  border-radius: 50% !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+}
+
+.settings-toggle-switch.active .toggle-knob {
+  transform: translateX(24px) !important;
+}
+
+/* Admin Tools Collapsible */
+.admin-tools-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  cursor: pointer !important;
+  background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%) !important;
+  color: white !important;
+  padding: 16px 20px !important;
+  border-radius: 12px !important;
+  margin-bottom: 12px !important;
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.2) !important;
+  transition: all 0.3s ease !important;
+}
+
+.admin-tools-header:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3) !important;
+}
+
+.admin-tools-left {
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+}
+
+.admin-tools-icon {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 20px !important;
+}
+
+.admin-tools-info {
+  color: white !important;
+}
+
+.admin-tools-title {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  margin-bottom: 2px !important;
+}
+
+.admin-tools-subtitle {
+  font-size: 13px !important;
+  opacity: 0.9 !important;
+}
+
+.admin-tools-arrow {
+  font-size: 16px !important;
+  color: white !important;
+  transition: transform 0.3s ease !important;
+}
+
+.admin-tools-arrow.expanded {
+  transform: rotate(90deg) !important;
+}
+
+.admin-tools-content {
+  margin-bottom: 12px !important;
+  overflow: hidden !important;
+  transition: max-height 0.3s ease !important;
+}
+
+.admin-tools-content.collapsed {
+  max-height: 0 !important;
+}
+
+.admin-tools-content.expanded {
+  max-height: 200px !important;
+}
+
+/* Version Info */
+.version-info {
+  background: #f7fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  padding: 16px 20px !important;
+  margin-top: 16px !important;
+  text-align: center !important;
+}
+
+.version-text {
+  font-size: 14px !important;
+  color: #718096 !important;
+  font-weight: 500 !important;
+}
+
+.version-number {
+  font-weight: 600 !important;
+  color: #2d3748 !important;
+}
+
+/* Confirmation Modal */
+.confirmation-modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 1000 !important;
+  padding: 20px !important;
+}
+
+.confirmation-modal {
+  background: white !important;
+  border-radius: 16px !important;
+  padding: 24px !important;
+  max-width: 400px !important;
+  width: 100% !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+}
+
+.confirmation-modal-header {
+  text-align: center !important;
+  margin-bottom: 20px !important;
+}
+
+.confirmation-modal-icon {
+  font-size: 48px !important;
+  margin-bottom: 12px !important;
+}
+
+.confirmation-modal-title {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  color: #2d3748 !important;
+  margin-bottom: 8px !important;
+}
+
+.confirmation-modal-message {
+  font-size: 14px !important;
+  color: #718096 !important;
+  line-height: 1.5 !important;
+}
+
+.confirmation-modal-actions {
+  display: flex !important;
+  gap: 12px !important;
+  justify-content: flex-end !important;
+}
+
+.confirmation-btn {
+  padding: 10px 20px !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+}
+
+.confirmation-btn.cancel {
+  background: #e2e8f0 !important;
+  color: #4a5568 !important;
+}
+
+.confirmation-btn.cancel:hover {
+  background: #cbd5e0 !important;
+}
+
+.confirmation-btn.confirm {
+  background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%) !important;
+  color: white !important;
+}
+
+.confirmation-btn.confirm:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3) !important;
+}
+
+/* Toast Notification */
+.toast-notification {
+  position: fixed !important;
+  top: 20px !important;
+  right: 20px !important;
+  background: white !important;
+  border-radius: 12px !important;
+  padding: 16px 20px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+  z-index: 1100 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  min-width: 300px !important;
+  animation: slideInRight 0.3s ease !important;
+}
+
+.toast-notification.success {
+  border-left: 4px solid #56ab2f !important;
+}
+
+.toast-notification.error {
+  border-left: 4px solid #dc3545 !important;
+}
+
+.toast-icon {
+  font-size: 20px !important;
+  flex-shrink: 0 !important;
+}
+
+.toast-message {
+  flex: 1 !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: #2d3748 !important;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%) !important;
+    opacity: 0 !important;
+  }
+  to {
+    transform: translateX(0) !important;
+    opacity: 1 !important;
+  }
+}
+
 /* GoGym4U Style Recreation - Exact Match */
 
 :root {
