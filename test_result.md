@@ -142,7 +142,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Implement automatic payment reminders that send 3 days before due date and on due date, with individual client settings to enable/disable automatic reminders for each client"
+user_problem_statement: "Test the specific issue the user reported about clients displaying as 'paid' when they haven't paid"
 
 frontend:
   - task: "Redesigned Payments page frontend functionality and React state management fix"
