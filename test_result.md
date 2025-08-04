@@ -659,8 +659,7 @@ metadata:
 test_plan:
   current_focus:
     - "Client payment status display issue - 'paid' vs 'due' verification"
-  stuck_tasks:
-    - "Next payment date calculation fix - proper monthly arithmetic"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
