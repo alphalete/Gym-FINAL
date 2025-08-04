@@ -2698,66 +2698,71 @@ const AddClient = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
-      <div className="max-w-2xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-display text-gray-900 dark:text-white mb-2">Add New Member</h1>
-          <p className="text-body text-gray-600 dark:text-gray-300">Add a new member to your gym</p>
-        </div>
+    <div className="modern-add-client-page">
+      {/* Modern Add Client Header */}
+      <div className="add-client-header">
+        <Link to="/clients" className="floating-back-button">
+          <span className="back-arrow">←</span>
+        </Link>
+        <h1 className="add-client-title">Add Client</h1>
+      </div>
 
-        <form onSubmit={handleSubmit} className="ultra-contrast-modal p-6 rounded-lg">
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="ultra-contrast-label block mb-2">Name *</label>
+      {/* Form Container */}
+      <div className="add-client-form-container">
+        <div className="add-client-form-card">
+          <form onSubmit={handleSubmit}>
+            {/* Full Name */}
+            <div className="form-field-group">
+              <label className="form-field-label">Full Name *</label>
+              <div className="form-input-container">
+                <span className="form-input-icon">👤</span>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  className="ultra-contrast-input w-full p-3 rounded-lg"
-                  placeholder="Enter member name"
+                  className="modern-form-input"
+                  placeholder="Enter full name"
                   required
                 />
               </div>
-              <div>
-                <label className="ultra-contrast-label block mb-2">Email *</label>
+            </div>
+
+            {/* Email Address */}
+            <div className="form-field-group">
+              <label className="form-field-label">Email Address *</label>
+              <div className="form-input-container">
+                <span className="form-input-icon">📧</span>
                 <input
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                  className="ultra-contrast-input w-full p-3 rounded-lg"
-                  placeholder="Enter email address"
+                  className="modern-form-input"
+                  placeholder="Enter email"
                   required
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="ultra-contrast-label block mb-2">Phone</label>
+            {/* Phone Number */}
+            <div className="form-field-group">
+              <label className="form-field-label">Phone Number</label>
+              <div className="form-input-container">
+                <span className="form-input-icon">📱</span>
                 <input
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                  className="ultra-contrast-input w-full p-3 rounded-lg"
+                  className="modern-form-input"
                   placeholder="Enter phone number"
-                />
-              </div>
-              <div>
-                <label className="ultra-contrast-label block mb-2">Start Date *</label>
-                <input
-                  type="date"
-                  value={formData.start_date}
-                  onChange={(e) => setFormData(prev => ({ ...prev, start_date: e.target.value }))}
-                  className="ultra-contrast-input w-full p-3 rounded-lg"
-                  required
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="ultra-contrast-label block mb-2">Membership Type *</label>
+            {/* Membership Plan */}
+            <div className="form-field-group">
+              <label className="form-field-label">Membership Plan *</label>
+              <div className="form-input-container">
+                <span className="form-input-icon">🎫</span>
                 <select
                   value={formData.membership_type}
                   onChange={(e) => {
@@ -2768,8 +2773,7 @@ const AddClient = () => {
                       monthly_fee: selectedType ? selectedType.monthly_fee : prev.monthly_fee
                     }));
                   }}
-                  className="ultra-contrast-input w-full p-3 rounded-lg"
-                  name="membership_type"
+                  className="modern-form-select"
                   required
                 >
                   {membershipTypes.map(type => (
@@ -2779,13 +2783,19 @@ const AddClient = () => {
                   ))}
                 </select>
               </div>
-              <div>
-                <label className="ultra-contrast-label block mb-2">Monthly Fee *</label>
+            </div>
+
+            {/* Payment Amount */}
+            <div className="form-field-group">
+              <label className="form-field-label">Payment Amount (TTD) *</label>
+              <div className="form-input-container">
+                <span className="form-input-icon">💰</span>
                 <input
                   type="number"
                   value={formData.monthly_fee}
                   onChange={(e) => setFormData(prev => ({ ...prev, monthly_fee: parseFloat(e.target.value) || 0 }))}
-                  className="ultra-contrast-input w-full p-3 rounded-lg"
+                  className="modern-form-input"
+                  placeholder="TT$ Amount"
                   step="0.01"
                   min="0"
                   required
@@ -2793,152 +2803,237 @@ const AddClient = () => {
               </div>
             </div>
 
-            <div className="member-card p-4 rounded-lg">
-              <div className="flex items-center justify-between">
-                <div>
-                  <label className="ultra-contrast-label block mb-1 font-semibold">Automatic Payment Reminders</label>
-                  <p className="ultra-contrast-secondary text-xs">Send reminders 3 days before and on payment due date</p>
+            {/* Start Date */}
+            <div className="form-field-group">
+              <label className="form-field-label">Start Date *</label>
+              <div className="form-input-container">
+                <span className="form-input-icon">📅</span>
+                <input
+                  type="date"
+                  value={formData.start_date}
+                  onChange={(e) => setFormData(prev => ({ ...prev, start_date: e.target.value }))}
+                  className="modern-form-input"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Status Toggle */}
+            <div className="toggle-section">
+              <div className="toggle-container">
+                <div className="toggle-info">
+                  <div className="toggle-title">Client Status</div>
+                  <div className="toggle-description">Set whether the client is active or inactive</div>
                 </div>
-                <div className="flex items-center space-x-3">
-                  <span className={`text-sm font-medium ${!formData.auto_reminders_enabled ? 'text-gray-900' : 'text-gray-400'}`}>
+                <div className="status-toggle-switch">
+                  <span className={`toggle-label ${formData.status !== 'Active' ? 'active' : ''}`}>
+                    Inactive
+                  </span>
+                  <div 
+                    className={`toggle-switch ${formData.status === 'Active' ? 'active' : 'inactive'}`}
+                    onClick={() => setFormData(prev => ({ 
+                      ...prev, 
+                      status: prev.status === 'Active' ? 'Inactive' : 'Active' 
+                    }))}
+                  >
+                    <div className="toggle-knob"></div>
+                  </div>
+                  <span className={`toggle-label ${formData.status === 'Active' ? 'active' : ''}`}>
+                    Active
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Auto Reminders Toggle */}
+            <div className="toggle-section">
+              <div className="toggle-container">
+                <div className="toggle-info">
+                  <div className="toggle-title">Automatic Payment Reminders</div>
+                  <div className="toggle-description">Send reminders 3 days before and on payment due date</div>
+                </div>
+                <div className="status-toggle-switch">
+                  <span className={`toggle-label ${!formData.auto_reminders_enabled ? 'active' : ''}`}>
                     Off
                   </span>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.auto_reminders_enabled}
-                      onChange={(e) => setFormData(prev => ({ ...prev, auto_reminders_enabled: e.target.checked }))}
-                      className="sr-only peer"
-                    />
-                    <div className="w-14 h-8 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-red-500 shadow-lg"></div>
-                  </label>
-                  <span className={`text-sm font-medium ${formData.auto_reminders_enabled ? 'text-red-600' : 'text-gray-400'}`}>
+                  <div 
+                    className={`toggle-switch ${formData.auto_reminders_enabled ? 'active' : 'inactive'}`}
+                    onClick={() => setFormData(prev => ({ 
+                      ...prev, 
+                      auto_reminders_enabled: !prev.auto_reminders_enabled 
+                    }))}
+                  >
+                    <div className="toggle-knob"></div>
+                  </div>
+                  <span className={`toggle-label ${formData.auto_reminders_enabled ? 'active' : ''}`}>
                     On
                   </span>
                 </div>
               </div>
             </div>
 
+            {/* Notes */}
+            <div className="form-field-group">
+              <label className="form-field-label">Notes</label>
+              <div className="form-input-container">
+                <span className="form-input-icon" style={{ top: '24px' }}>📝</span>
+                <textarea
+                  value={formData.notes || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                  className="modern-form-textarea"
+                  placeholder="Enter any additional notes or details..."
+                  rows="4"
+                />
+              </div>
+            </div>
+
             {/* Payment Recording Section */}
-            <div className="payment-recording-section mt-6 p-4 border-2 border-dashed border-gray-300 rounded-lg">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <label className="ultra-contrast-label block mb-1 font-semibold">Initial Payment</label>
-                  <p className="ultra-contrast-secondary text-xs">Record payment if client pays when registering</p>
+            <div className="payment-section">
+              <div className="payment-section-header">
+                <div className="payment-section-info">
+                  <div className="payment-section-title">Record Initial Payment</div>
+                  <div className="payment-section-description">Record payment if client pays when registering</div>
                 </div>
-                <div className="flex items-center space-x-3">
-                  <span className={`text-sm font-medium ${!recordPayment ? 'text-gray-900' : 'text-gray-400'}`}>
+                <div className="status-toggle-switch">
+                  <span className={`toggle-label ${!recordPayment ? 'active' : ''}`}>
                     No Payment
                   </span>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={recordPayment}
-                      onChange={(e) => {
-                        setRecordPayment(e.target.checked);
-                        if (e.target.checked) {
-                          // Auto-fill payment amount with monthly fee
-                          setPaymentData(prev => ({
-                            ...prev,
-                            amount_paid: formData.monthly_fee.toString()
-                          }));
-                        }
-                      }}
-                      className="sr-only peer"
-                    />
-                    <div className="w-14 h-8 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-green-500 shadow-lg"></div>
-                  </label>
-                  <span className={`text-sm font-medium ${recordPayment ? 'text-green-600' : 'text-gray-400'}`}>
+                  <div 
+                    className={`toggle-switch ${recordPayment ? 'active' : 'inactive'}`}
+                    onClick={() => {
+                      setRecordPayment(!recordPayment);
+                      if (!recordPayment) {
+                        setPaymentData(prev => ({
+                          ...prev,
+                          amount_paid: formData.monthly_fee.toString()
+                        }));
+                      }
+                    }}
+                  >
+                    <div className="toggle-knob"></div>
+                  </div>
+                  <span className={`toggle-label ${recordPayment ? 'active' : ''}`}>
                     Record Payment
                   </span>
                 </div>
               </div>
 
               {recordPayment && (
-                <div className="space-y-4 mt-4 p-4 bg-green-50 rounded-lg">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="ultra-contrast-label block mb-2">Amount Paid (TTD) *</label>
-                      <input
-                        type="number"
-                        value={paymentData.amount_paid}
-                        onChange={(e) => setPaymentData(prev => ({ ...prev, amount_paid: e.target.value }))}
-                        className="ultra-contrast-input w-full p-3 rounded-lg"
-                        placeholder="0.00"
-                        step="0.01"
-                        min="0"
-                        required={recordPayment}
-                      />
-                      <p className="text-xs text-gray-600 mt-1">Monthly fee: TTD {formData.monthly_fee}</p>
+                <>
+                  <div className="payment-fields">
+                    {/* Payment Amount */}
+                    <div className="form-field-group">
+                      <label className="form-field-label">Amount Paid (TTD) *</label>
+                      <div className="form-input-container">
+                        <span className="form-input-icon">💵</span>
+                        <input
+                          type="number"
+                          value={paymentData.amount_paid}
+                          onChange={(e) => setPaymentData(prev => ({ ...prev, amount_paid: e.target.value }))}
+                          className="modern-form-input"
+                          placeholder="0.00"
+                          step="0.01"
+                          min="0"
+                          required={recordPayment}
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <label className="ultra-contrast-label block mb-2">Payment Date *</label>
-                      <input
-                        type="date"
-                        value={paymentData.payment_date}
-                        onChange={(e) => setPaymentData(prev => ({ ...prev, payment_date: e.target.value }))}
-                        className="ultra-contrast-input w-full p-3 rounded-lg"
-                        required={recordPayment}
-                      />
+
+                    {/* Payment Date */}
+                    <div className="form-field-group">
+                      <label className="form-field-label">Payment Date *</label>
+                      <div className="form-input-container">
+                        <span className="form-input-icon">📅</span>
+                        <input
+                          type="date"
+                          value={paymentData.payment_date}
+                          onChange={(e) => setPaymentData(prev => ({ ...prev, payment_date: e.target.value }))}
+                          className="modern-form-input"
+                          required={recordPayment}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Payment Method */}
+                    <div className="form-field-group">
+                      <label className="form-field-label">Payment Method</label>
+                      <div className="form-input-container">
+                        <span className="form-input-icon">💳</span>
+                        <select
+                          value={paymentData.payment_method}
+                          onChange={(e) => setPaymentData(prev => ({ ...prev, payment_method: e.target.value }))}
+                          className="modern-form-select"
+                        >
+                          <option value="Cash">Cash</option>
+                          <option value="Card">Card</option>
+                          <option value="Bank Transfer">Bank Transfer</option>
+                          <option value="Check">Check</option>
+                          <option value="Online Payment">Online Payment</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Payment Notes */}
+                    <div className="form-field-group">
+                      <label className="form-field-label">Payment Notes</label>
+                      <div className="form-input-container">
+                        <span className="form-input-icon">📝</span>
+                        <input
+                          type="text"
+                          value={paymentData.notes}
+                          onChange={(e) => setPaymentData(prev => ({ ...prev, notes: e.target.value }))}
+                          className="modern-form-input"
+                          placeholder="e.g., First month payment, Partial payment"
+                        />
+                      </div>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="ultra-contrast-label block mb-2">Payment Method</label>
-                      <select
-                        value={paymentData.payment_method}
-                        onChange={(e) => setPaymentData(prev => ({ ...prev, payment_method: e.target.value }))}
-                        className="ultra-contrast-input w-full p-3 rounded-lg"
-                      >
-                        <option value="Cash">Cash</option>
-                        <option value="Card">Card</option>
-                        <option value="Bank Transfer">Bank Transfer</option>
-                        <option value="Check">Check</option>
-                        <option value="Online Payment">Online Payment</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="ultra-contrast-label block mb-2">Notes (Optional)</label>
-                      <input
-                        type="text"
-                        value={paymentData.notes}
-                        onChange={(e) => setPaymentData(prev => ({ ...prev, notes: e.target.value }))}
-                        className="ultra-contrast-input w-full p-3 rounded-lg"
-                        placeholder="e.g., First month payment, Partial payment"
-                      />
+                  <div className="payment-info-box">
+                    <div className="payment-info-content">
+                      <div className="payment-info-icon">💡</div>
+                      <div className="payment-info-text">
+                        <div className="payment-info-title">Payment Recording</div>
+                        <div className="payment-info-description">
+                          This payment will be recorded immediately and update the member's next payment date.
+                        </div>
+                      </div>
                     </div>
                   </div>
-
-                  <div className="flex items-center p-3 bg-blue-100 rounded-lg">
-                    <div className="text-blue-600 text-lg mr-3">💡</div>
-                    <div>
-                      <p className="text-sm text-blue-800 font-medium">Payment Recording</p>
-                      <p className="text-xs text-blue-700">This payment will be recorded immediately and update the member's next payment date.</p>
-                    </div>
-                  </div>
-                </div>
+                </>
               )}
             </div>
 
-            <div className="flex space-x-3 pt-4">
+            {/* Action Buttons */}
+            <div className="form-actions">
               <button
                 type="submit"
                 disabled={loading}
-                className="ultra-contrast-button-primary px-6 py-3 rounded-lg flex-1"
+                className="primary-button"
               >
-                {loading ? 'Processing...' : (recordPayment ? '➕ Add Member & Record Payment' : '➕ Add Member')}
+                {loading ? (
+                  <>
+                    <span>⏳</span>
+                    <span>Processing...</span>
+                  </>
+                ) : recordPayment ? (
+                  <>
+                    <span>➕</span>
+                    <span>Save Client & Record Payment</span>
+                  </>
+                ) : (
+                  <>
+                    <span>➕</span>
+                    <span>Save Client</span>
+                  </>
+                )}
               </button>
-              <button
-                type="button"
-                onClick={() => navigate('/clients')}
-                className="ultra-contrast-button px-6 py-3 rounded-lg"
-              >
+              <Link to="/clients" className="secondary-button">
                 Cancel
-              </button>
+              </Link>
             </div>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   );
