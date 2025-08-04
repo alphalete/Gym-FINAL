@@ -3618,63 +3618,6 @@ const Payments = () => {
     </div>
   );
 
-  const fetchClients = async () => {
-    try {
-      console.log(`📱 Mobile: Fetching clients directly from API to bypass LocalStorage issues`);
-      
-      // Force direct API call instead of LocalStorageManager to fix data corruption
-      // EMERGENCY MOBILE URL FIX - Force correct backend URL
-      let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-      
-      // CRITICAL FIX: Override for mobile devices showing wrong URL
-      if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
-        backendUrl = 'https://276b2f1f-9d6e-4215-a382-5da8671edad7.preview.emergentagent.com';
-        console.log('🚨 PAYMENTS PAGE fetchClients: OVERRIDING backend URL for mobile fix');
-      }
-      
-      console.log('🚨 PAYMENTS PAGE fetchClients: Backend URL:', backendUrl);
-      
-      if (backendUrl) {
-        try {
-          console.log(`📱 Mobile: Direct API call to ${backendUrl}/api/clients`);
-          const response = await fetch(`${backendUrl}/api/clients`);
-          
-          if (response.ok) {
-            const clientsData = await response.json();
-            console.log(`📱 Mobile: SUCCESS - Fetched ${clientsData.length} clients directly from API`);
-            
-            // Clear corrupted LocalStorage
-            try {
-              localStorage.clear();
-              console.log(`📱 Mobile: Cleared corrupted localStorage`);
-            } catch (e) {
-              console.warn('Could not clear localStorage:', e);
-            }
-            
-            setClients(clientsData);
-            return;
-          } else {
-            console.error(`📱 Mobile: API call failed with status ${response.status}`);
-          }
-        } catch (apiError) {
-          console.error(`📱 Mobile: API call error:`, apiError);
-        }
-      }
-      
-      // Fallback: Try LocalStorageManager only if API fails
-      console.log(`📱 Mobile: API failed, trying LocalStorageManager as fallback`);
-      const result = await localDB.getClients(true); // Force refresh
-      const clientsData = result.data || [];
-      
-      console.log(`📱 Mobile: LocalStorageManager returned ${clientsData.length} clients`);
-      setClients(clientsData);
-      
-    } catch (error) {
-      console.error('📱 Mobile: All client fetch methods failed:', error);
-      setClients([]);
-    }
-  };
-
   const fetchOverdueClients = async () => {
     try {
       // EMERGENCY MOBILE URL FIX - Force correct backend URL
