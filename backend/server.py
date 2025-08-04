@@ -313,7 +313,9 @@ async def create_client(client_data: ClientCreate):
         client_dict['amount_owed'] = 0.0
     else:
         # Client hasn't paid yet, they owe the monthly fee
-        client_dict['amount_owed'] = client_dict.get('amount_owed', client_dict['monthly_fee'])
+        # Check if amount_owed is None specifically (not just missing from dict)
+        if client_dict.get('amount_owed') is None:
+            client_dict['amount_owed'] = client_dict['monthly_fee']
     
     client_obj = Client(**client_dict)
     
