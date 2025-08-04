@@ -2094,6 +2094,10 @@ const ClientManagement = () => {
     }
   };
 
+  const openEditClientModal = (client) => {
+    setEditClientModal({ isOpen: true, client });
+  };
+
   const openRecordPaymentModal = (client) => {
     setQuickPaymentModal({ isOpen: true, client });
     setQuickPaymentForm({
