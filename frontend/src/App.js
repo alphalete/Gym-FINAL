@@ -2108,21 +2108,6 @@ const ClientManagement = () => {
     });
   };
 
-  const closeEditClientModal = () => {
-    setEditClientModal({ isOpen: false, client: null });
-  };
-
-  const closeCustomEmailModal = () => {
-    setCustomEmailModal({ isOpen: false, client: null });
-  };
-
-  const handleClientUpdated = (updatedClient) => {
-    setClients(prev => prev.map(client => 
-      client.id === updatedClient.id ? updatedClient : client
-    ));
-    fetchClients();
-  };
-
   const recordQuickPayment = async () => {
     if (!quickPaymentModal.client || !quickPaymentForm.amount_paid) {
       alert('Please enter payment amount');
