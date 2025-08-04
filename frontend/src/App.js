@@ -3180,6 +3180,7 @@ const Payments = () => {
   const [clients, setClients] = useState([]);
   const [currentFilter, setCurrentFilter] = useState('all'); // 'all', 'paid', 'overdue', 'due-soon'
   const [loading, setLoading] = useState(true);
+  const [testClients, setTestClients] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
