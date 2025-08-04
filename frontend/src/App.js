@@ -1982,13 +1982,18 @@ const ClientManagement = () => {
 
   const fetchClients = async (forceRefresh = false) => {
     try {
+      console.log('🔍 ClientManagement: Starting fetchClients...');
       setLoading(true);
+      console.log('🔍 ClientManagement: Calling localDB.getClients...');
       const result = await localDB.getClients(forceRefresh);
+      console.log('🔍 ClientManagement: Got result from localDB:', result);
       setClients(result.data || []);
+      console.log('✅ ClientManagement: Set clients, length:', (result.data || []).length);
     } catch (error) {
-      console.error('Error fetching clients:', error);
+      console.error('❌ ClientManagement: Error fetching clients:', error);
       setClients([]);
     } finally {
+      console.log('🔍 ClientManagement: Setting loading to false');
       setLoading(false);
     }
   };
