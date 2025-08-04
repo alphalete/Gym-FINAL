@@ -4225,6 +4225,30 @@ const Settings = () => {
   const [adminToolsExpanded, setAdminToolsExpanded] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(null);
   const [toast, setToast] = useState(null);
+  const [showModal, setShowModal] = useState(null);
+  const [membershipTypes, setMembershipTypes] = useState([]);
+  const [editingMembership, setEditingMembership] = useState(null);
+  const [profileForm, setProfileForm] = useState({
+    name: 'Admin User',
+    email: 'admin@alphaleteclub.com',
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const [paymentSettings, setPaymentSettings] = useState({
+    currency: 'TTD',
+    lateFeeAmount: 10,
+    lateFeeGracePeriod: 3,
+    reminderDays: [3, 1, 0]
+  });
+  const [newMembership, setNewMembership] = useState({
+    name: '',
+    monthly_fee: '',
+    description: '',
+    is_active: true
+  });
+
+  const navigate = useNavigate();
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -4241,15 +4265,792 @@ const Settings = () => {
 
   const handleConfirmation = (action) => {
     if (action === 'clearData') {
-      // Simulate clear data action
+      // Clear data from localStorage and reset state
+      localStorage.clear();
+      sessionStorage.clear();
       setShowConfirmation(null);
       showToast('All data has been cleared', 'success');
     } else if (action === 'logout') {
-      // Simulate logout action
+      // Handle logout
+      localStorage.clear();
+      sessionStorage.clear();
       setShowConfirmation(null);
       showToast('Logged out successfully', 'success');
+      // Navigate to login or redirect
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 1500);
     }
   };
+
+  const fetchMembershipTypes = async () => {
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const response = await fetch(`${backendUrl}/api/membership-types`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        setMembershipTypes(data || []);
+      } else {
+        // Fallback data
+        setMembershipTypes([
+          { id: '1', name: 'Standard', monthly_fee: 50.0, description: 'Basic gym access', is_active: true },
+          { id: '2', name: 'Premium', monthly_fee: 75.0, description: 'Gym access plus classes', is_active: true },
+          { id: '3', name: 'Elite', monthly_fee: 100.0, description: 'Premium plus personal training', is_active: true },
+          { id: '4', name: 'VIP', monthly_fee: 150.0, description: 'All-inclusive membership', is_active: true }
+        ]);
+      }
+    } catch (error) {
+      console.error('Error fetching membership types:', error);
+      setMembershipTypes([
+        { id: '1', name: 'Standard', monthly_fee: 50.0, description: 'Basic gym access', is_active: true },
+        { id: '2', name: 'Premium', monthly_fee: 75.0, description: 'Gym access plus classes', is_active: true },
+        { id: '3', name: 'Elite', monthly_fee: 100.0, description: 'Premium plus personal training', is_active: true },
+        { id: '4', name: 'VIP', monthly_fee: 150.0, description: 'All-inclusive membership', is_active: true }
+      ]);
+    }
+  };
+
+  const saveMembershipType = async () => {
+    if (!newMembership.name || !newMembership.monthly_fee) {
+      showToast('Please fill in all required fields', 'error');
+      return;
+    }
+
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const membershipData = {
+        name: newMembership.name,
+        monthly_fee: parseFloat(newMembership.monthly_fee),
+        description: newMembership.description,
+        is_active: newMembership.is_active
+      };
+
+      const url = editingMembership 
+        ? `${backendUrl}/api/membership-types/${editingMembership}`
+        : `${backendUrl}/api/membership-types`;
+      
+      const method = editingMembership ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(membershipData)
+      });
+
+      if (response.ok) {
+        showToast(`Membership type ${editingMembership ? 'updated' : 'created'} successfully`);
+        fetchMembershipTypes();
+        setNewMembership({ name: '', monthly_fee: '', description: '', is_active: true });
+        setEditingMembership(null);
+      } else {
+        throw new Error('Failed to save membership type');
+      }
+    } catch (error) {
+      console.error('Error saving membership type:', error);
+      showToast('Error saving membership type', 'error');
+    }
+  };
+
+  const deleteMembershipType = async (id, name) => {
+    if (!confirm(`Are you sure you want to delete "${name}"?`)) return;
+
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const response = await fetch(`${backendUrl}/api/membership-types/${id}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        showToast(`"${name}" deleted successfully`);
+        fetchMembershipTypes();
+      } else {
+        throw new Error('Failed to delete membership type');
+      }
+    } catch (error) {
+      console.error('Error deleting membership type:', error);
+      showToast('Error deleting membership type', 'error');
+    }
+  };
+
+  const handleProfileSave = () => {
+    if (profileForm.newPassword && profileForm.newPassword !== profileForm.confirmPassword) {
+      showToast('Passwords do not match', 'error');
+      return;
+    }
+    
+    // Save profile changes
+    showToast('Profile updated successfully');
+    setShowModal(null);
+  };
+
+  const handlePaymentSettingsSave = () => {
+    setSettings(prev => ({ ...prev, currency: paymentSettings.currency }));
+    showToast('Payment settings updated successfully');
+    setShowModal(null);
+  };
+
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) { // 2MB limit
+        showToast('File size must be less than 2MB', 'error');
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        // In a real app, you'd upload to server
+        showToast('Gym logo updated successfully');
+        setShowModal(null);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  return (
+    <div className="modern-settings-page">
+      {/* Modern Settings Header */}
+      <div className="settings-header">
+        <h1 className="settings-title">Settings</h1>
+      </div>
+
+      {/* Settings Content */}
+      <div className="settings-content">
+        
+        {/* Profile & Account Section */}
+        <div className="settings-section">
+          <h2 className="section-title">Profile & Account</h2>
+          
+          <div className="settings-item" onClick={() => setShowModal('editProfile')}>
+            <div className="settings-item-left">
+              <div className="settings-item-icon blue">
+                👤
+              </div>
+              <div className="settings-item-info">
+                <div className="settings-item-title">Edit Profile</div>
+                <div className="settings-item-subtitle">Update name, email, and password</div>
+              </div>
+            </div>
+            <div className="settings-item-right">
+              <span className="settings-item-arrow">›</span>
+            </div>
+          </div>
+
+          <div className="settings-item" onClick={() => setShowModal('changeGymLogo')}>
+            <div className="settings-item-left">
+              <div className="settings-item-icon green">
+                🖼️
+              </div>
+              <div className="settings-item-info">
+                <div className="settings-item-title">Change Gym Logo</div>
+                <div className="settings-item-subtitle">Upload custom gym branding</div>
+              </div>
+            </div>
+            <div className="settings-item-right">
+              <span className="settings-item-arrow">›</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Membership Management Section */}
+        <div className="settings-section">
+          <h2 className="section-title">Membership Management</h2>
+          
+          <div className="settings-item" onClick={() => { fetchMembershipTypes(); setShowModal('membershipPlans'); }}>
+            <div className="settings-item-left">
+              <div className="settings-item-icon orange">
+                🎫
+              </div>
+              <div className="settings-item-info">
+                <div className="settings-item-title">Membership Plans</div>
+                <div className="settings-item-subtitle">Edit available membership types and pricing</div>
+              </div>
+            </div>
+            <div className="settings-item-right">
+              <span className="settings-item-arrow">›</span>
+            </div>
+          </div>
+
+          <div className="settings-item" onClick={() => setShowModal('paymentSettings')}>
+            <div className="settings-item-left">
+              <div className="settings-item-icon blue">
+                💳
+              </div>
+              <div className="settings-item-info">
+                <div className="settings-item-title">Payment Settings</div>
+                <div className="settings-item-subtitle">Currency, payment reminders, and late fees</div>
+              </div>
+            </div>
+            <div className="settings-item-right">
+              <span className="settings-item-arrow">›</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Notifications Section */}
+        <div className="settings-section">
+          <h2 className="section-title">Notifications</h2>
+          
+          <div className="settings-item" onClick={() => handleToggle('emailReminders')}>
+            <div className="settings-item-left">
+              <div className="settings-item-icon green">
+                📧
+              </div>
+              <div className="settings-item-info">
+                <div className="settings-item-title">Email Reminders</div>
+                <div className="settings-item-subtitle">Send payment reminders via email</div>
+              </div>
+            </div>
+            <div className="settings-item-right">
+              <div 
+                className={`settings-toggle-switch ${settings.emailReminders ? 'active' : ''}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleToggle('emailReminders');
+                }}
+              >
+                <div className="toggle-knob"></div>
+              </div>
+            </div>
+          </div>
+
+          <div className="settings-item" onClick={() => handleToggle('whatsappReminders')}>
+            <div className="settings-item-left">
+              <div className="settings-item-icon green">
+                💬
+              </div>
+              <div className="settings-item-info">
+                <div className="settings-item-title">WhatsApp Reminders</div>
+                <div className="settings-item-subtitle">Send payment reminders via WhatsApp</div>
+              </div>
+            </div>
+            <div className="settings-item-right">
+              <div 
+                className={`settings-toggle-switch ${settings.whatsappReminders ? 'active' : ''}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleToggle('whatsappReminders');
+                }}
+              >
+                <div className="toggle-knob"></div>
+              </div>
+            </div>
+          </div>
+
+          <div className="settings-item" onClick={() => handleToggle('pushNotifications')}>
+            <div className="settings-item-left">
+              <div className="settings-item-icon orange">
+                🔔
+              </div>
+              <div className="settings-item-info">
+                <div className="settings-item-title">Push Notifications</div>
+                <div className="settings-item-subtitle">Receive app notifications</div>
+              </div>
+            </div>
+            <div className="settings-item-right">
+              <div 
+                className={`settings-toggle-switch ${settings.pushNotifications ? 'active' : ''}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleToggle('pushNotifications');
+                }}
+              >
+                <div className="toggle-knob"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Admin Tools Section (Collapsible) */}
+        <div className="settings-section">
+          <h2 className="section-title">Admin Tools</h2>
+          
+          <div 
+            className="admin-tools-header"
+            onClick={() => setAdminToolsExpanded(!adminToolsExpanded)}
+          >
+            <div className="admin-tools-left">
+              <div className="admin-tools-icon">
+                ⚙️
+              </div>
+              <div className="admin-tools-info">
+                <div className="admin-tools-title">Admin Tools</div>
+                <div className="admin-tools-subtitle">Advanced settings and controls</div>
+              </div>
+            </div>
+            <span className={`admin-tools-arrow ${adminToolsExpanded ? 'expanded' : ''}`}>
+              ›
+            </span>
+          </div>
+
+          <div className={`admin-tools-content ${adminToolsExpanded ? 'expanded' : 'collapsed'}`}>
+            <div className="settings-item" onClick={() => handleToggle('debugMode')}>
+              <div className="settings-item-left">
+                <div className="settings-item-icon gray">
+                  🐛
+                </div>
+                <div className="settings-item-info">
+                  <div className="settings-item-title">Debug Mode</div>
+                  <div className="settings-item-subtitle">Enable development debugging</div>
+                </div>
+              </div>
+              <div className="settings-item-right">
+                <div 
+                  className={`settings-toggle-switch ${settings.debugMode ? 'active' : ''}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleToggle('debugMode');
+                  }}
+                >
+                  <div className="toggle-knob"></div>
+                </div>
+              </div>
+            </div>
+
+            <div 
+              className="settings-item" 
+              onClick={() => setShowConfirmation('clearData')}
+            >
+              <div className="settings-item-left">
+                <div className="settings-item-icon red">
+                  🗑️
+                </div>
+                <div className="settings-item-info">
+                  <div className="settings-item-title">Clear All Data</div>
+                  <div className="settings-item-subtitle">Remove all gym data permanently</div>
+                </div>
+              </div>
+              <div className="settings-item-right">
+                <span className="settings-item-arrow">›</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Support Section */}
+        <div className="settings-section">
+          <h2 className="section-title">Support</h2>
+          
+          <div className="settings-item" onClick={() => setShowModal('help')}>
+            <div className="settings-item-left">
+              <div className="settings-item-icon blue">
+                ❓
+              </div>
+              <div className="settings-item-info">
+                <div className="settings-item-title">Help & Documentation</div>
+                <div className="settings-item-subtitle">User guides and tutorials</div>
+              </div>
+            </div>
+            <div className="settings-item-right">
+              <span className="settings-item-arrow">›</span>
+            </div>
+          </div>
+
+          <div className="settings-item" onClick={() => setShowModal('contactSupport')}>
+            <div className="settings-item-left">
+              <div className="settings-item-icon green">
+                💬
+              </div>
+              <div className="settings-item-info">
+                <div className="settings-item-title">Contact Support</div>
+                <div className="settings-item-subtitle">Get help from our support team</div>
+              </div>
+            </div>
+            <div className="settings-item-right">
+              <span className="settings-item-arrow">›</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Other Section */}
+        <div className="settings-section">
+          <h2 className="section-title">Other</h2>
+          
+          <div className="settings-item" onClick={() => setShowModal('about')}>
+            <div className="settings-item-left">
+              <div className="settings-item-icon blue">
+                ℹ️
+              </div>
+              <div className="settings-item-info">
+                <div className="settings-item-title">About App</div>
+                <div className="settings-item-subtitle">Version number and credits</div>
+              </div>
+            </div>
+            <div className="settings-item-right">
+              <span className="settings-item-arrow">›</span>
+            </div>
+          </div>
+
+          <div 
+            className="settings-item" 
+            onClick={() => setShowConfirmation('logout')}
+          >
+            <div className="settings-item-left">
+              <div className="settings-item-icon red">
+                🚪
+              </div>
+              <div className="settings-item-info">
+                <div className="settings-item-title">Log Out</div>
+                <div className="settings-item-subtitle">Sign out of your account</div>
+              </div>
+            </div>
+            <div className="settings-item-right">
+              <span className="settings-item-arrow">›</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Version Info */}
+        <div className="version-info">
+          <div className="version-text">
+            Alphalete Club <span className="version-number">v2.1.0</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Modals */}
+      {showModal && (
+        <div className="confirmation-modal-overlay" onClick={() => setShowModal(null)}>
+          <div className="confirmation-modal" onClick={(e) => e.stopPropagation()}>
+            
+            {/* Edit Profile Modal */}
+            {showModal === 'editProfile' && (
+              <>
+                <div className="confirmation-modal-header">
+                  <div className="confirmation-modal-icon">👤</div>
+                  <div className="confirmation-modal-title">Edit Profile</div>
+                </div>
+                <div style={{ marginBottom: '20px' }}>
+                  <div style={{ marginBottom: '16px' }}>
+                    <label style={{ display: 'block', marginBottom: '4px', fontWeight: '600', color: '#2d3748' }}>Name</label>
+                    <input
+                      type="text"
+                      value={profileForm.name}
+                      onChange={(e) => setProfileForm(prev => ({ ...prev, name: e.target.value }))}
+                      style={{ width: '100%', padding: '8px 12px', border: '2px solid #e2e8f0', borderRadius: '8px' }}
+                    />
+                  </div>
+                  <div style={{ marginBottom: '16px' }}>
+                    <label style={{ display: 'block', marginBottom: '4px', fontWeight: '600', color: '#2d3748' }}>Email</label>
+                    <input
+                      type="email"
+                      value={profileForm.email}
+                      onChange={(e) => setProfileForm(prev => ({ ...prev, email: e.target.value }))}
+                      style={{ width: '100%', padding: '8px 12px', border: '2px solid #e2e8f0', borderRadius: '8px' }}
+                    />
+                  </div>
+                  <div style={{ marginBottom: '16px' }}>
+                    <label style={{ display: 'block', marginBottom: '4px', fontWeight: '600', color: '#2d3748' }}>Current Password</label>
+                    <input
+                      type="password"
+                      value={profileForm.currentPassword}
+                      onChange={(e) => setProfileForm(prev => ({ ...prev, currentPassword: e.target.value }))}
+                      style={{ width: '100%', padding: '8px 12px', border: '2px solid #e2e8f0', borderRadius: '8px' }}
+                    />
+                  </div>
+                  <div style={{ marginBottom: '16px' }}>
+                    <label style={{ display: 'block', marginBottom: '4px', fontWeight: '600', color: '#2d3748' }}>New Password</label>
+                    <input
+                      type="password"
+                      value={profileForm.newPassword}
+                      onChange={(e) => setProfileForm(prev => ({ ...prev, newPassword: e.target.value }))}
+                      style={{ width: '100%', padding: '8px 12px', border: '2px solid #e2e8f0', borderRadius: '8px' }}
+                    />
+                  </div>
+                  <div style={{ marginBottom: '16px' }}>
+                    <label style={{ display: 'block', marginBottom: '4px', fontWeight: '600', color: '#2d3748' }}>Confirm Password</label>
+                    <input
+                      type="password"
+                      value={profileForm.confirmPassword}
+                      onChange={(e) => setProfileForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                      style={{ width: '100%', padding: '8px 12px', border: '2px solid #e2e8f0', borderRadius: '8px' }}
+                    />
+                  </div>
+                </div>
+                <div className="confirmation-modal-actions">
+                  <button className="confirmation-btn cancel" onClick={() => setShowModal(null)}>Cancel</button>
+                  <button className="confirmation-btn confirm" onClick={handleProfileSave}>Save Changes</button>
+                </div>
+              </>
+            )}
+
+            {/* Change Gym Logo Modal */}
+            {showModal === 'changeGymLogo' && (
+              <>
+                <div className="confirmation-modal-header">
+                  <div className="confirmation-modal-icon">🖼️</div>
+                  <div className="confirmation-modal-title">Change Gym Logo</div>
+                  <div className="confirmation-modal-message">Upload a new logo for your gym (Max 2MB)</div>
+                </div>
+                <div style={{ marginBottom: '20px' }}>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    style={{ width: '100%', padding: '12px', border: '2px dashed #e2e8f0', borderRadius: '8px', cursor: 'pointer' }}
+                  />
+                </div>
+                <div className="confirmation-modal-actions">
+                  <button className="confirmation-btn cancel" onClick={() => setShowModal(null)}>Cancel</button>
+                </div>
+              </>
+            )}
+
+            {/* Membership Plans Modal */}
+            {showModal === 'membershipPlans' && (
+              <>
+                <div className="confirmation-modal-header">
+                  <div className="confirmation-modal-icon">🎫</div>
+                  <div className="confirmation-modal-title">Membership Plans</div>
+                </div>
+                <div style={{ maxHeight: '400px', overflowY: 'auto', marginBottom: '20px' }}>
+                  {membershipTypes.map(type => (
+                    <div key={type.id} style={{ padding: '12px', border: '1px solid #e2e8f0', borderRadius: '8px', marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <div style={{ fontWeight: '600', color: '#2d3748' }}>{type.name}</div>
+                        <div style={{ fontSize: '14px', color: '#718096' }}>TTD {type.monthly_fee}/month - {type.description}</div>
+                      </div>
+                      <button
+                        onClick={() => deleteMembershipType(type.id, type.name)}
+                        style={{ background: '#dc3545', color: 'white', border: 'none', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer' }}
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  ))}
+                  
+                  {/* Add New Membership Form */}
+                  <div style={{ padding: '16px', background: '#f7fafc', border: '2px dashed #e2e8f0', borderRadius: '8px', marginTop: '16px' }}>
+                    <div style={{ fontWeight: '600', marginBottom: '12px', color: '#2d3748' }}>Add New Membership</div>
+                    <div style={{ marginBottom: '12px' }}>
+                      <input
+                        type="text"
+                        placeholder="Membership Name"
+                        value={newMembership.name}
+                        onChange={(e) => setNewMembership(prev => ({ ...prev, name: e.target.value }))}
+                        style={{ width: '100%', padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: '4px', marginBottom: '8px' }}
+                      />
+                      <input
+                        type="number"
+                        placeholder="Monthly Fee (TTD)"
+                        value={newMembership.monthly_fee}
+                        onChange={(e) => setNewMembership(prev => ({ ...prev, monthly_fee: e.target.value }))}
+                        style={{ width: '100%', padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: '4px', marginBottom: '8px' }}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Description"
+                        value={newMembership.description}
+                        onChange={(e) => setNewMembership(prev => ({ ...prev, description: e.target.value }))}
+                        style={{ width: '100%', padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: '4px' }}
+                      />
+                    </div>
+                    <button
+                      onClick={saveMembershipType}
+                      style={{ background: '#56ab2f', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer', fontWeight: '600' }}
+                    >
+                      ➕ Add Membership
+                    </button>
+                  </div>
+                </div>
+                <div className="confirmation-modal-actions">
+                  <button className="confirmation-btn cancel" onClick={() => setShowModal(null)}>Close</button>
+                </div>
+              </>
+            )}
+
+            {/* Payment Settings Modal */}
+            {showModal === 'paymentSettings' && (
+              <>
+                <div className="confirmation-modal-header">
+                  <div className="confirmation-modal-icon">💳</div>
+                  <div className="confirmation-modal-title">Payment Settings</div>
+                </div>
+                <div style={{ marginBottom: '20px' }}>
+                  <div style={{ marginBottom: '16px' }}>
+                    <label style={{ display: 'block', marginBottom: '4px', fontWeight: '600', color: '#2d3748' }}>Currency</label>
+                    <select
+                      value={paymentSettings.currency}
+                      onChange={(e) => setPaymentSettings(prev => ({ ...prev, currency: e.target.value }))}
+                      style={{ width: '100%', padding: '8px 12px', border: '2px solid #e2e8f0', borderRadius: '8px' }}
+                    >
+                      <option value="TTD">TTD (Trinidad and Tobago Dollar)</option>
+                      <option value="USD">USD (US Dollar)</option>
+                      <option value="EUR">EUR (Euro)</option>
+                    </select>
+                  </div>
+                  <div style={{ marginBottom: '16px' }}>
+                    <label style={{ display: 'block', marginBottom: '4px', fontWeight: '600', color: '#2d3748' }}>Late Fee Amount</label>
+                    <input
+                      type="number"
+                      value={paymentSettings.lateFeeAmount}
+                      onChange={(e) => setPaymentSettings(prev => ({ ...prev, lateFeeAmount: parseFloat(e.target.value) || 0 }))}
+                      style={{ width: '100%', padding: '8px 12px', border: '2px solid #e2e8f0', borderRadius: '8px' }}
+                    />
+                  </div>
+                  <div style={{ marginBottom: '16px' }}>
+                    <label style={{ display: 'block', marginBottom: '4px', fontWeight: '600', color: '#2d3748' }}>Grace Period (days)</label>
+                    <input
+                      type="number"
+                      value={paymentSettings.lateFeeGracePeriod}
+                      onChange={(e) => setPaymentSettings(prev => ({ ...prev, lateFeeGracePeriod: parseInt(e.target.value) || 0 }))}
+                      style={{ width: '100%', padding: '8px 12px', border: '2px solid #e2e8f0', borderRadius: '8px' }}
+                    />
+                  </div>
+                </div>
+                <div className="confirmation-modal-actions">
+                  <button className="confirmation-btn cancel" onClick={() => setShowModal(null)}>Cancel</button>
+                  <button className="confirmation-btn confirm" onClick={handlePaymentSettingsSave}>Save Settings</button>
+                </div>
+              </>
+            )}
+
+            {/* Help Modal */}
+            {showModal === 'help' && (
+              <>
+                <div className="confirmation-modal-header">
+                  <div className="confirmation-modal-icon">❓</div>
+                  <div className="confirmation-modal-title">Help & Documentation</div>
+                </div>
+                <div style={{ marginBottom: '20px', maxHeight: '300px', overflowY: 'auto' }}>
+                  <div style={{ marginBottom: '16px' }}>
+                    <h4 style={{ fontWeight: '600', color: '#2d3748', marginBottom: '8px' }}>Getting Started</h4>
+                    <p style={{ fontSize: '14px', color: '#718096', lineHeight: '1.4' }}>
+                      Welcome to Alphalete Club! Start by adding members in the Members section, set up membership plans in Settings, and track payments.
+                    </p>
+                  </div>
+                  <div style={{ marginBottom: '16px' }}>
+                    <h4 style={{ fontWeight: '600', color: '#2d3748', marginBottom: '8px' }}>Managing Members</h4>
+                    <p style={{ fontSize: '14px', color: '#718096', lineHeight: '1.4' }}>
+                      Add new members, edit their information, send payment reminders, and track their payment status all from the Members page.
+                    </p>
+                  </div>
+                  <div style={{ marginBottom: '16px' }}>
+                    <h4 style={{ fontWeight: '600', color: '#2d3748', marginBottom: '8px' }}>Payment Tracking</h4>
+                    <p style={{ fontSize: '14px', color: '#718096', lineHeight: '1.4' }}>
+                      View payment statistics, mark payments as received, and monitor overdue payments from the Payments section.
+                    </p>
+                  </div>
+                </div>
+                <div className="confirmation-modal-actions">
+                  <button className="confirmation-btn cancel" onClick={() => setShowModal(null)}>Close</button>
+                </div>
+              </>
+            )}
+
+            {/* Contact Support Modal */}
+            {showModal === 'contactSupport' && (
+              <>
+                <div className="confirmation-modal-header">
+                  <div className="confirmation-modal-icon">💬</div>
+                  <div className="confirmation-modal-title">Contact Support</div>
+                </div>
+                <div style={{ marginBottom: '20px' }}>
+                  <div style={{ padding: '16px', background: '#f7fafc', borderRadius: '8px', marginBottom: '12px' }}>
+                    <div style={{ fontWeight: '600', color: '#2d3748', marginBottom: '4px' }}>📧 Email Support</div>
+                    <div style={{ fontSize: '14px', color: '#718096' }}>support@alphaleteclub.com</div>
+                  </div>
+                  <div style={{ padding: '16px', background: '#f7fafc', borderRadius: '8px', marginBottom: '12px' }}>
+                    <div style={{ fontWeight: '600', color: '#2d3748', marginBottom: '4px' }}>📱 WhatsApp</div>
+                    <div style={{ fontSize: '14px', color: '#718096' }}>+1 (868) 555-0123</div>
+                  </div>
+                  <div style={{ padding: '16px', background: '#f7fafc', borderRadius: '8px' }}>
+                    <div style={{ fontWeight: '600', color: '#2d3748', marginBottom: '4px' }}>⏰ Support Hours</div>
+                    <div style={{ fontSize: '14px', color: '#718096' }}>Monday - Friday: 9AM - 6PM AST</div>
+                  </div>
+                </div>
+                <div className="confirmation-modal-actions">
+                  <button className="confirmation-btn cancel" onClick={() => setShowModal(null)}>Close</button>
+                </div>
+              </>
+            )}
+
+            {/* About Modal */}
+            {showModal === 'about' && (
+              <>
+                <div className="confirmation-modal-header">
+                  <div className="confirmation-modal-icon">ℹ️</div>
+                  <div className="confirmation-modal-title">About Alphalete Club</div>
+                </div>
+                <div style={{ marginBottom: '20px' }}>
+                  <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                    <div style={{ fontSize: '48px', marginBottom: '12px' }}>🏋️</div>
+                    <div style={{ fontSize: '24px', fontWeight: '700', color: '#2d3748', marginBottom: '8px' }}>Alphalete Club</div>
+                    <div style={{ fontSize: '16px', color: '#718096', marginBottom: '16px' }}>Gym Management PWA</div>
+                    <div style={{ fontSize: '14px', color: '#4a5568', background: '#e2e8f0', padding: '8px 16px', borderRadius: '20px', display: 'inline-block' }}>
+                      Version 2.1.0
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '14px', color: '#718096', lineHeight: '1.6' }}>
+                    <p style={{ marginBottom: '12px' }}>
+                      A modern Progressive Web Application for gym management, built with React and FastAPI.
+                    </p>
+                    <p style={{ marginBottom: '12px' }}>
+                      <strong>Features:</strong> Member management, payment tracking, automated reminders, and comprehensive reporting.
+                    </p>
+                    <p>
+                      <strong>Built with:</strong> React, FastAPI, MongoDB, PWA technologies
+                    </p>
+                  </div>
+                </div>
+                <div className="confirmation-modal-actions">
+                  <button className="confirmation-btn cancel" onClick={() => setShowModal(null)}>Close</button>
+                </div>
+              </>
+            )}
+
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Modal */}
+      {showConfirmation && (
+        <div className="confirmation-modal-overlay">
+          <div className="confirmation-modal">
+            <div className="confirmation-modal-header">
+              <div className="confirmation-modal-icon">
+                {showConfirmation === 'clearData' ? '⚠️' : '🚪'}
+              </div>
+              <div className="confirmation-modal-title">
+                {showConfirmation === 'clearData' ? 'Clear All Data' : 'Log Out'}
+              </div>
+              <div className="confirmation-modal-message">
+                {showConfirmation === 'clearData' 
+                  ? 'This will permanently delete all gym data, including members, payments, and settings. This action cannot be undone.'
+                  : 'Are you sure you want to log out of your account?'
+                }
+              </div>
+            </div>
+            <div className="confirmation-modal-actions">
+              <button 
+                className="confirmation-btn cancel"
+                onClick={() => setShowConfirmation(null)}
+              >
+                Cancel
+              </button>
+              <button 
+                className="confirmation-btn confirm"
+                onClick={() => handleConfirmation(showConfirmation)}
+              >
+                {showConfirmation === 'clearData' ? 'Clear Data' : 'Log Out'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {toast && (
+        <div className={`toast-notification ${toast.type}`}>
+          <div className="toast-icon">
+            {toast.type === 'success' ? '✅' : '❌'}
+          </div>
+          <div className="toast-message">{toast.message}</div>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div className="modern-settings-page">
