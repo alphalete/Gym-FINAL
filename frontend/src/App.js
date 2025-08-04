@@ -3825,7 +3825,6 @@ const Payments = () => {
         // Refresh clients data
         console.log('✅ Payment recorded - refreshing all data...');
         fetchClients();
-        fetchOverdueClients();
         calculateRealPaymentStats();
         
         // Force page reload to update all statistics
