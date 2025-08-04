@@ -567,11 +567,23 @@ async def record_client_payment(payment_request: PaymentRecordRequest):
     
     client_obj = Client(**client)
     
-    # Calculate new next payment date (maintain consistent billing cycle)
-    # Always advance from the current due date to maintain monthly consistency
-    # This prevents billing cycle drift when payments are made early or late
+    # Calculate new next payment date based on payment timing
     current_due_date = client_obj.next_payment_date
-    new_next_payment_date = calculate_next_payment_date(current_due_date)
+    payment_date = payment_request.payment_date
+    client_start_date = client_obj.start_date
+    
+    # Determine if this is an immediate payment (same day as joining or within first billing period)
+    # If payment is made on or before the first due date, it covers the current month
+    is_immediate_payment = payment_date <= current_due_date
+    
+    if is_immediate_payment and payment_date <= client_start_date:
+        # Special case: Payment made on join date or before first due date
+        # This payment covers the current month, so due date should NOT advance
+        new_next_payment_date = current_due_date
+    else:
+        # Regular monthly payment: advance due date by one month
+        # This maintains consistent billing cycles for normal payments
+        new_next_payment_date = calculate_next_payment_date(current_due_date)
     
     # Update client's next payment date
     await db.clients.update_one(
