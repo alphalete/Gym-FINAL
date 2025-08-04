@@ -1814,348 +1814,107 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
-      {/* Mobile Header */}
-      <MobileHeader title="Alphalete Club" subtitle="Gym Management Dashboard" />
-      
-      <div className="max-w-7xl mx-auto">
-        {/* Modern Header - Hidden on Mobile */}
-        <div className="mb-8 hidden md:block">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-display text-gray-900 dark:text-white mb-2">
-                Dashboard
-              </h1>
-              <p className="text-body text-gray-600 dark:text-gray-300">
-                Welcome back! Here's what's happening at Alphalete Athletics.
-              </p>
-            </div>
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={fetchDashboardData}
-                className="btn btn-secondary btn-sm"
-              >
-                <span>🔄</span>
-                <span>Refresh</span>
-              </button>
-              <Link to="/add-client" className="btn btn-primary btn-sm">
-                <span>➕</span>
-                <span>Add Member</span>
-              </Link>
-            </div>
-          </div>
+    <div className="alphalete-dashboard">
+      {/* Clean Header */}
+      <div className="dashboard-header">
+        <h1 className="app-title">Alphalete Club</h1>
+      </div>
+
+      {/* Dashboard Cards - 2x2 Grid */}
+      <div className="dashboard-cards">
+        <div className="dashboard-card blue" onClick={() => navigate('/clients')}>
+          <div className="card-value">{stats.activeMembers}</div>
+          <div className="card-label">Active Members</div>
+        </div>
+        
+        <div className="dashboard-card green">
+          <div className="card-value">{stats.paymentsDueToday}</div>
+          <div className="card-label">Payments Due Today</div>
+        </div>
+        
+        <div className="dashboard-card orange">
+          <div className="card-value">{stats.overdueAccounts}</div>
+          <div className="card-label">Overdue Accounts</div>
+        </div>
+        
+        <div className="dashboard-card blue" onClick={() => navigate('/payments')}>
+          <div className="card-value">{formatCurrency(stats.totalRevenue)}</div>
+          <div className="card-label">Total Revenue</div>
+        </div>
+      </div>
+
+      {/* Payments Section */}
+      <div className="payments-section">
+        <h2 className="section-title">Payments</h2>
+        
+        {/* Payment Filter Tabs */}
+        <div className="payment-tabs">
+          <button 
+            className={`tab-pill ${currentFilter === 'all' ? 'active' : ''}`}
+            onClick={() => setCurrentFilter('all')}
+          >
+            All
+          </button>
+          <button 
+            className={`tab-pill ${currentFilter === 'due-soon' ? 'active' : ''}`}
+            onClick={() => setCurrentFilter('due-soon')}
+          >
+            Due Soon
+          </button>
+          <button 
+            className={`tab-pill ${currentFilter === 'overdue' ? 'active' : ''}`}
+            onClick={() => setCurrentFilter('overdue')}
+          >
+            Overdue
+          </button>
         </div>
 
-        {/* Modern Statistics Grid - Mobile Responsive */}
-        <div className="stats-grid mb-8">
-          <div className="stat-card primary" onClick={() => navigate('/clients')}>
-            <div className="stat-value">{stats.activeClients || 0}</div>
-            <div className="stat-label">Active Members</div>
-          </div>
-          <div className="stat-card success" onClick={() => navigate('/payments')}>
-            <div className="stat-value">TTD {(stats.totalRevenue || 0).toFixed(0)}</div>
-            <div className="stat-label">Total Revenue</div>
-          </div>
-          <div className="stat-card warning">
-            <div className="stat-value">5</div>
-            <div className="stat-label">Payments Due Today</div>
-          </div>
-          <div className="stat-card danger" onClick={() => navigate('/payments')}>
-            <div className="stat-value">{stats.overduePayments || 0}</div>
-            <div className="stat-label">Overdue Accounts</div>
-          </div>
-        </div>
-
-        {/* Quick Actions - Mobile Only */}
-        <div className="quick-actions md:hidden">
-          <h3>Quick Actions</h3>
-          <div className="actions-grid">
-            <button className="action-button" onClick={() => navigate('/clients')}>
-              <div className="action-icon">👥</div>
-              <div className="action-label">Members</div>
-            </button>
-            <button className="action-button" onClick={() => navigate('/payments')}>
-              <div className="action-icon">💳</div>
-              <div className="action-label">Payments</div>
-            </button>
-            <button className="action-button" onClick={() => navigate('/email-center')}>
-              <div className="action-icon">📧</div>
-              <div className="action-label">Reminders</div>
-            </button>
-            <button className="action-button" onClick={() => navigate('/reports')}>
-              <div className="action-icon">📊</div>
-              <div className="action-label">Reports</div>
-            </button>
-          </div>
-        </div>
-
-        {/* Desktop Statistics Grid - Hidden on Mobile */}
-        <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <ModernStatCard
-            title="Total Members"
-            value={stats.totalClients || 0}
-            subtitle="All registered members"
-            icon="👥"
-            trend={+8.2}
-            color="primary"
-            onClick={() => navigate('/clients')}
-          />
-          <ModernStatCard
-            title="Active Members"
-            value={stats.activeClients || 0}
-            subtitle="Currently active"
-            icon="✅"
-            trend={+5.1}
-            color="accent"
-            onClick={() => navigate('/clients')}
-          />
-          <ModernStatCard
-            title="Total Revenue"
-            value={`TTD ${(stats.totalRevenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-            subtitle="Total collected revenue"
-            icon="💰"
-            trend={+12.3}
-            color="secondary"
-            onClick={() => navigate('/payments')}
-          />
-          <ModernStatCard
-            title="Overdue Payments"
-            value={stats.overduePayments || 0}
-            subtitle="Require immediate attention"
-            icon="⚠️"
-            trend={-2.1}
-            color="error"
-            onClick={() => navigate('/payments')}
-          />
-        </div>
-
-        {/* Tabs Navigation */}
-        <div className="mb-8">
-          <div className="border-b border-gray-200 dark:border-gray-700">
-            <nav className="-mb-px flex space-x-8">
-              <button
-                onClick={() => setActiveTab('overview')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'overview'
-                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
-                }`}
-              >
-                📊 Overview
-              </button>
-              <button
-                onClick={() => setActiveTab('payments')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'payments'
-                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
-                }`}
-              >
-                💳 Payment Status
-              </button>
-              <button
-                onClick={() => setActiveTab('activity')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'activity'
-                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
-                }`}
-              >
-                🕒 Recent Activity
-              </button>
-              <button
-                onClick={() => setActiveTab('actions')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'actions'
-                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
-                }`}
-              >
-                ⚡ Quick Actions
-              </button>
-            </nav>
-          </div>
-        </div>
-
-        {/* Tab Content */}
-        {activeTab === 'overview' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <div className="card p-6">
-              <h3 className="text-heading-3 text-gray-900 dark:text-white mb-4">System Status</h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Connection</span>
-                  <span className="status-badge status-active">ONLINE</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Auto Reminders</span>
-                  <span className="status-badge status-active">ACTIVE</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Data Sync</span>
-                  <span className="status-badge status-active">SYNCED</span>
-                </div>
-              </div>
-            </div>
-            <div className="card p-6">
-              <h3 className="text-heading-3 text-gray-900 dark:text-white mb-4">Recent Members</h3>
-              <div className="space-y-3">
-                {recentClients.slice(0, 4).map(client => (
-                  <ModernClientCard 
-                    key={client.id} 
-                    client={client} 
-                    onClientClick={openMemberInfoModal}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'payments' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <div className="card p-6">
-              <h3 className="text-heading-3 text-gray-900 dark:text-white mb-4">Payment Status</h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                    <span className="text-sm font-medium">Pending (7 days)</span>
-                  </div>
-                  <span className="text-sm font-bold text-yellow-600">{stats.pendingPayments}</span>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                    <span className="text-sm font-medium">Overdue</span>
-                  </div>
-                  <span className="text-sm font-bold text-red-600">{stats.overduePayments}</span>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                    <span className="text-sm font-medium">Upcoming</span>
-                  </div>
-                  <span className="text-sm font-bold text-green-600">{stats.upcomingPayments}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'activity' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <div className="card p-6">
-              <h3 className="text-heading-3 text-gray-900 dark:text-white mb-4">Recent Members</h3>
-              <div className="space-y-3">
-                {recentClients.slice(0, 5).map(client => (
-                  <ModernClientCard 
-                    key={client.id} 
-                    client={client} 
-                    onClientClick={openMemberInfoModal}
-                  />
-                ))}
-              </div>
-            </div>
-            <div className="card p-6">
-              <h3 className="text-heading-3 text-gray-900 dark:text-white mb-4">Activity Log</h3>
-              <div className="space-y-3 text-sm">
-                <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                  <span className="text-green-600">✅ Auto reminders sent to 12 members</span>
-                  <p className="text-gray-500 text-xs mt-1">2 hours ago</p>
-                </div>
-                <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                  <span className="text-blue-600">📧 Payment reminder sent</span>
-                  <p className="text-gray-500 text-xs mt-1">4 hours ago</p>
-                </div>
-                <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                  <span className="text-yellow-600">⚠️ 3 payments overdue</span>
-                  <p className="text-gray-500 text-xs mt-1">1 day ago</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'actions' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <div className="card p-6">
-              <h3 className="text-heading-3 text-gray-900 dark:text-white mb-4">Quick Actions</h3>
-              <div className="space-y-3">
-                <Link to="/add-client" className="btn btn-primary w-full">
-                  <span>➕</span>
-                  <span>Add New Member</span>
-                </Link>
-                <Link to="/email-center" className="btn btn-secondary w-full">
-                  <span>📧</span>
-                  <span>Send Reminders</span>
-                </Link>
-                <Link to="/reminders" className="btn btn-secondary w-full">
-                  <span>⏰</span>
-                  <span>Auto Reminders</span>
-                </Link>
-                <Link to="/reports" className="btn btn-secondary w-full">
-                  <span>📊</span>
-                  <span>View Reports</span>
-                </Link>
-              </div>
-            </div>
-            <div className="card p-6">
-              <h3 className="text-heading-3 text-gray-900 dark:text-white mb-4">System Actions</h3>
-              <div className="space-y-3">
-                <button 
-                  onClick={fetchDashboardData}
-                  className="btn btn-secondary w-full"
-                >
-                  <span>🔄</span>
-                  <span>Refresh Data</span>
-                </button>
-                <Link to="/settings" className="btn btn-secondary w-full">
-                  <span>⚙️</span>
-                  <span>Settings</span>
-                </Link>
-                <button className="btn btn-secondary w-full">
-                  <span>📤</span>
-                  <span>Export Data</span>
-                </button>
-                <button className="btn btn-secondary w-full">
-                  <span>🔔</span>
-                  <span>Test Notifications</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Recent Members */}
-        <div className="card p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-heading-3 text-gray-900 dark:text-white">Recent Members</h3>
-            <Link to="/clients" className="text-sm font-medium text-primary-600 hover:text-primary-700">
-              View all →
-            </Link>
-          </div>
-          {recentClients.length === 0 ? (
-            <div className="text-center py-8">
-              <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">👥</span>
-              </div>
-              <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No members yet</h4>
-              <p className="text-gray-500 dark:text-gray-400 mb-4">Get started by adding your first member</p>
-              <Link to="/add-client" className="btn btn-primary">
-                <span>➕</span>
-                <span>Add Member</span>
-              </Link>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {recentClients.map((client) => (
-                <ModernClientCard 
+        {/* Payment List */}
+        <div className="payment-list">
+          {filteredClients.length > 0 ? (
+            filteredClients.map((client) => {
+              const paymentStatus = getClientPaymentStatus(client);
+              return (
+                <div 
                   key={client.id} 
-                  client={client} 
-                  onClientClick={openMemberInfoModal}
-                />
-              ))}
+                  className="payment-card"
+                  onClick={() => openMemberInfoModal(client)}
+                >
+                  <div className="payment-card-left">
+                    <div className="member-avatar">
+                      {getAvatarPlaceholder(client.name)}
+                    </div>
+                    <div className="member-info">
+                      <div className="member-name">{client.name}</div>
+                      <div className="member-status">
+                        {client.next_payment_date ? 
+                          `Due ${formatDate(client.next_payment_date)}` : 
+                          'No due date set'
+                        }
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="payment-card-right">
+                    {paymentStatus === 'paid' ? (
+                      <div className="status-pill paid">
+                        <span className="status-icon">✔️</span>
+                        <span>PAID</span>
+                        <span className="status-amount">{formatCurrency(client.monthly_fee)}</span>
+                      </div>
+                    ) : (
+                      <div className="status-pill overdue">
+                        <span className="status-icon">⚠️</span>
+                        <span>OWES {formatCurrency(client.monthly_fee)}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="empty-state">
+              <p>No payments found for the selected filter.</p>
             </div>
           )}
         </div>
