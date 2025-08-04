@@ -197,9 +197,9 @@ frontend:
 
   - task: "Next payment date calculation fix - proper monthly arithmetic"
     implemented: true
-    working: true
+    working: false
     file: "backend/server.py"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: false
     status_history:
@@ -212,6 +212,9 @@ frontend:
       - working: true
         agent: "testing"
         comment: "🎉 NEXT PAYMENT DATE CALCULATION FIX COMPREHENSIVE TESTING COMPLETED - 100% SUCCESS! ✅ COMPLETE FIX VERIFICATION: Conducted comprehensive testing with perfect results (37/37 tests passed, 100% success rate) across all requested test scenarios. ✅ INITIAL CLIENT CREATION FIXED: All new clients now correctly calculate next_payment_date one month ahead regardless of payment_status. Test results: Jan 15th → Feb 15th ✅, Jan 31st → Feb 28th ✅, Feb 28th → Mar 28th ✅, Dec 31st → Jan 31st ✅, Jun 15th → Jul 15th ✅. Both 'paid' and 'due' status scenarios work correctly. ✅ PAYMENT RECORDING CYCLES PERFECT: Payment recording maintains proper monthly cycles with no date drift. Tested 4 consecutive payments: Feb 15 → Mar 15 → Apr 15 → May 15 → Jun 15, all transitions perfect. ✅ EDGE CASES HANDLED CORRECTLY: All boundary conditions work perfectly - leap year Feb 29th → Mar 29th, non-leap Feb 28th → Mar 28th, 30-day months, 31-day to 30-day transitions, year boundaries. ✅ MULTIPLE CONSECUTIVE PAYMENTS: Tested 6 consecutive payments with zero date drift detected. Monthly cycles maintained perfectly (Jan 15 → Feb 15 → Mar 15 → Apr 15 → May 15 → Jun 15 → Jul 15 → Aug 15). ✅ BACKEND LOGIC CONFIRMED: Client creation logic (lines 306-307) now always uses calculate_next_payment_date() function for proper monthly arithmetic. Payment recording logic uses proper monthly calculation with calculate_next_payment_date(). CONCLUSION: The complete next payment date calculation fix is working EXACTLY as specified in the review request. All user-reported issues are completely resolved - proper monthly arithmetic, no date drift, correct edge case handling."
+      - working: false
+        agent: "testing"
+        comment: "🚨 CRITICAL PAYMENT DATE CALCULATION ISSUE CONFIRMED - USER REPORT VERIFIED! ✅ SPECIALIZED TESTING: Conducted targeted testing of the exact user-reported scenario with 100% test execution success (3/3 tests passed) but CRITICAL ISSUE CONFIRMED. ✅ SCENARIO TESTED: Created client with start_date 2025-01-15 and payment_status='due', verified next_payment_date correctly set to 2025-02-15, then recorded late payment on 2025-02-20 (5 days after due date). ❌ CRITICAL ISSUE CONFIRMED: Late payment INCORRECTLY shifted billing cycle from March 15th to March 20th, exactly matching user's reported problem. The payment recording logic uses max(current_due_date, payment_date) as base for next payment calculation (lines 570-578 in server.py). ❌ ROOT CAUSE IDENTIFIED: When payment is made late (Feb 20th instead of Feb 15th), the system calculates next payment from the later date, breaking consistent monthly billing cycles. This causes billing dates to drift based on payment timing rather than maintaining fixed monthly cycles. ❌ IMPACT: This breaks the fundamental expectation of consistent monthly billing. If a client pays late, their future due dates shift permanently, creating administrative complexity and inconsistent billing cycles. 🔧 REQUIRED FIX: Modify payment recording logic in backend/server.py lines 570-578. Replace 'base_date = max(current_due_date, payment_date)' with 'base_date = current_due_date' to maintain consistent monthly billing regardless of payment timing. CONCLUSION: The user-reported payment date calculation issue is CONFIRMED and requires immediate fix to maintain consistent monthly billing cycles."
 
 backend:
   - task: "Professional email template implementation"
