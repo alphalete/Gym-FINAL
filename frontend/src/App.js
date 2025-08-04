@@ -3465,7 +3465,7 @@ const Payments = () => {
           backendUrl = 'https://65d688ea-a807-4f80-b037-f168ea1491e4.preview.emergentagent.com';
         }
         
-        const response = await fetch(`${backendUrl}/api/payments`, {
+        const response = await fetch(`${backendUrl}/api/payments/record`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
