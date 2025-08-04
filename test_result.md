@@ -658,9 +658,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Next payment date calculation fix - proper monthly arithmetic"
-    - "Payment date calculation issue after first payment recording"
-    - "Consistent monthly billing cycle maintenance"
+    - "Client payment status display issue - 'paid' vs 'due' verification"
   stuck_tasks:
     - "Next payment date calculation fix - proper monthly arithmetic"
   test_all: false
