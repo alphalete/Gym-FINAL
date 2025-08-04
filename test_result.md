@@ -191,6 +191,18 @@ frontend:
         agent: "testing"
         comment: "🎉 API ENDPOINT FIX TESTING COMPLETED - 100% SUCCESS! ✅ COMPREHENSIVE ENDPOINT TESTING: Conducted specialized testing of user-reported 404 error fixes with perfect results (7/7 tests passed, 100% success rate). ✅ POST /api/payments/record VERIFIED: Payment recording endpoint working correctly - successfully recorded TTD 75.0 payment for test client Marcus Williams, updated client next payment date to February 24, 2025, generated payment ID 4e5d623c-a2c2-4f3c-a948-cbe9bd4f901f, and sent automatic invoice email successfully. ✅ POST /api/email/payment-reminder VERIFIED: Email reminder endpoint working correctly - successfully sent payment reminder email to test client using professional template with custom subject and message, confirmed email delivery success. ✅ PROPER REQUEST BODY FORMAT: Both endpoints handle JSON request bodies correctly with all required fields (client_id, amount_paid, payment_date, payment_method for payments; client_id, template_name, custom_subject, custom_message for reminders). ✅ CLIENT DATA UPDATE VERIFIED: Payment recording properly updates client data - next payment date correctly calculated and persisted, client status maintained, all client fields intact after payment processing. ✅ EMAIL DELIVERY CONFIRMED: Email reminders send successfully with proper response format including success status, client email confirmation, and descriptive messages. ✅ ERROR HANDLING WORKING: Both endpoints properly return 404 errors for invalid client IDs with appropriate error messages. ✅ PAYMENT STATISTICS UPDATED: Payment stats API shows updated revenue (TTD 225.0 total, 3 payments recorded) confirming payment recording integration works correctly. CONCLUSION: User-reported 404 errors for payment recording and email reminders are COMPLETELY RESOLVED. Both critical endpoints are fully functional with proper request handling, data updates, and error responses."
 
+  - task: "Next payment date calculation fix - proper monthly arithmetic"
+    implemented: true
+    working: false
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "CRITICAL BUG FIX: User reported 'Next payment date calculation is wrong'. Investigation revealed the system was using 30-day increments (timedelta(days=30)) instead of proper monthly calculations. This caused systematic date drift - January 15th → February 14th → March 16th instead of proper monthly cycles (January 15th → February 15th → March 15th). Fixed calculate_next_payment_date function to use proper monthly arithmetic with month boundary handling (e.g., Jan 31st → Feb 28th). Also fixed payment recording logic to use the corrected calculation function instead of hardcoded 30-day increments."
+
 backend:
   - task: "Professional email template implementation"
     implemented: true
