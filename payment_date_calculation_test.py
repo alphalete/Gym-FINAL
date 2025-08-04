@@ -66,7 +66,7 @@ class PaymentDateCalculationTester:
             
             response = requests.post(f"{API_BASE}/clients", json=client_data, timeout=10)
             
-            if response.status_code == 201:
+            if response.status_code == 200:
                 client = response.json()
                 self.test_client_id = client['id']
                 
