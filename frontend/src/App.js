@@ -4214,486 +4214,390 @@ const Reports = () => {
 const Settings = () => {
   const [settings, setSettings] = useState({
     gymName: 'Alphalete Athletics Club',
-    currency: 'USD',
-    timezone: 'America/New_York',
-    autoReminders: true,
-    reminderDays: [3, 0], // 3 days before, and on due date
-    emailFromName: 'Alphalete Athletics Club',
-    emailFromAddress: 'noreply@alphaleteathletics.com'
+    currency: 'TTD',
+    timezone: 'America/Port_of_Spain',
+    emailReminders: true,
+    whatsappReminders: true,
+    pushNotifications: true,
+    debugMode: false
   });
-  
-  const [membershipTypes, setMembershipTypes] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [editingMembership, setEditingMembership] = useState(null);
-  const [newMembership, setNewMembership] = useState({
-    name: '',
-    monthly_fee: '',
-    description: '',
-    features: '',
-    is_active: true
-  });
-  
-  useEffect(() => {
-    fetchMembershipTypes();
-  }, []);
-  
-  const fetchMembershipTypes = async () => {
-    try {
-      console.log('Settings: Fetching membership types...');
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-      console.log('Settings: Backend URL:', backendUrl);
-      
-      const response = await fetch(`${backendUrl}/api/membership-types`);
-      console.log('Settings: Response status:', response.status);
-      
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Settings: Fetched membership types:', data);
-        setMembershipTypes(data || []);
-      } else {
-        console.error('Settings: Failed to fetch membership types:', response.status);
-        // Fallback data
-        setMembershipTypes([
-          { id: '1', name: 'Standard', monthly_fee: 50.0, description: 'Basic gym access', is_active: true },
-          { id: '2', name: 'Premium', monthly_fee: 75.0, description: 'Gym access plus classes', is_active: true },
-          { id: '3', name: 'Elite', monthly_fee: 100.0, description: 'Premium plus personal training', is_active: true },
-          { id: '4', name: 'VIP', monthly_fee: 150.0, description: 'All-inclusive membership', is_active: true }
-        ]);
-      }
-    } catch (error) {
-      console.error('Settings: Error fetching membership types:', error);
-      // Fallback data
-      setMembershipTypes([
-        { id: '1', name: 'Standard', monthly_fee: 50.0, description: 'Basic gym access', is_active: true },
-        { id: '2', name: 'Premium', monthly_fee: 75.0, description: 'Gym access plus classes', is_active: true },
-        { id: '3', name: 'Elite', monthly_fee: 100.0, description: 'Premium plus personal training', is_active: true },
-        { id: '4', name: 'VIP', monthly_fee: 150.0, description: 'All-inclusive membership', is_active: true }
-      ]);
-    }
+
+  const [adminToolsExpanded, setAdminToolsExpanded] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(null);
+  const [toast, setToast] = useState(null);
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
   };
-  
-  const startEditingMembership = (membership) => {
-    setEditingMembership(membership.id);
-    setNewMembership({
-      name: membership.name,
-      monthly_fee: membership.monthly_fee.toString(),
-      description: membership.description || '',
-      features: membership.features ? membership.features.join(', ') : '',
-      is_active: membership.is_active
-    });
+
+  const handleToggle = (key) => {
+    setSettings(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+    showToast(`${key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())} ${settings[key] ? 'disabled' : 'enabled'}`);
   };
-  
-  const cancelEditMembership = () => {
-    setEditingMembership(null);
-    setNewMembership({
-      name: '',
-      monthly_fee: '',
-      description: '',
-      features: '',
-      is_active: true
-    });
-  };
-  
-  const deleteMembershipType = async (membershipId, membershipName) => {
-    const confirmDelete = window.confirm(
-      `⚠️ Are you sure you want to delete "${membershipName}" membership type?\n\nThis action cannot be undone.`
-    );
-    
-    if (!confirmDelete) {
-      return;
-    }
-    
-    try {
-      setLoading(true);
-      console.log('Deleting membership type:', membershipId);
-      
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-      const response = await fetch(`${backendUrl}/api/membership-types/${membershipId}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' }
-      });
-      
-      console.log('Delete response status:', response.status);
-      
-      if (response.ok) {
-        alert(`✅ "${membershipName}" membership type deleted successfully!`);
-        await fetchMembershipTypes(); // Refresh the list
-      } else {
-        const errorText = await response.text();
-        throw new Error(`Server error: ${response.status} - ${errorText}`);
-      }
-    } catch (error) {
-      console.error('Error deleting membership type:', error);
-      alert('Error deleting membership type: ' + error.message);
-    } finally {
-      setLoading(false);
+
+  const handleConfirmation = (action) => {
+    if (action === 'clearData') {
+      // Simulate clear data action
+      setShowConfirmation(null);
+      showToast('All data has been cleared', 'success');
+    } else if (action === 'logout') {
+      // Simulate logout action
+      setShowConfirmation(null);
+      showToast('Logged out successfully', 'success');
     }
   };
 
-  const saveMembershipType = async (membershipId = null) => {
-    try {
-      setLoading(true);
-      console.log('Saving membership type:', membershipId, newMembership);
-      
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-      
-      const membershipData = {
-        name: newMembership.name,
-        monthly_fee: parseFloat(newMembership.monthly_fee),
-        description: newMembership.description,
-        features: newMembership.features.split(',').map(f => f.trim()).filter(f => f),
-        is_active: newMembership.is_active
-      };
-      
-      console.log('Membership data being sent:', membershipData);
-      
-      const url = membershipId 
-        ? `${backendUrl}/api/membership-types/${membershipId}`
-        : `${backendUrl}/api/membership-types`;
-      
-      const method = membershipId ? 'PUT' : 'POST';
-      
-      console.log(`Making ${method} request to:`, url);
-      
-      const response = await fetch(url, {
-        method: method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(membershipData)
-      });
-      
-      console.log('Response status:', response.status);
-      const responseText = await response.text();
-      console.log('Response text:', responseText);
-      
-      if (response.ok) {
-        alert(membershipId ? 'Membership type updated successfully!' : 'Membership type created successfully!');
-        await fetchMembershipTypes(); // Refresh the list
-        cancelEditMembership();
-      } else {
-        throw new Error(`Server error: ${response.status} - ${responseText}`);
-      }
-    } catch (error) {
-      console.error('Error saving membership type:', error);
-      alert('Error saving membership type: ' + error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  const handleSettingChange = (key, value) => {
-    setSettings(prev => ({ ...prev, [key]: value }));
-  };
-  
-  const handleSaveSettings = () => {
-    // In a real app, you would save to backend
-    alert('Settings saved successfully!');
-  };
-  
   return (
-    <>
-      {/* Mobile Header for Settings Page */}
-      <div className="block md:hidden">
-        <div className="gogym-mobile-header">
-          <h1>Settings</h1>
-          <button className="gogym-stats-icon" onClick={handleSaveSettings}>💾</button>
+    <div className="modern-settings-page">
+      {/* Modern Settings Header */}
+      <div className="settings-header">
+        <h1 className="settings-title">Settings</h1>
+      </div>
+
+      {/* Settings Content */}
+      <div className="settings-content">
+        
+        {/* Profile & Account Section */}
+        <div className="settings-section">
+          <h2 className="section-title">Profile & Account</h2>
+          
+          <div className="settings-item" onClick={() => showToast('Edit Profile feature coming soon')}>
+            <div className="settings-item-left">
+              <div className="settings-item-icon blue">
+                👤
+              </div>
+              <div className="settings-item-info">
+                <div className="settings-item-title">Edit Profile</div>
+                <div className="settings-item-subtitle">Update name, email, and password</div>
+              </div>
+            </div>
+            <div className="settings-item-right">
+              <span className="settings-item-arrow">›</span>
+            </div>
+          </div>
+
+          <div className="settings-item" onClick={() => showToast('Change Gym Logo feature coming soon')}>
+            <div className="settings-item-left">
+              <div className="settings-item-icon green">
+                🖼️
+              </div>
+              <div className="settings-item-info">
+                <div className="settings-item-title">Change Gym Logo</div>
+                <div className="settings-item-subtitle">Upload custom gym branding</div>
+              </div>
+            </div>
+            <div className="settings-item-right">
+              <span className="settings-item-arrow">›</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Membership Management Section */}
+        <div className="settings-section">
+          <h2 className="section-title">Membership Management</h2>
+          
+          <div className="settings-item" onClick={() => showToast('Membership Plans feature coming soon')}>
+            <div className="settings-item-left">
+              <div className="settings-item-icon orange">
+                🎫
+              </div>
+              <div className="settings-item-info">
+                <div className="settings-item-title">Membership Plans</div>
+                <div className="settings-item-subtitle">Edit available membership types and pricing</div>
+              </div>
+            </div>
+            <div className="settings-item-right">
+              <span className="settings-item-arrow">›</span>
+            </div>
+          </div>
+
+          <div className="settings-item" onClick={() => showToast('Payment Settings feature coming soon')}>
+            <div className="settings-item-left">
+              <div className="settings-item-icon blue">
+                💳
+              </div>
+              <div className="settings-item-info">
+                <div className="settings-item-title">Payment Settings</div>
+                <div className="settings-item-subtitle">Currency, payment reminders, and late fees</div>
+              </div>
+            </div>
+            <div className="settings-item-right">
+              <span className="settings-item-arrow">›</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Notifications Section */}
+        <div className="settings-section">
+          <h2 className="section-title">Notifications</h2>
+          
+          <div className="settings-item" onClick={() => handleToggle('emailReminders')}>
+            <div className="settings-item-left">
+              <div className="settings-item-icon green">
+                📧
+              </div>
+              <div className="settings-item-info">
+                <div className="settings-item-title">Email Reminders</div>
+                <div className="settings-item-subtitle">Send payment reminders via email</div>
+              </div>
+            </div>
+            <div className="settings-item-right">
+              <div 
+                className={`settings-toggle-switch ${settings.emailReminders ? 'active' : ''}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleToggle('emailReminders');
+                }}
+              >
+                <div className="toggle-knob"></div>
+              </div>
+            </div>
+          </div>
+
+          <div className="settings-item" onClick={() => handleToggle('whatsappReminders')}>
+            <div className="settings-item-left">
+              <div className="settings-item-icon green">
+                💬
+              </div>
+              <div className="settings-item-info">
+                <div className="settings-item-title">WhatsApp Reminders</div>
+                <div className="settings-item-subtitle">Send payment reminders via WhatsApp</div>
+              </div>
+            </div>
+            <div className="settings-item-right">
+              <div 
+                className={`settings-toggle-switch ${settings.whatsappReminders ? 'active' : ''}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleToggle('whatsappReminders');
+                }}
+              >
+                <div className="toggle-knob"></div>
+              </div>
+            </div>
+          </div>
+
+          <div className="settings-item" onClick={() => handleToggle('pushNotifications')}>
+            <div className="settings-item-left">
+              <div className="settings-item-icon orange">
+                🔔
+              </div>
+              <div className="settings-item-info">
+                <div className="settings-item-title">Push Notifications</div>
+                <div className="settings-item-subtitle">Receive app notifications</div>
+              </div>
+            </div>
+            <div className="settings-item-right">
+              <div 
+                className={`settings-toggle-switch ${settings.pushNotifications ? 'active' : ''}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleToggle('pushNotifications');
+                }}
+              >
+                <div className="toggle-knob"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Admin Tools Section (Collapsible) */}
+        <div className="settings-section">
+          <h2 className="section-title">Admin Tools</h2>
+          
+          <div 
+            className="admin-tools-header"
+            onClick={() => setAdminToolsExpanded(!adminToolsExpanded)}
+          >
+            <div className="admin-tools-left">
+              <div className="admin-tools-icon">
+                ⚙️
+              </div>
+              <div className="admin-tools-info">
+                <div className="admin-tools-title">Admin Tools</div>
+                <div className="admin-tools-subtitle">Advanced settings and controls</div>
+              </div>
+            </div>
+            <span className={`admin-tools-arrow ${adminToolsExpanded ? 'expanded' : ''}`}>
+              ›
+            </span>
+          </div>
+
+          <div className={`admin-tools-content ${adminToolsExpanded ? 'expanded' : 'collapsed'}`}>
+            <div className="settings-item" onClick={() => handleToggle('debugMode')}>
+              <div className="settings-item-left">
+                <div className="settings-item-icon gray">
+                  🐛
+                </div>
+                <div className="settings-item-info">
+                  <div className="settings-item-title">Debug Mode</div>
+                  <div className="settings-item-subtitle">Enable development debugging</div>
+                </div>
+              </div>
+              <div className="settings-item-right">
+                <div 
+                  className={`settings-toggle-switch ${settings.debugMode ? 'active' : ''}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleToggle('debugMode');
+                  }}
+                >
+                  <div className="toggle-knob"></div>
+                </div>
+              </div>
+            </div>
+
+            <div 
+              className="settings-item" 
+              onClick={() => setShowConfirmation('clearData')}
+            >
+              <div className="settings-item-left">
+                <div className="settings-item-icon red">
+                  🗑️
+                </div>
+                <div className="settings-item-info">
+                  <div className="settings-item-title">Clear All Data</div>
+                  <div className="settings-item-subtitle">Remove all gym data permanently</div>
+                </div>
+              </div>
+              <div className="settings-item-right">
+                <span className="settings-item-arrow">›</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Support Section */}
+        <div className="settings-section">
+          <h2 className="section-title">Support</h2>
+          
+          <div className="settings-item" onClick={() => showToast('Help & Documentation feature coming soon')}>
+            <div className="settings-item-left">
+              <div className="settings-item-icon blue">
+                ❓
+              </div>
+              <div className="settings-item-info">
+                <div className="settings-item-title">Help & Documentation</div>
+                <div className="settings-item-subtitle">User guides and tutorials</div>
+              </div>
+            </div>
+            <div className="settings-item-right">
+              <span className="settings-item-arrow">›</span>
+            </div>
+          </div>
+
+          <div className="settings-item" onClick={() => showToast('Contact Support feature coming soon')}>
+            <div className="settings-item-left">
+              <div className="settings-item-icon green">
+                💬
+              </div>
+              <div className="settings-item-info">
+                <div className="settings-item-title">Contact Support</div>
+                <div className="settings-item-subtitle">Get help from our support team</div>
+              </div>
+            </div>
+            <div className="settings-item-right">
+              <span className="settings-item-arrow">›</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Other Section */}
+        <div className="settings-section">
+          <h2 className="section-title">Other</h2>
+          
+          <div className="settings-item" onClick={() => showToast('About App feature coming soon')}>
+            <div className="settings-item-left">
+              <div className="settings-item-icon blue">
+                ℹ️
+              </div>
+              <div className="settings-item-info">
+                <div className="settings-item-title">About App</div>
+                <div className="settings-item-subtitle">Version number and credits</div>
+              </div>
+            </div>
+            <div className="settings-item-right">
+              <span className="settings-item-arrow">›</span>
+            </div>
+          </div>
+
+          <div 
+            className="settings-item" 
+            onClick={() => setShowConfirmation('logout')}
+          >
+            <div className="settings-item-left">
+              <div className="settings-item-icon red">
+                🚪
+              </div>
+              <div className="settings-item-info">
+                <div className="settings-item-title">Log Out</div>
+                <div className="settings-item-subtitle">Sign out of your account</div>
+              </div>
+            </div>
+            <div className="settings-item-right">
+              <span className="settings-item-arrow">›</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Version Info */}
+        <div className="version-info">
+          <div className="version-text">
+            Alphalete Club <span className="version-number">v2.1.0</span>
+          </div>
         </div>
       </div>
 
-      <div className="p-4 md:p-6 max-w-6xl mx-auto pb-24 md:pb-8">
-        {/* Desktop Header - Hidden on Mobile */}
-        <div className="mb-8 hidden md:block">
-          <h1 className="text-display ultra-contrast-text mb-2">Settings</h1>
-          <p className="ultra-contrast-secondary">Manage your gym management system settings</p>
-        </div>
-      
-      {/* Settings Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
-        {/* General Settings */}
-        <div className="ultra-contrast-modal rounded-lg p-6">
-          <h2 className="text-xl ultra-contrast-text font-bold mb-4">General Settings</h2>
-          
-          <div className="space-y-4">
-            <div>
-              <label className="ultra-contrast-label block mb-1">Gym Name</label>
-              <input
-                type="text"
-                value={settings.gymName}
-                onChange={(e) => handleSettingChange('gymName', e.target.value)}
-                className="ultra-contrast-input w-full p-2 rounded border"
-              />
-            </div>
-            
-            <div>
-              <label className="ultra-contrast-label block mb-1">Currency</label>
-              <select
-                value={settings.currency}
-                onChange={(e) => handleSettingChange('currency', e.target.value)}
-                className="ultra-contrast-input w-full p-2 rounded border"
-              >
-                <option value="TTD">TTD</option>
-                <option value="EUR">EUR (€)</option>
-                <option value="GBP">GBP (£)</option>
-              </select>
-            </div>
-            
-            <div>
-              <label className="ultra-contrast-label block mb-1">Timezone</label>
-              <select
-                value={settings.timezone}
-                onChange={(e) => handleSettingChange('timezone', e.target.value)}
-                className="ultra-contrast-input w-full p-2 rounded border"
-              >
-                <option value="America/New_York">Eastern Time</option>
-                <option value="America/Chicago">Central Time</option>
-                <option value="America/Denver">Mountain Time</option>
-                <option value="America/Los_Angeles">Pacific Time</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        
-        {/* Reminder Settings */}
-        <div className="ultra-contrast-modal rounded-lg p-6">
-          <h2 className="text-xl ultra-contrast-text font-bold mb-4">Payment Reminders</h2>
-          
-          <div className="space-y-4">
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                checked={settings.autoReminders}
-                onChange={(e) => handleSettingChange('autoReminders', e.target.checked)}
-                className="mr-2"
-              />
-              <label className="ultra-contrast-label">Enable automatic payment reminders</label>
-            </div>
-            
-            <div>
-              <label className="ultra-contrast-label block mb-1">Email From Name</label>
-              <input
-                type="text"
-                value={settings.emailFromName}
-                onChange={(e) => handleSettingChange('emailFromName', e.target.value)}
-                className="ultra-contrast-input w-full p-2 rounded border"
-              />
-            </div>
-            
-            <div>
-              <label className="ultra-contrast-label block mb-1">Email From Address</label>
-              <input
-                type="email"
-                value={settings.emailFromAddress}
-                onChange={(e) => handleSettingChange('emailFromAddress', e.target.value)}
-                className="ultra-contrast-input w-full p-2 rounded border"
-              />
-            </div>
-          </div>
-        </div>
-        
-        {/* Membership Types */}
-        <div className="ultra-contrast-modal rounded-lg p-6 lg:col-span-2">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl ultra-contrast-text font-bold">Membership Types</h2>
-            <button
-              onClick={() => setEditingMembership('new')}
-              className="ultra-contrast-button-primary px-4 py-2 rounded font-medium"
-            >
-              ➕ Add New Type
-            </button>
-          </div>
-          
-          {editingMembership === 'new' && (
-            <div className="mb-6 p-4 border-2 border-blue-300 rounded-lg bg-blue-50">
-              <h3 className="font-bold mb-3" style={{ color: '#000000' }}>Add New Membership Type</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label className="block font-bold mb-1" style={{ color: '#000000' }}>Name</label>
-                  <input
-                    type="text"
-                    value={newMembership.name}
-                    onChange={(e) => setNewMembership(prev => ({ ...prev, name: e.target.value }))}
-                    className="w-full p-2 border rounded"
-                    placeholder="e.g., Corporate"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold mb-1" style={{ color: '#000000' }}>Monthly Fee (TTD)</label>
-                  <input
-                    type="number"
-                    value={newMembership.monthly_fee}
-                    onChange={(e) => setNewMembership(prev => ({ ...prev, monthly_fee: e.target.value }))}
-                    className="w-full p-2 border rounded"
-                    placeholder="e.g., 120"
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <label className="block font-bold mb-1" style={{ color: '#000000' }}>Description</label>
-                  <input
-                    type="text"
-                    value={newMembership.description}
-                    onChange={(e) => setNewMembership(prev => ({ ...prev, description: e.target.value }))}
-                    className="w-full p-2 border rounded"
-                    placeholder="e.g., Corporate membership with special benefits"
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <label className="block font-bold mb-1" style={{ color: '#000000' }}>Features (comma-separated)</label>
-                  <input
-                    type="text"
-                    value={newMembership.features}
-                    onChange={(e) => setNewMembership(prev => ({ ...prev, features: e.target.value }))}
-                    className="w-full p-2 border rounded"
-                    placeholder="e.g., Gym access, Group classes, Personal training"
-                  />
-                </div>
+      {/* Confirmation Modal */}
+      {showConfirmation && (
+        <div className="confirmation-modal-overlay">
+          <div className="confirmation-modal">
+            <div className="confirmation-modal-header">
+              <div className="confirmation-modal-icon">
+                {showConfirmation === 'clearData' ? '⚠️' : '🚪'}
               </div>
-              <div className="flex justify-end space-x-3">
-                <button
-                  onClick={cancelEditMembership}
-                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded font-medium"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => saveMembershipType()}
-                  disabled={loading || !newMembership.name || !newMembership.monthly_fee}
-                  className="px-4 py-2 bg-blue-600 text-white rounded font-medium disabled:opacity-50"
-                >
-                  {loading ? 'Saving...' : 'Save New Type'}
-                </button>
+              <div className="confirmation-modal-title">
+                {showConfirmation === 'clearData' ? 'Clear All Data' : 'Log Out'}
+              </div>
+              <div className="confirmation-modal-message">
+                {showConfirmation === 'clearData' 
+                  ? 'This will permanently delete all gym data, including members, payments, and settings. This action cannot be undone.'
+                  : 'Are you sure you want to log out of your account?'
+                }
               </div>
             </div>
-          )}
-          
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-400">
-                  <th className="ultra-contrast-text text-left p-3 font-bold bg-gray-100 dark:bg-gray-800">Name</th>
-                  <th className="ultra-contrast-text text-left p-3 font-bold bg-gray-100 dark:bg-gray-800">Monthly Fee</th>
-                  <th className="ultra-contrast-text text-left p-3 font-bold bg-gray-100 dark:bg-gray-800">Description</th>
-                  <th className="ultra-contrast-text text-left p-3 font-bold bg-gray-100 dark:bg-gray-800">Status</th>
-                  <th className="ultra-contrast-text text-left p-3 font-bold bg-gray-100 dark:bg-gray-800">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {membershipTypes.length > 0 ? (
-                  membershipTypes.map((type) => (
-                    <tr key={type.id} className="border-b border-gray-300 hover:bg-gray-50">
-                      {editingMembership === type.id ? (
-                        <>
-                          <td className="p-3">
-                            <input
-                              type="text"
-                              value={newMembership.name}
-                              onChange={(e) => setNewMembership(prev => ({ ...prev, name: e.target.value }))}
-                              className="w-full p-1 border rounded"
-                            />
-                          </td>
-                          <td className="p-3">
-                            <input
-                              type="number"
-                              value={newMembership.monthly_fee}
-                              onChange={(e) => setNewMembership(prev => ({ ...prev, monthly_fee: e.target.value }))}
-                              className="w-full p-1 border rounded"
-                            />
-                          </td>
-                          <td className="p-3">
-                            <input
-                              type="text"
-                              value={newMembership.description}
-                              onChange={(e) => setNewMembership(prev => ({ ...prev, description: e.target.value }))}
-                              className="w-full p-1 border rounded"
-                            />
-                          </td>
-                          <td className="p-3">
-                            <select
-                              value={newMembership.is_active}
-                              onChange={(e) => setNewMembership(prev => ({ ...prev, is_active: e.target.value === 'true' }))}
-                              className="w-full p-1 border rounded"
-                            >
-                              <option value="true">Active</option>
-                              <option value="false">Inactive</option>
-                            </select>
-                          </td>
-                          <td className="p-3">
-                            <div className="flex space-x-2">
-                              <button
-                                onClick={() => saveMembershipType(type.id)}
-                                disabled={loading}
-                                className="px-3 py-1 bg-green-600 text-white rounded text-sm font-medium"
-                              >
-                                ✓ Save
-                              </button>
-                              <button
-                                onClick={cancelEditMembership}
-                                className="px-3 py-1 bg-gray-400 text-white rounded text-sm font-medium"
-                              >
-                                ✕ Cancel
-                              </button>
-                            </div>
-                          </td>
-                        </>
-                      ) : (
-                        <>
-                          <td className="p-3 font-bold" style={{ color: '#000000' }}>{type.name}</td>
-                          <td className="p-3 font-semibold" style={{ color: '#000000' }}>TTD {type.monthly_fee}/month</td>
-                          <td className="p-3" style={{ color: '#333333' }}>{type.description || 'No description'}</td>
-                          <td className="p-3">
-                            <span className={`px-3 py-1 rounded font-bold text-sm ${
-                              type.is_active 
-                                ? 'bg-green-200 text-green-900' 
-                                : 'bg-red-200 text-red-900'
-                            }`}>
-                              {type.is_active ? 'Active' : 'Inactive'}
-                            </span>
-                          </td>
-                          <td className="p-3">
-                            <div className="flex space-x-2">
-                              <button
-                                onClick={() => startEditingMembership(type)}
-                                className="px-3 py-1 bg-blue-600 text-white rounded text-sm font-medium hover:bg-blue-700"
-                              >
-                                ✏️ Edit
-                              </button>
-                              <button
-                                onClick={() => deleteMembershipType(type.id, type.name)}
-                                className="px-3 py-1 bg-red-600 text-white rounded text-sm font-medium hover:bg-red-700"
-                                title="Delete Membership Type"
-                              >
-                                🗑️ Delete
-                              </button>
-                            </div>
-                          </td>
-                        </>
-                      )}
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="5" className="p-6 text-center" style={{ color: '#000000', fontWeight: 'bold' }}>
-                      Loading membership types...
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+            <div className="confirmation-modal-actions">
+              <button 
+                className="confirmation-btn cancel"
+                onClick={() => setShowConfirmation(null)}
+              >
+                Cancel
+              </button>
+              <button 
+                className="confirmation-btn confirm"
+                onClick={() => handleConfirmation(showConfirmation)}
+              >
+                {showConfirmation === 'clearData' ? 'Clear Data' : 'Log Out'}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-      
-      {/* Save Button - Mobile Optimized */}
-      <div className="mt-8 mb-20 flex justify-end">
-        <button
-          onClick={handleSaveSettings}
-          disabled={loading}
-          className="ultra-contrast-button-primary px-6 py-3 rounded font-medium w-full md:w-auto"
-        >
-          {loading ? 'Saving...' : 'Save Settings'}
-        </button>
-      </div>
+      )}
+
+      {/* Toast Notification */}
+      {toast && (
+        <div className={`toast-notification ${toast.type}`}>
+          <div className="toast-icon">
+            {toast.type === 'success' ? '✅' : '❌'}
+          </div>
+          <div className="toast-message">{toast.message}</div>
+        </div>
+      )}
     </div>
-    </>
   );
 };
 
