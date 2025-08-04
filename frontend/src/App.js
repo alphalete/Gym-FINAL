@@ -120,6 +120,23 @@ const GoGymLayout = ({ children, currentPage, onNavigate }) => {
     };
   }, []);
 
+  // Format currency for TT$
+  const formatCurrency = (amount) => {
+    return `TT$${(amount || 0).toFixed(0)}`;
+  };
+
+  // Format date for display
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Not set';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
+  // Get avatar placeholder
+  const getAvatarPlaceholder = (name) => {
+    return name ? name.charAt(0).toUpperCase() : '?';
+  };
+
   // Fetch dashboard stats with mobile-first approach
   useEffect(() => {
     const fetchStats = async () => {
