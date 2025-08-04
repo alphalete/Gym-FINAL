@@ -78,7 +78,7 @@ class Client(BaseModel):
     status: str = "Active"
     auto_reminders_enabled: bool = True
     payment_status: Optional[str] = "due"  # 'paid', 'due', 'overdue'
-    amount_owed: Optional[float] = 0.0
+    amount_owed: Optional[float] = None  # Will be set based on payment_status
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
