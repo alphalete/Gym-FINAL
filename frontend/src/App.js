@@ -2286,371 +2286,137 @@ const ClientManagement = () => {
   );
 
   return (
-    <>
-      {/* Mobile Header */}
-      <div className="alphalete-members-page">
-        {/* Clean Header */}
-        <div className="members-header">
-          <h1 className="members-title">Members</h1>
-          <div className="floating-add-button" onClick={() => window.location.href = '/add-client'}>
-            <span className="add-icon">+</span>
+    <div className="modern-members-page">
+      {/* Modern Members Header */}
+      <div className="members-header">
+        <h1 className="members-title">Members</h1>
+        <div className="floating-add-button" onClick={() => navigate('/add-client')}>
+          <span className="add-icon">+</span>
+        </div>
+      </div>
+
+      {/* Search Section */}
+      <div className="members-search-section">
+        <div className="search-container">
+          <div className="search-input-container">
+            <span className="search-icon">🔍</span>
+            <input
+              type="text"
+              className="search-input"
+              placeholder="Search members by name"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <div className="member-count">
+            {searchFilteredClients.length} of {clients.length} members
           </div>
         </div>
+      </div>
 
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
-        <div className="max-w-7xl mx-auto">
-          {/* Modern Header - Hidden on Mobile */}
-          <div className="mb-8 hidden md:block">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-display text-gray-900 dark:text-white mb-2">
-                  Member Management
-                </h1>
-                <p className="text-body text-gray-600 dark:text-gray-300">
-                  Manage your gym members and their information.
-                </p>
-              </div>
-              <div className="flex space-x-3">
-                <button
-                  onClick={() => fetchClients(true)}
-                  className="btn btn-secondary btn-sm"
-                  disabled={loading}
-                >
-                  <span>{loading ? "🔄" : "↻"}</span>
-                  <span>Refresh</span>
-                </button>
-                <Link 
-                  to="/add-client"
-                  className="btn btn-primary btn-sm"
-                >
-                  <span>➕</span>
-                  <span>Add Member</span>
-                </Link>
-              </div>
-            </div>
+      {/* Stats Card */}
+      <div className="members-stats-section">
+        <div className="members-stats-card" onClick={() => navigate('/clients')}>
+          <div className="stats-card-value">{clients.filter(c => c.status === 'Active').length}</div>
+          <div className="stats-card-label">
+            <span className="stats-card-icon">👥</span>
+            <span>Active Members</span>
           </div>
+        </div>
+      </div>
 
-          {/* Modern Search and Stats */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
-            <div className="lg:col-span-3">
-              <div className="card p-6">
-                <div className="flex items-center space-x-4">
-                  <div className="flex-1">
-                    <div className="relative">
-                      <input
-                        type="text"
-                        placeholder="Search members by name or email..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="form-input pl-10 pr-4"
-                      />
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span className="text-gray-400 text-lg">🔍</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
-                      {filteredClients.length} of {clients.length} members
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="stats-card stats-card-primary">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm opacity-90">Total Members</span>
-                <span className="text-2xl">👥</span>
-              </div>
-              <div className="text-2xl font-bold">{clients.length}</div>
-              <div className="text-sm opacity-75">
-                {clients.filter(c => c.status === 'Active').length} Active
-              </div>
-            </div>
+      {/* Members List */}
+      <div className="members-list-section">
+        {loading ? (
+          <div className="members-loading">
+            <div className="loading-spinner"></div>
+            <div className="loading-text">Loading members...</div>
           </div>
-
-          {/* Client List */}
-          {loading ? (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-              <p className="text-gray-600 dark:text-gray-300">Loading clients...</p>
+        ) : searchFilteredClients.length === 0 ? (
+          <div className="members-empty-state">
+            <div className="empty-state-icon">👥</div>
+            <div className="empty-state-title">No members found</div>
+            <div className="empty-state-message">
+              {searchTerm ? 'Try adjusting your search' : 'Add your first member to get started'}
             </div>
-          ) : filteredClients.length === 0 ? (
-            <div className="text-center py-8">
-              <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">👥</span>
-              </div>
-              <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No members found</h4>
-              <p className="text-gray-500 dark:text-gray-400 mb-4">
-                {searchTerm ? 'Try adjusting your search' : 'Add your first member to get started'}
-              </p>
-              <Link to="/add-client" className="btn btn-primary">
-                <span>➕</span>
-                <span>Add Member</span>
-              </Link>
-            </div>
-          ) : (
-            <>
-              {/* Mobile Cards View */}
-              <div className="md:hidden space-y-4">
-                {filteredClients.map((client) => {
-                  const getInitials = (name) => name.split(' ').map(word => word.charAt(0)).join('').toUpperCase().slice(0, 2);
-                  const getPaymentStatus = (client) => {
-                    if (!client.next_payment_date) return 'unknown';
-                    const today = getASTDate();
-                    today.setHours(0, 0, 0, 0);
-                    const paymentDate = new Date(client.next_payment_date);
-                    const daysDiff = Math.ceil((paymentDate - today) / (1000 * 60 * 60 * 24));
-                    if (daysDiff < 0) return 'overdue';
-                    if (daysDiff <= 7) return 'due-soon';
-                    return 'paid';
-                  };
-
-                  const getAmountOwed = (client) => {
-                    const status = getPaymentStatus(client);
-                    if (status === 'overdue' || status === 'due-soon') {
-                      return client.monthly_fee || 0;
-                    }
-                    return 0;
-                  };
-
-                  const getPaymentStatusWithAmount = (client) => {
-                    const status = getPaymentStatus(client);
-                    const amountOwed = getAmountOwed(client);
-                    
-                    if (status === 'overdue') {
-                      return `Owes TTD ${amountOwed}`;
-                    } else if (status === 'due-soon') {
-                      return `Due TTD ${amountOwed}`;
-                    }
-                    return 'Paid';
-                  };
-
-                  return (
-                    <div key={client.id} className="member-card">
-                      <div className="member-avatar">
+            <button className="empty-state-button" onClick={() => navigate('/add-client')}>
+              <span>➕</span>
+              <span>Add Member</span>
+            </button>
+          </div>
+        ) : (
+          <div className="members-list">
+            {searchFilteredClients.map((client) => {
+              const statusDisplay = getPaymentStatusDisplay(client);
+              return (
+                <div key={client.id} className="modern-member-card">
+                  {/* Card Header */}
+                  <div className="member-card-header">
+                    <div className="member-card-left">
+                      <div className="member-card-avatar">
                         {getInitials(client.name)}
                       </div>
-                      <div className="member-info">
-                        <div className="member-name">{client.name}</div>
-                        <div className="member-details">
-                          {client.email}<br/>
-                          {client.membership_type} - TTD {client.monthly_fee}/month<br/>
-                          Next Payment: {client.next_payment_date ? new Date(client.next_payment_date).toLocaleDateString() : 'Not set'}
-                        </div>
-                      </div>
-                      <div className="member-actions">
-                        <div className={`status-badge ${client.status.toLowerCase()}`}>
-                          {client.status}
-                        </div>
-                        <div className={`status-badge ${getPaymentStatus(client)}`}>
-                          {getPaymentStatusWithAmount(client)}
-                        </div>
-                        <div className="flex gap-sm mt-sm">
-                          <button 
-                            className="action-btn primary" 
-                            title="Send Email Reminder"
-                            onClick={() => sendPaymentReminder(client)}
-                          >
-                            📧
-                          </button>
-                          <button 
-                            className="action-btn success" 
-                            title="Send WhatsApp Reminder"
-                            onClick={() => sendWhatsAppReminder(client)}
-                          >
-                            💬
-                          </button>
-                          <button 
-                            className="action-btn success" 
-                            title="Record Payment"
-                            onClick={() => openRecordPaymentModal(client)}
-                          >
-                            💰
-                          </button>
-                          <button 
-                            className="action-btn warning" 
-                            title="Edit Client"
-                            onClick={() => setEditClientModal({ isOpen: true, client })}
-                          >
-                            ✏️
-                          </button>
-                          <button 
-                            className="action-btn danger" 
-                            title="Delete Client"
-                            onClick={() => deleteClient(client)}
-                          >
-                            🗑️
-                          </button>
+                      <div className="member-card-info">
+                        <div className="member-card-name">{client.name}</div>
+                        <div className="member-card-plan">{client.membership_type} - TTD {client.monthly_fee}/month</div>
+                        <div className="member-card-date">
+                          Next Payment: {client.next_payment_date ? formatDate(client.next_payment_date) : 'Not set'}
                         </div>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
+                    <div className="member-card-status">
+                      <div className={`status-badge ${client.status.toLowerCase()}`}>
+                        {client.status}
+                      </div>
+                      <div className={`status-badge ${statusDisplay.class}`}>
+                        {statusDisplay.text}
+                      </div>
+                    </div>
+                  </div>
 
-              {/* Desktop Table View */}
-              <div className="hidden md:block card overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-100 dark:bg-gray-800">
-                      <tr>
-                        <th className="text-left p-4 font-semibold text-gray-900 dark:text-white">Name</th>
-                        <th className="text-left p-4 font-semibold text-gray-900 dark:text-white">Email</th>
-                        <th className="text-left p-4 font-semibold text-gray-900 dark:text-white">Phone</th>
-                        <th className="text-left p-4 font-semibold text-gray-900 dark:text-white">Membership</th>
-                        <th className="text-left p-4 font-semibold text-gray-900 dark:text-white">Monthly Fee</th>
-                        <th className="text-left p-4 font-semibold text-gray-900 dark:text-white">Member Since</th>
-                        <th className="text-left p-4 font-semibold text-gray-900 dark:text-white">Current Period</th>
-                        <th className="text-left p-4 font-semibold text-gray-900 dark:text-white">Next Payment</th>
-                        <th className="text-left p-4 font-semibold text-gray-900 dark:text-white">Status</th>
-                        <th className="text-left p-4 font-semibold text-gray-900 dark:text-white">Quick Actions</th>
-                        <th className="text-left p-4 font-semibold text-gray-900 dark:text-white">Auto Reminders</th>
-                        <th className="text-left p-4 font-semibold text-gray-900 dark:text-white">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredClients.map((client) => (
-                        <tr key={client.id} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
-                          <td className="p-4">
-                            <div className="flex items-center space-x-3">
-                              <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center font-bold text-white text-sm">
-                                {client.name.charAt(0)}
-                              </div>
-                              <div className="member-name">{client.name}</div>
-                            </div>
-                          </td>
-                          <td className="p-4 member-email">{client.email}</td>
-                          <td className="p-4 member-value">{client.phone || "N/A"}</td>
-                          <td className="p-4">
-                            <div className="member-value">
-                              <span className="font-semibold">{client.membership_type}</span>
-                              <div className="text-sm text-gray-600 dark:text-gray-400">
-                                TTD {client.monthly_fee}/month
-                              </div>
-                            </div>
-                          </td>
-                          <td className="p-4 member-fee">TTD {client.monthly_fee}</td>
-                          <td className="p-4 member-value">{client.start_date ? new Date(client.start_date + 'T00:00:00').toLocaleDateString() : 'N/A'}</td>
-                          <td className="p-4">
-                            {client.current_period_start && client.current_period_end ? (
-                              <div className="text-blue-700 dark:text-blue-300 text-sm font-bold">
-                                {new Date(client.current_period_start + 'T00:00:00').toLocaleDateString()} - {new Date(client.current_period_end + 'T00:00:00').toLocaleDateString()}
-                              </div>
-                            ) : (
-                              <span className="text-gray-500 dark:text-gray-400 text-sm font-semibold">Not set</span>
-                            )}
-                          </td>
-                          <td className="p-4 member-value">{client.next_payment_date ? new Date(client.next_payment_date + 'T00:00:00').toLocaleDateString() : 'N/A'}</td>
-                          <td className="p-4">
-                            <span className={`px-3 py-1 rounded-full text-xs ${
-                              client.status === 'Active' 
-                                ? 'member-status-active' 
-                                : 'member-status-inactive'
-                            }`}>
-                              {client.status}
-                            </span>
-                          </td>
-                          <td className="p-4">
-                            <button
-                              onClick={() => toggleClientStatus(client)}
-                              style={{
-                                backgroundColor: client.status === 'Active' ? '#ef4444' : '#10b981',
-                                color: 'white',
-                                padding: '6px 12px',
-                                border: 'none',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                                fontSize: '12px',
-                                fontWeight: 'bold'
-                              }}
-                            >
-                              {client.status === 'Active' ? 'MAKE INACTIVE' : 'MAKE ACTIVE'}
-                            </button>
-                          </td>
-                          <td className="p-4">
-                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                              client.auto_reminders_enabled !== false 
-                                ? 'member-status-active' 
-                                : 'member-status-inactive'
-                            }`}>
-                              {client.auto_reminders_enabled !== false ? '✅ On' : '❌ Off'}
-                            </span>
-                          </td>
-                          <td className="p-4">
-                            <div className="flex space-x-2">
-                              <button
-                                onClick={() => openRecordPaymentModal(client)}
-                                className="btn bg-green-600 hover:bg-green-700 text-white btn-sm z-10 relative font-bold"
-                                title="Record Payment"
-                                style={{ minWidth: '40px', minHeight: '40px', fontSize: '16px' }}
-                              >
-                                💰
-                              </button>
-                              <button
-                                onClick={() => sendPaymentReminder(client)}
-                                className="btn bg-blue-600 hover:bg-blue-700 text-white btn-sm z-10 relative font-bold"
-                                title="Send Email Reminder"
-                                style={{ minWidth: '40px', minHeight: '40px', fontSize: '16px' }}
-                              >
-                                📧
-                              </button>
-                              <button
-                                onClick={() => sendWhatsAppReminder(client)}
-                                className="btn bg-green-500 hover:bg-green-600 text-white btn-sm z-10 relative font-bold"
-                                title="Send WhatsApp Reminder"
-                                style={{ minWidth: '40px', minHeight: '40px', fontSize: '16px' }}
-                              >
-                                💬
-                              </button>
-                              <button
-                                onClick={() => openCustomEmailModal(client)}
-                                className="btn btn-secondary btn-sm z-10 relative"
-                                title="Custom Email"
-                                style={{ minWidth: '32px', minHeight: '32px' }}
-                              >
-                                🎨
-                              </button>
-                              <button
-                                onClick={() => openEditClientModal(client)}
-                                className="btn btn-secondary btn-sm z-10 relative"
-                                title="Edit Client"
-                                style={{ minWidth: '32px', minHeight: '32px' }}
-                              >
-                                ✏️
-                              </button>
-                              <button
-                                onClick={() => toggleClientStatus(client)}
-                                className={`btn btn-sm z-10 relative ${
-                                  client.status === 'Active' 
-                                    ? 'bg-orange-600 hover:bg-orange-700 text-white' 
-                                    : 'bg-green-600 hover:bg-green-700 text-white'
-                                }`}
-                                title={`Make ${client.status === 'Active' ? 'Inactive' : 'Active'}`}
-                                style={{ minWidth: '32px', minHeight: '32px' }}
-                              >
-                                {client.status === 'Active' ? '⏸️' : '▶️'}
-                              </button>
-                              <button
-                                onClick={() => deleteClient(client)}
-                                className="btn bg-red-600 hover:bg-red-700 text-white btn-sm z-10 relative"
-                                title="Delete Client"
-                                style={{ minWidth: '32px', minHeight: '32px' }}
-                              >
-                                🗑️
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  {/* Action Toolbar */}
+                  <div className="member-action-toolbar">
+                    <button
+                      className="action-btn email"
+                      title="Send Email Reminder"
+                      onClick={() => sendPaymentReminder(client)}
+                    >
+                      📧
+                    </button>
+                    <button
+                      className="action-btn whatsapp"
+                      title="Send WhatsApp Reminder"
+                      onClick={() => sendWhatsAppReminder(client)}
+                    >
+                      💬
+                    </button>
+                    <button
+                      className="action-btn payment"
+                      title="Record Payment"
+                      onClick={() => openRecordPaymentModal(client)}
+                    >
+                      💰
+                    </button>
+                    <button
+                      className="action-btn edit"
+                      title="Edit Client"
+                      onClick={() => openEditClientModal(client)}
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      className="action-btn delete"
+                      title="Delete Client"
+                      onClick={() => deleteClient(client)}
+                    >
+                      🗑️
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </>
-          )}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Custom Email Modal */}
@@ -2750,7 +2516,7 @@ const ClientManagement = () => {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 };
 
