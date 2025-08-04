@@ -622,11 +622,11 @@ metadata:
 
 test_plan:
   current_focus:
-    - "All critical user-reported fixes verified working"
-    - "AST date handling completely resolved"
-    - "Email constraint issues resolved"
-    - "Payment system corrections verified"
-  stuck_tasks: []
+    - "Next payment date calculation fix - proper monthly arithmetic"
+    - "Payment date calculation issue after first payment recording"
+    - "Consistent monthly billing cycle maintenance"
+  stuck_tasks:
+    - "Next payment date calculation fix - proper monthly arithmetic"
   test_all: false
   test_priority: "high_first"
 
