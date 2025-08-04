@@ -2270,13 +2270,15 @@ const ClientManagement = () => {
 
   return (
     <>
-      {/* Mobile Header for Members Page */}
-      <div className="block md:hidden">
-        <div className="gogym-mobile-header">
-          <h1>Members</h1>
-          <Link to="/add-client" className="gogym-stats-icon" style={{textDecoration: 'none', color: 'white'}}>➕</Link>
+      {/* Mobile Header */}
+      <div className="alphalete-members-page">
+        {/* Clean Header */}
+        <div className="members-header">
+          <h1 className="members-title">Members</h1>
+          <div className="floating-add-button" onClick={() => window.location.href = '/add-client'}>
+            <span className="add-icon">+</span>
+          </div>
         </div>
-      </div>
 
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
         <div className="max-w-7xl mx-auto">
