@@ -619,7 +619,7 @@ class ImmediatePaymentFixTester:
             
             if success2b:
                 next_payment = response2b.get('new_next_payment_date')
-                expected = "March 19, 2025"  # Should advance from original due date
+                expected = "March 20, 2025"  # Should advance from original due date (Feb 20 + 1 month = Mar 20)
                 
                 if str(next_payment) == expected:
                     print("   ✅ Late payment advances correctly")
