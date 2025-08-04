@@ -3761,7 +3761,6 @@ const Payments = () => {
       console.log('🔄 Refreshing client data...');
       await Promise.all([
         fetchClients(),
-        fetchOverdueClients(), 
         identifyTestClients()
       ]);
       
