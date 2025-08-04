@@ -1649,6 +1649,56 @@ const Dashboard = () => {
   const [recentClients, setRecentClients] = useState([]);
   const [activeTab, setActiveTab] = useState('overview');
   const [memberInfoModal, setMemberInfoModal] = useState({ isOpen: false, client: null }); // Add member info modal state
+  const [clients, setClients] = useState([]);
+  const [currentFilter, setCurrentFilter] = useState('all');
+  const navigate = useNavigate();
+
+  // Helper functions
+  const getClientPaymentStatus = (client) => {
+    if (!client.next_payment_date) return 'paid';
+    const today = getASTDate();
+    today.setHours(0, 0, 0, 0);
+    const paymentDate = new Date(client.next_payment_date);
+    const daysDiff = Math.ceil((paymentDate - today) / (1000 * 60 * 60 * 24));
+    
+    if (daysDiff < 0) return 'overdue';
+    if (daysDiff <= 7) return 'due-soon';
+    return 'paid';
+  };
+
+  const getFilteredClients = () => {
+    const activeClients = clients.filter(c => c.status === 'Active');
+    
+    if (currentFilter === 'all') {
+      return activeClients;
+    } else if (currentFilter === 'overdue') {
+      return activeClients.filter(client => getClientPaymentStatus(client) === 'overdue');
+    } else if (currentFilter === 'due-soon') {
+      return activeClients.filter(client => getClientPaymentStatus(client) === 'due-soon');
+    }
+    
+    return activeClients;
+  };
+
+  const filteredClients = getFilteredClients();
+
+  const getAvatarPlaceholder = (name) => {
+    return name.split(' ').map(word => word.charAt(0)).join('').toUpperCase().slice(0, 2);
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Not set';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  };
+
+  const formatCurrency = (amount) => {
+    return `TTD ${(amount || 0).toFixed(0)}`;
+  };
 
   // Functions to handle member info modal
   const openMemberInfoModal = (client) => {
