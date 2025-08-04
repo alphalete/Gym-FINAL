@@ -4081,410 +4081,165 @@ const Payments = () => {
   };
 
   return (
-    <>
-      {/* Mobile Header for Payments Page */}
-      <div className="block md:hidden">
-        <div className="gogym-mobile-header">
-          <h1>Payments</h1>
-          <button className="gogym-stats-icon" onClick={() => setShowPaymentModal(true)}>💰</button>
-        </div>
+    <div className="modern-payments-page">
+      {/* Modern Payments Header */}
+      <div className="payments-header">
+        <Link to="/clients" className="floating-back-button">
+          <span className="back-arrow">←</span>
+        </Link>
+        <h1 className="payments-title">Payments</h1>
       </div>
 
-      <div className="p-4 md:p-6 max-w-6xl mx-auto pb-24 md:pb-8">
-        {/* Desktop Header - Hidden on Mobile */}
-        <div className="mb-8 hidden md:block">
-          <h1 className="text-display ultra-contrast-text mb-2">Payment Tracking</h1>
-          <p className="ultra-contrast-secondary">Monitor and manage member payments</p>
-          
-          {/* Mobile connectivity status */}
-          <div className="mobile-status-bar mt-3 p-3 rounded-lg text-sm bg-gray-100">
-            {navigator.onLine ? (
-              <span className="text-green-600 font-medium">📱 Online - Real-time data</span>
-            ) : (
-              <span className="text-yellow-600 font-medium">📱 Offline - Using cached data</span>
-            )}
+      {/* Summary Cards Section */}
+      <div className="payments-summary-section">
+        <div className="summary-cards-container">
+          {/* Total Revenue Card */}
+          <div className="summary-card blue" onClick={() => setCurrentFilter('all')}>
+            <span className="summary-card-icon">💰</span>
+            <div className="summary-card-title">Total Revenue</div>
+            <div className="summary-card-amount">TTD {paymentStats.totalRevenue}</div>
+          </div>
+
+          {/* Paid This Month Card */}
+          <div className="summary-card green" onClick={() => setCurrentFilter('paid')}>
+            <span className="summary-card-icon">✅</span>
+            <div className="summary-card-title">Paid This Month</div>
+            <div className="summary-card-count">{paymentStats.completedThisMonth}</div>
+          </div>
+
+          {/* Overdue Amount Card */}
+          <div className="summary-card red" onClick={() => setCurrentFilter('overdue')}>
+            <span className="summary-card-icon">⚠️</span>
+            <div className="summary-card-title">Overdue Amount</div>
+            <div className="summary-card-count">{paymentStats.overduePayments}</div>
+          </div>
+
+          {/* Due Soon Card */}
+          <div className="summary-card orange" onClick={() => setCurrentFilter('due-soon')}>
+            <span className="summary-card-icon">⏰</span>
+            <div className="summary-card-title">Due Soon</div>
+            <div className="summary-card-count">{paymentStats.pendingPayments}</div>
           </div>
         </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="ultra-contrast-modal rounded-lg p-6">
-          <h3 className="ultra-contrast-text font-bold mb-2">Total Revenue</h3>
-          <p className="text-2xl font-bold text-green-600">TTD {paymentStats.totalRevenue}</p>
-        </div>
-        <div className="ultra-contrast-modal rounded-lg p-6">
-          <h3 className="ultra-contrast-text font-bold mb-2">Pending</h3>
-          <p className="text-2xl font-bold text-yellow-600">{paymentStats.pendingPayments}</p>
-        </div>
-        <div className="ultra-contrast-modal rounded-lg p-6">
-          <h3 className="ultra-contrast-text font-bold mb-2">Overdue</h3>
-          <p className="text-2xl font-bold text-red-600">{paymentStats.overduePayments}</p>
-        </div>
-        <div className="ultra-contrast-modal rounded-lg p-6">
-          <h3 className="ultra-contrast-text font-bold mb-2">Completed</h3>
-          <p className="text-2xl font-bold text-blue-600">{paymentStats.completedThisMonth}</p>
-        </div>
       </div>
-      
-      <div className="ultra-contrast-modal rounded-lg p-6">
-        <h2 className="ultra-contrast-text font-bold mb-4">Payment Management</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <button 
-            onClick={() => setShowPaymentModal(true)}
-            className="ultra-contrast-button-primary p-4 rounded text-center hover:opacity-90 transition-opacity"
+
+      {/* Filter Tabs */}
+      <div className="payments-filter-section">
+        <div className="filter-tabs-container">
+          <button
+            className={`filter-tab ${currentFilter === 'all' ? 'active' : ''}`}
+            onClick={() => setCurrentFilter('all')}
           >
-            <div className="text-2xl mb-2">💰</div>
-            <div>Process Payments</div>
+            All
+            <span className="filter-count">({statusCounts.all})</span>
           </button>
-          <button 
-            onClick={() => setShowReportsModal(true)}
-            className="ultra-contrast-button p-4 rounded text-center hover:opacity-90 transition-opacity"
+          <button
+            className={`filter-tab green ${currentFilter === 'paid' ? 'active' : ''}`}
+            onClick={() => setCurrentFilter('paid')}
           >
-            <div className="text-2xl mb-2">📊</div>
-            <div>Payment Reports</div>
+            Paid
+            <span className="filter-count">({statusCounts.paid})</span>
           </button>
-          <button 
-            onClick={() => setShowOverdueModal(true)}
-            className="ultra-contrast-button p-4 rounded text-center hover:opacity-90 transition-opacity"
+          <button
+            className={`filter-tab red ${currentFilter === 'overdue' ? 'active' : ''}`}
+            onClick={() => setCurrentFilter('overdue')}
           >
-            <div className="text-2xl mb-2">⚠️</div>
-            <div>Overdue Management</div>
+            Overdue
+            <span className="filter-count">({statusCounts.overdue})</span>
           </button>
-          <button 
-            onClick={() => setShowCleanupModal(true)}
-            className="ultra-contrast-button p-4 rounded text-center hover:opacity-90 transition-opacity bg-red-600 text-white"
+          <button
+            className={`filter-tab orange ${currentFilter === 'due-soon' ? 'active' : ''}`}
+            onClick={() => setCurrentFilter('due-soon')}
           >
-            <div className="text-2xl mb-2">🧹</div>
-            <div>Database Cleanup</div>
+            Due Soon
+            <span className="filter-count">({statusCounts['due-soon']})</span>
           </button>
         </div>
       </div>
 
-      {/* Payment Recording Modal */}
-      {showPaymentModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="ultra-contrast-modal rounded-lg p-6 w-full max-w-md">
-            <div className="ultra-contrast-modal-header mb-4">
-              <h3 className="text-lg font-bold">Record Payment</h3>
-            </div>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block font-bold mb-1" style={{ color: '#000000' }}>Select Client</label>
-                <select
-                  value={paymentForm.client_id}
-                  onChange={(e) => {
-                    const selectedClient = clients.find(c => c.id === e.target.value);
-                    setPaymentForm(prev => ({
-                      ...prev,
-                      client_id: e.target.value,
-                      amount_paid: selectedClient ? selectedClient.monthly_fee.toString() : ''
-                    }));
-                  }}
-                  className="ultra-contrast-input w-full p-2 rounded"
-                  required
-                >
-                  <option value="">Choose a client...</option>
-                  {clients.map(client => (
-                    <option key={client.id} value={client.id}>
-                      {client.name} - TTD {client.monthly_fee} ({client.membership_type})
-                    </option>
-                  ))}
-                </select>
-              </div>
-              
-              <div>
-                <label className="block font-bold mb-1" style={{ color: '#000000' }}>Amount Paid (TTD)</label>
-                <input
-                  type="number"
-                  value={paymentForm.amount_paid}
-                  onChange={(e) => setPaymentForm(prev => ({ ...prev, amount_paid: e.target.value }))}
-                  className="ultra-contrast-input w-full p-2 rounded"
-                  placeholder="0.00"
-                  step="0.01"
-                  required
-                />
-              </div>
-              
-              <div>
-                <label className="block font-bold mb-1" style={{ color: '#000000' }}>Payment Date</label>
-                <input
-                  type="date"
-                  value={paymentForm.payment_date}
-                  onChange={(e) => setPaymentForm(prev => ({ ...prev, payment_date: e.target.value }))}
-                  className="ultra-contrast-input w-full p-2 rounded"
-                  required
-                />
-              </div>
-              
-              <div>
-                <label className="block font-bold mb-1" style={{ color: '#000000' }}>Payment Method</label>
-                <select
-                  value={paymentForm.payment_method}
-                  onChange={(e) => setPaymentForm(prev => ({ ...prev, payment_method: e.target.value }))}
-                  className="ultra-contrast-input w-full p-2 rounded"
-                >
-                  <option value="Cash">Cash</option>
-                  <option value="Card">Card</option>
-                  <option value="Bank Transfer">Bank Transfer</option>
-                  <option value="Check">Check</option>
-                  <option value="Online Payment">Online Payment</option>
-                </select>
-              </div>
-              
-              <div>
-                <label className="block font-bold mb-1" style={{ color: '#000000' }}>Notes (Optional)</label>
-                <input
-                  type="text"
-                  value={paymentForm.notes}
-                  onChange={(e) => setPaymentForm(prev => ({ ...prev, notes: e.target.value }))}
-                  className="ultra-contrast-input w-full p-2 rounded"
-                  placeholder="Any additional notes..."
-                />
-              </div>
-            </div>
-            
-            <div className="flex justify-end space-x-3 mt-6">
-              <button
-                onClick={() => setShowPaymentModal(false)}
-                className="px-4 py-2 bg-gray-300 text-gray-700 rounded font-medium"
-                disabled={loading}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={recordPayment}
-                disabled={loading || !paymentForm.client_id || !paymentForm.amount_paid}
-                className="ultra-contrast-button-primary px-4 py-2 rounded font-medium disabled:opacity-50"
-              >
-                {loading ? 'Recording...' : '💰 Record Payment'}
-              </button>
+      {/* Payment List */}
+      <div className="payments-list-section">
+        {loading ? (
+          <div className="payments-loading">
+            <div className="payments-loading-spinner"></div>
+            <div className="payments-loading-text">Loading payments...</div>
+          </div>
+        ) : filteredClients.length === 0 ? (
+          <div className="payments-empty-state">
+            <div className="payments-empty-icon">💳</div>
+            <div className="payments-empty-title">No payments found</div>
+            <div className="payments-empty-message">
+              {currentFilter === 'all' 
+                ? 'No payment records available' 
+                : `No ${currentFilter} payments found`}
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Payment Reports Modal */}
-      {showReportsModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="ultra-contrast-modal rounded-lg p-6 w-full max-w-4xl max-h-[80vh] overflow-y-auto">
-            <div className="ultra-contrast-modal-header mb-4">
-              <h3 className="text-lg font-bold">Payment Reports</h3>
-            </div>
-            
-            <div className="space-y-6">
-              {/* Quick Stats */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="ultra-contrast-modal rounded p-4 text-center">
-                  <h4 className="font-bold text-sm">Total Clients</h4>
-                  <p className="text-xl font-bold text-blue-600">{clients.length}</p>
-                </div>
-                <div className="ultra-contrast-modal rounded p-4 text-center">
-                  <h4 className="font-bold text-sm">Active Clients</h4>
-                  <p className="text-xl font-bold text-green-600">{clients.filter(c => c.status === 'Active').length}</p>
-                </div>
-                <div className="ultra-contrast-modal rounded p-4 text-center">
-                  <h4 className="font-bold text-sm">Overdue Clients</h4>
-                  <p className="text-xl font-bold text-red-600">{overdueClients.length}</p>
-                </div>
-                <div className="ultra-contrast-modal rounded p-4 text-center">
-                  <h4 className="font-bold text-sm">Total Revenue</h4>
-                  <p className="text-xl font-bold text-green-600">TTD {paymentStats?.totalRevenue?.toFixed(2) || '0.00'}</p>
-                </div>
-              </div>
-
-              {/* Recent Payments Summary */}
-              <div className="ultra-contrast-modal rounded p-4">
-                <h4 className="font-bold mb-3">Payment Status Overview</h4>
-                <div className="space-y-2">
-                  {clients.slice(0, 10).map(client => {
-                    const nextPaymentDate = new Date(client.next_payment_date);
-                    const today = getASTDate();
-                    today.setHours(0, 0, 0, 0);
-                    const isOverdue = nextPaymentDate < today;
-                    const daysDiff = Math.ceil((nextPaymentDate - today) / (1000 * 60 * 60 * 24));
-                    
-                    return (
-                      <div key={client.id} className="flex justify-between items-center p-2 border-b">
-                        <span className="font-medium">{client.name}</span>
-                        <span className="text-sm">{client.membership_type}</span>
-                        <span className="font-bold">TTD {client.monthly_fee}</span>
-                        <span className={`text-sm px-2 py-1 rounded ${isOverdue ? 'bg-red-100 text-red-800' : daysDiff <= 3 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>
-                          {isOverdue ? `Overdue ${Math.abs(daysDiff)} days` : daysDiff <= 3 ? `Due in ${daysDiff} days` : `Due ${daysDiff} days`}
-                        </span>
+        ) : (
+          <div className="payments-list">
+            {filteredClients.map((client) => {
+              const status = getPaymentStatus(client);
+              const statusConfig = {
+                paid: { label: 'PAID', icon: '✓', class: 'paid' },
+                overdue: { label: 'OVERDUE', icon: '⚠', class: 'overdue' },
+                'due-soon': { label: 'DUE SOON', icon: '⏰', class: 'due-soon' }
+              };
+              const currentStatusConfig = statusConfig[status] || statusConfig.paid;
+              
+              return (
+                <div key={client.id} className="modern-payment-card">
+                  {/* Card Header */}
+                  <div className="payment-card-header">
+                    <div className="payment-card-left">
+                      <div className="payment-card-avatar">
+                        {getInitials(client.name)}
                       </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex justify-end mt-6">
-              <button
-                onClick={() => setShowReportsModal(false)}
-                className="px-4 py-2 bg-gray-300 text-gray-700 rounded font-medium"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Overdue Management Modal */}
-      {showOverdueModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="ultra-contrast-modal rounded-lg p-6 w-full max-w-4xl max-h-[80vh] overflow-y-auto">
-            <div className="ultra-contrast-modal-header mb-4">
-              <h3 className="text-lg font-bold">Overdue Management</h3>
-              <p className="text-sm text-gray-600">Manage clients with overdue payments</p>
-            </div>
-            
-            <div className="mb-4">
-              <div className="flex justify-between items-center">
-                <p className="font-medium">Total Overdue Clients: <span className="text-red-600">{overdueClients.length}</span></p>
-                <button
-                  onClick={sendOverdueReminders}
-                  disabled={loading || overdueClients.length === 0}
-                  className="ultra-contrast-button-primary px-4 py-2 rounded font-medium disabled:opacity-50"
-                >
-                  {loading ? 'Sending...' : '📧 Send Overdue Reminders'}
-                </button>
-              </div>
-            </div>
-            
-            <div className="space-y-2 max-h-96 overflow-y-auto">
-              {overdueClients.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <p className="text-lg">🎉 No overdue clients!</p>
-                  <p>All clients are up to date with their payments.</p>
-                </div>
-              ) : (
-                overdueClients.map(client => {
-                  const nextPaymentDate = new Date(client.next_payment_date);
-                  const today = getASTDate();
-                  today.setHours(0, 0, 0, 0);
-                  const overdueDays = Math.ceil((today - nextPaymentDate) / (1000 * 60 * 60 * 24));
-                  
-                  return (
-                    <div key={client.id} className="ultra-contrast-modal rounded p-4">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <h4 className="font-bold">{client.name}</h4>
-                          <p className="text-sm text-gray-600">{client.email}</p>
-                          <p className="text-sm">{client.membership_type} - TTD {client.monthly_fee}/month</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm text-gray-600">Due Date: {new Date(client.next_payment_date).toLocaleDateString()}</p>
-                          <p className="font-bold text-red-600">Overdue: {overdueDays} days</p>
-                          <p className="font-bold">Amount: TTD {client.monthly_fee}</p>
+                      <div className="payment-card-info">
+                        <div className="payment-card-name">{client.name}</div>
+                        <div className="payment-card-amount">TTD {client.monthly_fee}</div>
+                        <div className="payment-card-details">
+                          Due: {client.next_payment_date ? formatDate(client.next_payment_date) : 'Not set'} • TTD {client.monthly_fee}/{client.membership_type?.toLowerCase() || 'month'}
                         </div>
                       </div>
                     </div>
-                  );
-                })
-              )}
-            </div>
-            
-            <div className="flex justify-end space-x-3 mt-6">
-              <button
-                onClick={() => setShowOverdueModal(false)}
-                className="px-4 py-2 bg-gray-300 text-gray-700 rounded font-medium"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Database Cleanup Modal */}
-      {showCleanupModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="ultra-contrast-modal rounded-lg p-6 w-full max-w-4xl max-h-[80vh] overflow-y-auto">
-            <div className="ultra-contrast-modal-header mb-4">
-              <h3 className="text-lg font-bold text-red-600">🧹 Database Cleanup</h3>
-              <p className="text-sm text-gray-600">Remove test/fake client data to get accurate analytics</p>
-            </div>
-            
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded">
-              <h4 className="font-bold text-red-800">⚠️ ANALYTICS CONTAMINATION DETECTED!</h4>
-              <p className="text-red-700">Your database contains test data that is skewing your business analytics:</p>
-              <ul className="mt-2 text-red-700 text-sm list-disc ml-5">
-                <li><strong>Total Clients:</strong> {clients.length} (includes test data)</li>
-                <li><strong>Active Members:</strong> {clients.filter(c => c.status === 'Active').length} (includes test data)</li>
-                <li><strong>Potential Revenue:</strong> TTD {clients.filter(c => c.status === 'Active').reduce((sum, client) => sum + (client.monthly_fee || 0), 0).toFixed(2)} (from membership fees)</li>
-                <li><strong>Actual Revenue:</strong> TTD {paymentStats?.totalRevenue?.toFixed(2) || '0.00'} (from recorded payments)</li>
-                <li><strong>Test Clients Identified:</strong> {testClients.length}</li>
-              </ul>
-            </div>
-
-            <div className="mb-4">
-              <h4 className="font-bold mb-2">📋 Test Clients to be Removed ({testClients.length} total):</h4>
-              <div className="max-h-60 overflow-y-auto space-y-2">
-                {testClients.length === 0 ? (
-                  <div className="text-center py-4 text-green-600">
-                    <p className="text-lg">✅ No test clients detected!</p>
-                    <p>Your database appears to be clean.</p>
-                  </div>
-                ) : (
-                  testClients.map((client, index) => {
-                    const indicators = [];
-                    const name = client.name?.toLowerCase() || '';
-                    const email = client.email?.toLowerCase() || '';
-                    const phone = client.phone || '';
-                    
-                    if (name.includes('test') || name.includes('demo') || name.includes('john doe')) indicators.push('Test name');
-                    if (email.includes('@example.com') || email.includes('@test.com')) indicators.push('Test email');
-                    if (phone.includes('(555)') || phone.includes('555-')) indicators.push('Test phone');
-                    if (client.monthly_fee <= 10 || client.monthly_fee >= 500) indicators.push('Unrealistic fee');
-                    
-                    return (
-                      <div key={client.id} className="p-3 border rounded bg-red-50">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <p className="font-medium">{client.name}</p>
-                            <p className="text-sm text-gray-600">{client.email}</p>
-                            <p className="text-sm">TTD {client.monthly_fee}/month - {client.membership_type}</p>
-                          </div>
-                          <div className="text-right">
-                            <span className="text-xs text-red-600 bg-red-100 px-2 py-1 rounded">
-                              {indicators.join(', ')}
-                            </span>
-                          </div>
-                        </div>
+                    <div className="payment-card-status">
+                      <div className={`payment-status-badge ${currentStatusConfig.class}`}>
+                        <span className="payment-status-icon">{currentStatusConfig.icon}</span>
+                        <span>{currentStatusConfig.label}</span>
                       </div>
-                    );
-                  })
-                )}
-              </div>
-            </div>
+                    </div>
+                  </div>
 
-            <div className="bg-yellow-50 border border-yellow-200 rounded p-4 mb-6">
-              <h4 className="font-bold text-yellow-800">🚨 PERMANENT ACTION WARNING</h4>
-              <p className="text-yellow-700">This action will permanently delete all identified test clients from your database. This cannot be undone!</p>
-              <p className="text-yellow-700 mt-2"><strong>After cleanup, your analytics will show accurate business data only.</strong></p>
-            </div>
-            
-            <div className="flex justify-end space-x-3">
-              <button
-                onClick={() => setShowCleanupModal(false)}
-                className="px-4 py-2 bg-gray-300 text-gray-700 rounded font-medium"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={cleanupTestData}
-                disabled={loading || testClients.length === 0}
-                className="px-4 py-2 bg-red-600 text-white rounded font-medium hover:bg-red-700 disabled:opacity-50"
-              >
-                {loading ? 'Cleaning...' : `🧹 Delete ${testClients.length} Test Clients`}
-              </button>
-            </div>
+                  {/* Action Toolbar */}
+                  <div className="payment-action-toolbar">
+                    <button
+                      className="payment-action-btn reminder"
+                      data-tooltip="Send Reminder"
+                      onClick={() => sendPaymentReminder(client)}
+                    >
+                      📧
+                    </button>
+                    <button
+                      className="payment-action-btn mark-paid"
+                      data-tooltip="Mark as Paid"
+                      onClick={() => markAsPaid(client)}
+                    >
+                      ✓
+                    </button>
+                    <button
+                      className="payment-action-btn edit"
+                      data-tooltip="Edit Payment"
+                      onClick={() => navigate(`/add-client?edit=${client.id}`)}
+                    >
+                      ✏️
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
-    </>
   );
 };
 
