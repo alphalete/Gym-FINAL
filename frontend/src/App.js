@@ -3215,15 +3215,6 @@ const Payments = () => {
 
   const statusCounts = getStatusCounts();
 
-  // Helper functions for the new payment actions
-  const sendPaymentReminder = async (client) => {
-    alert(`Sending payment reminder to ${client.name}`);
-  };
-
-  const markAsPaid = async (client) => {
-    alert(`Marking ${client.name} as paid`);
-  };
-
   const calculateRealPaymentStats = async () => {
     try {
       console.log(`📱 Mobile Payment Stats: Using direct API calls to fix data issues`);
