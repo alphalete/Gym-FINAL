@@ -58,6 +58,8 @@
 ##
 ## agent_communication:
   - agent: "main"
+    message: "CRITICAL ISSUE IDENTIFIED: User reports 404 errors for payment recording and email reminders. Investigation reveals API endpoint mismatch: Frontend calls /api/payments (POST) but backend has /api/payments/record, Frontend calls /api/send-reminder (POST) but backend has /api/email/payment-reminder. Need to fix frontend endpoint URLs to match backend implementation."
+  - agent: "main"
     message: "CRITICAL FINDING: Backend testing shows 100% email delivery success. The reported issue appears to be resolved. User should check Gmail inbox/spam folder at deonaleong@gmail.com for recent emails from alphaleteclub@gmail.com. All email functionality working correctly."
   - agent: "testing"
     message: "EMAIL DELIVERY VERIFICATION COMPLETED: All email systems operational with 100% success rate. Gmail SMTP authentication working, backend APIs accurate, actual email delivery confirmed to deonaleong@gmail.com. Issue appears resolved."
