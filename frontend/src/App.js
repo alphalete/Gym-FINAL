@@ -945,7 +945,6 @@ const MemberInfoModal = ({ client, isOpen, onClose }) => {
       </div>
     </div>
   );
-  );
 };
 
 // Edit Client Modal Component - Ultra High Contrast
