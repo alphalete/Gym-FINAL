@@ -2326,6 +2326,7 @@ const ClientManagement = () => {
 
       {/* Members List */}
       <div className="members-list-section">
+        {console.log('🔍 Render conditions:', 'loading:', loading, 'searchFilteredClients.length:', searchFilteredClients.length)}
         {loading ? (
           <div className="members-loading">
             <div className="loading-spinner"></div>
