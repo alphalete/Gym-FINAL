@@ -2342,11 +2342,14 @@ const ClientManagement = () => {
 
   const fetchClients = useCallback(async (forceRefresh = false) => {
     try {
+      console.log('🔍 ClientManagement: Starting fetchClients...');
       setLoading(true);
       const result = await localDB.getClients(forceRefresh);
+      console.log('🔍 ClientManagement: Got result:', result);
       const clientsData = Array.isArray(result.data) ? result.data : [];
       setClients(clientsData);
       setLoading(false);
+      console.log('✅ ClientManagement: Set clients, count:', clientsData.length);
     } catch (error) {
       console.error('❌ ClientManagement: Error fetching clients:', error);
       setClients([]);
