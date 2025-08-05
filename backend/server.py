@@ -574,30 +574,19 @@ async def record_client_payment(payment_request: PaymentRecordRequest):
     payment_date = payment_request.payment_date
     client_start_date = client_obj.start_date
     
-    # Determine if this is an immediate payment (same day as joining or within first billing period)
-    # If payment is made on or before the first due date, it covers the current month
-    is_immediate_payment = payment_date <= current_due_date
-    
-    if is_immediate_payment and payment_date <= client_start_date:
-        # Special case: Payment made on join date or before first due date
-        # This payment covers the current month, so due date should NOT advance
-        new_next_payment_date = current_due_date
-    else:
-        # Regular monthly payment: advance due date by one month
-        # This maintains consistent billing cycles for normal payments
-        new_next_payment_date = calculate_next_payment_date(current_due_date)
-    
     # Calculate remaining balance after payment
     current_amount_owed = client_obj.amount_owed if client_obj.amount_owed else client_obj.monthly_fee
     remaining_balance = current_amount_owed - payment_request.amount_paid
     
-    # Determine payment status based on remaining balance
+    # Determine payment status and due date advancement based on remaining balance
     if remaining_balance <= 0:
-        # Full payment or overpayment - mark as paid
+        # Full payment or overpayment - mark as paid and advance due date
         payment_status = "paid"
         amount_owed = 0.0
-        # Only advance the due date if this is a full payment
-        final_next_payment_date = new_next_payment_date
+        
+        # For full payments, always advance the due date by one month
+        # This maintains consistent monthly billing cycles
+        final_next_payment_date = calculate_next_payment_date(current_due_date)
     else:
         # Partial payment - keep as due with updated balance
         payment_status = "due"
