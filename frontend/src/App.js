@@ -2342,19 +2342,40 @@ const ClientManagement = () => {
 
   const fetchClients = async (forceRefresh = false) => {
     try {
-      console.log('🔍 ClientManagement: Starting fetchClients...');
+      console.log('🔍 ClientManagement: Starting fetchClients...', { forceRefresh, currentLoading: loading });
       setLoading(true);
+      console.log('🔍 ClientManagement: Set loading to true');
       console.log('🔍 ClientManagement: Calling localDB.getClients...');
       const result = await localDB.getClients(forceRefresh);
       console.log('🔍 ClientManagement: Got result from localDB:', result);
-      setClients(result.data || []);
-      console.log('✅ ClientManagement: Set clients, length:', (result.data || []).length);
+      
+      // Ensure we always have an array
+      const clientsData = Array.isArray(result.data) ? result.data : [];
+      console.log('🔍 ClientManagement: Processing clients data:', { 
+        resultData: result.data, 
+        isArray: Array.isArray(result.data),
+        clientsDataLength: clientsData.length 
+      });
+      
+      setClients(clientsData);
+      console.log('✅ ClientManagement: Set clients, length:', clientsData.length);
+      
+      // Force a small delay to ensure state updates complete
+      setTimeout(() => {
+        console.log('🔍 ClientManagement: Delayed check - clients state should be updated');
+      }, 100);
+      
     } catch (error) {
       console.error('❌ ClientManagement: Error fetching clients:', error);
       setClients([]);
     } finally {
-      console.log('🔍 ClientManagement: Setting loading to false');
+      console.log('🔍 ClientManagement: Setting loading to false (finally block)');
       setLoading(false);
+      
+      // Additional delayed check to verify loading state
+      setTimeout(() => {
+        console.log('🔍 ClientManagement: Delayed loading check - should be false');
+      }, 50);
     }
   };
 
