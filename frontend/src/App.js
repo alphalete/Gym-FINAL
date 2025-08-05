@@ -3346,6 +3346,7 @@ const Payments = () => {
       // Force direct API calls instead of LocalStorageManager
       let clientsData = [];
       let actualRevenue = 0;
+      let monthlyRevenue = 0; // Initialize monthly revenue
       
       if (backendUrl) {
         try {
