@@ -3611,7 +3611,7 @@ const Payments = () => {
           <div className="summary-card green" onClick={() => setCurrentFilter('paid')}>
             <span className="summary-card-icon">✅</span>
             <div className="summary-card-title">Paid This Month</div>
-            <div className="summary-card-count">{paymentStats.completedThisMonth}</div>
+            <div className="summary-card-amount">TTD {paymentStats.completedThisMonth}</div>
           </div>
 
           {/* Overdue Amount Card */}
