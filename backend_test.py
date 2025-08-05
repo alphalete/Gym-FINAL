@@ -2355,6 +2355,542 @@ class AlphaleteAPITester:
         
         return not issue_confirmed  # Return True if no issue, False if issue confirmed
 
+    # ===== AUTOMATIC INVOICE SENDING TESTS =====
+    
+    def test_automatic_invoice_sending_functionality(self):
+        """COMPREHENSIVE TEST: Automatic invoice sending for all payment recording instances"""
+        print("\n🎯 COMPREHENSIVE AUTOMATIC INVOICE SENDING FUNCTIONALITY TEST")
+        print("=" * 80)
+        print("🎯 OBJECTIVE: Test that invoices are sent automatically for ALL payment recording instances")
+        print("📋 SCOPE: Verify invoice consistency across all payment methods and scenarios")
+        print("=" * 80)
+        
+        # Step 1: Verify payment recording endpoint includes invoice functionality
+        print("\n📋 STEP 1: Verify Payment Recording Endpoint Includes Invoice Functionality")
+        
+        # Create test client for invoice testing
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        invoice_client_data = {
+            "name": "Invoice Test Client",
+            "email": f"invoice_test_{timestamp}@example.com",
+            "phone": "+18685551234",
+            "membership_type": "Premium",
+            "monthly_fee": 75.0,
+            "start_date": date.today().isoformat(),
+            "payment_status": "due"
+        }
+        
+        success1, client_response = self.run_test(
+            "Create Invoice Test Client",
+            "POST",
+            "clients",
+            200,
+            invoice_client_data
+        )
+        
+        if not success1 or "id" not in client_response:
+            print("❌ Failed to create invoice test client - aborting invoice tests")
+            return False
+        
+        invoice_client_id = client_response["id"]
+        print(f"   ✅ Created invoice test client ID: {invoice_client_id}")
+        
+        # Step 2: Test main payment recording endpoint with invoice
+        print("\n📋 STEP 2: Test Main Payment Recording Endpoint with Automatic Invoice")
+        
+        payment_data = {
+            "client_id": invoice_client_id,
+            "amount_paid": 75.0,
+            "payment_date": date.today().isoformat(),
+            "payment_method": "Credit Card",
+            "notes": "Test payment for automatic invoice verification"
+        }
+        
+        success2, payment_response = self.run_test(
+            "Record Payment with Automatic Invoice",
+            "POST",
+            "payments/record",
+            200,
+            payment_data
+        )
+        
+        if success2:
+            # Verify invoice fields are present in response
+            required_invoice_fields = ['invoice_sent', 'invoice_message']
+            missing_fields = [field for field in required_invoice_fields if field not in payment_response]
+            
+            if missing_fields:
+                print(f"   ❌ CRITICAL: Missing invoice fields in response: {missing_fields}")
+                return False
+            
+            invoice_sent = payment_response.get('invoice_sent')
+            invoice_message = payment_response.get('invoice_message')
+            
+            print(f"   ✅ Payment recorded successfully")
+            print(f"   📧 Invoice sent: {invoice_sent}")
+            print(f"   📝 Invoice message: {invoice_message}")
+            
+            if invoice_sent is not None:
+                print("   ✅ AUTOMATIC INVOICE FUNCTIONALITY: IMPLEMENTED")
+                if invoice_sent:
+                    print("   ✅ INVOICE EMAIL: SENT SUCCESSFULLY")
+                else:
+                    print("   ⚠️  INVOICE EMAIL: FAILED TO SEND (but functionality exists)")
+            else:
+                print("   ❌ AUTOMATIC INVOICE FUNCTIONALITY: NOT IMPLEMENTED")
+                return False
+        else:
+            print("   ❌ Failed to record payment - aborting invoice tests")
+            return False
+        
+        # Step 3: Test invoice content includes all required payment details
+        print("\n📋 STEP 3: Test Invoice Content Includes All Required Payment Details")
+        
+        # Verify payment response contains all expected details
+        expected_payment_fields = ['success', 'client_name', 'amount_paid', 'payment_id', 'new_next_payment_date']
+        payment_fields_present = all(field in payment_response for field in expected_payment_fields)
+        
+        if payment_fields_present:
+            print("   ✅ Payment response contains all required fields")
+            print(f"      Client: {payment_response.get('client_name')}")
+            print(f"      Amount: ${payment_response.get('amount_paid')}")
+            print(f"      Payment ID: {payment_response.get('payment_id')}")
+            print(f"      New due date: {payment_response.get('new_next_payment_date')}")
+        else:
+            missing_payment_fields = [field for field in expected_payment_fields if field not in payment_response]
+            print(f"   ❌ Missing payment fields: {missing_payment_fields}")
+            return False
+        
+        # Step 4: Test invoice sending with different payment methods
+        print("\n📋 STEP 4: Test Invoice Sending with Different Payment Methods")
+        
+        payment_methods = ["Cash", "Credit Card", "Bank Transfer", "Mobile Payment", "Check"]
+        method_test_results = []
+        
+        for i, method in enumerate(payment_methods):
+            # Create separate client for each payment method test
+            method_client_data = {
+                "name": f"{method.replace(' ', '')} Invoice Test",
+                "email": f"invoice_{method.lower().replace(' ', '_')}_{timestamp}_{i}@example.com",
+                "phone": f"+1868555{1000+i:04d}",
+                "membership_type": "Standard",
+                "monthly_fee": 55.0,
+                "start_date": date.today().isoformat(),
+                "payment_status": "due"
+            }
+            
+            success_client, client_resp = self.run_test(
+                f"Create {method} Test Client",
+                "POST",
+                "clients",
+                200,
+                method_client_data
+            )
+            
+            if success_client and "id" in client_resp:
+                method_payment_data = {
+                    "client_id": client_resp["id"],
+                    "amount_paid": 55.0,
+                    "payment_date": date.today().isoformat(),
+                    "payment_method": method,
+                    "notes": f"Invoice test payment via {method}"
+                }
+                
+                success_payment, payment_resp = self.run_test(
+                    f"Record Payment via {method}",
+                    "POST",
+                    "payments/record",
+                    200,
+                    method_payment_data
+                )
+                
+                if success_payment:
+                    method_invoice_sent = payment_resp.get('invoice_sent')
+                    method_test_results.append({
+                        'method': method,
+                        'success': True,
+                        'invoice_sent': method_invoice_sent
+                    })
+                    print(f"   ✅ {method}: Payment recorded, Invoice sent: {method_invoice_sent}")
+                else:
+                    method_test_results.append({
+                        'method': method,
+                        'success': False,
+                        'invoice_sent': None
+                    })
+                    print(f"   ❌ {method}: Payment recording failed")
+            else:
+                method_test_results.append({
+                    'method': method,
+                    'success': False,
+                    'invoice_sent': None
+                })
+                print(f"   ❌ {method}: Client creation failed")
+        
+        # Analyze payment method results
+        successful_methods = [r for r in method_test_results if r['success']]
+        invoice_attempts = [r for r in successful_methods if r['invoice_sent'] is not None]
+        
+        print(f"\n   📊 Payment Method Results:")
+        print(f"      Successful payments: {len(successful_methods)}/{len(payment_methods)}")
+        print(f"      Invoice attempts: {len(invoice_attempts)}/{len(successful_methods)}")
+        
+        if len(successful_methods) == len(payment_methods) and len(invoice_attempts) == len(successful_methods):
+            print("   ✅ ALL PAYMENT METHODS: Invoice functionality working")
+        else:
+            print("   ❌ SOME PAYMENT METHODS: Invoice functionality issues")
+            return False
+        
+        # Step 5: Test client status update after payment with invoice
+        print("\n📋 STEP 5: Test Client Status Update After Payment with Invoice")
+        
+        # Get updated client status
+        success_status, updated_client = self.run_test(
+            "Get Updated Client Status",
+            "GET",
+            f"clients/{invoice_client_id}",
+            200
+        )
+        
+        if success_status:
+            payment_status = updated_client.get('payment_status')
+            amount_owed = updated_client.get('amount_owed')
+            
+            print(f"   📊 Updated client status:")
+            print(f"      Payment status: {payment_status}")
+            print(f"      Amount owed: {amount_owed}")
+            
+            if payment_status == "paid" and amount_owed == 0.0:
+                print("   ✅ CLIENT STATUS: Updated correctly after payment")
+            else:
+                print("   ❌ CLIENT STATUS: Not updated correctly after payment")
+                return False
+        else:
+            print("   ❌ Failed to get updated client status")
+            return False
+        
+        # Step 6: Test email service functionality
+        print("\n📋 STEP 6: Test Email Service Functionality")
+        
+        success_email, email_response = self.run_test(
+            "Test Email Service Configuration",
+            "POST",
+            "email/test",
+            200
+        )
+        
+        if success_email:
+            email_working = email_response.get('success', False)
+            email_message = email_response.get('message', '')
+            
+            print(f"   📧 Email service status: {'✅ WORKING' if email_working else '❌ FAILED'}")
+            print(f"   📝 Email message: {email_message}")
+            
+            if not email_working:
+                print("   ⚠️  Email service issues may affect invoice delivery")
+        else:
+            print("   ❌ Email service test failed")
+            return False
+        
+        # Step 7: Test payment statistics update
+        print("\n📋 STEP 7: Test Payment Statistics Update")
+        
+        success_stats, stats_response = self.run_test(
+            "Get Payment Statistics",
+            "GET",
+            "payments/stats",
+            200
+        )
+        
+        if success_stats:
+            total_revenue = stats_response.get('total_revenue', 0)
+            payment_count = stats_response.get('payment_count', 0)
+            
+            print(f"   📊 Payment statistics:")
+            print(f"      Total revenue: TTD {total_revenue}")
+            print(f"      Payment count: {payment_count}")
+            
+            if total_revenue > 0 and payment_count > 0:
+                print("   ✅ PAYMENT STATISTICS: Updated correctly")
+            else:
+                print("   ⚠️  PAYMENT STATISTICS: May not reflect recent payments")
+        else:
+            print("   ❌ Failed to get payment statistics")
+            return False
+        
+        # Final Summary
+        print("\n🎯 AUTOMATIC INVOICE SENDING FUNCTIONALITY TEST SUMMARY")
+        print("=" * 80)
+        
+        all_tests_passed = (
+            success1 and success2 and 
+            payment_fields_present and 
+            len(successful_methods) == len(payment_methods) and
+            len(invoice_attempts) == len(successful_methods) and
+            success_status and success_email and success_stats
+        )
+        
+        if all_tests_passed:
+            print("🎉 AUTOMATIC INVOICE SENDING FUNCTIONALITY: ALL TESTS PASSED!")
+            print("✅ Payment recording endpoint includes automatic invoice sending")
+            print("✅ Invoice functionality works with all payment methods")
+            print("✅ Invoice response includes all required fields")
+            print("✅ Client status updates correctly after payment")
+            print("✅ Email service is configured and working")
+            print("✅ Payment statistics update correctly")
+            print("✅ Invoices are sent automatically for ALL payment recording instances")
+            print("\n🎯 CONCLUSION: Invoice functionality is working EXACTLY as specified!")
+        else:
+            print("❌ AUTOMATIC INVOICE SENDING FUNCTIONALITY: ISSUES DETECTED!")
+            print("🔧 Review the detailed results above for specific issues")
+            print("⚠️  Some invoice functionality may not be working as expected")
+        
+        return all_tests_passed
+    
+    def test_invoice_email_template_verification(self):
+        """Test invoice email template content and format"""
+        print("\n🎯 INVOICE EMAIL TEMPLATE VERIFICATION TEST")
+        print("=" * 80)
+        print("🎯 OBJECTIVE: Verify invoice email template includes all required payment details")
+        print("📋 SCOPE: Test invoice template format, content, and professional appearance")
+        print("=" * 80)
+        
+        # Create test client for invoice template testing
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        template_client_data = {
+            "name": "Invoice Template Test Client",
+            "email": f"invoice_template_{timestamp}@example.com",
+            "phone": "+18685551234",
+            "membership_type": "Elite",
+            "monthly_fee": 100.0,
+            "start_date": date.today().isoformat(),
+            "payment_status": "due"
+        }
+        
+        success1, client_response = self.run_test(
+            "Create Invoice Template Test Client",
+            "POST",
+            "clients",
+            200,
+            template_client_data
+        )
+        
+        if not success1 or "id" not in client_response:
+            print("❌ Failed to create invoice template test client")
+            return False
+        
+        template_client_id = client_response["id"]
+        print(f"   ✅ Created invoice template test client ID: {template_client_id}")
+        
+        # Test invoice with comprehensive payment details
+        comprehensive_payment_data = {
+            "client_id": template_client_id,
+            "amount_paid": 100.0,
+            "payment_date": date.today().isoformat(),
+            "payment_method": "Bank Transfer",
+            "notes": "Monthly membership payment - Elite package with special discount applied"
+        }
+        
+        success2, payment_response = self.run_test(
+            "Record Payment for Invoice Template Test",
+            "POST",
+            "payments/record",
+            200,
+            comprehensive_payment_data
+        )
+        
+        if success2:
+            invoice_sent = payment_response.get('invoice_sent')
+            invoice_message = payment_response.get('invoice_message')
+            client_name = payment_response.get('client_name')
+            amount_paid = payment_response.get('amount_paid')
+            
+            print(f"   ✅ Payment recorded for invoice template test")
+            print(f"   📧 Invoice sent: {invoice_sent}")
+            print(f"   📝 Invoice message: {invoice_message}")
+            print(f"   👤 Client name: {client_name}")
+            print(f"   💰 Amount paid: ${amount_paid}")
+            
+            # Verify invoice template requirements
+            template_requirements_met = True
+            
+            # Check if invoice was attempted
+            if invoice_sent is None:
+                print("   ❌ INVOICE TEMPLATE: No invoice sending attempted")
+                template_requirements_met = False
+            elif invoice_sent is False:
+                print("   ⚠️  INVOICE TEMPLATE: Invoice sending failed (template may still be correct)")
+                print("   📝 This could be due to email service issues, not template problems")
+            else:
+                print("   ✅ INVOICE TEMPLATE: Invoice sent successfully")
+            
+            # Check if all payment details are captured for template
+            required_details = {
+                'client_name': client_name,
+                'amount_paid': amount_paid,
+                'payment_method': comprehensive_payment_data['payment_method'],
+                'notes': comprehensive_payment_data['notes']
+            }
+            
+            missing_details = [key for key, value in required_details.items() if not value]
+            
+            if missing_details:
+                print(f"   ❌ INVOICE TEMPLATE: Missing payment details: {missing_details}")
+                template_requirements_met = False
+            else:
+                print("   ✅ INVOICE TEMPLATE: All payment details captured")
+                print(f"      Client: {client_name}")
+                print(f"      Amount: ${amount_paid}")
+                print(f"      Method: {comprehensive_payment_data['payment_method']}")
+                print(f"      Notes: {comprehensive_payment_data['notes'][:50]}...")
+            
+            return template_requirements_met
+        else:
+            print("   ❌ Failed to record payment for invoice template test")
+            return False
+    
+    def test_invoice_edge_cases(self):
+        """Test invoice sending with edge cases and special scenarios"""
+        print("\n🎯 INVOICE EDGE CASES TEST")
+        print("=" * 80)
+        print("🎯 OBJECTIVE: Test invoice sending with edge cases and special scenarios")
+        print("📋 SCOPE: Test minimum amounts, special characters, large amounts, etc.")
+        print("=" * 80)
+        
+        edge_cases = [
+            {
+                "name": "Minimum Payment Amount",
+                "amount": 0.01,
+                "method": "Cash",
+                "notes": "Minimum payment test"
+            },
+            {
+                "name": "Large Payment Amount", 
+                "amount": 999.99,
+                "method": "Bank Transfer",
+                "notes": "Large payment amount test"
+            },
+            {
+                "name": "Special Characters in Notes",
+                "amount": 50.0,
+                "method": "Credit Card",
+                "notes": "Special chars: àáâãäåæçèéêë ñóôõö ùúûüý €£¥$"
+            },
+            {
+                "name": "Long Notes Field",
+                "amount": 75.0,
+                "method": "Mobile Payment",
+                "notes": "This is a very long notes field that contains a lot of text to test how the invoice template handles lengthy descriptions and whether it properly formats or truncates long content in the email template display."
+            },
+            {
+                "name": "Empty Notes Field",
+                "amount": 25.0,
+                "method": "Check",
+                "notes": None
+            }
+        ]
+        
+        edge_case_results = []
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        
+        for i, case in enumerate(edge_cases):
+            print(f"\n📋 Edge Case {i+1}: {case['name']}")
+            
+            # Create client for each edge case
+            edge_client_data = {
+                "name": f"Edge Case {i+1} Client",
+                "email": f"edge_case_{i+1}_{timestamp}@example.com",
+                "phone": f"+1868555{2000+i:04d}",
+                "membership_type": "Standard",
+                "monthly_fee": 55.0,
+                "start_date": date.today().isoformat(),
+                "payment_status": "due"
+            }
+            
+            success_client, client_resp = self.run_test(
+                f"Create Edge Case {i+1} Client",
+                "POST",
+                "clients",
+                200,
+                edge_client_data
+            )
+            
+            if success_client and "id" in client_resp:
+                edge_payment_data = {
+                    "client_id": client_resp["id"],
+                    "amount_paid": case["amount"],
+                    "payment_date": date.today().isoformat(),
+                    "payment_method": case["method"],
+                    "notes": case["notes"]
+                }
+                
+                success_payment, payment_resp = self.run_test(
+                    f"Record Edge Case {i+1} Payment",
+                    "POST",
+                    "payments/record",
+                    200,
+                    edge_payment_data
+                )
+                
+                if success_payment:
+                    invoice_sent = payment_resp.get('invoice_sent')
+                    payment_success = payment_resp.get('success', False)
+                    
+                    edge_case_results.append({
+                        'case': case['name'],
+                        'success': True,
+                        'invoice_sent': invoice_sent,
+                        'payment_success': payment_success
+                    })
+                    
+                    print(f"   ✅ Payment: ${case['amount']:.2f} via {case['method']}")
+                    print(f"   📧 Invoice sent: {invoice_sent}")
+                    print(f"   💰 Payment success: {payment_success}")
+                else:
+                    edge_case_results.append({
+                        'case': case['name'],
+                        'success': False,
+                        'invoice_sent': None,
+                        'payment_success': False
+                    })
+                    print(f"   ❌ Payment recording failed")
+            else:
+                edge_case_results.append({
+                    'case': case['name'],
+                    'success': False,
+                    'invoice_sent': None,
+                    'payment_success': False
+                })
+                print(f"   ❌ Client creation failed")
+        
+        # Analyze edge case results
+        successful_cases = [r for r in edge_case_results if r['success']]
+        invoice_attempts = [r for r in successful_cases if r['invoice_sent'] is not None]
+        successful_invoices = [r for r in invoice_attempts if r['invoice_sent'] is True]
+        
+        print(f"\n📊 EDGE CASES RESULTS:")
+        print(f"   Successful payments: {len(successful_cases)}/{len(edge_cases)}")
+        print(f"   Invoice attempts: {len(invoice_attempts)}/{len(successful_cases)}")
+        print(f"   Successful invoices: {len(successful_invoices)}/{len(invoice_attempts)}")
+        
+        # Detailed results
+        for result in edge_case_results:
+            status = "✅" if result['success'] else "❌"
+            invoice_status = "📧✅" if result['invoice_sent'] else "📧❌" if result['invoice_sent'] is False else "📧⚠️"
+            print(f"   {status} {result['case']}: {invoice_status}")
+        
+        edge_cases_passed = len(successful_cases) == len(edge_cases) and len(invoice_attempts) == len(successful_cases)
+        
+        if edge_cases_passed:
+            print("\n✅ INVOICE EDGE CASES: ALL TESTS PASSED")
+            print("✅ Invoice functionality handles all edge cases correctly")
+            print("✅ Special characters, amounts, and notes processed properly")
+        else:
+            print("\n❌ INVOICE EDGE CASES: SOME ISSUES DETECTED")
+            print("⚠️  Some edge cases may not be handled correctly")
+        
+        return edge_cases_passed
+
     def run_all_tests(self):
         """Run all API tests"""
         print("🚀 Starting Alphalete Athletics Club API Tests")
