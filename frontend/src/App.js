@@ -2339,6 +2339,15 @@ const ClientManagement = () => {
   useEffect(() => {
     fetchClients();
   }, []);
+  
+  // Debug effect to track state changes
+  useEffect(() => {
+    console.log('🔍 STATE CHANGE:', { 
+      loading, 
+      clientsLength: clients.length, 
+      clientsSample: clients.slice(0, 2).map(c => ({ name: c.name, amount_owed: c.amount_owed }))
+    });
+  }, [loading, clients]);
 
   const fetchClients = async (forceRefresh = false) => {
     try {
