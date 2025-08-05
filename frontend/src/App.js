@@ -3363,7 +3363,9 @@ const Payments = () => {
           if (paymentStatsResponse.ok) {
             const paymentStats = await paymentStatsResponse.json();
             actualRevenue = paymentStats.total_revenue || 0;
+            const monthlyRevenue = paymentStats.monthly_revenue || 0; // Get monthly revenue from backend
             console.log(`📱 Mobile: SUCCESS - Got TTD ${actualRevenue} total revenue from API`);
+            console.log(`📱 Mobile: SUCCESS - Got TTD ${monthlyRevenue} monthly revenue from API`);
           }
           
         } catch (error) {
