@@ -4468,8 +4468,19 @@ const Settings = () => {
       
       const reader = new FileReader();
       reader.onload = (e) => {
-        // In a real app, you'd upload to server
-        showToast('Gym logo updated successfully');
+        const logoData = e.target.result; // base64 encoded image
+        
+        // Save the logo to localStorage for persistence
+        localStorage.setItem('gymLogo', logoData);
+        localStorage.setItem('gymLogoTimestamp', Date.now().toString());
+        
+        // Update the gym logo display immediately
+        const logoElements = document.querySelectorAll('.gym-logo');
+        logoElements.forEach(element => {
+          element.src = logoData;
+        });
+        
+        showToast('Gym logo updated successfully! Changes will appear immediately.');
         setShowModal(null);
       };
       reader.readAsDataURL(file);
