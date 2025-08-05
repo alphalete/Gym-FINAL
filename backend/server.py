@@ -587,12 +587,14 @@ async def record_client_payment(payment_request: PaymentRecordRequest):
         # This maintains consistent billing cycles for normal payments
         new_next_payment_date = calculate_next_payment_date(current_due_date)
     
-    # Update client's next payment date
+    # Update client's payment status and next payment date
     await db.clients.update_one(
         {"id": payment_request.client_id}, 
         {
             "$set": {
                 "next_payment_date": new_next_payment_date.isoformat(),
+                "payment_status": "paid",  # Mark client as paid
+                "amount_owed": 0.0,        # Clear amount owed
                 "updated_at": datetime.utcnow()
             }
         }
