@@ -4596,6 +4596,26 @@ const Settings = () => {
 
   const navigate = useNavigate();
 
+  // Load payment settings from localStorage on component mount
+  useEffect(() => {
+    const loadPaymentSettings = async () => {
+      try {
+        const savedPaymentSettings = await localDB.getSetting('paymentSettings');
+        if (savedPaymentSettings) {
+          setPaymentSettings(prev => ({
+            ...prev,
+            ...savedPaymentSettings
+          }));
+          console.log('Payment settings loaded:', savedPaymentSettings);
+        }
+      } catch (error) {
+        console.warn('Could not load payment settings:', error);
+      }
+    };
+    
+    loadPaymentSettings();
+  }, []);
+
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
