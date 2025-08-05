@@ -4698,6 +4698,18 @@ const Settings = () => {
               </div>
             </div>
 
+            {/* Data Backup & Export */}
+            <div className="settings-item" onClick={() => setShowModal('backup')}>
+              <div className="settings-item-left">
+                <div className="settings-item-icon purple">💾</div>
+                <div className="settings-item-info">
+                  <div className="settings-item-title">Data Backup & Export</div>
+                  <div className="settings-item-subtitle">Backup your data locally or export to files</div>
+                </div>
+              </div>
+              <span className="settings-arrow">›</span>
+            </div>
+
             <div 
               className="settings-item" 
               onClick={() => setShowConfirmation('clearData')}
