@@ -5,6 +5,30 @@ import './App.css';
 
 const localDB = new LocalStorageManager();
 
+// Toast Notification Component for Professional User Feedback
+const Toast = ({ message, type = 'success', isVisible, onClose }) => {
+  useEffect(() => {
+    if (isVisible) {
+      const timer = setTimeout(onClose, 5000); // Auto-close after 5 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [isVisible, onClose]);
+
+  if (!isVisible) return null;
+
+  return (
+    <div className={`toast-notification toast-${type}`}>
+      <div className="toast-content">
+        <div className="toast-icon">
+          {type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}
+        </div>
+        <div className="toast-message">{message}</div>
+        <button className="toast-close" onClick={onClose}>×</button>
+      </div>
+    </div>
+  );
+};
+
 // AST (Atlantic Standard Time) Utility Functions
 const getASTDate = () => {
   // Create a new date in AST (UTC-4)
