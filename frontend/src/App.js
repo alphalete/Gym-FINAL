@@ -1622,15 +1622,22 @@ const Dashboard = () => {
 
   // Helper functions
   const getClientPaymentStatus = (client) => {
-    if (!client.next_payment_date) return 'paid';
+    // Check if client has actually paid (amount_owed should be 0 or very small)
+    if (client.amount_owed === 0 || client.amount_owed < 0.01) {
+      return 'paid';
+    }
+    
+    // If client owes money, check when their payment is due
+    if (!client.next_payment_date) return 'overdue'; // No due date but owes money = overdue
+    
     const today = getASTDate();
     today.setHours(0, 0, 0, 0);
     const paymentDate = new Date(client.next_payment_date);
     const daysDiff = Math.ceil((paymentDate - today) / (1000 * 60 * 60 * 24));
     
-    if (daysDiff < 0) return 'overdue';
-    if (daysDiff <= 7) return 'due-soon';
-    return 'paid';
+    if (daysDiff < 0) return 'overdue';    // Past due date
+    if (daysDiff <= 7) return 'due-soon';  // Due within 7 days
+    return 'due';                          // Due in the future
   };
 
   const getFilteredClients = () => {
