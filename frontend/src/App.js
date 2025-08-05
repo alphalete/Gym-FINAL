@@ -2338,7 +2338,7 @@ const ClientManagement = () => {
 
   useEffect(() => {
     fetchClients();
-  }, [fetchClients]);
+  }, []);  // Empty dependency array - run only on mount
 
   const fetchClients = useCallback(async (forceRefresh = false) => {
     try {
