@@ -2348,13 +2348,16 @@ const ClientManagement = () => {
       const result = await localDB.getClients(forceRefresh);
       console.log('🔍 ClientManagement: Got result:', result);
       const clientsData = Array.isArray(result.data) ? result.data : [];
-      setClients(clientsData);
-      setLoading(false);
-      console.log('✅ ClientManagement: Set clients, count:', clientsData.length);
+      
+      // Use functional state updates to ensure proper batching
+      setClients(() => clientsData);
+      setLoading(() => false);
+      
+      console.log('✅ ClientManagement: Set clients and loading state, count:', clientsData.length);
     } catch (error) {
       console.error('❌ ClientManagement: Error fetching clients:', error);
-      setClients([]);
-      setLoading(false);
+      setClients(() => []);
+      setLoading(() => false);
     }
   }, []);
 
