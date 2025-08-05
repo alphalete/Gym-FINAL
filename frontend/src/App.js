@@ -2237,8 +2237,16 @@ const ClientManagement = () => {
         const result = await response.json();
         console.log('Payment recording result:', result);
         
-        const invoiceStatus = result.invoice_sent ? '✅ Invoice sent successfully!' : '⚠️ Invoice email failed to send';
-        alert(`✅ Payment recorded successfully for ${result.client_name}!\n💰 Amount: TTD ${result.amount_paid}\n📅 Next payment due: ${result.new_next_payment_date}\n📧 ${invoiceStatus}`);
+        const invoiceStatus = result.invoice_sent ? '📧 Invoice sent successfully!' : '⚠️ Invoice email failed';
+        // Use toast notification instead of alert for better UX
+        const message = `✅ Payment recorded for ${result.client_name}!\n💰 Amount: TTD ${result.amount_paid}\n📅 Next payment due: ${result.new_next_payment_date}\n${invoiceStatus}`;
+        
+        // Check if showToast function exists in this scope
+        if (typeof showToast === 'function') {
+          showToast(message, 'success');
+        } else {
+          alert(message); // Fallback to alert if toast not available
+        }
         
         // Close modal and refresh data
         setQuickPaymentModal({ isOpen: false, client: null });
