@@ -2366,8 +2366,11 @@ const ClientManagement = () => {
         clientsDataLength: clientsData.length 
       });
       
+      // Update both states together to prevent race conditions
       setClients(clientsData);
-      console.log('✅ ClientManagement: Set clients, length:', clientsData.length);
+      setLoading(false);
+      
+      console.log('✅ ClientManagement: Set clients and loading=false, length:', clientsData.length);
       
       // Force a small delay to ensure state updates complete
       setTimeout(() => {
@@ -2377,14 +2380,7 @@ const ClientManagement = () => {
     } catch (error) {
       console.error('❌ ClientManagement: Error fetching clients:', error);
       setClients([]);
-    } finally {
-      console.log('🔍 ClientManagement: Setting loading to false (finally block)');
       setLoading(false);
-      
-      // Additional delayed check to verify loading state
-      setTimeout(() => {
-        console.log('🔍 ClientManagement: Delayed loading check - should be false');
-      }, 50);
     }
   };
 
