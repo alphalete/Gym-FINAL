@@ -2337,6 +2337,7 @@ const ClientManagement = () => {
   const [paymentLoading, setPaymentLoading] = useState(false);
 
   useEffect(() => {
+    console.log('🔍 ClientManagement: useEffect triggered');
     fetchClients();
   }, []);  // Empty dependency array - run only on mount
 
