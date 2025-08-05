@@ -722,7 +722,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Client payment status display issue - 'paid' vs 'due' verification"
+    - "Members tab payment status display bug - specific user issue"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
