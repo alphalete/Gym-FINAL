@@ -4616,6 +4616,26 @@ const Settings = () => {
     loadPaymentSettings();
   }, []);
 
+  // Load notification settings from localStorage on component mount
+  useEffect(() => {
+    const loadNotificationSettings = async () => {
+      try {
+        const savedNotificationSettings = await localDB.getSetting('notificationSettings');
+        if (savedNotificationSettings) {
+          setSettings(prev => ({
+            ...prev,
+            ...savedNotificationSettings
+          }));
+          console.log('Notification settings loaded:', savedNotificationSettings);
+        }
+      } catch (error) {
+        console.warn('Could not load notification settings:', error);
+      }
+    };
+    
+    loadNotificationSettings();
+  }, []);
+
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
