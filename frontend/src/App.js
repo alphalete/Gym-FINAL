@@ -1442,13 +1442,26 @@ const GoGymDashboard = () => {
   const paymentData = clients.slice(0, 5).map((client, index) => {
     const getInitials = (name) => name.split(' ').map(word => word.charAt(0)).join('').toUpperCase().slice(0, 2);
     const getPaymentStatus = () => {
-      if (!client.next_payment_date) return { status: 'paid', label: 'Paid', amount: 0 };
+      // Check if client has actually paid (amount_owed should be 0 or very small)
+      if (client.amount_owed === 0 || client.amount_owed < 0.01) {
+        return { status: 'paid', label: 'Paid', amount: 0 };
+      }
+      
+      const monthlyFee = client.amount_owed || client.monthly_fee || 0;
+      
+      // If client owes money, check when their payment is due
+      if (!client.next_payment_date) {
+        return { 
+          status: 'overdue', 
+          label: `Owes TTD ${monthlyFee}`,
+          amount: monthlyFee
+        };
+      }
+      
       const today = getASTDate();
       today.setHours(0, 0, 0, 0);
       const paymentDate = new Date(client.next_payment_date);
       const diffDays = Math.ceil((paymentDate - today) / (1000 * 60 * 60 * 24));
-      
-      const monthlyFee = client.monthly_fee || 0;
       
       if (diffDays < 0) {
         return { 
@@ -1465,9 +1478,9 @@ const GoGymDashboard = () => {
         };
       }
       return { 
-        status: 'paid', 
-        label: 'Paid',
-        amount: 0
+        status: 'due', 
+        label: `Due TTD ${monthlyFee}`,
+        amount: monthlyFee
       };
     };
 
