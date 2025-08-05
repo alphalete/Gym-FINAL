@@ -2349,7 +2349,7 @@ const ClientManagement = () => {
     });
   }, [loading, clients]);
 
-  const fetchClients = async (forceRefresh = false) => {
+  const fetchClients = useCallback(async (forceRefresh = false) => {
     try {
       console.log('🔍 ClientManagement: Starting fetchClients...', { forceRefresh, currentLoading: loading });
       setLoading(true);
@@ -2382,7 +2382,7 @@ const ClientManagement = () => {
       setClients([]);
       setLoading(false);
     }
-  };
+  }, [loading]);
 
   const sendPaymentReminder = async (client) => {
     try {
