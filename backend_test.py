@@ -2898,6 +2898,13 @@ class AlphaleteAPITester:
         
         # Test sequence - organized by feature
         tests = [
+            # CRITICAL REVIEW REQUEST TEST - Automatic Invoice Sending
+            ("🎯 REVIEW REQUEST: Automatic Invoice Sending Functionality", [
+                self.test_automatic_invoice_sending_functionality,
+                self.test_invoice_email_template_verification,
+                self.test_invoice_edge_cases,
+            ]),
+            
             # CRITICAL REVIEW REQUEST TEST - Multiple Payment Logic Issue
             ("🚨 CRITICAL: Multiple Payment Logic Issue Testing", [
                 self.test_multiple_payment_logic_issue,
