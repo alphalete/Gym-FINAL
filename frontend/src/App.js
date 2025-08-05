@@ -1982,7 +1982,14 @@ const ClientManagement = () => {
 
   // Get payment status
   const getPaymentStatus = (client) => {
-    if (!client.next_payment_date) return 'paid';
+    // Check if client has actually paid (amount_owed should be 0 or very small)
+    if (client.amount_owed === 0 || client.amount_owed < 0.01) {
+      return 'paid';
+    }
+    
+    // If client owes money, check when their payment is due
+    if (!client.next_payment_date) return 'overdue'; // No due date but owes money = overdue
+    
     const today = getASTDate();
     today.setHours(0, 0, 0, 0);
     const paymentDate = new Date(client.next_payment_date);
@@ -1990,7 +1997,7 @@ const ClientManagement = () => {
     
     if (daysDiff < 0) return 'overdue';
     if (daysDiff <= 7) return 'due-soon';
-    return 'paid';
+    return 'due'; // Due in the future (not 'paid'!)
   };
 
   // Format date for display
