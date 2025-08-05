@@ -729,13 +729,328 @@ class LocalStorageManager {
     }
   }
 
-  // Get connection status
-  getConnectionStatus() {
-    const isOnline = navigator.onLine && window.navigator.onLine;
-    return {
-      online: isOnline,
-      message: isOnline ? 'Connected - All features available' : 'Offline - Data stored locally'
-    };
+  // =================== BACKUP & EXPORT METHODS ===================
+
+  async exportDataForBackup() {
+    console.log('📦 Preparing data for backup...');
+    
+    try {
+      // Get all local data
+      const clients = await this.performDBOperation('clients', 'getAll');
+      const membershipTypes = await this.performDBOperation('membershipTypes', 'getAll');
+      const settings = await this.performDBOperation('settings', 'getAll');
+      
+      // Get payment stats if available
+      let paymentStats = null;
+      try {
+        const statsResult = await this.getPaymentStats();
+        paymentStats = statsResult.data;
+      } catch (error) {
+        console.warn('Could not get payment stats for backup:', error);
+      }
+      
+      const backupData = {
+        version: '1.0',
+        app_name: 'Alphalete Club PWA',
+        timestamp: new Date().toISOString(),
+        data: {
+          clients: clients || [],
+          membership_types: membershipTypes || [],
+          settings: settings || []
+        },
+        metadata: {
+          total_clients: (clients || []).length,
+          active_clients: (clients || []).filter(c => c.status === 'Active').length,
+          total_membership_types: (membershipTypes || []).length,
+          backup_size_kb: 0, // Will be calculated after JSON stringify
+          payment_stats: paymentStats
+        }
+      };
+      
+      // Calculate backup size
+      const backupJson = JSON.stringify(backupData, null, 2);
+      backupData.metadata.backup_size_kb = Math.round(new Blob([backupJson]).size / 1024);
+      
+      console.log(`✅ Backup data prepared: ${backupData.metadata.total_clients} clients, ${backupData.metadata.total_membership_types} membership types`);
+      return backupData;
+    } catch (error) {
+      console.error('❌ Error preparing backup data:', error);
+      throw error;
+    }
+  }
+
+  async createBackupFile() {
+    try {
+      const backupData = await this.exportDataForBackup();
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0];
+      const filename = `alphalete-backup-${timestamp}.json`;
+      
+      // Create downloadable backup file
+      const backupJson = JSON.stringify(backupData, null, 2);
+      const blob = new Blob([backupJson], { 
+        type: 'application/json' 
+      });
+      
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      // Save backup info to settings
+      await this.setSetting('last_backup', {
+        timestamp: new Date().toISOString(),
+        filename: filename,
+        client_count: backupData.metadata.total_clients,
+        size_kb: backupData.metadata.backup_size_kb
+      });
+      
+      console.log(`✅ Backup file created: ${filename} (${backupData.metadata.backup_size_kb}KB)`);
+      return {
+        success: true,
+        filename: filename,
+        size_kb: backupData.metadata.backup_size_kb,
+        client_count: backupData.metadata.total_clients
+      };
+    } catch (error) {
+      console.error('❌ Error creating backup file:', error);
+      throw error;
+    }
+  }
+
+  async restoreFromBackup(backupData) {
+    console.log('🔄 Restoring from backup...');
+    
+    try {
+      // Validate backup data structure
+      if (!backupData.version || !backupData.data) {
+        throw new Error('Invalid backup file format');
+      }
+
+      if (!backupData.data.clients || !Array.isArray(backupData.data.clients)) {
+        throw new Error('Invalid clients data in backup');
+      }
+
+      // Get user confirmation with backup details
+      const confirmMessage = `This will replace all current data with backup from ${new Date(backupData.timestamp).toLocaleDateString()}.\n\n` +
+        `Backup contains:\n` +
+        `• ${backupData.metadata.total_clients} clients\n` +
+        `• ${backupData.metadata.total_membership_types} membership types\n\n` +
+        `Current data will be backed up before restore. Continue?`;
+      
+      if (!window.confirm(confirmMessage)) {
+        return { success: false, cancelled: true };
+      }
+
+      // Create emergency backup of current data first
+      try {
+        await this.createBackupFile();
+        console.log('✅ Emergency backup created before restore');
+      } catch (backupError) {
+        console.warn('⚠️ Could not create emergency backup:', backupError);
+      }
+
+      // Clear existing data and restore from backup
+      const transaction = this.db.transaction(['clients', 'membershipTypes', 'settings'], 'readwrite');
+      
+      // Clear clients
+      const clientStore = transaction.objectStore('clients');
+      await this.clearObjectStore(clientStore);
+      
+      // Clear membership types  
+      const membershipStore = transaction.objectStore('membershipTypes');
+      await this.clearObjectStore(membershipStore);
+      
+      // Restore clients
+      for (const client of backupData.data.clients) {
+        await this.addToObjectStore(clientStore, client);
+      }
+      
+      // Restore membership types
+      for (const membershipType of backupData.data.membership_types) {
+        await this.addToObjectStore(membershipStore, membershipType);
+      }
+      
+      // Restore settings (merge, don't replace completely)
+      const settingsStore = transaction.objectStore('settings');
+      for (const setting of backupData.data.settings || []) {
+        await this.addToObjectStore(settingsStore, setting);
+      }
+      
+      // Save restore info
+      await this.setSetting('last_restore', {
+        timestamp: new Date().toISOString(),
+        backup_timestamp: backupData.timestamp,
+        restored_clients: backupData.data.clients.length,
+        restored_membership_types: backupData.data.membership_types.length
+      });
+      
+      console.log(`✅ Backup restored successfully: ${backupData.data.clients.length} clients, ${backupData.data.membership_types.length} membership types`);
+      return {
+        success: true,
+        restored_clients: backupData.data.clients.length,
+        restored_membership_types: backupData.data.membership_types.length,
+        backup_date: backupData.timestamp
+      };
+    } catch (error) {
+      console.error('❌ Error restoring backup:', error);
+      throw error;
+    }
+  }
+
+  // Helper methods for backup operations
+  async clearObjectStore(objectStore) {
+    return new Promise((resolve, reject) => {
+      const request = objectStore.clear();
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async addToObjectStore(objectStore, data) {
+    return new Promise((resolve, reject) => {
+      const request = objectStore.add(data);
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async getStorageStatus() {
+    try {
+      const clients = await this.performDBOperation('clients', 'getAll');
+      const membershipTypes = await this.performDBOperation('membershipTypes', 'getAll');
+      const lastBackup = await this.getSetting('last_backup');
+      const lastRestore = await this.getSetting('last_restore');
+      
+      // Calculate storage usage (approximate)
+      const dataSize = JSON.stringify({ clients, membershipTypes }).length;
+      const storageSizeKB = Math.round(dataSize / 1024);
+      
+      return {
+        local_storage: {
+          clients: clients.length,
+          active_clients: clients.filter(c => c.status === 'Active').length,
+          membership_types: membershipTypes.filter(mt => mt.is_active).length,
+          total_records: clients.length + membershipTypes.length,
+          storage_size_kb: storageSizeKB
+        },
+        backup_status: {
+          last_backup: lastBackup,
+          last_restore: lastRestore,
+          has_backups: !!lastBackup
+        },
+        connection: this.getConnectionStatus(),
+        storage_health: 'healthy' // Could add more health checks
+      };
+    } catch (error) {
+      console.error('Error getting storage status:', error);
+      return {
+        local_storage: { clients: 0, membership_types: 0, total_records: 0 },
+        backup_status: { last_backup: null, last_restore: null, has_backups: false },
+        connection: { online: false, message: 'Error checking status' },
+        storage_health: 'error',
+        error: error.message
+      };
+    }
+  }
+
+  async exportToCSV() {
+    try {
+      const clients = await this.performDBOperation('clients', 'getAll');
+      
+      if (clients.length === 0) {
+        throw new Error('No clients to export');
+      }
+
+      // CSV headers
+      const headers = ['Name', 'Email', 'Phone', 'Membership Type', 'Monthly Fee', 'Start Date', 'Next Payment Date', 'Status', 'Amount Owed'];
+      
+      // CSV rows
+      const rows = clients.map(client => [
+        client.name || '',
+        client.email || '',
+        client.phone || '',
+        client.membership_type || '',
+        client.monthly_fee || '0',
+        client.start_date || '',
+        client.next_payment_date || '',
+        client.status || 'Unknown',
+        client.amount_owed || '0'
+      ]);
+
+      // Combine headers and rows
+      const csvContent = [headers, ...rows]
+        .map(row => row.map(field => `"${String(field).replace(/"/g, '""')}"`).join(','))
+        .join('\n');
+
+      // Create and download file
+      const timestamp = new Date().toISOString().split('T')[0];
+      const filename = `alphalete-clients-${timestamp}.csv`;
+      
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      console.log(`✅ CSV export created: ${filename}`);
+      return { success: true, filename, client_count: clients.length };
+    } catch (error) {
+      console.error('❌ Error exporting to CSV:', error);
+      throw error;
+    }
+  }
+
+  async getPaymentStats() {
+    try {
+      // If online, try to get from backend first
+      if (this.isOnline) {
+        let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+        
+        if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
+          backendUrl = 'https://65d688ea-a807-4f80-b037-f168ea1491e4.preview.emergentagent.com';
+        }
+
+        if (backendUrl) {
+          try {
+            const response = await fetch(`${backendUrl}/api/payments/stats`);
+            if (response.ok) {
+              const data = await response.json();
+              return { data, offline: false };
+            }
+          } catch (error) {
+            console.warn('Could not get payment stats from backend:', error);
+          }
+        }
+      }
+
+      // Calculate basic stats from local data
+      const clients = await this.performDBOperation('clients', 'getAll');
+      const activeClients = clients.filter(c => c.status === 'Active');
+      const totalRevenue = activeClients.reduce((sum, c) => sum + (c.monthly_fee || 0), 0);
+      
+      return {
+        data: {
+          total_revenue: totalRevenue,
+          monthly_revenue: 0, // Would need actual payment records
+          active_clients: activeClients.length,
+          total_clients: clients.length
+        },
+        offline: true
+      };
+    } catch (error) {
+      console.error('Error getting payment stats:', error);
+      return { data: null, offline: true, error: error.message };
+    }
   }
 
   // Reminder-related methods
