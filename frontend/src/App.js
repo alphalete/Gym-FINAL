@@ -3441,7 +3441,7 @@ const Payments = () => {
         totalRevenue: actualRevenue,
         pendingPayments: pendingClients.length,
         overduePayments: overdueClients.length,
-        completedThisMonth: 0
+        completedThisMonth: monthlyRevenue  // Use actual monthly revenue instead of 0
       });
       
       // Also update client list for display
