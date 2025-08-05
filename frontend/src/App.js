@@ -5537,20 +5537,6 @@ const Settings = () => {
             </div>
           </div>
 
-          <div className="settings-item" onClick={() => showToast('Payment Settings feature coming soon')}>
-            <div className="settings-item-left">
-              <div className="settings-item-icon blue">
-                💳
-              </div>
-              <div className="settings-item-info">
-                <div className="settings-item-title">Payment Settings</div>
-                <div className="settings-item-subtitle">Currency, payment reminders, and late fees</div>
-              </div>
-            </div>
-            <div className="settings-item-right">
-              <span className="settings-item-arrow">›</span>
-            </div>
-          </div>
         </div>
 
         {/* Notifications Section */}
