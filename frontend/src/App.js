@@ -2722,22 +2722,13 @@ const ClientManagement = () => {
 
       {/* Members List */}
       <div className="members-list-section">
-        {console.log('🔍 RENDER DEBUG:', { 
-          loading, 
-          clients_length: clients.length,
-          searchTerm,
-          searchFilteredClients_length: searchFilteredClients.length,
-          searchFilteredClients_sample: searchFilteredClients.slice(0, 2).map(c => ({ name: c.name, id: c.id }))
-        })}
         {loading ? (
           <div className="members-loading">
             <div className="loading-spinner"></div>
             <div className="loading-text">Loading members...</div>
-            {console.log('🔍 SHOWING LOADING STATE')}
           </div>
         ) : searchFilteredClients.length === 0 ? (
           <div className="members-empty-state">
-            {console.log('🔍 SHOWING EMPTY STATE')}
             <div className="empty-state-icon">👥</div>
             <div className="empty-state-title">No members found</div>
             <div className="empty-state-message">
@@ -2749,8 +2740,7 @@ const ClientManagement = () => {
             </button>
           </div>
         ) : (
-          <div className="members-list">
-            {console.log('🔍 SHOWING MEMBER CARDS:', searchFilteredClients.length, 'cards')}
+          <div className="members-list" style={{ display: 'block', visibility: 'visible', minHeight: '200px' }}>
             {searchFilteredClients.map((client) => {
               const statusDisplay = getPaymentStatusDisplay(client);
               return (
