@@ -795,7 +795,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Members tab payment status display bug - specific user issue"
+    - "Late fee settings save functionality fix"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
