@@ -3529,7 +3529,9 @@ const Payments = () => {
         });
         
         if (response.ok) {
-          alert(`✅ Payment recorded for ${client.name}`);
+          const result = await response.json();
+          const invoiceStatus = result.invoice_sent ? '✅ Invoice sent successfully!' : '⚠️ Invoice email failed to send';
+          alert(`✅ Payment recorded for ${client.name}!\n💰 Amount: TTD ${result.amount_paid}\n📅 Next payment due: ${result.new_next_payment_date}\n📧 ${invoiceStatus}`);
           fetchClients();
           calculateRealPaymentStats();
         } else {
