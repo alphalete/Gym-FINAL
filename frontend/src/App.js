@@ -4641,11 +4641,29 @@ const Settings = () => {
     setTimeout(() => setToast(null), 3000);
   };
 
-  const handleToggle = (key) => {
-    setSettings(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }));
+  const handleToggle = async (key) => {
+    const newValue = !settings[key];
+    const updatedSettings = {
+      ...settings,
+      [key]: newValue
+    };
+    
+    setSettings(updatedSettings);
+    
+    // Save notification settings to localStorage
+    try {
+      const notificationSettings = {
+        emailReminders: updatedSettings.emailReminders,
+        whatsappReminders: updatedSettings.whatsappReminders,
+        pushNotifications: updatedSettings.pushNotifications,
+        debugMode: updatedSettings.debugMode
+      };
+      await localDB.setSetting('notificationSettings', notificationSettings);
+      console.log('Notification settings saved:', notificationSettings);
+    } catch (error) {
+      console.warn('Could not save notification settings:', error);
+    }
+    
     showToast(`${key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())} ${settings[key] ? 'disabled' : 'enabled'}`);
   };
 
