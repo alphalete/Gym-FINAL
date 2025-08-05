@@ -169,6 +169,17 @@ user_problem_statement: "Test the specific issue the user reported about clients
 
 frontend:
 backend:
+  - task: "Partial payment handling fix in backend payment recording system"
+    implemented: true
+    working: false
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "🎯 PARTIAL PAYMENT HANDLING FIX COMPREHENSIVE TESTING COMPLETED - CRITICAL ISSUE IDENTIFIED! ✅ COMPREHENSIVE VERIFICATION: Conducted extensive testing of partial payment handling fix with 100% API success rate (32/32 tests passed) but identified critical business logic issue. ✅ PARTIAL PAYMENT LOGIC WORKING: Partial payments correctly show payment_type='partial', payment_status='due', and amount_owed=remaining_balance. Multiple partial payments accumulate correctly (TTD 50 + TTD 30 = TTD 20 remaining). ✅ FULL PAYMENT LOGIC WORKING: Full payments correctly show payment_type='full', payment_status='paid', and amount_owed=0.0. Overpayments handled correctly (TTD 150 payment on TTD 100 fee = paid status). ✅ PAYMENT RECORD VERIFICATION WORKING: Payment records store payment_type ('full' or 'partial') and remaining_balance correctly. Revenue calculation includes all payments regardless of type. ✅ EDGE CASES WORKING: Multiple consecutive partial payments work correctly, exact amount payments after partials work correctly. ❌ CRITICAL ISSUE - PAYMENT DATE ADVANCEMENT BUG: Next payment date does NOT advance for full payments made on start date due to flawed logic in server.py lines 581-584. The condition 'if is_immediate_payment and payment_date <= client_start_date:' prevents due date advancement even for full payments. This breaks the expected behavior where full payments should advance the due date by one month. ❌ ROOT CAUSE: Lines 581-584 in server.py contain logic that sets new_next_payment_date = current_due_date when payment is made on start date, preventing proper monthly billing cycle advancement. ✅ PARTIAL PAYMENT DATE LOGIC CORRECT: Partial payments correctly do NOT advance due date (stays same until full payment completed). CONCLUSION: Partial payment handling is mostly working correctly, but there's a critical bug preventing due date advancement for full payments made on start date. This affects the core billing cycle functionality and needs immediate attention."
   - task: "Backend API functionality verification after notification toggle fixes"
     implemented: true
     working: true
