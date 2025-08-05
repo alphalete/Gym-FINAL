@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate 
 import LocalStorageManager from './LocalStorageManager';
 import './App.css';
 
+const localDB = new LocalStorageManager();
+
 // Backup Control Panel Component
 const BackupControlPanel = ({ localDB, onClose, showToast }) => {
   const [storageStatus, setStorageStatus] = useState(null);
