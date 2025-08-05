@@ -4730,10 +4730,33 @@ const Settings = () => {
     setShowModal(null);
   };
 
-  const handlePaymentSettingsSave = () => {
-    setSettings(prev => ({ ...prev, currency: paymentSettings.currency }));
-    showToast('Payment settings updated successfully');
-    setShowModal(null);
+  const handlePaymentSettingsSave = async () => {
+    try {
+      // Save all payment settings to local storage via LocalStorageManager
+      const paymentSettingsData = {
+        currency: paymentSettings.currency,
+        lateFeeAmount: paymentSettings.lateFeeAmount,
+        lateFeeGracePeriod: paymentSettings.lateFeeGracePeriod,
+        reminderDays: paymentSettings.reminderDays
+      };
+      
+      // Update the main settings state
+      setSettings(prev => ({ 
+        ...prev, 
+        currency: paymentSettings.currency,
+        lateFeeAmount: paymentSettings.lateFeeAmount,
+        lateFeeGracePeriod: paymentSettings.lateFeeGracePeriod
+      }));
+      
+      // Save to local storage
+      await localDB.setSetting('paymentSettings', paymentSettingsData);
+      
+      showToast(`Payment settings saved successfully!\nLate Fee: ${paymentSettings.currency} ${paymentSettings.lateFeeAmount}\nGrace Period: ${paymentSettings.lateFeeGracePeriod} days`);
+      setShowModal(null);
+    } catch (error) {
+      console.error('Error saving payment settings:', error);
+      showToast('Error saving payment settings', 'error');
+    }
   };
 
   const handleFileUpload = (event) => {
