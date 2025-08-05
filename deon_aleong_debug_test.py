@@ -16,7 +16,7 @@ class DeonAleongDebugTester:
     Focus: Test the actual payment recording API with real Deon Aleong client data.
     """
     
-    def __init__(self, base_url="https://65d688ea-a807-4f80-b037-f168ea1491e4.preview.emergentagent.com"):
+    def __init__(self, base_url="https://442a58e4-b64f-4824-924a-0c12436c79ea.preview.emergentagent.com"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
         self.tests_run = 0

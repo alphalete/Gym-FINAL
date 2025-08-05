@@ -12,7 +12,7 @@ import os
 import uuid
 
 # Get backend URL from environment
-BACKEND_URL = "https://65d688ea-a807-4f80-b037-f168ea1491e4.preview.emergentagent.com/api"
+BACKEND_URL = "https://442a58e4-b64f-4824-924a-0c12436c79ea.preview.emergentagent.com/api"
 
 def test_amount_owed_field_fix():
     """Test the amount_owed field default fix with unique emails"""

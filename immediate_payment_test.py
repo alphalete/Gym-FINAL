@@ -22,7 +22,7 @@ import sys
 import os
 
 # Get backend URL from environment
-BACKEND_URL = os.getenv('REACT_APP_BACKEND_URL', 'https://65d688ea-a807-4f80-b037-f168ea1491e4.preview.emergentagent.com')
+BACKEND_URL = os.getenv('REACT_APP_BACKEND_URL', 'https://442a58e4-b64f-4824-924a-0c12436c79ea.preview.emergentagent.com')
 API_BASE = f"{BACKEND_URL}/api"
 
 def test_immediate_payment_scenario():
