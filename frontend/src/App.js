@@ -2010,15 +2010,22 @@ const ClientManagement = () => {
   // Get payment status with amount for display
   const getPaymentStatusDisplay = (client) => {
     const status = getPaymentStatus(client);
-    const amount = client.monthly_fee || 0;
+    const amount = client.amount_owed || client.monthly_fee || 0;
     
     switch (status) {
+      case 'paid':
+        return { text: 'PAID', class: 'paid' };
       case 'overdue':
         return { text: `OWES TTD ${amount}`, class: 'overdue' };
       case 'due-soon':
         return { text: `DUE TTD ${amount}`, class: 'due-soon' };
+      case 'due':
+        return { text: `DUE TTD ${amount}`, class: 'due' };
       default:
-        return { text: 'PAID', class: 'paid' };
+        // If we don't know the status, check amount owed to determine
+        return amount > 0 
+          ? { text: `OWES TTD ${amount}`, class: 'overdue' }
+          : { text: 'PAID', class: 'paid' };
     }
   };
 
