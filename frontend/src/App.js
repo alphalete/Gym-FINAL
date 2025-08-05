@@ -3638,7 +3638,7 @@ const Payments = () => {
                 overdue: { label: 'OVERDUE', icon: '⚠', class: 'overdue' },
                 'due-soon': { label: 'DUE SOON', icon: '⏰', class: 'due-soon' }
               };
-              const currentStatusConfig = statusConfig[status] || statusConfig.paid;
+              const currentStatusConfig = statusConfig[status] || statusConfig.overdue // Default to overdue, not paid;
               
               return (
                 <div key={client.id} className="modern-payment-card">
@@ -3982,7 +3982,7 @@ const Payments = () => {
                 overdue: { label: 'OVERDUE', icon: '⚠', class: 'overdue' },
                 'due-soon': { label: 'DUE SOON', icon: '⏰', class: 'due-soon' }
               };
-              const currentStatusConfig = statusConfig[status] || statusConfig.paid;
+              const currentStatusConfig = statusConfig[status] || statusConfig.overdue // Default to overdue, not paid;
               
               return (
                 <div key={client.id} className="modern-payment-card">
