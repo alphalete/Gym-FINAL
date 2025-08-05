@@ -5106,6 +5106,15 @@ const Settings = () => {
         </div>
       )}
 
+      {/* Backup Modal */}
+      {showModal === 'backup' && (
+        <BackupControlPanel 
+          localDB={localDB}
+          onClose={() => setShowModal(null)}
+          showToast={showToast}
+        />
+      )}
+
       {/* Confirmation Modal */}
       {showConfirmation && (
         <div className="confirmation-modal-overlay">
