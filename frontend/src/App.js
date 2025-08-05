@@ -519,7 +519,15 @@ const Navigation = ({ currentPage }) => {
         <div className="p-6 bg-gradient-to-r from-primary-600 to-secondary-600 flex-shrink-0">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md">
-              <img src="/icon-192.png" alt="Logo" className="w-8 h-8 rounded-full" />
+              <img 
+                src={localStorage.getItem('gymLogo') || "/icon-192x192.png"} 
+                alt="Gym Logo" 
+                className="w-8 h-8 rounded-full gym-logo object-cover"
+                onError={(e) => {
+                  // Fallback to default if custom logo fails to load
+                  e.target.src = "/icon-192x192.png";
+                }}
+              />
             </div>
             <div>
               <h1 className="text-lg font-bold text-white">ALPHALETE</h1>
