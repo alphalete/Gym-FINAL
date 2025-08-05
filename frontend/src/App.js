@@ -3,7 +3,272 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate 
 import LocalStorageManager from './LocalStorageManager';
 import './App.css';
 
-const localDB = new LocalStorageManager();
+// Backup Control Panel Component
+const BackupControlPanel = ({ localDB, onClose, showToast }) => {
+  const [storageStatus, setStorageStatus] = useState(null);
+  const [isBackingUp, setIsBackingUp] = useState(false);
+  const [backupHistory, setBackupHistory] = useState([]);
+
+  useEffect(() => {
+    loadStorageStatus();
+  }, []);
+
+  const loadStorageStatus = async () => {
+    try {
+      const status = await localDB.getStorageStatus();
+      setStorageStatus(status);
+    } catch (error) {
+      console.error('Error loading storage status:', error);
+      showToast('Error loading storage status', 'error');
+    }
+  };
+
+  const handleManualBackup = async () => {
+    setIsBackingUp(true);
+    try {
+      const result = await localDB.createBackupFile();
+      setBackupHistory(prev => [...prev, {
+        timestamp: new Date().toISOString(),
+        filename: result.filename,
+        type: 'manual',
+        status: 'success',
+        size_kb: result.size_kb,
+        client_count: result.client_count
+      }]);
+      await loadStorageStatus();
+      showToast(`✅ Backup created: ${result.filename} (${result.client_count} clients, ${result.size_kb}KB)`, 'success');
+    } catch (error) {
+      console.error('Backup failed:', error);
+      setBackupHistory(prev => [...prev, {
+        timestamp: new Date().toISOString(),
+        error: error.message,
+        type: 'manual',
+        status: 'failed'
+      }]);
+      showToast(`❌ Backup failed: ${error.message}`, 'error');
+    } finally {
+      setIsBackingUp(false);
+    }
+  };
+
+  const handleRestoreFile = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      setIsBackingUp(true);
+      try {
+        const backupData = JSON.parse(e.target.result);
+        const result = await localDB.restoreFromBackup(backupData);
+        
+        if (result.success) {
+          setBackupHistory(prev => [...prev, {
+            timestamp: new Date().toISOString(),
+            type: 'restore',
+            status: 'success',
+            restored_clients: result.restored_clients,
+            backup_date: result.backup_date
+          }]);
+          await loadStorageStatus();
+          showToast(`✅ Backup restored: ${result.restored_clients} clients from ${new Date(result.backup_date).toLocaleDateString()}`, 'success');
+          
+          // Suggest page reload to refresh UI
+          setTimeout(() => {
+            if (window.confirm('Backup restored successfully! Reload page to see updated data?')) {
+              window.location.reload();
+            }
+          }, 1000);
+        } else if (result.cancelled) {
+          showToast('Restore cancelled by user', 'info');
+        }
+      } catch (error) {
+        console.error('Restore failed:', error);
+        showToast(`❌ Restore failed: ${error.message}`, 'error');
+      } finally {
+        setIsBackingUp(false);
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleExportCSV = async () => {
+    setIsBackingUp(true);
+    try {
+      const result = await localDB.exportToCSV();
+      showToast(`✅ CSV exported: ${result.filename} (${result.client_count} clients)`, 'success');
+    } catch (error) {
+      console.error('CSV export failed:', error);
+      showToast(`❌ CSV export failed: ${error.message}`, 'error');
+    } finally {
+      setIsBackingUp(false);
+    }
+  };
+
+  if (!storageStatus) {
+    return (
+      <div className="confirmation-modal-overlay">
+        <div className="backup-control-panel">
+          <div className="loading-text">Loading storage status...</div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="confirmation-modal-overlay">
+      <div className="backup-control-panel">
+        <div className="backup-header">
+          <h2>💾 Data Backup & Export</h2>
+          <button className="close-button" onClick={onClose}>✕</button>
+        </div>
+
+        {/* Storage Status */}
+        <div className="backup-section">
+          <h3>📊 Local Storage Status</h3>
+          <div className="status-grid">
+            <div className="status-card">
+              <div className="status-icon">👥</div>
+              <div className="status-info">
+                <div className="status-number">{storageStatus.local_storage.clients}</div>
+                <div className="status-label">Total Clients</div>
+              </div>
+            </div>
+            
+            <div className="status-card">
+              <div className="status-icon">✅</div>
+              <div className="status-info">
+                <div className="status-number">{storageStatus.local_storage.active_clients}</div>
+                <div className="status-label">Active Clients</div>
+              </div>
+            </div>
+            
+            <div className="status-card">
+              <div className="status-icon">📦</div>
+              <div className="status-info">
+                <div className="status-number">{storageStatus.local_storage.storage_size_kb}KB</div>
+                <div className="status-label">Storage Used</div>
+              </div>
+            </div>
+          </div>
+
+          {storageStatus.backup_status.last_backup && (
+            <div className="last-backup-info">
+              <strong>Last Backup:</strong> {new Date(storageStatus.backup_status.last_backup.timestamp).toLocaleString()}
+              <br />
+              <strong>File:</strong> {storageStatus.backup_status.last_backup.filename}
+              <br />
+              <strong>Size:</strong> {storageStatus.backup_status.last_backup.size_kb}KB ({storageStatus.backup_status.last_backup.client_count} clients)
+            </div>
+          )}
+        </div>
+
+        {/* Backup Controls */}
+        <div className="backup-section">
+          <h3>💾 Backup Options</h3>
+          <div className="backup-controls">
+            <button 
+              className="backup-btn primary"
+              onClick={handleManualBackup}
+              disabled={isBackingUp}
+            >
+              {isBackingUp ? '⏳ Creating Backup...' : '📥 Create Backup File'}
+            </button>
+            
+            <div className="file-input-wrapper">
+              <input
+                type="file"
+                accept=".json"
+                onChange={handleRestoreFile}
+                id="restore-file"
+                style={{ display: 'none' }}
+              />
+              <button 
+                className="backup-btn secondary"
+                onClick={() => document.getElementById('restore-file').click()}
+                disabled={isBackingUp}
+              >
+                📤 Restore from Backup
+              </button>
+            </div>
+          </div>
+          <div className="backup-info">
+            <p><strong>📥 Create Backup:</strong> Downloads a JSON file with all your gym data</p>
+            <p><strong>📤 Restore:</strong> Replace current data with backup (current data backed up first)</p>
+          </div>
+        </div>
+
+        {/* Export Options */}
+        <div className="backup-section">
+          <h3>📊 Export Options</h3>
+          <div className="export-controls">
+            <button 
+              className="backup-btn outline"
+              onClick={handleExportCSV}
+              disabled={isBackingUp || storageStatus.local_storage.clients === 0}
+            >
+              📑 Export to CSV
+            </button>
+          </div>
+          <div className="backup-info">
+            <p><strong>CSV Export:</strong> Client data in spreadsheet format</p>
+          </div>
+        </div>
+
+        {/* Connection Status */}
+        <div className="backup-section">
+          <h3>🌐 Connection Status</h3>
+          <div className={`connection-status ${storageStatus.connection.online ? 'online' : 'offline'}`}>
+            <div className="connection-indicator">
+              {storageStatus.connection.online ? '🟢' : '🔴'}
+            </div>
+            <div className="connection-message">
+              {storageStatus.connection.message}
+            </div>
+          </div>
+        </div>
+
+        {/* Recent Activity */}
+        {backupHistory.length > 0 && (
+          <div className="backup-section">
+            <h3>📋 Recent Activity</h3>
+            <div className="backup-history">
+              {backupHistory.slice(-5).reverse().map((backup, index) => (
+                <div key={index} className={`backup-entry ${backup.status}`}>
+                  <div className="backup-time">
+                    {new Date(backup.timestamp).toLocaleString()}
+                  </div>
+                  <div className="backup-details">
+                    {backup.type === 'manual' && '💾 Manual Backup'}
+                    {backup.type === 'restore' && '📤 Restore'}
+                    {backup.filename && ` - ${backup.filename}`}
+                    {backup.client_count && ` (${backup.client_count} clients)`}
+                    {backup.error && ` - ${backup.error}`}
+                  </div>
+                  <div className={`backup-status-indicator ${backup.status}`}>
+                    {backup.status === 'success' ? '✅' : '❌'}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Privacy Notice */}
+        <div className="backup-section privacy-notice">
+          <h4>🔒 Privacy & Data Ownership</h4>
+          <ul>
+            <li>✅ All data stays on your device by default</li>
+            <li>💾 Backups are saved to your local downloads folder</li>
+            <li>🔐 You have complete control over your data</li>
+            <li>❌ No automatic data collection or cloud uploads</li>
+            <li>🏠 True local-first architecture</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // Toast Notification Component for Professional User Feedback
 const Toast = ({ message, type = 'success', isVisible, onClose }) => {
