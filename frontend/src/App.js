@@ -4556,6 +4556,8 @@ const Reports = () => {
   );
 };
 const Settings = () => {
+  const localDB = new LocalStorageManager();
+  
   const [settings, setSettings] = useState({
     gymName: 'Alphalete Athletics Club',
     currency: 'TTD',
