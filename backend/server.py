@@ -658,7 +658,10 @@ async def record_client_payment(payment_request: PaymentRecordRequest):
         "message": f"Payment recorded successfully for {client_obj.name}",
         "client_name": client_obj.name,
         "amount_paid": payment_request.amount_paid,
-        "new_next_payment_date": new_next_payment_date.strftime("%B %d, %Y"),
+        "payment_type": "full" if remaining_balance <= 0 else "partial",
+        "remaining_balance": amount_owed,
+        "payment_status": payment_status,
+        "new_next_payment_date": final_next_payment_date.strftime("%B %d, %Y"),
         "payment_id": payment_record["id"],  # Just return the payment ID, not the full record
         "invoice_sent": invoice_success,
         "invoice_message": "Invoice email sent successfully!" if invoice_success else "Invoice email failed to send"
