@@ -587,14 +587,32 @@ async def record_client_payment(payment_request: PaymentRecordRequest):
         # This maintains consistent billing cycles for normal payments
         new_next_payment_date = calculate_next_payment_date(current_due_date)
     
+    # Calculate remaining balance after payment
+    current_amount_owed = client_obj.amount_owed if client_obj.amount_owed else client_obj.monthly_fee
+    remaining_balance = current_amount_owed - payment_request.amount_paid
+    
+    # Determine payment status based on remaining balance
+    if remaining_balance <= 0:
+        # Full payment or overpayment - mark as paid
+        payment_status = "paid"
+        amount_owed = 0.0
+        # Only advance the due date if this is a full payment
+        final_next_payment_date = new_next_payment_date
+    else:
+        # Partial payment - keep as due with updated balance
+        payment_status = "due"
+        amount_owed = remaining_balance
+        # Don't advance due date for partial payments - they still owe money for this period
+        final_next_payment_date = current_due_date
+    
     # Update client's payment status and next payment date
     await db.clients.update_one(
         {"id": payment_request.client_id}, 
         {
             "$set": {
-                "next_payment_date": new_next_payment_date.isoformat(),
-                "payment_status": "paid",  # Mark client as paid
-                "amount_owed": 0.0,        # Clear amount owed
+                "next_payment_date": final_next_payment_date.isoformat(),
+                "payment_status": payment_status,
+                "amount_owed": amount_owed,
                 "updated_at": datetime.utcnow()
             }
         }
