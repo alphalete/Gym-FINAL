@@ -846,8 +846,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Late fee settings save functionality fix"
-  stuck_tasks: []
+    - "Partial payment handling fix in backend payment recording system"
+  stuck_tasks:
+    - "Partial payment handling fix in backend payment recording system"
   test_all: false
   test_priority: "high_first"
 
