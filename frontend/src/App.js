@@ -3558,8 +3558,12 @@ const Payments = () => {
         
         if (response.ok) {
           const result = await response.json();
-          const invoiceStatus = result.invoice_sent ? '✅ Invoice sent successfully!' : '⚠️ Invoice email failed to send';
-          alert(`✅ Payment recorded for ${client.name}!\n💰 Amount: TTD ${result.amount_paid}\n📅 Next payment due: ${result.new_next_payment_date}\n📧 ${invoiceStatus}`);
+          const invoiceStatus = result.invoice_sent ? '📧 Invoice sent successfully!' : '⚠️ Invoice email failed';
+          // Use toast notification instead of alert for better UX
+          const message = `✅ Payment recorded for ${client.name}!\n💰 Amount: TTD ${result.amount_paid}\n📅 Next payment due: ${result.new_next_payment_date}\n${invoiceStatus}`;
+          
+          // Use alert as fallback since showToast is not available in this component scope
+          alert(message);
           fetchClients();
           calculateRealPaymentStats();
         } else {
