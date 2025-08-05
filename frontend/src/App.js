@@ -2241,12 +2241,8 @@ const ClientManagement = () => {
         // Use toast notification instead of alert for better UX
         const message = `✅ Payment recorded for ${result.client_name}!\n💰 Amount: TTD ${result.amount_paid}\n📅 Next payment due: ${result.new_next_payment_date}\n${invoiceStatus}`;
         
-        // Check if showToast function exists in this scope
-        if (typeof showToast === 'function') {
-          showToast(message, 'success');
-        } else {
-          alert(message); // Fallback to alert if toast not available
-        }
+        // Use alert as fallback since showToast is not available in this component scope
+        alert(message);
         
         // Close modal and refresh data
         setQuickPaymentModal({ isOpen: false, client: null });
