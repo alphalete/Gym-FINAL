@@ -3636,7 +3636,8 @@ const Payments = () => {
               const statusConfig = {
                 paid: { label: 'PAID', icon: '✓', class: 'paid' },
                 overdue: { label: 'OVERDUE', icon: '⚠', class: 'overdue' },
-                'due-soon': { label: 'DUE SOON', icon: '⏰', class: 'due-soon' }
+                'due-soon': { label: 'DUE SOON', icon: '⏰', class: 'due-soon' },
+                due: { label: 'DUE', icon: '💰', class: 'due' }
               };
               const currentStatusConfig = statusConfig[status] || statusConfig.overdue // Default to overdue, not paid;
               
@@ -3980,7 +3981,8 @@ const Payments = () => {
               const statusConfig = {
                 paid: { label: 'PAID', icon: '✓', class: 'paid' },
                 overdue: { label: 'OVERDUE', icon: '⚠', class: 'overdue' },
-                'due-soon': { label: 'DUE SOON', icon: '⏰', class: 'due-soon' }
+                'due-soon': { label: 'DUE SOON', icon: '⏰', class: 'due-soon' },
+                due: { label: 'DUE', icon: '💰', class: 'due' }
               };
               const currentStatusConfig = statusConfig[status] || statusConfig.overdue // Default to overdue, not paid;
               
