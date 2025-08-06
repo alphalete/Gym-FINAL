@@ -2223,7 +2223,8 @@ const Dashboard = () => {
                   className={`tab-pill ${currentFilter === 'all' ? 'active' : ''}`}
                   onClick={() => setCurrentFilter('all')}
                 >
-                  All ({allCount})
+                  <span>All</span>
+                  <span>({allCount})</span>
                 </button>
                 <button 
                   className={`tab-pill ${currentFilter === 'due-soon' ? 'active' : ''}`}
