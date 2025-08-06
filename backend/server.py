@@ -699,10 +699,20 @@ async def get_payment_statistics(response: Response):
                 except:
                     continue
         
+        # Calculate total amount owed by all active clients
+        clients = await db.clients.find({"status": "Active"}).to_list(1000)
+        total_amount_owed = 0
+        for client in clients:
+            # Use amount_owed if available (for partial payments), otherwise use monthly_fee
+            owed = client.get('amount_owed', client.get('monthly_fee', 0))
+            if owed and owed > 0:
+                total_amount_owed += owed
+        
         # Add timestamp to response data for mobile cache detection
         return {
             "total_revenue": total_revenue,
             "monthly_revenue": monthly_revenue,
+            "total_amount_owed": total_amount_owed,
             "payment_count": len(payments),
             "timestamp": datetime.now().isoformat(),
             "cache_buster": datetime.now().timestamp()
@@ -712,6 +722,7 @@ async def get_payment_statistics(response: Response):
         return {
             "total_revenue": 0,
             "monthly_revenue": 0,
+            "total_amount_owed": 0,
             "payment_count": 0,
             "timestamp": datetime.now().isoformat(),
             "cache_buster": datetime.now().timestamp()
