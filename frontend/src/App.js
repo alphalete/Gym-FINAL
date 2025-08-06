@@ -1823,8 +1823,8 @@ const GoGymDashboard = () => {
         </div>
         
         <div className="dashboard-card blue" onClick={() => navigate('/payments')}>
-          <div className="card-value">{formatCurrency(stats.totalRevenue)}</div>
-          <div className="card-label">Total Revenue</div>
+          <div className="card-value">{formatCurrency(stats.totalAmountOwed)}</div>
+          <div className="card-label">Total Amount Owed</div>
         </div>
       </div>
 
