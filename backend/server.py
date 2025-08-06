@@ -626,7 +626,7 @@ async def record_client_payment(payment_request: PaymentRecordRequest):
         "notes": payment_request.notes,
         "previous_due_date": client_obj.next_payment_date.isoformat(),
         "new_due_date": final_next_payment_date.isoformat(),
-        "payment_type": "full" if remaining_balance <= 0 else "partial",
+        "payment_type": "full_monthly" if payment_request.amount_paid >= client_obj.monthly_fee else ("completion" if remaining_balance <= 0 else "partial"),
         "remaining_balance": amount_owed,
         "recorded_at": datetime.utcnow()
     }
