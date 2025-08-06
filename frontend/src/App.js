@@ -4325,7 +4325,7 @@ const Payments = () => {
                       </div>
                       <div className="payment-card-info">
                         <div className="payment-card-name">{client.name}</div>
-                        <div className="payment-card-amount">TTD {client.monthly_fee}</div>
+                        <div className="payment-card-amount">TTD {(client.amount_owed !== null && client.amount_owed !== undefined) ? client.amount_owed : (client.monthly_fee || 0)}</div>
                         <div className="payment-card-details">
                           Due: {client.next_payment_date ? formatDate(client.next_payment_date) : 'Not set'} • TTD {client.monthly_fee}/{client.membership_type?.toLowerCase() || 'month'}
                         </div>
