@@ -2132,7 +2132,7 @@ const Dashboard = () => {
           <p className="text-sm text-gray-500 dark:text-gray-400">{client.email}</p>
         </div>
         <div className="text-right">
-          <p className="text-sm font-medium text-green-600 dark:text-green-400">TTD {client.monthly_fee}</p>
+          <p className="text-sm font-medium text-green-600 dark:text-green-400">TTD {(client.amount_owed !== null && client.amount_owed !== undefined) ? client.amount_owed : (client.monthly_fee || 0)}</p>
           <span className={`status-badge ${client.status === 'Active' ? 'status-active' : 'status-inactive'}`}>
             {client.status}
           </span>
