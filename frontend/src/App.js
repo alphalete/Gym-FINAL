@@ -1770,8 +1770,8 @@ const GoGymDashboard = () => {
       if (diffDays < 0) {
         return { 
           status: 'overdue', 
-          label: `Owes TTD ${monthlyFee}`,
-          amount: monthlyFee
+          label: `Owes TTD ${amountOwed}`,
+          amount: amountOwed
         };
       }
       if (diffDays <= 7) {
