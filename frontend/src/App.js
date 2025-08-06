@@ -2239,12 +2239,12 @@ const Dashboard = () => {
                       <div className="status-pill paid">
                         <span className="status-icon">✔️</span>
                         <span>PAID</span>
-                        <span className="status-amount">{formatCurrency(client.monthly_fee)}</span>
+                        <span className="status-amount">{formatCurrency((client.amount_owed !== null && client.amount_owed !== undefined) ? client.amount_owed : (client.monthly_fee || 0))}</span>
                       </div>
                     ) : (
                       <div className="status-pill overdue">
                         <span className="status-icon">⚠️</span>
-                        <span>OWES {formatCurrency(client.monthly_fee)}</span>
+                        <span>OWES {formatCurrency((client.amount_owed !== null && client.amount_owed !== undefined) ? client.amount_owed : (client.monthly_fee || 0))}</span>
                       </div>
                     )}
                   </div>
