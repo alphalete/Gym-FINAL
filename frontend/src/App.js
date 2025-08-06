@@ -1862,7 +1862,8 @@ const GoGymDashboard = () => {
                   className={`tab-pill ${currentFilter === 'due-soon' ? 'active' : ''}`}
                   onClick={() => setCurrentFilter('due-soon')}
                 >
-                  Due Soon ({dueSoonCount})
+                  <span>Due Soon</span>
+                  <span>({dueSoonCount})</span>
                 </button>
                 <button 
                   className={`tab-pill ${currentFilter === 'overdue' ? 'active' : ''}`}
