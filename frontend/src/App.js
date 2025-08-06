@@ -1869,7 +1869,8 @@ const GoGymDashboard = () => {
                   className={`tab-pill ${currentFilter === 'overdue' ? 'active' : ''}`}
                   onClick={() => setCurrentFilter('overdue')}
                 >
-                  Overdue ({overdueCount})
+                  <span>Overdue</span>
+                  <span>({overdueCount})</span>
                 </button>
               </>
             );
