@@ -2314,7 +2314,10 @@ const ClientManagement = () => {
   // Get payment status with amount for display
   const getPaymentStatusDisplay = (client) => {
     const status = getPaymentStatus(client);
-    const amount = client.amount_owed || client.monthly_fee || 0;
+    // Use amount_owed if it exists (including 0 for paid clients), otherwise use monthly_fee
+    const amount = (client.amount_owed !== null && client.amount_owed !== undefined) 
+      ? client.amount_owed 
+      : (client.monthly_fee || 0);
     
     switch (status) {
       case 'paid':
