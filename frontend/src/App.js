@@ -1777,14 +1777,14 @@ const GoGymDashboard = () => {
       if (diffDays <= 7) {
         return { 
           status: 'due-soon', 
-          label: `Due TTD ${monthlyFee}`, 
-          amount: monthlyFee
+          label: `Due TTD ${amountOwed}`, 
+          amount: amountOwed
         };
       }
       return { 
         status: 'due', 
-        label: `Due TTD ${monthlyFee}`,
-        amount: monthlyFee
+        label: `Due TTD ${amountOwed}`,
+        amount: amountOwed
       };
     };
 
