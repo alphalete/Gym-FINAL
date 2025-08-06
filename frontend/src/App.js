@@ -1757,8 +1757,8 @@ const GoGymDashboard = () => {
       if (!client.next_payment_date) {
         return { 
           status: 'overdue', 
-          label: `Owes TTD ${monthlyFee}`,
-          amount: monthlyFee
+          label: `Owes TTD ${amountOwed}`,
+          amount: amountOwed
         };
       }
       
