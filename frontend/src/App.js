@@ -2205,24 +2205,41 @@ const Dashboard = () => {
         
         {/* Payment Filter Tabs */}
         <div className="payment-tabs">
-          <button 
-            className={`tab-pill ${currentFilter === 'all' ? 'active' : ''}`}
-            onClick={() => setCurrentFilter('all')}
-          >
-            All
-          </button>
-          <button 
-            className={`tab-pill ${currentFilter === 'due-soon' ? 'active' : ''}`}
-            onClick={() => setCurrentFilter('due-soon')}
-          >
-            Due Soon
-          </button>
-          <button 
-            className={`tab-pill ${currentFilter === 'overdue' ? 'active' : ''}`}
-            onClick={() => setCurrentFilter('overdue')}
-          >
-            Overdue
-          </button>
+          {(() => {
+            // Calculate counts for each filter category
+            const allCount = clients.length;
+            const dueSoonCount = clients.filter(client => {
+              const paymentInfo = getClientPaymentStatus(client);
+              return paymentInfo === 'due-soon';
+            }).length;
+            const overdueCount = clients.filter(client => {
+              const paymentInfo = getClientPaymentStatus(client);
+              return paymentInfo === 'overdue';
+            }).length;
+
+            return (
+              <>
+                <button 
+                  className={`tab-pill ${currentFilter === 'all' ? 'active' : ''}`}
+                  onClick={() => setCurrentFilter('all')}
+                >
+                  All ({allCount})
+                </button>
+                <button 
+                  className={`tab-pill ${currentFilter === 'due-soon' ? 'active' : ''}`}
+                  onClick={() => setCurrentFilter('due-soon')}
+                >
+                  Due Soon ({dueSoonCount})
+                </button>
+                <button 
+                  className={`tab-pill ${currentFilter === 'overdue' ? 'active' : ''}`}
+                  onClick={() => setCurrentFilter('overdue')}
+                >
+                  Overdue ({overdueCount})
+                </button>
+              </>
+            );
+          })()}
         </div>
 
         {/* Payment List */}
