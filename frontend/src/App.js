@@ -1748,7 +1748,10 @@ const GoGymDashboard = () => {
         return { status: 'paid', label: 'Paid', amount: 0 };
       }
       
-      const monthlyFee = client.amount_owed || client.monthly_fee || 0;
+      // Use amount_owed if it exists (including 0 for paid clients), otherwise use monthly_fee
+      const amountOwed = (client.amount_owed !== null && client.amount_owed !== undefined) 
+        ? client.amount_owed 
+        : (client.monthly_fee || 0);
       
       // If client owes money, check when their payment is due
       if (!client.next_payment_date) {
