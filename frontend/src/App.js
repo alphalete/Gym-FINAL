@@ -1686,7 +1686,8 @@ const GoGymDashboard = () => {
             paymentsDueToday: dueTodayCount,
             overdueAccounts: overdueCount,
             overdue: overdueCount,
-            totalRevenue: paymentStats.total_revenue || 0
+            totalRevenue: paymentStats.total_revenue || 0,
+            totalAmountOwed: paymentStats.total_amount_owed || 0
           };
           
           setStats(newStats);
