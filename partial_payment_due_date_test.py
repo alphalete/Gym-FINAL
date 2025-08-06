@@ -242,7 +242,7 @@ class PartialPaymentDueDateTester:
             print(f"   ❌ CRITICAL BUG: Due date should STAY February 1st after completion payment. Got: {completion_payment_response.get('new_next_payment_date')}")
             return False
             
-        print(f"   ✅ CRITICAL FIX VERIFIED: Completion payment correctly shows payment_type='completion' and due_date_advanced=false")
+        print(f"   ✅ CRITICAL FIX VERIFIED: Completion payment correctly shows payment_type='{completion_payment_response.get('payment_type')}' and due_date_advanced=false")
         print(f"   ✅ Due date correctly stays February 1st after completing partial payments")
         
         return True
