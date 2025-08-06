@@ -1796,7 +1796,7 @@ const GoGymDashboard = () => {
       date: client.next_payment_date ? new Date(client.next_payment_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A',
       status: statusInfo.status,
       statusLabel: statusInfo.label,
-      amount: `TTD ${client.monthly_fee || 0}`,
+      amount: `TTD ${(client.amount_owed !== null && client.amount_owed !== undefined) ? client.amount_owed : (client.monthly_fee || 0)}`,
       avatar: getInitials(client.name)
     };
   });
