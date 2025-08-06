@@ -67,9 +67,11 @@ class TotalAmountOwedTester:
     
     def create_test_client(self, name, monthly_fee, payment_status="due"):
         """Create a test client and return client data"""
+        # Generate unique email with timestamp to avoid conflicts
+        timestamp = str(int(time.time()))
         client_data = {
             "name": name,
-            "email": f"{name.lower().replace(' ', '_')}@totalowed.test",
+            "email": f"{name.lower().replace(' ', '_')}_{timestamp}@example.com",
             "phone": "555-0123",
             "membership_type": "Test",
             "monthly_fee": monthly_fee,
