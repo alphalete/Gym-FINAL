@@ -104,9 +104,8 @@
   "launch_handler": {
     "client_mode": "navigate-new"
   },
-  "edge_side_panel": {
-    "preferred_width": 400
-  },
+  "prefer_related_applications": false,
+  "related_applications": [],
   "protocol_handlers": [],
   "handle_links": "preferred"
 }
