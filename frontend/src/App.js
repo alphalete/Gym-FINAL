@@ -2661,12 +2661,15 @@ const ClientManagement = () => {
       
       // Use functional state updates to ensure proper batching
       setClients(() => clientsData);
+      setIsOffline(() => result.offline || false);
       setLoading(() => false);
       
       console.log('✅ ClientManagement: Set clients and loading state, count:', clientsData.length);
+      console.log('🌐 ClientManagement: Offline mode:', result.offline);
     } catch (error) {
       console.error('❌ ClientManagement: Error fetching clients:', error);
       setClients(() => []);
+      setIsOffline(() => true);
       setLoading(() => false);
     }
   }, []);
