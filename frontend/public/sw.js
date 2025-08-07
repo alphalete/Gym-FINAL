@@ -1,316 +1,329 @@
-const CACHE_NAME = 'alphalete-mobile-pwa-v12.0.0';
-const OFFLINE_DATA_KEY = 'alphalete-offline-data';
+const CACHE_NAME = 'alphalete-mobile-pwa-v13.0.0';
+const STATIC_CACHE = 'alphalete-static-v13.0.0';
+const API_CACHE = 'alphalete-api-v13.0.0';
 
-// Mobile-First PWA Service Worker
-console.log('📱 MOBILE-FIRST PWA Service Worker: v12.0.0 - Standalone Mobile App Optimization');
+// Mobile-First PWA Service Worker - Optimized for Standalone Mobile App
+console.log('📱 MOBILE-FIRST PWA Service Worker v13.0.0 - Optimized Standalone Mobile App');
 
-// Mobile-First PWA Resources to Cache
-const MOBILE_FIRST_RESOURCES = [
+// Core mobile-first resources for immediate caching
+const CORE_MOBILE_RESOURCES = [
   '/',
-  '/clients',
-  '/add-client',
-  '/payments', 
   '/manifest.json',
+  '/icon-72x72.png',
+  '/icon-96x96.png',
+  '/icon-128x128.png',
+  '/icon-144x144.png',
+  '/icon-152x152.png',
   '/icon-192x192.png',
+  '/icon-384x384.png',
   '/icon-512x512.png',
   '/icon-192x192-maskable.png',
-  '/icon-512x512-maskable.png'
+  '/icon-512x512-maskable.png',
+  '/favicon.ico'
 ];
 
-// Enhanced PWA installation event for mobile-first experience
+// App shell resources for mobile app-like experience
+const APP_SHELL_RESOURCES = [
+  '/clients',
+  '/payments',
+  '/settings'
+];
+
+// Mobile-optimized installation
 self.addEventListener('install', event => {
-  console.log('📱 PWA: Installing Mobile-First Service Worker...');
+  console.log('📱 PWA v13.0.0: Installing mobile-first service worker...');
+  
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      console.log('📱 PWA: Caching mobile-first resources...');
-      return cache.addAll(MOBILE_FIRST_RESOURCES).catch(error => {
-        console.warn('📱 PWA: Some mobile resources failed to cache:', error);
-        // Cache critical resources individually
+    Promise.all([
+      // Cache core resources first (critical for mobile startup)
+      caches.open(STATIC_CACHE).then(cache => {
+        console.log('📱 PWA: Caching core mobile resources...');
+        return cache.addAll(CORE_MOBILE_RESOURCES).catch(error => {
+          console.warn('📱 PWA: Some core resources failed to cache, continuing...', error);
+          // Cache individual resources that succeed
+          return Promise.allSettled(
+            CORE_MOBILE_RESOURCES.map(resource => cache.add(resource))
+          );
+        });
+      }),
+      
+      // Cache app shell for instant navigation
+      caches.open(CACHE_NAME).then(cache => {
+        console.log('📱 PWA: Pre-caching app shell...');
         return Promise.allSettled(
-          MOBILE_FIRST_RESOURCES.map(resource => cache.add(resource))
+          APP_SHELL_RESOURCES.map(resource => {
+            return fetch(resource).then(response => {
+              if (response.ok) {
+                return cache.put(resource, response);
+              }
+            }).catch(() => {
+              console.log('📱 PWA: App shell resource unavailable:', resource);
+            });
+          })
         );
-      });
-    })
+      })
+    ])
   );
+  
   self.skipWaiting();
 });
 
-// Enhanced activation for mobile PWA
+// Mobile-optimized activation
 self.addEventListener('activate', event => {
-  console.log('📱 PWA: Activating Mobile-First Service Worker...');
+  console.log('📱 PWA v13.0.0: Activating mobile-first service worker...');
+  
   event.waitUntil(
     Promise.all([
-      // Clean old caches
-      caches.keys().then(keys => Promise.all(
-        keys.map(key => {
-          if (key !== CACHE_NAME) {
-            console.log('📱 PWA: Deleting old cache:', key);
-            return caches.delete(key);
-          }
-        })
-      )),
-      // Claim all clients for mobile PWA
+      // Clean old caches (keep only current versions)
+      caches.keys().then(cacheNames => {
+        const validCaches = [CACHE_NAME, STATIC_CACHE, API_CACHE];
+        return Promise.all(
+          cacheNames.map(cacheName => {
+            if (!validCaches.includes(cacheName)) {
+              console.log('📱 PWA: Removing old cache:', cacheName);
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      }),
+      
+      // Take control for immediate mobile app behavior
       self.clients.claim()
     ])
   );
 });
 
-// Mobile-Optimized Fetch Strategy
+// Mobile-First Fetch Strategy - Optimized for Performance & Offline
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
+  const { pathname, origin } = url;
   
-  // Handle navigation requests (mobile app-like behavior)
-  if (event.request.mode === 'navigate') {
-    event.respondWith(
-      caches.match('/').then(response => {
-        return response || fetch('/').catch(() => {
-          // Offline fallback for navigation
-          return new Response(
-            `<!DOCTYPE html>
-            <html>
-            <head>
-              <title>Alphalete Club - Offline</title>
-              <meta name="viewport" content="width=device-width, initial-scale=1">
-              <style>
-                body { 
-                  font-family: -apple-system, system-ui; 
-                  text-align: center; 
-                  padding: 2rem; 
-                  background: #f8fafc;
-                }
-                .offline-icon { font-size: 4rem; margin-bottom: 1rem; }
-                .offline-title { color: #1e293b; margin-bottom: 0.5rem; }
-                .offline-message { color: #64748b; }
-              </style>
-            </head>
-            <body>
-              <div class="offline-icon">📱</div>
-              <h1 class="offline-title">Alphalete Club</h1>
-              <p class="offline-message">You're currently offline. Please check your connection.</p>
-            </body>
-            </html>`,
-            {
-              headers: { 'Content-Type': 'text/html' }
-            }
-          );
-        });
-      })
-    );
+  // Only handle same-origin requests
+  if (origin !== self.location.origin) {
     return;
   }
   
-  // Handle API requests with mobile-first caching strategy
-  if (url.pathname.startsWith('/api/')) {
+  // Navigation requests - Mobile app-like behavior
+  if (event.request.mode === 'navigate') {
     event.respondWith(
-      // Network first for API calls (mobile data aware)
+      // Try network first for fresh content
       fetch(event.request).then(response => {
-        // Cache successful API responses for offline access
-        if (response.ok && event.request.method === 'GET') {
-          const responseClone = response.clone();
+        // Cache the page for offline access
+        if (response.ok) {
           caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, responseClone);
+            cache.put(event.request, response.clone());
           });
         }
         return response;
       }).catch(() => {
-        // Fallback to cache for offline mobile experience
+        // Fallback to cached version
         return caches.match(event.request).then(cachedResponse => {
           if (cachedResponse) {
             return cachedResponse;
           }
-          // Return offline response for mobile
-          return new Response(
-            JSON.stringify({ 
-              offline: true, 
-              data: [], 
-              message: 'Currently offline - using cached data' 
-            }),
-            { 
-              headers: { 'Content-Type': 'application/json' },
-              status: 200
-            }
-          );
+          
+          // Final fallback - offline page
+          return caches.match('/').then(indexPage => {
+            return indexPage || new Response(
+              `<!DOCTYPE html>
+              <html>
+              <head>
+                <title>Alphalete Club - Offline</title>
+                <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+                <meta name="theme-color" content="#6366f1">
+                <style>
+                  body { 
+                    font-family: -apple-system, BlinkMacSystemFont, system-ui; 
+                    margin: 0; padding: 2rem; text-align: center; 
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white; min-height: 100vh;
+                    display: flex; flex-direction: column; justify-content: center;
+                  }
+                  .offline-icon { font-size: 4rem; margin-bottom: 1rem; }
+                  .offline-title { font-size: 2rem; margin-bottom: 1rem; font-weight: 600; }
+                  .offline-message { font-size: 1.1rem; opacity: 0.9; line-height: 1.5; }
+                  .retry-btn { 
+                    margin-top: 2rem; padding: 1rem 2rem; 
+                    background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.3);
+                    border-radius: 50px; color: white; font-size: 1rem;
+                    cursor: pointer; backdrop-filter: blur(10px);
+                  }
+                </style>
+              </head>
+              <body>
+                <div class="offline-icon">📱</div>
+                <h1 class="offline-title">Alphalete Club</h1>
+                <p class="offline-message">You're currently offline.<br>Please check your connection and try again.</p>
+                <button class="retry-btn" onclick="window.location.reload()">Retry Connection</button>
+              </body>
+              </html>`,
+              { 
+                headers: { 
+                  'Content-Type': 'text/html',
+                  'Cache-Control': 'no-cache'
+                } 
+              }
+            );
+          });
         });
       })
     );
     return;
   }
   
-  // Handle static resources (cache first for mobile performance)
+  // API requests - Network First with Smart Caching
+  if (pathname.startsWith('/api/')) {
+    event.respondWith(
+      // Add cache-busting for fresh data but allow reasonable caching
+      fetch(
+        event.request.url + (event.request.url.includes('?') ? '&' : '?') + `_t=${Date.now()}`,
+        {
+          method: event.request.method,
+          headers: {
+            ...Object.fromEntries(event.request.headers.entries()),
+            'Cache-Control': 'no-cache',
+            'X-Mobile-Request': 'true'
+          },
+          body: event.request.body,
+          mode: event.request.mode,
+          credentials: event.request.credentials
+        }
+      ).then(response => {
+        // Cache successful GET requests for offline access
+        if (response.ok && event.request.method === 'GET') {
+          caches.open(API_CACHE).then(cache => {
+            // Store with timestamp for cache invalidation
+            const cacheKey = event.request.url + '?cached=' + Date.now();
+            cache.put(cacheKey, response.clone());
+            
+            // Clean old API cache entries (keep last 10 per endpoint)
+            cache.keys().then(keys => {
+              const endpointKeys = keys.filter(req => req.url.includes(pathname));
+              if (endpointKeys.length > 10) {
+                endpointKeys.slice(0, -10).forEach(key => cache.delete(key));
+              }
+            });
+          });
+        }
+        
+        return response;
+      }).catch(() => {
+        // Offline fallback - return cached data or offline response
+        return caches.open(API_CACHE).then(cache => {
+          return cache.keys().then(keys => {
+            const matchingKeys = keys.filter(req => req.url.includes(pathname));
+            if (matchingKeys.length > 0) {
+              // Return most recent cached response
+              const latestKey = matchingKeys.sort((a, b) => {
+                const aTime = new URL(a.url).searchParams.get('cached') || '0';
+                const bTime = new URL(b.url).searchParams.get('cached') || '0';
+                return parseInt(bTime) - parseInt(aTime);
+              })[0];
+              
+              return cache.match(latestKey);
+            }
+            
+            // No cached data available
+            return new Response(
+              JSON.stringify({ 
+                offline: true,
+                error: 'No cached data available',
+                message: 'Please connect to internet to fetch fresh data',
+                timestamp: Date.now()
+              }),
+              { 
+                status: 503,
+                headers: { 
+                  'Content-Type': 'application/json',
+                  'X-Offline-Response': 'true'
+                }
+              }
+            );
+          });
+        });
+      })
+    );
+    return;
+  }
+  
+  // Static resources - Cache First for Performance
   event.respondWith(
-    caches.match(event.request).then(response => {
-      return response || fetch(event.request).then(fetchResponse => {
-        // Cache static resources for mobile performance
+    caches.match(event.request).then(cachedResponse => {
+      if (cachedResponse) {
+        // Serve from cache, update in background
+        fetch(event.request).then(fetchResponse => {
+          if (fetchResponse.ok) {
+            caches.open(STATIC_CACHE).then(cache => {
+              cache.put(event.request, fetchResponse);
+            });
+          }
+        }).catch(() => {
+          // Network failed, cached version is fine
+        });
+        
+        return cachedResponse;
+      }
+      
+      // Not in cache, fetch and cache
+      return fetch(event.request).then(fetchResponse => {
         if (fetchResponse.ok) {
-          const responseClone = fetchResponse.clone();
-          caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, responseClone);
+          caches.open(STATIC_CACHE).then(cache => {
+            cache.put(event.request, fetchResponse.clone());
           });
         }
         return fetchResponse;
+      }).catch(() => {
+        // Network failed and no cache
+        return new Response('Resource unavailable offline', { status: 503 });
       });
     })
   );
 });
 
-// ULTIMATE NUCLEAR CACHE BUSTING - Clear ALL browser data
-self.addEventListener('install', event => {
-  console.log('📱 PWA v6.0.0: ULTIMATE CACHE BUST - Nuclear approach for mobile cache clearing');
-  
-  event.waitUntil(
-    Promise.all([
-      // Delete ALL existing caches
-      caches.keys().then(cacheNames => {
-        console.log('📱 PWA v6.0.0: Found caches to delete:', cacheNames);
-        return Promise.all(
-          cacheNames.map(cacheName => {
-            console.log('📱 PWA v6.0.0: ULTIMATE - Deleting cache:', cacheName);
-            return caches.delete(cacheName);
-          })
-        );
-      }),
-      // Clear any stored cache variables
-      new Promise(resolve => {
-        // Force garbage collection of any cache references
-        if (self.caches) {
-          self.caches.keys().then(keys => {
-            keys.forEach(key => self.caches.delete(key));
-            resolve();
-          });
-        } else {
-          resolve();
-        }
-      })
-    ]).then(() => {
-      console.log('📱 PWA v6.0.0: ULTIMATE - All caches deleted, force taking control');
-      self.skipWaiting();
-    })
-  );
-});
-
-// Take control immediately and force ALL pages to reload with fresh data
-self.addEventListener('activate', event => {
-  console.log('📱 PWA v6.0.0: ULTIMATE ACTIVATE - Taking control and force reloading with fresh data');
-  
-  event.waitUntil(
-    Promise.all([
-      // Take control of all clients
-      self.clients.claim(),
-      // Clear ALL possible caches
-      caches.keys().then(keys => Promise.all(keys.map(key => caches.delete(key)))),
-      // Force all clients to reload with hard refresh
-      self.clients.matchAll().then(clients => {
-        clients.forEach(client => {
-          console.log('📱 PWA v6.0.0: ULTIMATE - Force hard reload client:', client.url);
-          client.postMessage({ 
-            type: 'ULTIMATE_FORCE_RELOAD',
-            message: 'Ultimate cache clear - hard reloading with location.replace',
-            action: 'HARD_RELOAD_NOW'
-          });
-        });
-      })
-    ])
-  );
-});
-
-// Handle messages from app
+// Handle app messages for cache management
 self.addEventListener('message', event => {
-  if (event.data && event.data.type === 'CLEAR_ALL_DATA') {
-    console.log('📱 PWA v4.0.0: Received clear all data request');
-    // Clear all caches
-    caches.keys().then(cacheNames => {
-      return Promise.all(cacheNames.map(name => caches.delete(name)));
-    });
+  const { type, payload } = event.data || {};
+  
+  switch (type) {
+    case 'CLEAR_API_CACHE':
+      console.log('📱 PWA: Clearing API cache...');
+      caches.delete(API_CACHE).then(() => {
+        event.ports[0]?.postMessage({ success: true, message: 'API cache cleared' });
+      });
+      break;
+      
+    case 'FORCE_REFRESH':
+      console.log('📱 PWA: Force refreshing all caches...');
+      Promise.all([
+        caches.delete(CACHE_NAME),
+        caches.delete(API_CACHE)
+      ]).then(() => {
+        event.ports[0]?.postMessage({ success: true, message: 'All caches refreshed' });
+      });
+      break;
+      
+    case 'GET_CACHE_INFO':
+      Promise.all([
+        caches.has(CACHE_NAME),
+        caches.has(STATIC_CACHE),
+        caches.has(API_CACHE)
+      ]).then(([appCache, staticCache, apiCache]) => {
+        event.ports[0]?.postMessage({
+          success: true,
+          caches: { appCache, staticCache, apiCache },
+          version: '13.0.0'
+        });
+      });
+      break;
   }
 });
 
-// ULTIMATE NUCLEAR API CACHE BYPASS - Never cache API responses, force fresh data
-self.addEventListener('fetch', event => {
-  const url = new URL(event.request.url);
-  
-  // For API requests, ULTIMATE NUCLEAR APPROACH - bypass ALL caching mechanisms
-  if (url.pathname.startsWith('/api/')) {
-    console.log('📱 PWA v6.0.0: ULTIMATE API bypass for:', url.pathname);
-    
-    // Create completely fresh request with ULTIMATE cache-busting
-    const ultimateRequest = new Request(
-      event.request.url + (event.request.url.includes('?') ? '&' : '?') + 
-      `_nuclear=${Date.now()}&_mobile_ultimate=${Math.random().toString(36)}&_force_fresh=true&_bypass_all_cache=1`, 
-      {
-        method: event.request.method,
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0, private',
-          'Pragma': 'no-cache',
-          'Expires': '0',
-          'If-None-Match': '*',
-          'If-Modified-Since': 'Thu, 01 Jan 1970 00:00:00 GMT',
-          'X-Requested-With': 'XMLHttpRequest',
-          'X-Mobile-Ultimate-Cache-Bust': Date.now().toString(),
-          'X-Force-Fresh': 'true',
-          'User-Agent': 'AlphaleteMobile-UltimateCacheBust/6.0.0'
-        },
-        body: event.request.body,
-        mode: 'cors',
-        credentials: 'same-origin',
-        cache: 'no-store',
-        redirect: 'follow'
-      }
-    );
-    
-    event.respondWith(
-      fetch(ultimateRequest, { cache: 'no-store' })
-        .then(response => {
-          console.log('📱 PWA v6.0.0: ULTIMATE - Fresh API response for:', url.pathname);
-          
-          // Clone and add ULTIMATE no-cache headers
-          const responseHeaders = new Headers(response.headers);
-          responseHeaders.set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0, private');
-          responseHeaders.set('Pragma', 'no-cache');
-          responseHeaders.set('Expires', '0');
-          responseHeaders.set('X-Ultimate-Cache-Bust', Date.now().toString());
-          
-          return new Response(response.body, {
-            status: response.status,
-            statusText: response.statusText,
-            headers: responseHeaders
-          });
-        })
-        .catch(error => {
-          console.error('📱 PWA v6.0.0: ULTIMATE API request failed:', url.pathname, error);
-          return new Response(JSON.stringify({ 
-            error: 'API unavailable',
-            ultimate_cache_bust: true,
-            timestamp: Date.now()
-          }), {
-            status: 503,
-            headers: { 
-              'Content-Type': 'application/json',
-              'Cache-Control': 'no-cache, no-store'
-            }
-          });
-        })
-    );
-    return;
+// Background sync for mobile data optimization (future enhancement)
+self.addEventListener('sync', event => {
+  if (event.tag === 'background-sync') {
+    console.log('📱 PWA: Background sync triggered');
+    // Implementation for background data sync when connection is restored
   }
-  
-  // For app resources, ULTIMATE bypass - never use cache
-  event.respondWith(
-    fetch(event.request, { 
-      cache: 'no-store',
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache'
-      }
-    })
-      .then(response => {
-        console.log('📱 PWA v6.0.0: ULTIMATE - Fresh resource:', url.pathname);
-        return response;
-      })
-      .catch(error => {
-        console.log('📱 PWA v6.0.0: ULTIMATE - Network failed for:', url.pathname);
-        return new Response('Ultimate Cache Bypass - Offline', { status: 503 });
-      })
-  );
 });
 
-console.log('📱 Mobile PWA Service Worker v6.0.0: ULTIMATE NUCLEAR CACHE BUST - Final mobile cache solution ready');
+console.log('📱 Mobile-First PWA Service Worker v13.0.0: Optimized for standalone mobile app experience');
