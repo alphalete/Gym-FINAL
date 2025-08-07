@@ -914,8 +914,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "New Billing Cycle System Integration"
-  stuck_tasks: []
+    - "Service Worker Mobile-First Caching Update"
+  stuck_tasks:
+    - "Billing cycle modal functionality integration"
   test_all: false
   test_priority: "high_first"
 
