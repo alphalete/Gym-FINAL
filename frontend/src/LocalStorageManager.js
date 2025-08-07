@@ -98,6 +98,9 @@ class LocalStorageManager {
         case 'delete':
           request = store.delete(data);
           break;
+        case 'clear':
+          request = store.clear();
+          break;
         default:
           reject(new Error('Invalid operation'));
           return;
