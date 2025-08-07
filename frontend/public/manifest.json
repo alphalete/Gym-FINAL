@@ -3,11 +3,12 @@
   "short_name": "Alphalete",
   "description": "Professional Gym Management System - Offline Capable",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone"],
+  "display_override": ["standalone", "minimal-ui"],
   "background_color": "#ffffff",
   "theme_color": "#6366f1",
-  "orientation": "portrait",
+  "orientation": "portrait-primary",
   "categories": ["business", "fitness", "productivity"],
   "icons": [
     {
