@@ -3052,6 +3052,13 @@ const ClientManagement = () => {
                       💰
                     </button>
                     <button
+                      className="action-btn billing"
+                      title="View Billing Cycles"
+                      onClick={() => openBillingCycleModal(client)}
+                    >
+                      📊
+                    </button>
+                    <button
                       className="action-btn edit"
                       title="Edit Client"
                       onClick={() => openEditClientModal(client)}
