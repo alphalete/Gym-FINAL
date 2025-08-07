@@ -1098,12 +1098,29 @@ async def get_member_billing_cycles(member_id: str):
     """Get all billing cycles for a member"""
     billing_cycles = await db.billing_cycles.find({"member_id": member_id}).to_list(1000)
     
-    # Convert date strings back to date objects
+    # Clean up MongoDB documents for JSON serialization
     for cycle in billing_cycles:
+        # Remove MongoDB ObjectId
+        if '_id' in cycle:
+            del cycle['_id']
+        
+        # Convert datetime objects to ISO strings
+        if 'created_at' in cycle and isinstance(cycle['created_at'], datetime):
+            cycle['created_at'] = cycle['created_at'].isoformat()
+        if 'updated_at' in cycle and isinstance(cycle['updated_at'], datetime):
+            cycle['updated_at'] = cycle['updated_at'].isoformat()
+        
+        # Ensure dates are in proper format
         if 'start_date' in cycle and isinstance(cycle['start_date'], str):
-            cycle['start_date'] = datetime.fromisoformat(cycle['start_date']).date()
+            try:
+                cycle['start_date'] = datetime.fromisoformat(cycle['start_date']).date().isoformat()
+            except:
+                pass  # Keep as is if conversion fails
         if 'due_date' in cycle and isinstance(cycle['due_date'], str):
-            cycle['due_date'] = datetime.fromisoformat(cycle['due_date']).date()
+            try:
+                cycle['due_date'] = datetime.fromisoformat(cycle['due_date']).date().isoformat()
+            except:
+                pass  # Keep as is if conversion fails
     
     return billing_cycles
 
