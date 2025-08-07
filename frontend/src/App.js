@@ -1279,12 +1279,24 @@ const BillingCycleDetailModal = ({ client, isOpen, onClose }) => {
   const fetchBillingCycles = async () => {
     try {
       setLoading(true);
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      
+      // CRITICAL FIX: Override for mobile devices showing wrong URL
+      if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
+        backendUrl = 'https://7ef3f37b-7d23-49f0-a1a7-5437683b78af.preview.emergentagent.com';
+        console.log('🚨 BILLING CYCLES: OVERRIDING backend URL for mobile fix');
+      }
+      
+      console.log(`🔍 Fetching billing cycles for member ID: ${client.id}`);
+      console.log(`🔍 Using backend URL: ${backendUrl}`);
       
       // Get all billing cycles for this member
       const cyclesResponse = await fetch(`${backendUrl}/api/billing-cycles/${client.id}`);
+      console.log(`🔍 Cycles response status: ${cyclesResponse.status}`);
+      
       if (cyclesResponse.ok) {
         const cycles = await cyclesResponse.json();
+        console.log(`🔍 Found ${cycles.length} billing cycles:`, cycles);
         setBillingCycles(cycles);
         
         // Get current active cycle (Unpaid or Partially Paid)
@@ -1292,17 +1304,33 @@ const BillingCycleDetailModal = ({ client, isOpen, onClose }) => {
           cycle.status === 'Unpaid' || cycle.status === 'Partially Paid'
         ) || cycles[cycles.length - 1]; // Fall back to most recent cycle
         
+        console.log('🔍 Active cycle found:', activeCycle);
+        
         if (activeCycle) {
           setCurrentCycle(activeCycle);
           
           // Get detailed cycle information with payments
           const detailResponse = await fetch(`${backendUrl}/api/billing-cycle/${activeCycle.id}`);
+          console.log(`🔍 Detail response status: ${detailResponse.status}`);
+          
           if (detailResponse.ok) {
             const detail = await detailResponse.json();
+            console.log('🔍 Cycle detail:', detail);
             setPayments(detail.payments || []);
             setTotalPaid(detail.total_paid || 0);
+          } else {
+            console.error('Failed to fetch cycle details:', detailResponse.status);
+          }
+        } else {
+          console.warn('🔍 No active cycle found in cycles:', cycles);
+          // Even if no active cycle, still set the cycles for display
+          if (cycles.length > 0) {
+            setCurrentCycle(cycles[0]); // Set to first available cycle
           }
         }
+      } else {
+        const errorText = await cyclesResponse.text();
+        console.error('🔍 Failed to fetch billing cycles:', cyclesResponse.status, errorText);
       }
     } catch (error) {
       console.error('Error fetching billing cycles:', error);
