@@ -78,6 +78,7 @@ class BillingCycleCreate(BaseModel):
 
 class PaymentCreate(BaseModel):
     billing_cycle_id: str
+    member_id: str  # Added missing member_id field
     amount: float
     date: date
     method: str = "Cash"
