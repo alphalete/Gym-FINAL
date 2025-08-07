@@ -3177,6 +3177,13 @@ const ClientManagement = () => {
           </div>
         </div>
       )}
+
+      {/* Billing Cycle Detail Modal */}
+      <BillingCycleDetailModal
+        client={billingCycleModal.client}
+        isOpen={billingCycleModal.isOpen}
+        onClose={closeBillingCycleModal}
+      />
     </div>
   );
 };
