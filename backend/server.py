@@ -128,6 +128,8 @@ class ClientCreate(BaseModel):
     auto_reminders_enabled: bool = True
     payment_status: Optional[str] = "due"  # Whether client paid on joining
     amount_owed: Optional[float] = None  # Will be set based on payment_status
+    billing_interval_days: int = 30  # Default to monthly
+    notes: Optional[str] = None
 
 class ClientUpdate(BaseModel):
     name: Optional[str] = None
@@ -138,6 +140,8 @@ class ClientUpdate(BaseModel):
     start_date: Optional[date] = None
     status: Optional[str] = None
     auto_reminders_enabled: Optional[bool] = None  # New field for automatic reminders
+    billing_interval_days: Optional[int] = None
+    notes: Optional[str] = None
 
 class EmailTemplateRequest(BaseModel):
     template_name: str
