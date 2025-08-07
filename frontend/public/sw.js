@@ -1,7 +1,44 @@
-const CACHE_NAME = 'alphalete-mobile-v9.0.0-url-override-fix';
+const CACHE_NAME = 'alphalete-mobile-v10.0.0-aggressive-standalone';
 const OFFLINE_DATA_KEY = 'alphalete-offline-data';
 
-console.log('📱 Mobile PWA Service Worker: v9.0.0 URL OVERRIDE FIX - Removed all hardcoded URL overrides for proper APK functionality');
+console.log('📱 PWA Service Worker: v10.0.0 AGGRESSIVE STANDALONE MODE - Force standalone mode for APK generation');
+
+// Enhanced PWA installation event for better standalone mode recognition
+self.addEventListener('install', event => {
+  console.log('📱 PWA: Service Worker installing for standalone mode');
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.addAll([
+        '/',
+        '/clients', 
+        '/add-client',
+        '/manifest.json',
+        '/icon-192x192.png',
+        '/icon-512x512.png'
+      ]).catch(error => {
+        console.warn('📱 PWA: Some resources failed to cache:', error);
+      });
+    })
+  );
+  self.skipWaiting();
+});
+
+// Enhanced activation for PWA recognition
+self.addEventListener('activate', event => {
+  console.log('📱 PWA: Service Worker activated for standalone mode');
+  event.waitUntil(
+    caches.keys().then(keys => Promise.all(
+      keys.map(key => {
+        if (key !== CACHE_NAME) {
+          console.log('📱 PWA: Deleting old cache:', key);
+          return caches.delete(key);
+        }
+      })
+    )).then(() => {
+      return self.clients.claim();
+    })
+  );
+});
 
 // ULTIMATE NUCLEAR CACHE BUSTING - Clear ALL browser data
 self.addEventListener('install', event => {
