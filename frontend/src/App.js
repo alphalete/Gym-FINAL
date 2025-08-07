@@ -3199,6 +3199,7 @@ const AddClient = () => {
     start_date: formatDateForInput(getASTDate()),
     auto_reminders_enabled: true,
     status: "Active", // Add status field
+    billing_interval_days: 30, // Default to monthly
     notes: ""
   });
 
