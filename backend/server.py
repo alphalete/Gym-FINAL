@@ -1064,6 +1064,109 @@ async def update_client_reminder_settings(client_id: str, request: dict):
         logger.error(f"Error updating client reminder settings: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to update reminder settings")
 
+# Billing Cycle Routes
+@api_router.get("/billing-cycles/{member_id}")
+async def get_member_billing_cycles(member_id: str):
+    """Get all billing cycles for a member"""
+    billing_cycles = await db.billing_cycles.find({"member_id": member_id}).to_list(1000)
+    
+    # Convert date strings back to date objects
+    for cycle in billing_cycles:
+        if 'start_date' in cycle and isinstance(cycle['start_date'], str):
+            cycle['start_date'] = datetime.fromisoformat(cycle['start_date']).date()
+        if 'due_date' in cycle and isinstance(cycle['due_date'], str):
+            cycle['due_date'] = datetime.fromisoformat(cycle['due_date']).date()
+    
+    return billing_cycles
+
+@api_router.get("/billing-cycle/{cycle_id}")
+async def get_billing_cycle_detail(cycle_id: str):
+    """Get billing cycle details with payments"""
+    # Get billing cycle
+    cycle = await db.billing_cycles.find_one({"id": cycle_id})
+    if not cycle:
+        raise HTTPException(status_code=404, detail="Billing cycle not found")
+    
+    # Convert date strings back to date objects
+    if 'start_date' in cycle and isinstance(cycle['start_date'], str):
+        cycle['start_date'] = datetime.fromisoformat(cycle['start_date']).date()
+    if 'due_date' in cycle and isinstance(cycle['due_date'], str):
+        cycle['due_date'] = datetime.fromisoformat(cycle['due_date']).date()
+    
+    # Get payments for this cycle
+    payments = await db.payments.find({"billing_cycle_id": cycle_id}).to_list(1000)
+    
+    # Convert payment date strings
+    for payment in payments:
+        if 'date' in payment and isinstance(payment['date'], str):
+            payment['date'] = datetime.fromisoformat(payment['date']).date()
+    
+    return {
+        "billing_cycle": cycle,
+        "payments": payments,
+        "total_paid": sum(payment.get('amount', 0) for payment in payments)
+    }
+
+@api_router.post("/payments/new")
+async def create_payment(payment_data: PaymentCreate):
+    """Create a new payment and update billing cycle status"""
+    # Verify billing cycle exists
+    cycle = await db.billing_cycles.find_one({"id": payment_data.billing_cycle_id})
+    if not cycle:
+        raise HTTPException(status_code=404, detail="Billing cycle not found")
+    
+    # Create payment
+    payment = Payment(**payment_data.dict())
+    payment_dict = payment.dict()
+    payment_dict['date'] = payment_dict['date'].isoformat()
+    
+    # Insert payment
+    await db.payments.insert_one(payment_dict)
+    
+    # Update billing cycle status
+    await update_billing_cycle_status(payment_data.billing_cycle_id)
+    
+    return {
+        "success": True,
+        "payment_id": payment.id,
+        "message": f"Payment of ${payment.amount} recorded successfully"
+    }
+
+@api_router.post("/migrate-to-billing-cycles")
+async def migrate_existing_clients():
+    """Migrate existing clients to use billing cycles system"""
+    clients = await db.clients.find().to_list(1000)
+    migrated_count = 0
+    
+    for client_data in clients:
+        try:
+            # Check if billing cycle already exists for this client
+            existing_cycle = await db.billing_cycles.find_one({"member_id": client_data['id']})
+            if existing_cycle:
+                continue  # Skip if already migrated
+            
+            # Ensure client has billing_interval_days
+            if 'billing_interval_days' not in client_data:
+                await db.clients.update_one(
+                    {"id": client_data['id']},
+                    {"$set": {"billing_interval_days": 30, "notes": ""}}
+                )
+                client_data['billing_interval_days'] = 30
+            
+            # Create billing cycle for existing client
+            await create_billing_cycle_for_member(client_data['id'], client_data)
+            migrated_count += 1
+            
+        except Exception as e:
+            logger.error(f"Error migrating client {client_data.get('name', 'Unknown')}: {str(e)}")
+            continue
+    
+    return {
+        "success": True,
+        "migrated_count": migrated_count,
+        "message": f"Successfully migrated {migrated_count} clients to billing cycles system"
+    }
+
 # Include the router in the main app
 app.include_router(api_router)
 
