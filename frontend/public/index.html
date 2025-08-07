@@ -36,7 +36,33 @@
         <!-- Mobile optimizations -->
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Alphalete Club" />
+        
+        <!-- Android/Chrome specific -->
+        <meta name="mobile-web-app-title" content="Alphalete Club" />
+        <meta name="application-name" content="Alphalete Club" />
+        
+        <!-- Status bar and navigation optimization for TWA -->
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="msapplication-tap-highlight" content="no" />
+        
+        <!-- Prevent Android status bar color issues -->
+        <style>
+          /* Ensure proper status bar integration */
+          body {
+            padding-top: env(safe-area-inset-top);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+            padding-bottom: env(safe-area-inset-bottom);
+          }
+          
+          /* Hide any potential status bar overlap */
+          .App {
+            min-height: 100vh;
+            min-height: 100dvh;
+          }
+        </style>
         <meta name="apple-mobile-web-app-title" content="Alphalete" />
         
         <!-- Enable scrolling on mobile -->
