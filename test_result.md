@@ -890,9 +890,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Partial payment handling fix in backend payment recording system"
-  stuck_tasks:
-    - "Partial payment handling fix in backend payment recording system"
+    - "New Billing Cycle System Integration"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
