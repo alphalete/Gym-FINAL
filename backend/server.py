@@ -699,7 +699,7 @@ async def send_payment_reminder(reminder_request: CustomEmailRequest):
 
 @api_router.post("/payments/record")
 async def record_client_payment(payment_request: PaymentRecordRequest):
-    """Record a payment and update client's next payment date"""
+    """Record a payment and update client's next payment date and billing cycle"""
     # Get client details
     client = await db.clients.find_one({"id": payment_request.client_id})
     if not client:
@@ -713,16 +713,18 @@ async def record_client_payment(payment_request: PaymentRecordRequest):
     
     client_obj = Client(**client)
     
-    # Calculate new next payment date based on payment timing
-    current_due_date = client_obj.next_payment_date
-    payment_date = payment_request.payment_date
-    client_start_date = client_obj.start_date
+    # Find current active billing cycle for this client
+    current_cycle = await db.billing_cycles.find_one({
+        "member_id": payment_request.client_id,
+        "status": {"$in": ["Unpaid", "Partially Paid"]}
+    })
     
     # Calculate remaining balance after payment
     current_amount_owed = client_obj.amount_owed if client_obj.amount_owed else client_obj.monthly_fee
     remaining_balance = current_amount_owed - payment_request.amount_paid
     
     # Determine payment status and due date advancement
+    current_due_date = client_obj.next_payment_date
     if remaining_balance <= 0:
         # Payment fully covers what was owed
         payment_status = "paid"
@@ -758,7 +760,7 @@ async def record_client_payment(payment_request: PaymentRecordRequest):
         }
     )
     
-    # Record the payment (you could store this in a separate payments collection if needed)
+    # Record the payment in legacy payment_records collection for backward compatibility
     payment_record = {
         "id": str(uuid.uuid4()),
         "client_id": payment_request.client_id,
@@ -775,13 +777,38 @@ async def record_client_payment(payment_request: PaymentRecordRequest):
         "recorded_at": datetime.utcnow()
     }
     
-    # Store payment records in a separate collection for revenue tracking
+    # Store payment records in legacy collection for revenue tracking
     try:
         await db.payment_records.insert_one(payment_record)
         logger.info(f"Payment record stored successfully for client {client_obj.name}")
     except Exception as e:
         logger.error(f"Error storing payment record: {str(e)}")
-        # Continue execution even if payment record storage fails
+    
+    # Also record payment in new billing cycle system if cycle exists
+    if current_cycle:
+        try:
+            # Create payment in new system
+            billing_payment = Payment(
+                billing_cycle_id=current_cycle['id'],
+                member_id=payment_request.client_id,
+                amount=payment_request.amount_paid,
+                date=payment_request.payment_date,
+                method=payment_request.payment_method,
+                notes=payment_request.notes
+            )
+            
+            billing_payment_dict = billing_payment.dict()
+            billing_payment_dict['date'] = billing_payment_dict['date'].isoformat()
+            
+            await db.payments.insert_one(billing_payment_dict)
+            
+            # Update billing cycle status
+            await update_billing_cycle_status(current_cycle['id'])
+            
+            logger.info(f"Payment recorded in billing cycle system for client {client_obj.name}")
+        except Exception as e:
+            logger.error(f"Error recording payment in billing cycle system: {str(e)}")
+            # Continue execution even if billing cycle update fails
     
     # Send automatic invoice email
     invoice_success = email_service.send_payment_invoice(
@@ -803,9 +830,10 @@ async def record_client_payment(payment_request: PaymentRecordRequest):
         "payment_status": payment_status,
         "due_date_advanced": payment_request.amount_paid >= client_obj.monthly_fee and remaining_balance <= 0,
         "new_next_payment_date": final_next_payment_date.strftime("%B %d, %Y"),
-        "payment_id": payment_record["id"],  # Just return the payment ID, not the full record
+        "payment_id": payment_record["id"],
         "invoice_sent": invoice_success,
-        "invoice_message": "Invoice email sent successfully!" if invoice_success else "Invoice email failed to send"
+        "invoice_message": "Invoice email sent successfully!" if invoice_success else "Invoice email failed to send",
+        "billing_cycle_updated": current_cycle is not None
     }
 
 @api_router.get("/payments/stats")
