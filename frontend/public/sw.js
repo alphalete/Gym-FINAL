@@ -1,7 +1,7 @@
-const CACHE_NAME = 'alphalete-mobile-v7.0.0-pwa-icons-update';
+const CACHE_NAME = 'alphalete-mobile-v8.0.0-status-bar-fix';
 const OFFLINE_DATA_KEY = 'alphalete-offline-data';
 
-console.log('📱 Mobile PWA Service Worker: v7.0.0 PWA ICONS UPDATE - Separate maskable and any icons');
+console.log('📱 Mobile PWA Service Worker: v8.0.0 STATUS BAR FIX - Proper Android status bar integration');
 
 // ULTIMATE NUCLEAR CACHE BUSTING - Clear ALL browser data
 self.addEventListener('install', event => {
