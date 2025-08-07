@@ -1,7 +1,7 @@
-const CACHE_NAME = 'alphalete-mobile-v8.0.0-status-bar-fix';
+const CACHE_NAME = 'alphalete-mobile-v9.0.0-url-override-fix';
 const OFFLINE_DATA_KEY = 'alphalete-offline-data';
 
-console.log('📱 Mobile PWA Service Worker: v8.0.0 STATUS BAR FIX - Proper Android status bar integration');
+console.log('📱 Mobile PWA Service Worker: v9.0.0 URL OVERRIDE FIX - Removed all hardcoded URL overrides for proper APK functionality');
 
 // ULTIMATE NUCLEAR CACHE BUSTING - Clear ALL browser data
 self.addEventListener('install', event => {
