@@ -80,7 +80,7 @@ When you regenerate your APK from PWABuilder with the updated URL:
 
 1. **Regenerate APK**: Use PWABuilder again with your URL:
    ```
-   https://7ef3f37b-7d23-49f0-a1a7-5437683b78af.preview.emergentagent.com
+   https://alphalete-club.emergent.host
    ```
 
 2. **Test Installation**: The status bar should now be:

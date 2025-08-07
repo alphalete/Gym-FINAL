@@ -8,7 +8,7 @@
 
 ### **1. Use CORRECT URL:**
 ```
-https://7ef3f37b-7d23-49f0-a1a7-5437683b78af.preview.emergentagent.com
+https://alphalete-club.emergent.host
 ```
 
 **❌ DO NOT USE:** `alphalete-club.emergent.host` (old URL causing issues)
@@ -17,7 +17,7 @@ https://7ef3f37b-7d23-49f0-a1a7-5437683b78af.preview.emergentagent.com
 When generating the APK, ensure these environment variables are set:
 
 ```bash
-REACT_APP_BACKEND_URL=https://7ef3f37b-7d23-49f0-a1a7-5437683b78af.preview.emergentagent.com
+REACT_APP_BACKEND_URL=https://alphalete-club.emergent.host
 ```
 
 ### **3. PWABuilder Settings:**
@@ -82,7 +82,7 @@ After generating new APK from correct URL:
 ## ⚡ **Immediate Action Required:**
 
 **REGENERATE APK** using:
-- **Correct URL**: `https://7ef3f37b-7d23-49f0-a1a7-5437683b78af.preview.emergentagent.com`
+- **Correct URL**: `https://alphalete-club.emergent.host`
 - **Latest PWA configuration** (v9.0.0 with all fixes)
 - **Proper environment variable injection**
 

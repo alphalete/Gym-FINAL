@@ -50,7 +50,7 @@ const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
 
 #### **1. URL (MUST BE CORRECT):**
 ```
-https://7ef3f37b-7d23-49f0-a1a7-5437683b78af.preview.emergentagent.com
+https://alphalete-club.emergent.host
 ```
 
 #### **2. Android Package Settings:**
@@ -90,7 +90,7 @@ In PWABuilder, specifically enable:
 ### **Option 3: Manifest Validation**
 Before generating APK, test manifest at:
 ```
-https://7ef3f37b-7d23-49f0-a1a7-5437683b78af.preview.emergentagent.com/manifest.json
+https://alphalete-club.emergent.host/manifest.json
 ```
 
 Should show:

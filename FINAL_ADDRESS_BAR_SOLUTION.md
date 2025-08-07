@@ -50,7 +50,7 @@
 ### **Step 1: Verify PWA is Ready**
 Test your PWA at:
 ```
-https://7ef3f37b-7d23-49f0-a1a7-5437683b78af.preview.emergentagent.com
+https://alphalete-club.emergent.host
 ```
 
 Open Developer Console and verify:
@@ -64,7 +64,7 @@ Open Developer Console and verify:
 
 #### **URL (CRITICAL):**
 ```
-https://7ef3f37b-7d23-49f0-a1a7-5437683b78af.preview.emergentagent.com
+https://alphalete-club.emergent.host
 ```
 
 #### **Android Settings:**
@@ -88,7 +88,7 @@ If PWABuilder still shows address bar, use **Bubblewrap CLI**:
 npm install -g @bubblewrap/cli
 
 # Generate TWA  
-bubblewrap init --manifest https://7ef3f37b-7d23-49f0-a1a7-5437683b78af.preview.emergentagent.com/manifest.json
+bubblewrap init --manifest https://alphalete-club.emergent.host/manifest.json
 
 # Build APK
 bubblewrap build
@@ -114,9 +114,9 @@ For manual TWA creation, use these settings:
   "backgroundColor": "#ffffff",
   "enableNotifications": true,
   "startUrl": "/",
-  "iconUrl": "https://7ef3f37b-7d23-49f0-a1a7-5437683b78af.preview.emergentagent.com/icon-192x192.png",
-  "maskableIconUrl": "https://7ef3f37b-7d23-49f0-a1a7-5437683b78af.preview.emergentagent.com/icon-192x192-maskable.png",
-  "monochromeIconUrl": "https://7ef3f37b-7d23-49f0-a1a7-5437683b78af.preview.emergentagent.com/icon-192x192.png"
+  "iconUrl": "https://alphalete-club.emergent.host/icon-192x192.png",
+  "maskableIconUrl": "https://alphalete-club.emergent.host/icon-192x192-maskable.png",
+  "monochromeIconUrl": "https://alphalete-club.emergent.host/icon-192x192.png"
 }
 ```
 

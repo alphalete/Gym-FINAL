@@ -11,7 +11,7 @@ from datetime import datetime, date
 def check_backend_status():
     """Check if backend is accessible and has data"""
     try:
-        backend_url = "https://7ef3f37b-7d23-49f0-a1a7-5437683b78af.preview.emergentagent.com"
+        backend_url = "https://alphalete-club.emergent.host"
         
         print(f"🔍 Checking backend at: {backend_url}")
         
