@@ -1379,78 +1379,82 @@ const BillingCycleDetailModal = ({ client, isOpen, onClose }) => {
         <div className="modal-content">
           {loading ? (
             <div className="loading-text">Loading billing cycle information...</div>
-          ) : currentCycle ? (
+          ) : billingCycles.length > 0 ? (
             <>
               {/* Current Billing Cycle */}
-              <div className="modal-section">
-                <div className="modal-section-title">
-                  <div className="modal-section-icon blue">📊</div>
-                  Current Billing Cycle
-                </div>
-                <div className="billing-cycle-card">
-                  <div className="billing-cycle-header">
-                    <div className="billing-cycle-dates">
-                      <div className="date-item">
-                        <label>Start:</label>
-                        <span>{formatDate(currentCycle.start_date)}</span>
+              {currentCycle && (
+                <div className="modal-section">
+                  <div className="modal-section-title">
+                    <div className="modal-section-icon blue">📊</div>
+                    Current Billing Cycle
+                  </div>
+                  <div className="billing-cycle-card">
+                    <div className="billing-cycle-header">
+                      <div className="billing-cycle-dates">
+                        <div className="date-item">
+                          <label>Start:</label>
+                          <span>{formatDate(currentCycle.start_date)}</span>
+                        </div>
+                        <div className="date-item">
+                          <label>Due:</label>
+                          <span>{formatDate(currentCycle.due_date)}</span>
+                        </div>
                       </div>
-                      <div className="date-item">
-                        <label>Due:</label>
-                        <span>{formatDate(currentCycle.due_date)}</span>
+                      <div className={`billing-cycle-status ${currentCycle.status.toLowerCase().replace(' ', '-')}`}>
+                        {currentCycle.status}
                       </div>
                     </div>
-                    <div className={`billing-cycle-status ${currentCycle.status.toLowerCase().replace(' ', '-')}`}>
-                      {currentCycle.status}
+                    
+                    <div className="billing-cycle-amounts">
+                      <div className="amount-item">
+                        <label>Amount Due:</label>
+                        <span className="amount-due">{formatCurrency(currentCycle.amount_due)}</span>
+                      </div>
+                      <div className="amount-item">
+                        <label>Total Paid:</label>
+                        <span className="amount-paid">{formatCurrency(totalPaid)}</span>
+                      </div>
+                      <div className="amount-item">
+                        <label>Remaining:</label>
+                        <span className={`amount-remaining ${(currentCycle.amount_due - totalPaid) <= 0 ? 'paid' : 'due'}`}>
+                          {formatCurrency(Math.max(0, currentCycle.amount_due - totalPaid))}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                  
-                  <div className="billing-cycle-amounts">
-                    <div className="amount-item">
-                      <label>Amount Due:</label>
-                      <span className="amount-due">{formatCurrency(currentCycle.amount_due)}</span>
-                    </div>
-                    <div className="amount-item">
-                      <label>Total Paid:</label>
-                      <span className="amount-paid">{formatCurrency(totalPaid)}</span>
-                    </div>
-                    <div className="amount-item">
-                      <label>Remaining:</label>
-                      <span className={`amount-remaining ${(currentCycle.amount_due - totalPaid) <= 0 ? 'paid' : 'due'}`}>
-                        {formatCurrency(Math.max(0, currentCycle.amount_due - totalPaid))}
-                      </span>
-                    </div>
-                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Payments Section */}
-              <div className="modal-section">
-                <div className="modal-section-title">
-                  <div className="modal-section-icon green">💳</div>
-                  Payments ({payments.length})
+              {currentCycle && (
+                <div className="modal-section">
+                  <div className="modal-section-title">
+                    <div className="modal-section-icon green">💳</div>
+                    Payments ({payments.length})
+                  </div>
+                  
+                  {payments.length > 0 ? (
+                    <div className="payments-list">
+                      {payments.map((payment, index) => (
+                        <div key={index} className="payment-item">
+                          <div className="payment-info">
+                            <div className="payment-amount">{formatCurrency(payment.amount)}</div>
+                            <div className="payment-date">{formatDate(payment.date)}</div>
+                          </div>
+                          <div className="payment-method">
+                            <span className="method-badge">{payment.method}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="empty-payments">
+                      <div className="empty-icon">💳</div>
+                      <div className="empty-text">No payments recorded for this billing cycle</div>
+                    </div>
+                  )}
                 </div>
-                
-                {payments.length > 0 ? (
-                  <div className="payments-list">
-                    {payments.map((payment, index) => (
-                      <div key={index} className="payment-item">
-                        <div className="payment-info">
-                          <div className="payment-amount">{formatCurrency(payment.amount)}</div>
-                          <div className="payment-date">{formatDate(payment.date)}</div>
-                        </div>
-                        <div className="payment-method">
-                          <span className="method-badge">{payment.method}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="empty-payments">
-                    <div className="empty-icon">💳</div>
-                    <div className="empty-text">No payments recorded for this billing cycle</div>
-                  </div>
-                )}
-              </div>
+              )}
 
               {/* All Billing Cycles */}
               {billingCycles.length > 1 && (
@@ -1481,6 +1485,9 @@ const BillingCycleDetailModal = ({ client, isOpen, onClose }) => {
             <div className="empty-billing">
               <div className="empty-icon">📊</div>
               <div className="empty-text">No billing cycles found for this member</div>
+              <div className="empty-subtext" style={{marginTop: '8px', fontSize: '12px', color: '#94a3b8'}}>
+                This member may need to be migrated to the billing cycle system
+              </div>
             </div>
           )}
         </div>
