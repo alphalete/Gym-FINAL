@@ -77,7 +77,8 @@ class LocalStorageManager {
     if (!this.db) await this.initDB();
     
     return new Promise((resolve, reject) => {
-      const transaction = this.db.transaction([storeName], operation === 'get' || operation === 'getAll' ? 'readonly' : 'readwrite');
+      const transaction = this.db.transaction([storeName], 
+        operation === 'get' || operation === 'getAll' ? 'readonly' : 'readwrite');
       const store = transaction.objectStore(storeName);
       
       let request;
