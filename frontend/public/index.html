@@ -2,27 +2,31 @@
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover" />
+        <!-- MOBILE-FIRST PWA VIEWPORT CONFIGURATION -->
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, shrink-to-fit=no" />
         
-        <!-- PWA Theme and Status Bar Configuration -->
+        <!-- PWA STANDALONE MODE ENFORCEMENT -->
         <meta name="theme-color" content="#6366f1" />
         <meta name="theme-color" media="(prefers-color-scheme: light)" content="#6366f1" />
         <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1e1b4b" />
-        <meta name="msapplication-navbutton-color" content="#6366f1" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         
-        <!-- AGGRESSIVE PWA STANDALONE MODE CONFIGURATION -->
+        <!-- MOBILE PWA APP CONFIGURATION -->
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Alphalete Club" />
         <meta name="application-name" content="Alphalete Club" />
+        
+        <!-- PREVENT MOBILE BROWSER BEHAVIORS -->
+        <meta name="format-detection" content="telephone=no, date=no, email=no, address=no" />
+        <meta name="msapplication-tap-highlight" content="no" />
+        
+        <!-- MICROSOFT MOBILE CONFIGURATION -->
         <meta name="msapplication-starturl" content="/" />
-        <meta name="msapplication-window" content="width=1024;height=768" />
         <meta name="msapplication-navbutton-color" content="#6366f1" />
         <meta name="msapplication-TileColor" content="#6366f1" />
         
-        <meta name="description" content="Alphalete Athletics Club - Professional Gym Management System" />
+        <meta name="description" content="Alphalete Athletics Club - Mobile-First Gym Management PWA" />
         
         <!-- PWA Manifest -->
         <link rel="manifest" href="/manifest.json" />
