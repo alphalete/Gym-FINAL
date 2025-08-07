@@ -1132,19 +1132,47 @@ async def get_billing_cycle_detail(cycle_id: str):
     if not cycle:
         raise HTTPException(status_code=404, detail="Billing cycle not found")
     
-    # Convert date strings back to date objects
+    # Clean up MongoDB document for JSON serialization
+    if '_id' in cycle:
+        del cycle['_id']
+    
+    # Convert datetime objects to ISO strings
+    if 'created_at' in cycle and isinstance(cycle['created_at'], datetime):
+        cycle['created_at'] = cycle['created_at'].isoformat()
+    if 'updated_at' in cycle and isinstance(cycle['updated_at'], datetime):
+        cycle['updated_at'] = cycle['updated_at'].isoformat()
+    
+    # Ensure dates are in proper format
     if 'start_date' in cycle and isinstance(cycle['start_date'], str):
-        cycle['start_date'] = datetime.fromisoformat(cycle['start_date']).date()
+        try:
+            cycle['start_date'] = datetime.fromisoformat(cycle['start_date']).date().isoformat()
+        except:
+            pass  # Keep as is if conversion fails
     if 'due_date' in cycle and isinstance(cycle['due_date'], str):
-        cycle['due_date'] = datetime.fromisoformat(cycle['due_date']).date()
+        try:
+            cycle['due_date'] = datetime.fromisoformat(cycle['due_date']).date().isoformat()
+        except:
+            pass  # Keep as is if conversion fails
     
     # Get payments for this cycle
     payments = await db.payments.find({"billing_cycle_id": cycle_id}).to_list(1000)
     
-    # Convert payment date strings
+    # Clean up payment documents
     for payment in payments:
+        # Remove MongoDB ObjectId
+        if '_id' in payment:
+            del payment['_id']
+        
+        # Convert datetime objects to ISO strings
+        if 'created_at' in payment and isinstance(payment['created_at'], datetime):
+            payment['created_at'] = payment['created_at'].isoformat()
+        
+        # Ensure date is in proper format
         if 'date' in payment and isinstance(payment['date'], str):
-            payment['date'] = datetime.fromisoformat(payment['date']).date()
+            try:
+                payment['date'] = datetime.fromisoformat(payment['date']).date().isoformat()
+            except:
+                pass  # Keep as is if conversion fails
     
     return {
         "billing_cycle": cycle,
