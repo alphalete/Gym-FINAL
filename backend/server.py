@@ -113,6 +113,8 @@ class Client(BaseModel):
     auto_reminders_enabled: bool = True
     payment_status: Optional[str] = "due"  # 'paid', 'due', 'overdue'
     amount_owed: Optional[float] = None  # Will be set based on payment_status
+    billing_interval_days: int = 30  # Default to monthly (30 days)
+    notes: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
