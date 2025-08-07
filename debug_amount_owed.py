@@ -9,7 +9,7 @@ from datetime import date, datetime
 import sys
 
 # Get backend URL from environment
-BACKEND_URL = "https://442a58e4-b64f-4824-924a-0c12436c79ea.preview.emergentagent.com/api"
+BACKEND_URL = "https://7ef3f37b-7d23-49f0-a1a7-5437683b78af.preview.emergentagent.com/api"
 
 def debug_amount_owed_issue():
     """Debug the amount_owed field issue in detail"""

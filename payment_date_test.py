@@ -6,7 +6,7 @@ from datetime import datetime
 
 class PaymentDateTester:
     def __init__(self):
-        self.base_url = "https://442a58e4-b64f-4824-924a-0c12436c79ea.preview.emergentagent.com"
+        self.base_url = "https://7ef3f37b-7d23-49f0-a1a7-5437683b78af.preview.emergentagent.com"
         self.api_url = f"{self.base_url}/api"
         self.tests_run = 0
         self.tests_passed = 0
