@@ -1196,6 +1196,22 @@ const MemberInfoModal = ({ client, isOpen, onClose }) => {
                   <div className="modal-info-value">{formatDate(client.start_date)}</div>
                 </div>
               </div>
+              <div className="modal-info-item">
+                <div className="modal-info-icon">🔄</div>
+                <div className="modal-info-content">
+                  <div className="modal-info-label">Billing Interval</div>
+                  <div className="modal-info-value">{client.billing_interval_days || 30} days</div>
+                </div>
+              </div>
+              {client.notes && (
+                <div className="modal-info-item">
+                  <div className="modal-info-icon">📝</div>
+                  <div className="modal-info-content">
+                    <div className="modal-info-label">Notes</div>
+                    <div className="modal-info-value">{client.notes}</div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -1237,6 +1253,215 @@ const MemberInfoModal = ({ client, isOpen, onClose }) => {
 
         {/* Modal Actions */}
         <div className="modal-actions">
+          <button className="modal-action-btn secondary" onClick={onClose}>
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Billing Cycle Detail Modal Component
+const BillingCycleDetailModal = ({ client, isOpen, onClose }) => {
+  const [billingCycles, setBillingCycles] = useState([]);
+  const [currentCycle, setCurrentCycle] = useState(null);
+  const [payments, setPayments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [totalPaid, setTotalPaid] = useState(0);
+
+  useEffect(() => {
+    if (isOpen && client) {
+      fetchBillingCycles();
+    }
+  }, [isOpen, client]);
+
+  const fetchBillingCycles = async () => {
+    try {
+      setLoading(true);
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      
+      // Get all billing cycles for this member
+      const cyclesResponse = await fetch(`${backendUrl}/api/billing-cycles/${client.id}`);
+      if (cyclesResponse.ok) {
+        const cycles = await cyclesResponse.json();
+        setBillingCycles(cycles);
+        
+        // Get current active cycle (Unpaid or Partially Paid)
+        const activeCycle = cycles.find(cycle => 
+          cycle.status === 'Unpaid' || cycle.status === 'Partially Paid'
+        ) || cycles[cycles.length - 1]; // Fall back to most recent cycle
+        
+        if (activeCycle) {
+          setCurrentCycle(activeCycle);
+          
+          // Get detailed cycle information with payments
+          const detailResponse = await fetch(`${backendUrl}/api/billing-cycle/${activeCycle.id}`);
+          if (detailResponse.ok) {
+            const detail = await detailResponse.json();
+            setPayments(detail.payments || []);
+            setTotalPaid(detail.total_paid || 0);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching billing cycles:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Not set';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  };
+
+  const formatCurrency = (amount) => {
+    return `TTD ${(amount || 0).toFixed(2)}`;
+  };
+
+  if (!isOpen || !client) return null;
+
+  return (
+    <div className="modern-member-modal-overlay" onClick={onClose}>
+      <div className="modern-member-modal" onClick={(e) => e.stopPropagation()}>
+        
+        {/* Header */}
+        <div className="modal-header">
+          <div className="modal-header-content">
+            <div className="modal-member-avatar">
+              {client.name.split(' ').map(word => word.charAt(0)).join('').toUpperCase().slice(0, 2)}
+            </div>
+            <div className="modal-member-info">
+              <div className="modal-member-name">{client.name}</div>
+              <div className="modal-member-subtitle">Billing Cycle Details</div>
+            </div>
+          </div>
+          <button className="modal-close-button" onClick={onClose}>
+            ×
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="modal-content">
+          {loading ? (
+            <div className="loading-text">Loading billing cycle information...</div>
+          ) : currentCycle ? (
+            <>
+              {/* Current Billing Cycle */}
+              <div className="modal-section">
+                <div className="modal-section-title">
+                  <div className="modal-section-icon blue">📊</div>
+                  Current Billing Cycle
+                </div>
+                <div className="billing-cycle-card">
+                  <div className="billing-cycle-header">
+                    <div className="billing-cycle-dates">
+                      <div className="date-item">
+                        <label>Start:</label>
+                        <span>{formatDate(currentCycle.start_date)}</span>
+                      </div>
+                      <div className="date-item">
+                        <label>Due:</label>
+                        <span>{formatDate(currentCycle.due_date)}</span>
+                      </div>
+                    </div>
+                    <div className={`billing-cycle-status ${currentCycle.status.toLowerCase().replace(' ', '-')}`}>
+                      {currentCycle.status}
+                    </div>
+                  </div>
+                  
+                  <div className="billing-cycle-amounts">
+                    <div className="amount-item">
+                      <label>Amount Due:</label>
+                      <span className="amount-due">{formatCurrency(currentCycle.amount_due)}</span>
+                    </div>
+                    <div className="amount-item">
+                      <label>Total Paid:</label>
+                      <span className="amount-paid">{formatCurrency(totalPaid)}</span>
+                    </div>
+                    <div className="amount-item">
+                      <label>Remaining:</label>
+                      <span className={`amount-remaining ${(currentCycle.amount_due - totalPaid) <= 0 ? 'paid' : 'due'}`}>
+                        {formatCurrency(Math.max(0, currentCycle.amount_due - totalPaid))}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Payments Section */}
+              <div className="modal-section">
+                <div className="modal-section-title">
+                  <div className="modal-section-icon green">💳</div>
+                  Payments ({payments.length})
+                </div>
+                
+                {payments.length > 0 ? (
+                  <div className="payments-list">
+                    {payments.map((payment, index) => (
+                      <div key={index} className="payment-item">
+                        <div className="payment-info">
+                          <div className="payment-amount">{formatCurrency(payment.amount)}</div>
+                          <div className="payment-date">{formatDate(payment.date)}</div>
+                        </div>
+                        <div className="payment-method">
+                          <span className="method-badge">{payment.method}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="empty-payments">
+                    <div className="empty-icon">💳</div>
+                    <div className="empty-text">No payments recorded for this billing cycle</div>
+                  </div>
+                )}
+              </div>
+
+              {/* All Billing Cycles */}
+              {billingCycles.length > 1 && (
+                <div className="modal-section">
+                  <div className="modal-section-title">
+                    <div className="modal-section-icon purple">📋</div>
+                    All Billing Cycles ({billingCycles.length})
+                  </div>
+                  <div className="cycles-list">
+                    {billingCycles.map((cycle, index) => (
+                      <div key={index} className="cycle-summary">
+                        <div className="cycle-dates">
+                          <span>{formatDate(cycle.start_date)} - {formatDate(cycle.due_date)}</span>
+                        </div>
+                        <div className="cycle-info">
+                          <span className="cycle-amount">{formatCurrency(cycle.amount_due)}</span>
+                          <span className={`cycle-status ${cycle.status.toLowerCase().replace(' ', '-')}`}>
+                            {cycle.status}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="empty-billing">
+              <div className="empty-icon">📊</div>
+              <div className="empty-text">No billing cycles found for this member</div>
+            </div>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="modal-actions">
+          <button className="modal-action-btn primary" onClick={() => window.location.reload()}>
+            🔄 Refresh Data
+          </button>
           <button className="modal-action-btn secondary" onClick={onClose}>
             Close
           </button>
