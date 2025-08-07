@@ -2578,6 +2578,7 @@ const ClientManagement = () => {
   const [customEmailModal, setCustomEmailModal] = useState({ isOpen: false, client: null });
   const [quickPaymentModal, setQuickPaymentModal] = useState({ isOpen: false, client: null });
   const [billingCycleModal, setBillingCycleModal] = useState({ isOpen: false, client: null });
+  const [isOffline, setIsOffline] = useState(false);
   const navigate = useNavigate();
 
   // Get member initials for avatar
