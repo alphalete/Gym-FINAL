@@ -2838,6 +2838,14 @@ const ClientManagement = () => {
     setCustomEmailModal({ isOpen: false, client: null });
   };
 
+  const openBillingCycleModal = (client) => {
+    setBillingCycleModal({ isOpen: true, client });
+  };
+
+  const closeBillingCycleModal = () => {
+    setBillingCycleModal({ isOpen: false, client: null });
+  };
+
   const handleClientUpdated = (updatedClient) => {
     setClients(prev => prev.map(client => 
       client.id === updatedClient.id ? updatedClient : client
