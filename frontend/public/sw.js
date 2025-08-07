@@ -1,41 +1,154 @@
-const CACHE_NAME = 'alphalete-mobile-v11.0.0-production-url-fix';
+const CACHE_NAME = 'alphalete-mobile-pwa-v12.0.0';
 const OFFLINE_DATA_KEY = 'alphalete-offline-data';
 
-console.log('📱 PWA Service Worker: v11.0.0 PRODUCTION URL FIX - All URLs updated to stable production host');
+// Mobile-First PWA Service Worker
+console.log('📱 MOBILE-FIRST PWA Service Worker: v12.0.0 - Standalone Mobile App Optimization');
 
-// Enhanced PWA installation event for better standalone mode recognition
+// Mobile-First PWA Resources to Cache
+const MOBILE_FIRST_RESOURCES = [
+  '/',
+  '/clients',
+  '/add-client',
+  '/payments', 
+  '/manifest.json',
+  '/icon-192x192.png',
+  '/icon-512x512.png',
+  '/icon-192x192-maskable.png',
+  '/icon-512x512-maskable.png'
+];
+
+// Enhanced PWA installation event for mobile-first experience
 self.addEventListener('install', event => {
-  console.log('📱 PWA: Service Worker installing for standalone mode');
+  console.log('📱 PWA: Installing Mobile-First Service Worker...');
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll([
-        '/',
-        '/clients', 
-        '/add-client',
-        '/manifest.json',
-        '/icon-192x192.png',
-        '/icon-512x512.png'
-      ]).catch(error => {
-        console.warn('📱 PWA: Some resources failed to cache:', error);
+      console.log('📱 PWA: Caching mobile-first resources...');
+      return cache.addAll(MOBILE_FIRST_RESOURCES).catch(error => {
+        console.warn('📱 PWA: Some mobile resources failed to cache:', error);
+        // Cache critical resources individually
+        return Promise.allSettled(
+          MOBILE_FIRST_RESOURCES.map(resource => cache.add(resource))
+        );
       });
     })
   );
   self.skipWaiting();
 });
 
-// Enhanced activation for PWA recognition
+// Enhanced activation for mobile PWA
 self.addEventListener('activate', event => {
-  console.log('📱 PWA: Service Worker activated for standalone mode');
+  console.log('📱 PWA: Activating Mobile-First Service Worker...');
   event.waitUntil(
-    caches.keys().then(keys => Promise.all(
-      keys.map(key => {
-        if (key !== CACHE_NAME) {
-          console.log('📱 PWA: Deleting old cache:', key);
-          return caches.delete(key);
-        }
+    Promise.all([
+      // Clean old caches
+      caches.keys().then(keys => Promise.all(
+        keys.map(key => {
+          if (key !== CACHE_NAME) {
+            console.log('📱 PWA: Deleting old cache:', key);
+            return caches.delete(key);
+          }
+        })
+      )),
+      // Claim all clients for mobile PWA
+      self.clients.claim()
+    ])
+  );
+});
+
+// Mobile-Optimized Fetch Strategy
+self.addEventListener('fetch', event => {
+  const url = new URL(event.request.url);
+  
+  // Handle navigation requests (mobile app-like behavior)
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      caches.match('/').then(response => {
+        return response || fetch('/').catch(() => {
+          // Offline fallback for navigation
+          return new Response(
+            `<!DOCTYPE html>
+            <html>
+            <head>
+              <title>Alphalete Club - Offline</title>
+              <meta name="viewport" content="width=device-width, initial-scale=1">
+              <style>
+                body { 
+                  font-family: -apple-system, system-ui; 
+                  text-align: center; 
+                  padding: 2rem; 
+                  background: #f8fafc;
+                }
+                .offline-icon { font-size: 4rem; margin-bottom: 1rem; }
+                .offline-title { color: #1e293b; margin-bottom: 0.5rem; }
+                .offline-message { color: #64748b; }
+              </style>
+            </head>
+            <body>
+              <div class="offline-icon">📱</div>
+              <h1 class="offline-title">Alphalete Club</h1>
+              <p class="offline-message">You're currently offline. Please check your connection.</p>
+            </body>
+            </html>`,
+            {
+              headers: { 'Content-Type': 'text/html' }
+            }
+          );
+        });
       })
-    )).then(() => {
-      return self.clients.claim();
+    );
+    return;
+  }
+  
+  // Handle API requests with mobile-first caching strategy
+  if (url.pathname.startsWith('/api/')) {
+    event.respondWith(
+      // Network first for API calls (mobile data aware)
+      fetch(event.request).then(response => {
+        // Cache successful API responses for offline access
+        if (response.ok && event.request.method === 'GET') {
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, responseClone);
+          });
+        }
+        return response;
+      }).catch(() => {
+        // Fallback to cache for offline mobile experience
+        return caches.match(event.request).then(cachedResponse => {
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          // Return offline response for mobile
+          return new Response(
+            JSON.stringify({ 
+              offline: true, 
+              data: [], 
+              message: 'Currently offline - using cached data' 
+            }),
+            { 
+              headers: { 'Content-Type': 'application/json' },
+              status: 200
+            }
+          );
+        });
+      })
+    );
+    return;
+  }
+  
+  // Handle static resources (cache first for mobile performance)
+  event.respondWith(
+    caches.match(event.request).then(response => {
+      return response || fetch(event.request).then(fetchResponse => {
+        // Cache static resources for mobile performance
+        if (fetchResponse.ok) {
+          const responseClone = fetchResponse.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, responseClone);
+          });
+        }
+        return fetchResponse;
+      });
     })
   );
 });
