@@ -327,7 +327,6 @@ class LocalStorageManager {
     try {
       console.log("🔄 LocalStorageManager: Force refreshing clients from backend...");
       
-      // EMERGENCY MOBILE URL FIX - Force correct backend URL
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
       // CRITICAL FIX: Override for mobile devices showing wrong URL
@@ -624,7 +623,6 @@ class LocalStorageManager {
   async syncItem(item) {
     console.log('🔄 Syncing item with backend:', item.action, item.data);
     
-    // EMERGENCY MOBILE URL FIX - Force correct backend URL
     let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
     
     // CRITICAL FIX: Override for mobile devices showing wrong URL
@@ -1115,7 +1113,6 @@ class LocalStorageManager {
   // Reminder-related methods
   async getUpcomingReminders(daysAhead = 7) {
     try {
-      // EMERGENCY MOBILE URL FIX - Force correct backend URL
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
       // CRITICAL FIX: Override for mobile devices showing wrong URL
@@ -1139,7 +1136,6 @@ class LocalStorageManager {
 
   async getReminderHistory(clientId = null, limit = 100) {
     try {
-      // EMERGENCY MOBILE URL FIX - Force correct backend URL
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
       // CRITICAL FIX: Override for mobile devices showing wrong URL
@@ -1167,7 +1163,6 @@ class LocalStorageManager {
 
   async getReminderStats() {
     try {
-      // EMERGENCY MOBILE URL FIX - Force correct backend URL
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
       // CRITICAL FIX: Override for mobile devices showing wrong URL
@@ -1191,7 +1186,6 @@ class LocalStorageManager {
 
   async updateClientReminderSettings(clientId, enabled) {
     try {
-      // EMERGENCY MOBILE URL FIX - Force correct backend URL
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
       // CRITICAL FIX: Override for mobile devices showing wrong URL
@@ -1234,7 +1228,6 @@ class LocalStorageManager {
 
   async triggerTestReminderRun() {
     try {
-      // EMERGENCY MOBILE URL FIX - Force correct backend URL
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
       // CRITICAL FIX: Override for mobile devices showing wrong URL
