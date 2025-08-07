@@ -329,7 +329,6 @@ class LocalStorageManager {
       
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
-      // CRITICAL FIX: Override for mobile devices showing wrong URL
       
       if (!backendUrl) {
         console.warn("⚠️ No backend URL configured for force refresh");
@@ -625,7 +624,6 @@ class LocalStorageManager {
     
     let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
     
-    // CRITICAL FIX: Override for mobile devices showing wrong URL
     
     if (!backendUrl) {
       throw new Error('Backend URL not configured. Please set REACT_APP_BACKEND_URL environment variable.');
@@ -1115,7 +1113,6 @@ class LocalStorageManager {
     try {
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
-      // CRITICAL FIX: Override for mobile devices showing wrong URL
       
       if (!backendUrl || !this.isOnline) {
         throw new Error('Backend URL not configured or offline');
@@ -1138,7 +1135,6 @@ class LocalStorageManager {
     try {
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
-      // CRITICAL FIX: Override for mobile devices showing wrong URL
       
       if (!backendUrl || !this.isOnline) {
         throw new Error('Backend URL not configured or offline');
@@ -1165,7 +1161,6 @@ class LocalStorageManager {
     try {
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
-      // CRITICAL FIX: Override for mobile devices showing wrong URL
       
       if (!backendUrl || !this.isOnline) {
         throw new Error('Backend URL not configured or offline');
@@ -1188,7 +1183,6 @@ class LocalStorageManager {
     try {
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
-      // CRITICAL FIX: Override for mobile devices showing wrong URL
       
       if (!backendUrl || !this.isOnline) {
         throw new Error('Backend URL not configured or offline');
@@ -1230,7 +1224,6 @@ class LocalStorageManager {
     try {
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
-      // CRITICAL FIX: Override for mobile devices showing wrong URL
       
       if (!backendUrl || !this.isOnline) {
         throw new Error('Backend URL not configured or offline');
