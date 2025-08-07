@@ -11,7 +11,7 @@ import sys
 import os
 
 # Get backend URL from environment
-BACKEND_URL = "https://7ef3f37b-7d23-49f0-a1a7-5437683b78af.preview.emergentagent.com/api"
+BACKEND_URL = "https://alphalete-club.emergent.host/api"
 
 def test_amount_owed_field_fix():
     """Test the amount_owed field default fix"""
