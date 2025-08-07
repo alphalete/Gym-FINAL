@@ -331,10 +331,6 @@ class LocalStorageManager {
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
       // CRITICAL FIX: Override for mobile devices showing wrong URL
-      if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
-        backendUrl = 'https://alphalete-club.emergent.host';
-        console.log('🚨 LocalStorageManager FORCE REFRESH: OVERRIDING backend URL for mobile fix');
-      }
       
       if (!backendUrl) {
         console.warn("⚠️ No backend URL configured for force refresh");
@@ -632,10 +628,6 @@ class LocalStorageManager {
     let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
     
     // CRITICAL FIX: Override for mobile devices showing wrong URL
-    if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
-      backendUrl = 'https://alphalete-club.emergent.host';
-      console.log('🚨 LocalStorageManager SYNC: OVERRIDING backend URL for mobile fix');
-    }
     
     if (!backendUrl) {
       throw new Error('Backend URL not configured. Please set REACT_APP_BACKEND_URL environment variable.');
@@ -1087,10 +1079,6 @@ class LocalStorageManager {
       if (this.isOnline) {
         let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
         
-        if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
-          backendUrl = 'https://alphalete-club.emergent.host';
-        }
-
         if (backendUrl) {
           try {
             const response = await fetch(`${backendUrl}/api/payments/stats`);
@@ -1131,10 +1119,6 @@ class LocalStorageManager {
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
       // CRITICAL FIX: Override for mobile devices showing wrong URL
-      if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
-        backendUrl = 'https://alphalete-club.emergent.host';
-        console.log('🚨 LocalStorageManager GET REMINDERS: OVERRIDING backend URL for mobile fix');
-      }
       
       if (!backendUrl || !this.isOnline) {
         throw new Error('Backend URL not configured or offline');
@@ -1159,10 +1143,6 @@ class LocalStorageManager {
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
       // CRITICAL FIX: Override for mobile devices showing wrong URL
-      if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
-        backendUrl = 'https://alphalete-club.emergent.host';
-        console.log('🚨 LocalStorageManager GET REMINDER HISTORY: OVERRIDING backend URL for mobile fix');
-      }
       
       if (!backendUrl || !this.isOnline) {
         throw new Error('Backend URL not configured or offline');
@@ -1191,10 +1171,6 @@ class LocalStorageManager {
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
       // CRITICAL FIX: Override for mobile devices showing wrong URL
-      if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
-        backendUrl = 'https://alphalete-club.emergent.host';
-        console.log('🚨 LocalStorageManager GET REMINDER STATS: OVERRIDING backend URL for mobile fix');
-      }
       
       if (!backendUrl || !this.isOnline) {
         throw new Error('Backend URL not configured or offline');
@@ -1219,10 +1195,6 @@ class LocalStorageManager {
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
       // CRITICAL FIX: Override for mobile devices showing wrong URL
-      if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
-        backendUrl = 'https://alphalete-club.emergent.host';
-        console.log('🚨 LocalStorageManager UPDATE REMINDER SETTINGS: OVERRIDING backend URL for mobile fix');
-      }
       
       if (!backendUrl || !this.isOnline) {
         throw new Error('Backend URL not configured or offline');
@@ -1266,10 +1238,6 @@ class LocalStorageManager {
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
       // CRITICAL FIX: Override for mobile devices showing wrong URL
-      if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
-        backendUrl = 'https://alphalete-club.emergent.host';
-        console.log('🚨 LocalStorageManager TRIGGER TEST REMINDER: OVERRIDING backend URL for mobile fix');
-      }
       
       if (!backendUrl || !this.isOnline) {
         throw new Error('Backend URL not configured or offline');
