@@ -4,8 +4,8 @@
   "description": "Professional Gym Management System - Offline Capable",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#111827",
-  "theme_color": "#dc2626",
+  "background_color": "#ffffff",
+  "theme_color": "#6366f1",
   "orientation": "portrait",
   "categories": ["business", "fitness", "productivity"],
   "icons": [
