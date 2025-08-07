@@ -1281,7 +1281,6 @@ const BillingCycleDetailModal = ({ client, isOpen, onClose }) => {
       setLoading(true);
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
-      // CRITICAL FIX: Override for mobile devices showing wrong URL
       
       console.log(`🔍 Fetching billing cycles for member ID: ${client.id}`);
       console.log(`🔍 Using backend URL: ${backendUrl}`);
@@ -1866,7 +1865,6 @@ const GoGymDashboard = () => {
       try {
         let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
         
-        // CRITICAL FIX: Override for mobile devices showing wrong URL
         // Add cache-busting parameters
         const timestamp = Date.now();
         const randomId = Math.random().toString(36).substr(2, 9);
@@ -2790,7 +2788,6 @@ const ClientManagement = () => {
     try {
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
-      // CRITICAL FIX: Override for mobile devices showing wrong URL
       
       console.log('Recording payment for client:', quickPaymentModal.client.id);
       
@@ -2930,7 +2927,6 @@ const ClientManagement = () => {
       // Delete from backend
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
-      // CRITICAL FIX: Override for mobile devices showing wrong URL
       
       const response = await fetch(`${backendUrl}/api/clients/${client.id}`, {
         method: 'DELETE',
@@ -3355,7 +3351,6 @@ const AddClient = () => {
         try {
           let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
           
-          // CRITICAL FIX: Override for mobile devices showing wrong URL
           
           const paymentRecord = {
             client_id: clientResult.data.id,
@@ -3934,7 +3929,6 @@ const Payments = () => {
       
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
-      // CRITICAL FIX: Override for mobile devices showing wrong URL
       
       console.log('🚨 PAYMENTS PAGE: Backend URL:', backendUrl);
       
@@ -4062,7 +4056,6 @@ const Payments = () => {
       // Force direct API call instead of LocalStorageManager to fix data corruption
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
-      // CRITICAL FIX: Override for mobile devices showing wrong URL
       
       console.log('🚨 PAYMENTS PAGE fetchClients: Backend URL:', backendUrl);
       
@@ -4334,7 +4327,6 @@ const Payments = () => {
     try {
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
-      // CRITICAL FIX: Override for mobile devices showing wrong URL
       
       const response = await fetch(`${backendUrl}/api/clients`);
       if (response.ok) {
@@ -4384,7 +4376,6 @@ const Payments = () => {
     try {
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
-      // CRITICAL FIX: Override for mobile devices showing wrong URL
       
       console.log('🌐 Backend URL:', backendUrl);
       
