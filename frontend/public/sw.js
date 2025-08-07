@@ -1,7 +1,7 @@
-const CACHE_NAME = 'alphalete-mobile-v6.0.0-ultimate-nuclear-cache-bust';
+const CACHE_NAME = 'alphalete-mobile-v7.0.0-pwa-icons-update';
 const OFFLINE_DATA_KEY = 'alphalete-offline-data';
 
-console.log('📱 Mobile PWA Service Worker: v6.0.0 ULTIMATE NUCLEAR CACHE BUST - Final solution for persistent mobile cache issue - Will FORCE browser cache deletion');
+console.log('📱 Mobile PWA Service Worker: v7.0.0 PWA ICONS UPDATE - Separate maskable and any icons');
 
 // ULTIMATE NUCLEAR CACHE BUSTING - Clear ALL browser data
 self.addEventListener('install', event => {
