@@ -84,14 +84,14 @@
       "short_name": "Add Client",
       "description": "Add a new gym member",
       "url": "/add-client",
-      "icons": [{"src": "/add-icon.png", "sizes": "96x96"}]
+      "icons": [{"src": "/icon-96x96.png", "sizes": "96x96"}]
     },
     {
       "name": "Client List",
       "short_name": "Clients", 
       "description": "View all clients",
       "url": "/clients",
-      "icons": [{"src": "/clients-icon.png", "sizes": "96x96"}]
+      "icons": [{"src": "/icon-96x96.png", "sizes": "96x96"}]
     }
   ],
   "prefer_related_applications": false,
