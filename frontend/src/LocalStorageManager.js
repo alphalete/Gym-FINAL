@@ -118,14 +118,7 @@ class LocalStorageManager {
       // First try to fetch from backend if online
       if (this.isOnline) {
         try {
-          // EMERGENCY MOBILE URL FIX - Force correct backend URL
-          let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-          
-          // CRITICAL FIX: Override for mobile devices showing wrong URL
-          if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
-            backendUrl = 'https://7ef3f37b-7d23-49f0-a1a7-5437683b78af.preview.emergentagent.com';
-            console.log('🚨 LocalStorageManager GET CLIENTS: OVERRIDING backend URL for mobile fix');
-          }
+          const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
           
           if (backendUrl) {
             console.log("🔍 LocalStorageManager: Fetching clients from backend...", backendUrl);
@@ -161,9 +154,9 @@ class LocalStorageManager {
       let localClients = await this.performDBOperation('clients', 'getAll');
       console.log(`📱 LocalStorageManager: Found ${localClients.length} clients in local storage`);
       
-      // If no local data and we're offline, provide seed data
-      if (localClients.length === 0 && !this.isOnline) {
-        console.log("🌱 LocalStorageManager: No local data and offline, creating seed data");
+      // CRITICAL FIX: Always provide seed data if no local data, regardless of online status
+      if (localClients.length === 0) {
+        console.log("🌱 LocalStorageManager: No local data found, creating seed data");
         localClients = await this.createSeedData();
       }
       
