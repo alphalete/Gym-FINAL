@@ -1,7 +1,7 @@
-const CACHE_NAME = 'alphalete-mobile-v10.0.0-aggressive-standalone';
+const CACHE_NAME = 'alphalete-mobile-v11.0.0-production-url-fix';
 const OFFLINE_DATA_KEY = 'alphalete-offline-data';
 
-console.log('📱 PWA Service Worker: v10.0.0 AGGRESSIVE STANDALONE MODE - Force standalone mode for APK generation');
+console.log('📱 PWA Service Worker: v11.0.0 PRODUCTION URL FIX - All URLs updated to stable production host');
 
 // Enhanced PWA installation event for better standalone mode recognition
 self.addEventListener('install', event => {
