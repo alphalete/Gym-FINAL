@@ -1864,7 +1864,6 @@ const GoGymDashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // EMERGENCY MOBILE URL FIX - Force correct backend URL
         let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
         
         // CRITICAL FIX: Override for mobile devices showing wrong URL
@@ -2789,7 +2788,6 @@ const ClientManagement = () => {
 
     setPaymentLoading(true);
     try {
-      // EMERGENCY MOBILE URL FIX - Force correct backend URL
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
       // CRITICAL FIX: Override for mobile devices showing wrong URL
@@ -2930,7 +2928,6 @@ const ClientManagement = () => {
       console.log(`Deleting client: ${client.name} (ID: ${client.id})`);
       
       // Delete from backend
-      // EMERGENCY MOBILE URL FIX - Force correct backend URL
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
       // CRITICAL FIX: Override for mobile devices showing wrong URL
@@ -3356,7 +3353,6 @@ const AddClient = () => {
       // If payment recording is enabled, record the payment
       if (recordPayment && clientResult.success) {
         try {
-          // EMERGENCY MOBILE URL FIX - Force correct backend URL
           let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
           
           // CRITICAL FIX: Override for mobile devices showing wrong URL
@@ -3936,7 +3932,6 @@ const Payments = () => {
     try {
       console.log(`📱 Mobile Payment Stats: Using direct API calls to fix data issues`);
       
-      // EMERGENCY MOBILE URL FIX - Force correct backend URL
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
       // CRITICAL FIX: Override for mobile devices showing wrong URL
@@ -4065,7 +4060,6 @@ const Payments = () => {
       console.log(`📱 Mobile: Fetching clients directly from API to bypass LocalStorage issues`);
       
       // Force direct API call instead of LocalStorageManager to fix data corruption
-      // EMERGENCY MOBILE URL FIX - Force correct backend URL
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
       // CRITICAL FIX: Override for mobile devices showing wrong URL
@@ -4109,7 +4103,6 @@ const Payments = () => {
 
   const sendPaymentReminder = async (client) => {
     try {
-      // EMERGENCY MOBILE URL FIX
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       const response = await fetch(`${backendUrl}/api/email/payment-reminder`, {
         method: 'POST',
@@ -4141,7 +4134,6 @@ const Payments = () => {
     const amount = prompt(`Enter payment amount for ${client.name}:`, client.monthly_fee);
     if (amount && parseFloat(amount) > 0) {
       try {
-        // EMERGENCY MOBILE URL FIX
         let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
         const response = await fetch(`${backendUrl}/api/payments/record`, {
           method: 'POST',
@@ -4340,7 +4332,6 @@ const Payments = () => {
 
   const identifyTestClients = async () => {
     try {
-      // EMERGENCY MOBILE URL FIX - Force correct backend URL
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
       // CRITICAL FIX: Override for mobile devices showing wrong URL
@@ -4391,7 +4382,6 @@ const Payments = () => {
     let failedCount = 0;
 
     try {
-      // EMERGENCY MOBILE URL FIX - Force correct backend URL
       let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       
       // CRITICAL FIX: Override for mobile devices showing wrong URL
