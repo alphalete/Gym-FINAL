@@ -2980,6 +2980,25 @@ const ClientManagement = () => {
 
   return (
     <div className="modern-members-page">
+      {/* Offline Indicator */}
+      {isOffline && (
+        <div className="offline-banner">
+          <div className="offline-content">
+            <span className="offline-icon">📱</span>
+            <span className="offline-text">
+              Viewing cached data - Some features may be limited
+            </span>
+            <button 
+              className="offline-retry" 
+              onClick={() => fetchClients(true)}
+              disabled={loading}
+            >
+              {loading ? '⏳' : '🔄'} Retry
+            </button>
+          </div>
+        </div>
+      )}
+      
       {/* Modern Members Header */}
       <div className="members-header">
         <h1 className="members-title">Members</h1>
