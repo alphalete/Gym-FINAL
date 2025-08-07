@@ -48,6 +48,40 @@ class MembershipType(BaseModel):
     monthly_fee: float
     description: str
     features: List[str] = []
+
+# New Billing Cycle Models
+class BillingCycle(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    member_id: str
+    start_date: date
+    due_date: date
+    amount_due: float
+    status: str = "Unpaid"  # "Unpaid", "Partially Paid", "Paid"
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class Payment(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    billing_cycle_id: str
+    member_id: str  # For easier queries
+    amount: float
+    date: date
+    method: str = "Cash"  # "Cash", "Card", "Bank Transfer"
+    notes: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class BillingCycleCreate(BaseModel):
+    member_id: str
+    start_date: date
+    due_date: date
+    amount_due: float
+
+class PaymentCreate(BaseModel):
+    billing_cycle_id: str
+    amount: float
+    date: date
+    method: str = "Cash"
+    notes: Optional[str] = None
     is_active: bool = True
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
