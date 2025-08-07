@@ -169,7 +169,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Test the specific issue the user reported about clients displaying as 'paid' when they haven't paid"
+user_problem_statement: "Test the new billing cycle system that has been integrated into the Alphalete Club PWA"
 
 frontend:
 backend:
