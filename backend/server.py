@@ -205,6 +205,100 @@ def calculate_next_payment_date(start_date: date) -> date:
     
     return next_payment_date
 
+# Billing Cycle Helper Functions
+def calculate_due_date(start_date: date, interval_days: int) -> date:
+    """Calculate due date by adding interval days to start date"""
+    return start_date + timedelta(days=interval_days)
+
+async def create_billing_cycle_for_member(member_id: str, member_data: dict) -> str:
+    """Create initial billing cycle for a member"""
+    billing_cycle = BillingCycle(
+        member_id=member_id,
+        start_date=member_data['start_date'] if isinstance(member_data['start_date'], date) 
+                   else datetime.fromisoformat(member_data['start_date']).date(),
+        due_date=calculate_due_date(
+            member_data['start_date'] if isinstance(member_data['start_date'], date) 
+            else datetime.fromisoformat(member_data['start_date']).date(),
+            member_data.get('billing_interval_days', 30)
+        ),
+        amount_due=member_data['monthly_fee'],
+        status="Unpaid"
+    )
+    
+    # Store billing cycle
+    billing_cycle_dict = billing_cycle.dict()
+    billing_cycle_dict['start_date'] = billing_cycle_dict['start_date'].isoformat()
+    billing_cycle_dict['due_date'] = billing_cycle_dict['due_date'].isoformat()
+    
+    await db.billing_cycles.insert_one(billing_cycle_dict)
+    return billing_cycle.id
+
+async def update_billing_cycle_status(billing_cycle_id: str):
+    """Update billing cycle status based on payments"""
+    # Get billing cycle
+    cycle = await db.billing_cycles.find_one({"id": billing_cycle_id})
+    if not cycle:
+        return
+    
+    # Get all payments for this cycle
+    payments = await db.payments.find({"billing_cycle_id": billing_cycle_id}).to_list(1000)
+    total_paid = sum(payment.get('amount', 0) for payment in payments)
+    
+    # Update status based on payments
+    if total_paid >= cycle['amount_due']:
+        new_status = "Paid"
+    elif total_paid > 0:
+        new_status = "Partially Paid" 
+    else:
+        new_status = "Unpaid"
+    
+    # Update cycle status
+    await db.billing_cycles.update_one(
+        {"id": billing_cycle_id},
+        {"$set": {"status": new_status, "updated_at": datetime.utcnow()}}
+    )
+    
+    # If cycle is now paid, create next billing cycle
+    if new_status == "Paid":
+        await advance_billing_cycle(billing_cycle_id)
+
+async def advance_billing_cycle(billing_cycle_id: str):
+    """Create next billing cycle when current one is paid"""
+    # Get current cycle
+    current_cycle = await db.billing_cycles.find_one({"id": billing_cycle_id})
+    if not current_cycle or current_cycle['status'] != "Paid":
+        return
+    
+    # Get member data
+    member = await db.clients.find_one({"id": current_cycle['member_id']})
+    if not member:
+        return
+    
+    # Create next billing cycle
+    next_start_date = datetime.fromisoformat(current_cycle['due_date']).date()
+    next_due_date = calculate_due_date(next_start_date, member.get('billing_interval_days', 30))
+    
+    next_cycle = BillingCycle(
+        member_id=current_cycle['member_id'],
+        start_date=next_start_date,
+        due_date=next_due_date,
+        amount_due=current_cycle['amount_due'],
+        status="Unpaid"
+    )
+    
+    # Store next billing cycle
+    next_cycle_dict = next_cycle.dict()
+    next_cycle_dict['start_date'] = next_cycle_dict['start_date'].isoformat()
+    next_cycle_dict['due_date'] = next_cycle_dict['due_date'].isoformat()
+    
+    await db.billing_cycles.insert_one(next_cycle_dict)
+    
+    # Update member's next_payment_date to match new cycle
+    await db.clients.update_one(
+        {"id": current_cycle['member_id']},
+        {"$set": {"next_payment_date": next_due_date.isoformat()}}
+    )
+
 # Existing routes
 @api_router.get("/")
 async def api_status():
