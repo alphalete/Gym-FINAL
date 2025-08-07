@@ -183,104 +183,60 @@
         </div>
         
         <script>
-          // Service Worker Registration
+          // PWA Standalone Mode Detection and Debugging
+          window.addEventListener('DOMContentLoaded', function() {
+            console.log('🔍 PWA Debug: Checking standalone mode...');
+            
+            // Check if running in standalone mode
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                               window.navigator.standalone || 
+                               document.referrer.includes('android-app://');
+            
+            console.log('📱 PWA: Display mode standalone:', window.matchMedia('(display-mode: standalone)').matches);
+            console.log('📱 PWA: Navigator standalone:', window.navigator.standalone);
+            console.log('📱 PWA: Referrer check:', document.referrer);
+            console.log('📱 PWA: Final standalone result:', isStandalone);
+            
+            if (isStandalone) {
+              console.log('✅ PWA: Running in standalone mode - address bar should be hidden');
+              document.body.classList.add('standalone-mode');
+            } else {
+              console.log('❌ PWA: NOT in standalone mode - address bar will be visible');
+              document.body.classList.add('browser-mode');
+            }
+            
+            // Add viewport debugging
+            console.log('📱 PWA: Viewport width:', window.innerWidth);
+            console.log('📱 PWA: Viewport height:', window.innerHeight);
+            console.log('📱 PWA: User agent:', navigator.userAgent);
+          });
+          
+          // Service Worker registration with debugging
           if ('serviceWorker' in navigator) {
-            window.addEventListener('load', async () => {
-              try {
-                const registration = await navigator.serviceWorker.register('/sw.js');
-                console.log('Service Worker registered successfully:', registration);
-                
-                // Force update check for mobile
-                registration.addEventListener('updatefound', () => {
-                  console.log('📱 New service worker available - forcing update');
-                  const newWorker = registration.installing;
-                  newWorker.addEventListener('statechange', () => {
-                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                      console.log('📱 New service worker installed - reloading page');
-                      // Force reload to use new service worker
-                      window.location.reload();
-                    }
-                  });
+            window.addEventListener('load', function() {
+              navigator.serviceWorker.register('/sw.js')
+                .then(function(registration) {
+                  console.log('✅ PWA: Service Worker registered successfully');
+                  console.log('📱 PWA: SW scope:', registration.scope);
+                })
+                .catch(function(error) {
+                  console.log('❌ PWA: Service Worker registration failed:', error);
                 });
-                
-                // Check for updates immediately
-                registration.update();
-                
-                // Listen for service worker messages
-                navigator.serviceWorker.addEventListener('message', (event) => {
-                  if (event.data.type === 'SYNC_COMPLETE') {
-                    console.log('Sync complete:', event.data.message);
-                    // Show notification or update UI
-                  }
-                  if (event.data && event.data.type === 'FORCE_RELOAD') {
-                    console.log('📱 Received force reload message from service worker');
-                    window.location.reload();
-                  }
-                });
-              } catch (error) {
-                console.log('Service Worker registration failed:', error);
-              }
             });
           }
           
-          // PWA Install Prompt
-          let deferredPrompt;
-          const installPrompt = document.getElementById('install-prompt');
-          const installButton = document.getElementById('install-button');
-          const dismissButton = document.getElementById('dismiss-button');
-          
-          window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            installPrompt.style.display = 'block';
-          });
-          
-          installButton.addEventListener('click', async () => {
-            if (deferredPrompt) {
-              deferredPrompt.prompt();
-              const { outcome } = await deferredPrompt.userChoice;
-              console.log('Install prompt outcome:', outcome);
-              deferredPrompt = null;
-              installPrompt.style.display = 'none';
-            }
-          });
-          
-          dismissButton.addEventListener('click', () => {
-            installPrompt.style.display = 'none';
-            // Remember user dismissed
-            localStorage.setItem('installPromptDismissed', 'true');
-          });
-          
-          // Hide install prompt if previously dismissed
-          if (localStorage.getItem('installPromptDismissed')) {
-            installPrompt.style.display = 'none';
+          // Manifest debugging
+          if ('navigator' in window && 'serviceWorker' in navigator) {
+            fetch('/manifest.json')
+              .then(response => response.json())
+              .then(manifest => {
+                console.log('📱 PWA: Manifest loaded:', manifest);
+                console.log('📱 PWA: Display mode in manifest:', manifest.display);
+                console.log('📱 PWA: Start URL:', manifest.start_url);
+                console.log('📱 PWA: Scope:', manifest.scope);
+              })
+              .catch(error => console.log('❌ PWA: Manifest load error:', error));
           }
-          
-          // Offline/Online indicators
-          const offlineIndicator = document.getElementById('offline-indicator');
-          
-          function updateConnectionStatus() {
-            if (navigator.onLine) {
-              offlineIndicator.style.display = 'none';
-            } else {
-              offlineIndicator.style.display = 'block';
-            }
-          }
-          
-          window.addEventListener('online', updateConnectionStatus);
-          window.addEventListener('offline', updateConnectionStatus);
-          updateConnectionStatus(); // Initial check
-          
-          // Fix iOS scrolling issues
-          document.addEventListener('touchstart', function() {}, {passive: true});
-          document.addEventListener('touchmove', function(e) {
-            // Allow scrolling
-          }, {passive: true});
-          
-          // Prevent zoom but allow scroll
-          document.addEventListener('gesturestart', function (e) {
-            e.preventDefault();
-          });
         </script>
     </body>
 </html>
