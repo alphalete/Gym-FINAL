@@ -432,7 +432,7 @@ async def seed_default_membership_types():
 # Client Management Routes (Updated)
 @api_router.post("/clients", response_model=Client)
 async def create_client(client_data: ClientCreate):
-    """Create a new client"""
+    """Create a new client and their initial billing cycle"""
     client_dict = client_data.dict()
     
     # Handle next payment date logic - always calculate one month ahead for consistency
@@ -463,7 +463,17 @@ async def create_client(client_data: ClientCreate):
     client_dict_for_db['start_date'] = client_obj.start_date.isoformat()
     client_dict_for_db['next_payment_date'] = client_obj.next_payment_date.isoformat()
     
+    # Insert client first
     await db.clients.insert_one(client_dict_for_db)
+    
+    # Create initial billing cycle for this member
+    try:
+        await create_billing_cycle_for_member(client_obj.id, client_dict_for_db)
+        logger.info(f"Created initial billing cycle for member {client_obj.name}")
+    except Exception as e:
+        logger.error(f"Error creating billing cycle for member {client_obj.name}: {str(e)}")
+        # Continue even if billing cycle creation fails to maintain backward compatibility
+    
     return client_obj
 
 @api_router.get("/clients", response_model=List[Client])
