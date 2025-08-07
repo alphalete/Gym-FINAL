@@ -278,17 +278,10 @@ class LocalStorageManager {
       // Try to add to backend first if online
       if (this.isOnline) {
         try {
-          // EMERGENCY MOBILE URL FIX - Force correct backend URL
-          let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-          
-          // CRITICAL FIX: Override for mobile devices showing wrong URL
-          if (!backendUrl || backendUrl.includes('alphalete-club.emergent.host')) {
-            backendUrl = 'https://alphalete-club.emergent.host';
-            console.log('🚨 LocalStorageManager ADD CLIENT: OVERRIDING backend URL for mobile fix');
-          }
+          const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
           
           if (backendUrl) {
-            console.log("🔍 LocalStorageManager: Adding client to backend first...");
+            console.log("🔍 LocalStorageManager: Adding client to backend...", backendUrl);
             const response = await fetch(`${backendUrl}/api/clients`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -303,11 +296,14 @@ class LocalStorageManager {
               await this.performDBOperation('clients', 'put', backendClient);
               return { data: backendClient, success: true, offline: false };
             } else {
-              console.warn("⚠️ LocalStorageManager: Backend add failed, storing locally for sync later");
+              const errorText = await response.text();
+              console.error("❌ LocalStorageManager: Backend add failed:", response.status, errorText);
             }
+          } else {
+            console.error("❌ LocalStorageManager: No backend URL configured");
           }
         } catch (error) {
-          console.warn("⚠️ LocalStorageManager: Backend error, storing locally for sync later:", error);
+          console.error("❌ LocalStorageManager: Backend error during add client:", error);
         }
       }
       
