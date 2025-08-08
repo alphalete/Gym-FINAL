@@ -124,7 +124,8 @@ class LocalStorageManager {
             return (envUrl && envUrl.trim() !== '') ? envUrl : window.location.origin;
           };
           const backendUrl = getBackendUrl();
-            console.log("🔍 LocalStorageManager: Fetching clients from backend...", backendUrl);
+          
+          console.log("🔍 LocalStorageManager: Fetching clients from backend...", backendUrl);
             const response = await fetch(`${backendUrl}/api/clients`, {
               method: 'GET',
               headers: { 'Content-Type': 'application/json' },
