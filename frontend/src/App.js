@@ -4125,7 +4125,7 @@ const Payments = () => {
       console.log(`📱 Mobile: Fetching clients directly from API to bypass LocalStorage issues`);
       
       // Force direct API call instead of LocalStorageManager to fix data corruption
-      let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      let backendUrl = getBackendUrl();
       
       
       console.log('🚨 PAYMENTS PAGE fetchClients: Backend URL:', backendUrl);
