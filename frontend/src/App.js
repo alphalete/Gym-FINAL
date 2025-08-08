@@ -360,12 +360,17 @@ const getBackendUrl = () => {
   // Try to get the environment variable
   const envUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
   
+  console.log('🔍 DEBUG getBackendUrl - envUrl:', envUrl);
+  console.log('🔍 DEBUG getBackendUrl - window.location.origin:', window.location.origin);
+  
   // If environment variable is available and not empty, use it
   if (envUrl && envUrl.trim() !== '') {
+    console.log('✅ Using environment URL:', envUrl);
     return envUrl;
   }
   
   // Fallback to current origin for production builds without env vars
+  console.log('⚠️ Using fallback URL:', window.location.origin);
   return window.location.origin;
 };
 
