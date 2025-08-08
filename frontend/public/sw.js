@@ -326,4 +326,4 @@ self.addEventListener('sync', event => {
   }
 });
 
-console.log('📱 Mobile-First PWA Service Worker v13.0.0: Optimized for standalone mobile app experience');
+console.log('📱 Mobile-First PWA Service Worker v14.0.0: Cache bust for URL fix - Optimized for standalone mobile app experience');
