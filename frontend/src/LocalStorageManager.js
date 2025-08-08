@@ -645,12 +645,13 @@ class LocalStorageManager {
   async syncItem(item) {
     console.log('🔄 Syncing item with backend:', item.action, item.data);
     
-    let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+    // Use consistent backend URL logic matching App.js getBackendUrl()
+    const getBackendUrl = () => {
+      const envUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      return (envUrl && envUrl.trim() !== '') ? envUrl : window.location.origin;
+    };
     
-    
-    if (!backendUrl) {
-      throw new Error('Backend URL not configured. Please set REACT_APP_BACKEND_URL environment variable.');
-    }
+    let backendUrl = getBackendUrl();
     
     try {
       switch (item.action) {
