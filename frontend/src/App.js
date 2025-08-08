@@ -457,15 +457,23 @@ const GoGymLayout = ({ children, currentPage, onNavigate }) => {
           })
         ]);
         
+        console.log('🏠 Dashboard: API responses received');
+        console.log('🏠 Dashboard: Clients response OK:', clientsResponse.ok);
+        console.log('🏠 Dashboard: Payments response OK:', paymentsResponse.ok);
+        
         if (clientsResponse.ok && paymentsResponse.ok) {
           const [clientsData, paymentStats] = await Promise.all([
             clientsResponse.json(),
             paymentsResponse.json()
           ]);
           
+          console.log('🏠 Dashboard: Clients data length:', clientsData.length);
+          console.log('🏠 Dashboard: Payment stats:', paymentStats);
+          
           setClients(clientsData);
           
           const activeClients = clientsData.filter(c => c.status === 'Active');
+          console.log('🏠 Dashboard: Active clients:', activeClients.length);
           
           // Calculate payment statistics using AST timezone
           const today = getASTDate();
