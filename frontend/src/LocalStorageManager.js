@@ -292,37 +292,35 @@ class LocalStorageManager {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(clientData)
           });
+          
+          if (response.ok) {
+            const backendClient = await response.json();
+            console.log("✅ LocalStorageManager: Client added to backend successfully");
             
-            if (response.ok) {
-              const backendClient = await response.json();
-              console.log("✅ LocalStorageManager: Client added to backend successfully");
-              
-              // Store the backend response (with any server-generated fields)
-              await this.performDBOperation('clients', 'put', backendClient);
-              return { data: backendClient, success: true, offline: false, synced: true };
-            } else {
-              const errorText = await response.text();
-              console.error("❌ LocalStorageManager: Backend add failed:", response.status, errorText);
-              
-              // Check if this is a business logic error (400-499) vs server error (500+)
-              if (response.status >= 400 && response.status < 500) {
-                // Business logic error (duplicate email, validation, etc.) - don't store locally
-                let errorMessage = "Unable to add member";
-                try {
-                  const errorData = JSON.parse(errorText);
-                  if (errorData.detail) {
-                    errorMessage = errorData.detail;
-                  }
-                } catch (e) {
-                  // If we can't parse the error, use the raw text
-                  errorMessage = errorText || errorMessage;
-                }
-                return { data: null, success: false, error: errorMessage };
-              }
-              // Server error (500+) - continue to local storage fallback below
-            }
+            // Store the backend response (with any server-generated fields)
+            await this.performDBOperation('clients', 'put', backendClient);
+            return { data: backendClient, success: true, offline: false, synced: true };
           } else {
-            console.error("❌ LocalStorageManager: No backend URL configured");
+            const errorText = await response.text();
+            console.error("❌ LocalStorageManager: Backend add failed:", response.status, errorText);
+            
+            // Check if this is a business logic error (400-499) vs server error (500+)
+            if (response.status >= 400 && response.status < 500) {
+              // Business logic error (duplicate email, validation, etc.) - don't store locally
+              let errorMessage = "Unable to add member";
+              try {
+                const errorData = JSON.parse(errorText);
+                if (errorData.detail) {
+                  errorMessage = errorData.detail;
+                }
+              } catch (e) {
+                // If we can't parse the error, use the raw text
+                errorMessage = errorText || errorMessage;
+              }
+              return { data: null, success: false, error: errorMessage };
+            }
+            // Server error (500+) - continue to local storage fallback below
+          }
           }
         } catch (error) {
           console.error("❌ LocalStorageManager: Backend error during add client:", error);
