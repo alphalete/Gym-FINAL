@@ -2960,7 +2960,7 @@ const ClientManagement = () => {
       console.log(`Deleting client: ${client.name} (ID: ${client.id})`);
       
       // Delete from backend
-      let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      let backendUrl = getBackendUrl();
       
       
       const response = await fetch(`${backendUrl}/api/clients/${client.id}`, {
