@@ -4445,7 +4445,7 @@ const Payments = () => {
     let failedCount = 0;
 
     try {
-      let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      let backendUrl = getBackendUrl();
       
       
       console.log('🌐 Backend URL:', backendUrl);
