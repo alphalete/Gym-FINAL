@@ -2637,7 +2637,16 @@ const ClientManagement = () => {
 
   useEffect(() => {
     console.log('🔍 ClientManagement: useEffect triggered');
-    fetchClients();
+    
+    // Check if we need to force refresh due to new client creation
+    const shouldForceRefresh = localStorage.getItem('forceClientRefresh') === 'true';
+    if (shouldForceRefresh) {
+      console.log('🔄 ClientManagement: Force refresh detected - refreshing client data');
+      localStorage.removeItem('forceClientRefresh');
+      fetchClients(true); // Force refresh
+    } else {
+      fetchClients();
+    }
   }, []);  // Empty dependency array - run only on mount
 
   const fetchClients = useCallback(async (forceRefresh = false) => {
