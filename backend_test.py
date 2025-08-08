@@ -2891,6 +2891,233 @@ class AlphaleteAPITester:
         
         return edge_cases_passed
 
+    def test_alphalete_club_review_endpoints(self):
+        """Test specific endpoints requested in the Alphalete Club review"""
+        print("\n🎯 ALPHALETE CLUB REVIEW - SPECIFIC ENDPOINT TESTING")
+        print("=" * 80)
+        print("Testing core functionality after REACT_APP_BACKEND_URL fix")
+        print(f"Backend URL: {self.api_url}")
+        
+        all_tests_passed = True
+        
+        # 1. Health Check - Test if backend is running and responding
+        print("\n1️⃣ HEALTH CHECK")
+        success1, response1 = self.run_test(
+            "Backend Health Check",
+            "GET",
+            "health",
+            200
+        )
+        if success1:
+            print(f"   ✅ Backend is responding correctly")
+            print(f"   Status: {response1.get('status')}")
+            print(f"   Message: {response1.get('message')}")
+        else:
+            all_tests_passed = False
+            print(f"   ❌ Backend health check failed")
+        
+        # Also test the root API endpoint
+        success1b, response1b = self.run_test(
+            "API Root Status",
+            "GET",
+            "",
+            200
+        )
+        if success1b:
+            print(f"   ✅ API root endpoint responding")
+            print(f"   Status: {response1b.get('status')}")
+            print(f"   Available endpoints: {response1b.get('endpoints', [])}")
+        else:
+            all_tests_passed = False
+        
+        # 2. Client Management - Test core client endpoints
+        print("\n2️⃣ CLIENT MANAGEMENT")
+        
+        # GET /api/clients
+        success2a, response2a = self.run_test(
+            "GET /api/clients",
+            "GET",
+            "clients",
+            200
+        )
+        if success2a:
+            client_count = len(response2a)
+            print(f"   ✅ Retrieved {client_count} clients successfully")
+            if client_count > 0:
+                print(f"   Sample client: {response2a[0].get('name', 'Unknown')} ({response2a[0].get('email', 'No email')})")
+        else:
+            all_tests_passed = False
+            print(f"   ❌ Failed to retrieve clients")
+        
+        # POST /api/clients (create new client)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        new_client_data = {
+            "name": "Review Test Client",
+            "email": f"review_test_{timestamp}@alphalete.com",
+            "phone": "(868) 555-0123",
+            "membership_type": "Standard",
+            "monthly_fee": 55.00,
+            "start_date": "2025-01-15",
+            "payment_status": "due"
+        }
+        
+        success2b, response2b = self.run_test(
+            "POST /api/clients (Create Client)",
+            "POST",
+            "clients",
+            200,
+            new_client_data
+        )
+        
+        created_client_id = None
+        if success2b and "id" in response2b:
+            created_client_id = response2b["id"]
+            print(f"   ✅ Created client successfully")
+            print(f"   Client ID: {created_client_id}")
+            print(f"   Name: {response2b.get('name')}")
+            print(f"   Next payment date: {response2b.get('next_payment_date')}")
+        else:
+            all_tests_passed = False
+            print(f"   ❌ Failed to create client")
+        
+        # PUT /api/clients/{id} (update client)
+        if created_client_id:
+            update_data = {
+                "name": "Review Test Client Updated",
+                "phone": "(868) 555-9999",
+                "membership_type": "Premium",
+                "monthly_fee": 75.00
+            }
+            
+            success2c, response2c = self.run_test(
+                "PUT /api/clients/{id} (Update Client)",
+                "PUT",
+                f"clients/{created_client_id}",
+                200,
+                update_data
+            )
+            
+            if success2c:
+                print(f"   ✅ Updated client successfully")
+                print(f"   Updated name: {response2c.get('name')}")
+                print(f"   Updated membership: {response2c.get('membership_type')}")
+                print(f"   Updated fee: TTD {response2c.get('monthly_fee')}")
+            else:
+                all_tests_passed = False
+                print(f"   ❌ Failed to update client")
+        else:
+            print(f"   ⏭️  Skipping client update test (no client ID)")
+            all_tests_passed = False
+        
+        # 3. Payment Stats - Test payment statistics endpoint
+        print("\n3️⃣ PAYMENT STATISTICS")
+        success3, response3 = self.run_test(
+            "GET /api/payments/stats",
+            "GET",
+            "payments/stats",
+            200
+        )
+        
+        if success3:
+            print(f"   ✅ Payment statistics retrieved successfully")
+            print(f"   Total Revenue: TTD {response3.get('total_revenue', 0)}")
+            print(f"   Monthly Revenue: TTD {response3.get('monthly_revenue', 0)}")
+            print(f"   Payment Count: {response3.get('payment_count', 0)}")
+            print(f"   Total Amount Owed: TTD {response3.get('total_amount_owed', 0)}")
+            
+            # Verify the response has expected fields
+            expected_fields = ['total_revenue', 'monthly_revenue', 'payment_count', 'timestamp']
+            missing_fields = [field for field in expected_fields if field not in response3]
+            if missing_fields:
+                print(f"   ⚠️  Missing expected fields: {missing_fields}")
+            else:
+                print(f"   ✅ All expected fields present in response")
+        else:
+            all_tests_passed = False
+            print(f"   ❌ Failed to retrieve payment statistics")
+        
+        # 4. Billing Cycles - Test billing cycles endpoint
+        print("\n4️⃣ BILLING CYCLES")
+        if created_client_id:
+            success4, response4 = self.run_test(
+                f"GET /api/billing-cycles/{created_client_id}",
+                "GET",
+                f"billing-cycles/{created_client_id}",
+                200
+            )
+            
+            if success4:
+                billing_cycles = response4 if isinstance(response4, list) else []
+                print(f"   ✅ Retrieved {len(billing_cycles)} billing cycles for client")
+                if billing_cycles:
+                    cycle = billing_cycles[0]
+                    print(f"   Sample cycle: Status={cycle.get('status')}, Amount Due=TTD {cycle.get('amount_due')}")
+                    print(f"   Due Date: {cycle.get('due_date')}")
+            else:
+                print(f"   ⚠️  No billing cycles found for client (may be expected for new client)")
+        else:
+            print(f"   ⏭️  Skipping billing cycles test (no client ID)")
+        
+        # 5. Membership Types - Test membership types endpoint
+        print("\n5️⃣ MEMBERSHIP TYPES")
+        success5, response5 = self.run_test(
+            "GET /api/membership-types",
+            "GET",
+            "membership-types",
+            200
+        )
+        
+        if success5:
+            membership_count = len(response5)
+            print(f"   ✅ Retrieved {membership_count} membership types")
+            if membership_count > 0:
+                for membership in response5:
+                    print(f"   - {membership.get('name')}: TTD {membership.get('monthly_fee')}/month")
+                    print(f"     Description: {membership.get('description')}")
+            else:
+                print(f"   ⚠️  No membership types found - seeding default types...")
+                # Try to seed default membership types
+                success5b, response5b = self.run_test(
+                    "POST /api/membership-types/seed",
+                    "POST",
+                    "membership-types/seed",
+                    200
+                )
+                if success5b:
+                    print(f"   ✅ Seeded membership types: {response5b.get('created_types', [])}")
+                    # Retry getting membership types
+                    success5c, response5c = self.run_test(
+                        "GET /api/membership-types (after seeding)",
+                        "GET",
+                        "membership-types",
+                        200
+                    )
+                    if success5c:
+                        print(f"   ✅ Now have {len(response5c)} membership types after seeding")
+        else:
+            all_tests_passed = False
+            print(f"   ❌ Failed to retrieve membership types")
+        
+        # Summary of review-specific tests
+        print("\n" + "=" * 80)
+        print("🎯 ALPHALETE CLUB REVIEW TEST SUMMARY")
+        print("=" * 80)
+        
+        if all_tests_passed:
+            print("✅ ALL CORE ENDPOINTS WORKING CORRECTLY!")
+            print("✅ Backend is responding at https://alphalete-club.emergent.host/api/")
+            print("✅ REACT_APP_BACKEND_URL fix appears to be successful")
+            print("✅ Client management endpoints functional")
+            print("✅ Payment statistics endpoint functional")
+            print("✅ Membership types endpoint functional")
+            print("✅ API is ready for frontend integration")
+        else:
+            print("❌ SOME CORE ENDPOINTS HAVE ISSUES")
+            print("❌ Review the failed tests above")
+            print("⚠️  Frontend may experience API call failures")
+        
+        return all_tests_passed
+
     def run_all_tests(self):
         """Run all API tests"""
         print("🚀 Starting Alphalete Athletics Club API Tests")
