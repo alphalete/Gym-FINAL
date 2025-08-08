@@ -278,15 +278,20 @@ class LocalStorageManager {
       // Try to add to backend first if online
       if (this.isOnline) {
         try {
-          const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || '';
+          let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || '';
+          // Use relative URL if environment variable is not set
+          const apiBaseUrl = backendUrl || window.location.origin;
           
-          if (backendUrl) {
-            console.log("🔍 LocalStorageManager: Adding client to backend...", backendUrl);
-            const response = await fetch(`${backendUrl}/api/clients`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(clientData)
-            });
+          if (!backendUrl) {
+            console.log("🔍 LocalStorageManager: No backend URL configured, using relative URLs");
+          }
+          
+          console.log("🔍 LocalStorageManager: Adding client to backend...", apiBaseUrl);
+          const response = await fetch(`${apiBaseUrl}/api/clients`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(clientData)
+          });
             
             if (response.ok) {
               const backendClient = await response.json();
