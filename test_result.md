@@ -938,6 +938,8 @@ test_plan:
     - "Billing cycle modal functionality integration"
   test_all: false
   test_priority: "high_first"
+  completed_testing:
+    - "Client creation bug fix - clients not appearing in members list or dashboard"
 
   - task: "Ultra-high contrast UI accessibility improvements"
     implemented: true
