@@ -3379,6 +3379,10 @@ const AddClient = () => {
         return;
       }
       
+      // Show appropriate success message based on sync status
+      const syncMessage = clientResult.synced === false ? 
+        `\n\n⚠️ Note: Data stored locally and will sync when backend connection is restored.` : '';
+      
       // Set a flag to force refresh when navigating back to clients (only if successful)
       localStorage.setItem('forceClientRefresh', 'true');
       
