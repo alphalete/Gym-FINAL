@@ -353,11 +353,10 @@ class LocalStorageManager {
       
       
       if (!backendUrl) {
-        console.warn("⚠️ No backend URL configured for force refresh");
-        return await this.getClients();
+        console.log("🔍 LocalStorageManager: No backend URL configured, using relative URLs");
       }
       
-      const response = await fetch(`${backendUrl}/api/clients`, {
+      const response = await fetch(`${apiBaseUrl}/api/clients`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         cache: 'no-cache' // Force bypass cache
