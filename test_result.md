@@ -972,14 +972,14 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Client Creation API Endpoint"
-    - "Client Data Persistence and Retrieval"
+    - "Relative URL fix verification for dashboard and members data loading"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
   completed_testing:
     - "Client creation functionality after implementing critical bug fix for success validation"
     - "Production URL configuration fix for dashboard and members data loading - VERIFIED WORKING"
+    - "Relative URL fix verification - CONFIRMED WORKING with 22 clients from local backend"
 
   - task: "Production URL configuration fix for dashboard and members data loading"
     implemented: true
