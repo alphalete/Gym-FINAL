@@ -3402,7 +3402,7 @@ const AddClient = () => {
           alert(`✅ CLIENT SUCCESSFULLY ADDED!\n\n${formData.name} is now in your member list.\n\nNote: Initial payment recording failed - you can record the payment from the Payments page.`);
         }
       } else {
-        // No payment recorded - client owes money immediately
+        // No payment recorded - client owes money immediately (only show if client was successfully created)
         alert(`✅ ${formData.name} added successfully! Payment of TTD ${formData.monthly_fee} is due immediately.`);
       }
       
