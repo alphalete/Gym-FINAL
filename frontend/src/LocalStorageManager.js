@@ -278,7 +278,7 @@ class LocalStorageManager {
       // Try to add to backend first if online
       if (this.isOnline) {
         try {
-          const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+          const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || '';
           
           if (backendUrl) {
             console.log("🔍 LocalStorageManager: Adding client to backend...", backendUrl);
