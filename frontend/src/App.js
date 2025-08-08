@@ -498,7 +498,7 @@ const GoGymLayout = ({ children, currentPage, onNavigate }) => {
             paymentsDueToday: dueTodayCount,
             overdueAccounts: overdueCount,
             overdue: overdueCount,
-            totalRevenue: paymentStats.total_revenue || 0
+            totalRevenue: paymentStats.total_amount_owed || 0
           });
           
           setSyncStatus('online');
