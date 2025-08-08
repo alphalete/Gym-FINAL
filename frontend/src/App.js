@@ -1305,7 +1305,7 @@ const BillingCycleDetailModal = ({ client, isOpen, onClose }) => {
   const fetchBillingCycles = async () => {
     try {
       setLoading(true);
-      let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      let backendUrl = getBackendUrl();
       
       
       console.log(`🔍 Fetching billing cycles for member ID: ${client.id}`);
