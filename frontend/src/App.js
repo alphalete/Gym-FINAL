@@ -3346,6 +3346,9 @@ const AddClient = () => {
       const clientResult = await localDB.addClient(clientDataToSubmit);
       console.log('✅ Client added:', clientResult);
       
+      // Set a flag to force refresh when navigating back to clients
+      localStorage.setItem('forceClientRefresh', 'true');
+      
       // If payment recording is enabled, record the payment
       if (recordPayment && clientResult.success) {
         try {
