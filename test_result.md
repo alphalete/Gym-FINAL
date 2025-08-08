@@ -173,7 +173,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Complete the pending task of updating the service worker for better PWA mobile-first caching as part of making the Alphalete Club PWA a standalone mobile-first app"
+user_problem_statement: "Test client creation functionality after implementing the critical bug fix for success validation. User still reports 'client successfully added but not showing any members' - need to verify backend is working correctly so frontend fix will resolve the issue."
 
 frontend:
   - task: "Service Worker Mobile-First Caching Update"
