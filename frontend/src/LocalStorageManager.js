@@ -313,12 +313,14 @@ class LocalStorageManager {
       // Add to sync queue if online but backend failed
       if (this.isOnline) {
         this.addToSyncQueue('CREATE_CLIENT', clientData);
+        // Return success false if backend failed but we're online
+        return { data: clientData, success: false, offline: false, error: 'Backend creation failed, stored locally for sync' };
       }
       
-      return { data: clientData, success: true, offline: !this.isOnline };
+      return { data: clientData, success: true, offline: true };
     } catch (error) {
       console.error('Error adding client:', error);
-      throw error;
+      return { data: null, success: false, error: error.message };
     }
   }
 
