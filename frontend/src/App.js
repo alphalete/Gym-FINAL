@@ -3355,11 +3355,17 @@ const AddClient = () => {
       const clientResult = await localDB.addClient(clientDataToSubmit);
       console.log('✅ Client added:', clientResult);
       
-      // Set a flag to force refresh when navigating back to clients
+      // Check if client creation was successful
+      if (!clientResult.success) {
+        alert(`❌ Failed to add client: ${clientResult.error || 'Unknown error occurred'}. Please try again.`);
+        return;
+      }
+      
+      // Set a flag to force refresh when navigating back to clients (only if successful)
       localStorage.setItem('forceClientRefresh', 'true');
       
       // If payment recording is enabled, record the payment
-      if (recordPayment && clientResult.success) {
+      if (recordPayment) {
         try {
           let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
           
