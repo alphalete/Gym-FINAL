@@ -3783,6 +3783,15 @@ const AddClient = () => {
           </form>
         </div>
       </div>
+      
+      {/* Success Toast Notification */}
+      {successMessage && (
+        <div className="toast-notification success">
+          <div className="toast-icon">✅</div>
+          <div className="toast-message">{successMessage}</div>
+          <button className="toast-close" onClick={() => setSuccessMessage(null)}>✕</button>
+        </div>
+      )}
     </div>
   );
 };
