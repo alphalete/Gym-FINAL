@@ -4198,7 +4198,7 @@ const Payments = () => {
     const amount = prompt(`Enter payment amount for ${client.name}:`, client.monthly_fee);
     if (amount && parseFloat(amount) > 0) {
       try {
-        let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+        let backendUrl = getBackendUrl();
         const response = await fetch(`${backendUrl}/api/payments/record`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
