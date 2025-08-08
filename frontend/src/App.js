@@ -4167,7 +4167,7 @@ const Payments = () => {
 
   const sendPaymentReminder = async (client) => {
     try {
-      let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      let backendUrl = getBackendUrl();
       const response = await fetch(`${backendUrl}/api/email/payment-reminder`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
