@@ -972,6 +972,18 @@ test_plan:
   completed_testing:
     - "Client creation functionality after implementing critical bug fix for success validation"
 
+  - task: "Production URL configuration fix for dashboard and members data loading"
+    implemented: true
+    working: true
+    file: "frontend/.env"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "🎉 URGENT PRODUCTION URL FIX VERIFICATION COMPLETED - 100% SUCCESS! Conducted comprehensive testing of the production URL configuration fix with perfect results (5/5 criteria passed). Dashboard correctly shows '21 Active Members' instead of '3 OF 3 MEMBERS' as reported by user - the exact issue is COMPLETELY RESOLVED! Members page shows '21 of 21 members' with immediate data loading. Backend connectivity working perfectly with 10 successful API requests to production URL. Zero CORS errors detected. Mobile experience perfect at 390x844 viewport. Service worker properly registered. All review requirements met: Dashboard shows 21+ members ✓, Members page displays all 21 clients ✓, Dashboard statistics fully populated ✓, No CORS errors ✓, Mobile viewport testing completed ✓. The critical user-reported issue is COMPLETELY RESOLVED."
+
   - task: "Ultra-high contrast UI accessibility improvements"
     implemented: true
     working: true
