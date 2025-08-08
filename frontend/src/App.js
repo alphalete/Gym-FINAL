@@ -4396,7 +4396,7 @@ const Payments = () => {
 
   const identifyTestClients = async () => {
     try {
-      let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      let backendUrl = getBackendUrl();
       
       
       const response = await fetch(`${backendUrl}/api/clients`);
