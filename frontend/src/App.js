@@ -3998,7 +3998,7 @@ const Payments = () => {
     try {
       console.log(`📱 Mobile Payment Stats: Using direct API calls to fix data issues`);
       
-      let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      let backendUrl = getBackendUrl();
       
       
       console.log('🚨 PAYMENTS PAGE: Backend URL:', backendUrl);
