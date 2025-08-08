@@ -294,7 +294,7 @@ class LocalStorageManager {
               
               // Store the backend response (with any server-generated fields)
               await this.performDBOperation('clients', 'put', backendClient);
-              return { data: backendClient, success: true, offline: false };
+              return { data: backendClient, success: true, offline: false, synced: true };
             } else {
               const errorText = await response.text();
               console.error("❌ LocalStorageManager: Backend add failed:", response.status, errorText);
