@@ -126,7 +126,7 @@ class LocalStorageManager {
           const backendUrl = getBackendUrl();
           
           console.log("🔍 LocalStorageManager: Fetching clients from backend...", backendUrl);
-            const response = await fetch(`${backendUrl}/api/clients`, {
+          const response = await fetch(`${backendUrl}/api/clients`, {
               method: 'GET',
               headers: { 'Content-Type': 'application/json' },
               timeout: 5000  // Reduced timeout for faster offline fallback
