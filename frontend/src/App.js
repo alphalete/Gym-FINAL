@@ -2339,7 +2339,7 @@ const Dashboard = () => {
           totalClients: clients.length,
           activeClients: activeClients.length,
           inactiveClients: inactiveClients.length,
-          totalRevenue: paymentStats.total_revenue || 0,
+          totalRevenue: paymentStats.total_amount_owed || 0,
           pendingPayments: upcomingClients.length,
           overduePayments: overdueClients.length,
           upcomingPayments: upcomingClients.length
