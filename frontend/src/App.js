@@ -449,7 +449,7 @@ const GoGymLayout = ({ children, currentPage, onNavigate }) => {
         console.log('🏠 Dashboard: Starting stats fetch...');
         setSyncStatus('syncing');
         
-        const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+        const backendUrl = getBackendUrl();
         console.log('🏠 Dashboard: Backend URL:', backendUrl);
         
         if (!backendUrl) {
