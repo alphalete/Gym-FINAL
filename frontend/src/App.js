@@ -3414,7 +3414,7 @@ const AddClient = () => {
           if (paymentResponse.ok) {
             const paymentResult = await paymentResponse.json();
             console.log('✅ Initial payment recorded:', paymentResult);
-            alert(`✅ ${formData.name} added successfully with initial payment of TTD ${paymentData.amount_paid}!${syncMessage}`);
+            showSuccessMessage(`✅ ${formData.name} added successfully with initial payment of TTD ${paymentData.amount_paid}!${syncMessage}`);
           } else {
             console.warn('⚠️ Client added but payment recording failed');
             alert(`✅ CLIENT SUCCESSFULLY ADDED!\n\n${formData.name} is now in your member list.${syncMessage}\n\nNote: Initial payment recording failed - you can record the payment from the Payments page.`);
