@@ -1,6 +1,6 @@
-const CACHE_NAME = 'alphalete-mobile-pwa-v13.0.0';
-const STATIC_CACHE = 'alphalete-static-v13.0.0';
-const API_CACHE = 'alphalete-api-v13.0.0';
+const CACHE_NAME = 'alphalete-mobile-pwa-v14.0.0';
+const STATIC_CACHE = 'alphalete-static-v14.0.0';
+const API_CACHE = 'alphalete-api-v14.0.0';
 
 // Mobile-First PWA Service Worker - Optimized for Standalone Mobile App
 console.log('📱 MOBILE-FIRST PWA Service Worker v13.0.0 - Optimized Standalone Mobile App');
