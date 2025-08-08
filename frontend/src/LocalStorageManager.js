@@ -298,6 +298,23 @@ class LocalStorageManager {
             } else {
               const errorText = await response.text();
               console.error("❌ LocalStorageManager: Backend add failed:", response.status, errorText);
+              
+              // Check if this is a business logic error (400-499) vs server error (500+)
+              if (response.status >= 400 && response.status < 500) {
+                // Business logic error (duplicate email, validation, etc.) - don't store locally
+                let errorMessage = "Unable to add member";
+                try {
+                  const errorData = JSON.parse(errorText);
+                  if (errorData.detail) {
+                    errorMessage = errorData.detail;
+                  }
+                } catch (e) {
+                  // If we can't parse the error, use the raw text
+                  errorMessage = errorText || errorMessage;
+                }
+                return { data: null, success: false, error: errorMessage };
+              }
+              // Server error (500+) - continue to local storage fallback below
             }
           } else {
             console.error("❌ LocalStorageManager: No backend URL configured");
