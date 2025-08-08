@@ -3421,11 +3421,11 @@ const AddClient = () => {
           }
         } catch (paymentError) {
           console.error('Error recording initial payment:', paymentError);
-          alert(`✅ CLIENT SUCCESSFULLY ADDED!\n\n${formData.name} is now in your member list.\n\nNote: Initial payment recording failed - you can record the payment from the Payments page.`);
+          alert(`✅ CLIENT SUCCESSFULLY ADDED!\n\n${formData.name} is now in your member list.${syncMessage}\n\nNote: Initial payment recording failed - you can record the payment from the Payments page.`);
         }
       } else {
         // No payment recorded - client owes money immediately (only show if client was successfully created)
-        alert(`✅ ${formData.name} added successfully! Payment of TTD ${formData.monthly_fee} is due immediately.`);
+        alert(`✅ ${formData.name} added successfully! Payment of TTD ${formData.monthly_fee} is due immediately.${syncMessage}`);
       }
       
       // Navigate to clients page - the useEffect will refresh data automatically
