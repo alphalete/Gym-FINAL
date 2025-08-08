@@ -974,7 +974,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Relative URL fix verification for dashboard and members data loading"
+    - "Add Member functionality testing - CRITICAL BACKEND ISSUE IDENTIFIED"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
