@@ -118,9 +118,12 @@ class LocalStorageManager {
       // First try to fetch from backend if online
       if (this.isOnline) {
         try {
-          const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || '';
-          
-          if (backendUrl) {
+          // Use consistent backend URL logic
+          const getBackendUrl = () => {
+            const envUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+            return (envUrl && envUrl.trim() !== '') ? envUrl : window.location.origin;
+          };
+          const backendUrl = getBackendUrl();
             console.log("🔍 LocalStorageManager: Fetching clients from backend...", backendUrl);
             const response = await fetch(`${backendUrl}/api/clients`, {
               method: 'GET',
