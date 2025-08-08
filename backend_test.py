@@ -3277,32 +3277,28 @@ class AlphaleteAPITester:
             return 1
 
 def main():
-    """Main function - Run critical email delivery verification with new Gmail app password"""
-    print("🏋️‍♂️ ALPHALETE ATHLETICS CLUB - CRITICAL EMAIL DELIVERY VERIFICATION")
-    print("Testing email functionality with updated Gmail app password: yauf mdwy rsrd lhai")
+    """Main function - Run Alphalete Club review-specific tests"""
+    print("🏋️‍♂️ ALPHALETE ATHLETICS CLUB - BACKEND API TESTING")
+    print("Testing backend functionality after REACT_APP_BACKEND_URL fix")
+    print(f"Backend URL: https://alphalete-club.emergent.host/api/")
     print()
     
     tester = AlphaleteAPITester()
     
-    # Run critical email delivery verification first
-    print("🎯 RUNNING CRITICAL EMAIL DELIVERY VERIFICATION...")
-    email_verification_passed = tester.test_critical_email_delivery_verification()
+    # Run the specific review tests first
+    print("🎯 RUNNING ALPHALETE CLUB REVIEW-SPECIFIC TESTS...")
+    review_tests_passed = tester.test_alphalete_club_review_endpoints()
     
-    if email_verification_passed:
-        print("\n🎉 CRITICAL EMAIL VERIFICATION PASSED - Running additional email tests...")
-        # Run additional email-focused tests
-        success_rate = tester.run_email_focused_tests()
-        
-        # Return appropriate exit code
-        if success_rate >= 0.9:
-            return 0  # Success
-        elif success_rate >= 0.7:
-            return 1  # Partial success with issues
-        else:
-            return 2  # Critical failures
+    if review_tests_passed:
+        print("\n🎉 REVIEW-SPECIFIC TESTS PASSED - All core endpoints working!")
+        print("✅ Backend is ready for frontend integration")
+        print("✅ REACT_APP_BACKEND_URL fix is successful")
+        return 0  # Success
     else:
-        print("\n🚨 CRITICAL EMAIL VERIFICATION FAILED - Email delivery issues detected")
-        return 3  # Critical email delivery failure
+        print("\n🚨 REVIEW-SPECIFIC TESTS FAILED - Some core endpoints have issues")
+        print("❌ Frontend may experience API call failures")
+        print("⚠️  Check the detailed output above for specific issues")
+        return 1  # Failure
 
 if __name__ == "__main__":
     sys.exit(main())
