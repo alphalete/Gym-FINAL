@@ -3258,6 +3258,13 @@ const AddClient = () => {
     billing_interval_days: 30, // Default to monthly
     notes: ""
   });
+  
+  const [successMessage, setSuccessMessage] = useState(null);
+  
+  const showSuccessMessage = (message) => {
+    setSuccessMessage(message);
+    setTimeout(() => setSuccessMessage(null), 5000);
+  };
 
   // Payment recording state
   const [recordPayment, setRecordPayment] = useState(false);
