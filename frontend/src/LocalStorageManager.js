@@ -321,7 +321,6 @@ class LocalStorageManager {
             }
             // Server error (500+) - continue to local storage fallback below
           }
-          }
         } catch (error) {
           console.error("❌ LocalStorageManager: Backend error during add client:", error);
         }
