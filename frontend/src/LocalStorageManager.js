@@ -347,7 +347,9 @@ class LocalStorageManager {
     try {
       console.log("🔄 LocalStorageManager: Force refreshing clients from backend...");
       
-      let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || '';
+      // Use relative URL if environment variable is not set
+      const apiBaseUrl = backendUrl || window.location.origin;
       
       
       if (!backendUrl) {
