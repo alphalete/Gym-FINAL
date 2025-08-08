@@ -3428,7 +3428,7 @@ const AddClient = () => {
           }
         } catch (paymentError) {
           console.error('Error recording initial payment:', paymentError);
-          alert(`✅ CLIENT SUCCESSFULLY ADDED!\n\n${formData.name} is now in your member list.${syncMessage}\n\nNote: Initial payment recording failed - you can record the payment from the Payments page.`);
+          showSuccessMessage(`✅ CLIENT SUCCESSFULLY ADDED!\n\n${formData.name} is now in your member list.${syncMessage}\n\nNote: Initial payment recording failed - you can record the payment from the Payments page.`);
         }
       } else {
         // No payment recorded - client owes money immediately (only show if client was successfully created)
