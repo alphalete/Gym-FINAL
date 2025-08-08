@@ -432,16 +432,20 @@ const GoGymLayout = ({ children, currentPage, onNavigate }) => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
+        console.log('🏠 Dashboard: Starting stats fetch...');
         setSyncStatus('syncing');
         
         const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+        console.log('🏠 Dashboard: Backend URL:', backendUrl);
         
         if (!backendUrl) {
+          console.log('🏠 Dashboard: No backend URL configured');
           setSyncStatus('offline');
           return;
         }
         
         // Get clients and payment stats in parallel for faster mobile loading
+        console.log('🏠 Dashboard: Making parallel API calls...');
         const [clientsResponse, paymentsResponse] = await Promise.all([
           fetch(`${backendUrl}/api/clients`, {
             method: 'GET',
