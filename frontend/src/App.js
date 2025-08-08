@@ -3432,7 +3432,7 @@ const AddClient = () => {
         }
       } else {
         // No payment recorded - client owes money immediately (only show if client was successfully created)
-        alert(`✅ ${formData.name} added successfully! Payment of TTD ${formData.monthly_fee} is due immediately.${syncMessage}`);
+        showSuccessMessage(`✅ ${formData.name} added successfully! Payment of TTD ${formData.monthly_fee} is due immediately.${syncMessage}`);
       }
       
       // Navigate to clients page - the useEffect will refresh data automatically
