@@ -3388,8 +3388,7 @@ const AddClient = () => {
         alert(`✅ ${formData.name} added successfully! Payment of TTD ${formData.monthly_fee} is due immediately.`);
       }
       
-      // Force refresh client data when navigating back
-      await refreshClientData();
+      // Navigate to clients page - the useEffect will refresh data automatically
       navigate('/clients');
     } catch (error) {
       console.error('Error adding client:', error);
