@@ -3377,17 +3377,19 @@ const AddClient = () => {
             alert(`✅ ${formData.name} added successfully with initial payment of TTD ${paymentData.amount_paid}!`);
           } else {
             console.warn('⚠️ Client added but payment recording failed');
-            alert(`✅ ${formData.name} added successfully, but payment recording failed. You can record the payment manually.`);
+            alert(`✅ CLIENT SUCCESSFULLY ADDED!\n\n${formData.name} is now in your member list.\n\nNote: Initial payment recording failed - you can record the payment from the Payments page.`);
           }
         } catch (paymentError) {
           console.error('Error recording initial payment:', paymentError);
-          alert(`✅ ${formData.name} added successfully, but payment recording failed. You can record the payment manually.`);
+          alert(`✅ CLIENT SUCCESSFULLY ADDED!\n\n${formData.name} is now in your member list.\n\nNote: Initial payment recording failed - you can record the payment from the Payments page.`);
         }
       } else {
         // No payment recorded - client owes money immediately
         alert(`✅ ${formData.name} added successfully! Payment of TTD ${formData.monthly_fee} is due immediately.`);
       }
       
+      // Force refresh client data when navigating back
+      await refreshClientData();
       navigate('/clients');
     } catch (error) {
       console.error('Error adding client:', error);
