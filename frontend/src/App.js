@@ -3382,7 +3382,7 @@ const AddClient = () => {
       
       // Check if client creation was successful
       if (!clientResult.success) {
-        alert(`❌ Failed to add client: ${clientResult.error || 'Unknown error occurred'}. Please try again.`);
+        showSuccessMessage(`❌ Failed to add client: ${clientResult.error || 'Unknown error occurred'}. Please try again.`);
         return;
       }
       
