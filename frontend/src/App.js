@@ -2821,7 +2821,7 @@ const ClientManagement = () => {
 
     setPaymentLoading(true);
     try {
-      let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      let backendUrl = getBackendUrl();
       
       
       console.log('Recording payment for client:', quickPaymentModal.client.id);
