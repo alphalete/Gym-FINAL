@@ -3309,10 +3309,14 @@ const AddClient = () => {
   };
 
   const handleSubmit = async (e) => {
+    console.log('🔍 DEBUG: handleSubmit called');
     e.preventDefault();
+    
+    console.log('🔍 DEBUG: Form data:', formData);
     
     if (!formData.name || !formData.email || !formData.membership_type) {
       alert('Please fill in all required fields');
+      console.log('🔍 DEBUG: Validation failed - missing required fields');
       return;
     }
 
@@ -3320,10 +3324,12 @@ const AddClient = () => {
     if (recordPayment) {
       if (!paymentData.amount_paid || parseFloat(paymentData.amount_paid) <= 0) {
         alert('Please enter a valid payment amount');
+        console.log('🔍 DEBUG: Validation failed - invalid payment amount');
         return;
       }
     }
 
+    console.log('🔍 DEBUG: Starting client creation process...');
     setLoading(true);
     try {
       // Prepare client data with proper payment due logic
