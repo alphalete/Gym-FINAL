@@ -732,6 +732,20 @@ class LocalStorageManager {
   }
 
   // Utility methods
+  getBackendUrl() {
+    // Use fallback for undefined environment
+    const envObject = process.env || import.meta.env || {};
+    const backendUrl = envObject.REACT_APP_BACKEND_URL;
+    
+    if (!backendUrl) {
+      // Use relative URLs when environment variable is not set
+      console.log('Using relative URLs for API calls (no backend URL configured)');
+      return '';
+    }
+    console.log('Using configured backend URL:', backendUrl);
+    return backendUrl;
+  }
+
   generateUUID() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
       const r = Math.random() * 16 | 0;
