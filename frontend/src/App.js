@@ -355,6 +355,20 @@ const formatDateForDisplay = (dateString, includeTime = false) => {
 };
 
 // GoGym4U Layout Wrapper Component
+// Backend URL helper function with fallback logic
+const getBackendUrl = () => {
+  // Try to get the environment variable
+  const envUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+  
+  // If environment variable is available and not empty, use it
+  if (envUrl && envUrl.trim() !== '') {
+    return envUrl;
+  }
+  
+  // Fallback to current origin for production builds without env vars
+  return window.location.origin;
+};
+
 const GoGymLayout = ({ children, currentPage, onNavigate }) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [stats, setStats] = useState({
