@@ -1889,7 +1889,7 @@ const GoGymDashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        let backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+        let backendUrl = getBackendUrl();
         
         // Add cache-busting parameters
         const timestamp = Date.now();
