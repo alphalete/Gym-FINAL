@@ -535,7 +535,7 @@ const formatDateForDisplay = (dateString, includeTime = false) => {
 const getBackendUrl = () => {
   // First try to read from environment variables properly
   const reactEnvUrl = process.env.REACT_APP_BACKEND_URL;
-  const viteEnvUrl = typeof import !== 'undefined' && import.meta?.env?.REACT_APP_BACKEND_URL;
+  const viteEnvUrl = (typeof import !== 'undefined' && import.meta && import.meta.env) ? import.meta.env.REACT_APP_BACKEND_URL : null;
   
   console.log('🔍 DEBUG getBackendUrl - Environment checks:');
   console.log('  process.env.REACT_APP_BACKEND_URL:', reactEnvUrl);
