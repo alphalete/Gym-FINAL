@@ -1271,69 +1271,176 @@ const EmailModal = ({ isOpen, onClose, client }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="ultra-contrast-modal rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex justify-between items-center">
-            <h2 className="ultra-contrast-modal-header">Custom Email to {client?.name}</h2>
-            <button
-              onClick={onClose}
-              className="ultra-contrast-button px-4 py-2 rounded-lg"
-            >
-              ✕
-            </button>
+      {/* Modal Container with Fixed Layout */}
+      <div style={{
+        backgroundColor: 'white',
+        borderRadius: '12px',
+        width: '100%',
+        maxWidth: '600px',
+        height: '70vh',
+        maxHeight: '600px',
+        minHeight: '500px',
+        display: 'flex',
+        flexDirection: 'column',
+        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
+        overflow: 'hidden'
+      }}>
+        
+        {/* Fixed Header */}
+        <div style={{
+          backgroundColor: '#1f2937',
+          color: 'white',
+          padding: '16px 20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexShrink: 0,
+          height: '70px'
+        }}>
+          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold' }}>
+            Custom Email to {client?.name}
+          </h2>
+          <button
+            onClick={onClose}
+            style={{
+              backgroundColor: '#374151',
+              border: 'none',
+              color: 'white',
+              width: '28px',
+              height: '28px',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '16px',
+              fontWeight: 'bold'
+            }}
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Scrollable Content */}
+        <div style={{
+          flex: 1,
+          overflow: 'auto',
+          padding: '16px',
+          backgroundColor: '#f9fafb',
+          minHeight: 0
+        }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#111827' }}>
+                Subject
+              </label>
+              <input
+                type="text"
+                value={emailData.subject}
+                onChange={(e) => setEmailData(prev => ({ ...prev, subject: e.target.value }))}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  border: '2px solid #d1d5db',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  backgroundColor: 'white'
+                }}
+                placeholder="Enter email subject"
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#111827' }}>
+                Template
+              </label>
+              <select
+                value={emailData.template}
+                onChange={(e) => setEmailData(prev => ({ ...prev, template: e.target.value }))}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  border: '2px solid #d1d5db',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  backgroundColor: 'white'
+                }}
+              >
+                <option value="default">Professional</option>
+                <option value="friendly">Friendly</option>
+                <option value="urgent">Urgent</option>
+              </select>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#111827' }}>
+                Message
+              </label>
+              <textarea
+                value={emailData.message}
+                onChange={(e) => setEmailData(prev => ({ ...prev, message: e.target.value }))}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  border: '2px solid #d1d5db',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  backgroundColor: 'white',
+                  height: '120px',
+                  resize: 'vertical',
+                  minHeight: '80px'
+                }}
+                placeholder="Enter your custom message"
+              />
+            </div>
           </div>
         </div>
 
-        <div className="p-6 space-y-4">
-          <div>
-            <label className="ultra-contrast-label block mb-2">Subject</label>
-            <input
-              type="text"
-              value={emailData.subject}
-              onChange={(e) => setEmailData(prev => ({ ...prev, subject: e.target.value }))}
-              className="ultra-contrast-input w-full p-3 rounded-lg"
-              placeholder="Enter email subject"
-            />
-          </div>
-
-          <div>
-            <label className="ultra-contrast-label block mb-2">Template</label>
-            <select
-              value={emailData.template}
-              onChange={(e) => setEmailData(prev => ({ ...prev, template: e.target.value }))}
-              className="ultra-contrast-input w-full p-3 rounded-lg"
-            >
-              <option value="default">Professional</option>
-              <option value="friendly">Friendly</option>
-              <option value="urgent">Urgent</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="ultra-contrast-label block mb-2">Message</label>
-            <textarea
-              value={emailData.message}
-              onChange={(e) => setEmailData(prev => ({ ...prev, message: e.target.value }))}
-              className="ultra-contrast-input w-full p-3 rounded-lg h-32 resize-none"
-              placeholder="Enter your custom message"
-            />
-          </div>
-
-          <div className="flex space-x-3 pt-4">
-            <button
-              onClick={handleSend}
-              disabled={sending}
-              className="ultra-contrast-button-primary px-6 py-3 rounded-lg flex-1"
-            >
-              {sending ? 'Sending...' : '📧 Send Email'}
-            </button>
-            <button
-              onClick={onClose}
-              className="ultra-contrast-button px-6 py-3 rounded-lg"
-            >
-              Cancel
-            </button>
-          </div>
+        {/* Fixed Footer */}
+        <div style={{
+          backgroundColor: '#f8fafc',
+          borderTop: '2px solid #e5e7eb',
+          padding: '12px 16px',
+          display: 'flex',
+          gap: '10px',
+          justifyContent: 'flex-end',
+          flexShrink: 0,
+          height: '60px',
+          alignItems: 'center'
+        }}>
+          <button
+            onClick={onClose}
+            style={{
+              padding: '10px 20px',
+              borderRadius: '6px',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              minWidth: '80px',
+              height: '36px',
+              border: '2px solid #374151',
+              backgroundColor: 'white',
+              color: '#374151'
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSend}
+            disabled={sending}
+            style={{
+              padding: '10px 20px',
+              borderRadius: '6px',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              cursor: sending ? 'not-allowed' : 'pointer',
+              minWidth: '110px',
+              height: '36px',
+              border: 'none',
+              backgroundColor: sending ? '#9ca3af' : '#3b82f6',
+              color: 'white',
+              boxShadow: '0 2px 4px rgba(59, 130, 246, 0.3)'
+            }}
+          >
+            {sending ? 'Sending...' : '📧 Send Email'}
+          </button>
         </div>
       </div>
     </div>
