@@ -251,6 +251,9 @@ self.addEventListener('message', event => {
         caches.delete(STATIC_CACHE),
         caches.delete(API_CACHE),
         // Clear any legacy cache versions
+        caches.delete('alphalete-mobile-pwa-v16.0.0'),
+        caches.delete('alphalete-static-v16.0.0'),
+        caches.delete('alphalete-api-v16.0.0'),
         caches.delete('alphalete-mobile-pwa-v15.0.0'),
         caches.delete('alphalete-static-v15.0.0'),
         caches.delete('alphalete-api-v15.0.0'),
