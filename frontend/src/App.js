@@ -2686,7 +2686,9 @@ const ClientManagement = () => {
       setLoading(true);
       const result = await localDB.getClients(forceRefresh);
       console.log('🔍 ClientManagement: Got result:', result);
-      const clientsData = Array.isArray(result.data) ? result.data : [];
+      
+      // Handle both old format {data: [...]} and new format [...] 
+      const clientsData = Array.isArray(result) ? result : (Array.isArray(result.data) ? result.data : []);
       
       // Use functional state updates to ensure proper batching
       setClients(() => clientsData);
