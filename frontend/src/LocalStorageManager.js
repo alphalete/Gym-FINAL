@@ -99,7 +99,7 @@ class LocalStorageManager {
   }
 
   // Client management methods
-  async getClients() {
+  async getClients(forceRefresh = false) {
     try {
       // First try to fetch from backend if online
       if (this.isOnline) {
@@ -109,8 +109,7 @@ class LocalStorageManager {
           
           const response = await fetch(`${backendUrl}/api/clients`, {
             method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-            timeout: 5000
+            headers: { 'Content-Type': 'application/json' }
           });
           
           if (response.ok) {
