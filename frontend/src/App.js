@@ -2052,104 +2052,117 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
   };
 
   return (
-    <div className="confirmation-modal-overlay" style={{ padding: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000,
+      padding: '20px'
+    }}>
       <div style={{
-        background: 'white',
+        backgroundColor: 'white',
         borderRadius: '16px',
         width: '100%',
-        maxWidth: '650px',
-        maxHeight: '95vh',
-        overflow: 'hidden',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+        maxWidth: '600px',
+        height: '90vh',
+        maxHeight: '600px',
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
+        overflow: 'hidden'
       }}>
-        {/* Header - Fixed readability */}
+        {/* Modal Header - Always Visible */}
         <div style={{
-          background: 'linear-gradient(135deg, #00BCD4 0%, #2196F3 100%)',
+          backgroundColor: '#1e40af',
+          background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)',
           color: 'white',
-          padding: '20px 24px',
+          padding: '20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexShrink: 0,
           borderTopLeftRadius: '16px',
-          borderTopRightRadius: '16px',
-          flexShrink: 0
+          borderTopRightRadius: '16px'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
-                background: 'rgba(255, 255, 255, 0.2)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                fontSize: '16px',
-                fontWeight: 'bold'
-              }}>
-                {getInitials(formData.name || 'NN')}
-              </div>
-              <div>
-                <h2 style={{ 
-                  margin: '0', 
-                  fontSize: '20px', 
-                  fontWeight: 'bold',
-                  color: 'white',
-                  textShadow: 'none'
-                }}>
-                  Edit Member
-                </h2>
-                <p style={{ 
-                  margin: '4px 0 0 0', 
-                  fontSize: '13px', 
-                  color: 'rgba(255, 255, 255, 0.9)',
-                  fontWeight: 'normal'
-                }}>
-                  Update member information
-                </p>
-              </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontSize: '16px',
+              fontWeight: 'bold'
+            }}>
+              {getInitials(formData.name || 'NN')}
             </div>
-            <button
-              onClick={handleClose}
-              style={{
-                background: 'rgba(255, 255, 255, 0.2)',
-                border: 'none',
-                color: 'white',
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                cursor: 'pointer',
+            <div>
+              <h3 style={{
+                margin: 0,
                 fontSize: '18px',
                 fontWeight: 'bold',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'background 0.2s ease'
-              }}
-              onMouseOver={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.3)'}
-              onMouseOut={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.2)'}
-            >
-              ×
-            </button>
+                color: 'white'
+              }}>
+                Edit Member
+              </h3>
+              <p style={{
+                margin: '2px 0 0 0',
+                fontSize: '12px',
+                color: 'rgba(255, 255, 255, 0.8)'
+              }}>
+                Update member information
+              </p>
+            </div>
           </div>
+          <button
+            onClick={handleClose}
+            style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              border: 'none',
+              color: 'white',
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
+              cursor: 'pointer',
+              fontSize: '18px',
+              fontWeight: 'bold',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'backgroundColor 0.2s ease'
+            }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.3)'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'}
+          >
+            ×
+          </button>
         </div>
 
-        {/* Scrollable Content */}
-        <div style={{ 
-          flex: 1, 
-          overflow: 'auto', 
-          padding: '20px 24px',
+        {/* Modal Content - Scrollable */}
+        <div style={{
+          flex: 1,
+          overflow: 'auto',
+          padding: '20px',
           display: 'flex',
           flexDirection: 'column',
-          gap: '20px'
+          gap: '16px'
         }}>
-          {/* Form Error */}
+          {/* Error Display */}
           {errors.submit && (
             <div style={{
-              background: '#fef2f2',
+              backgroundColor: '#fef2f2',
               border: '1px solid #fecaca',
               color: '#dc2626',
-              padding: '12px 16px',
+              padding: '12px',
               borderRadius: '8px',
               fontSize: '14px'
             }}>
@@ -2157,16 +2170,15 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
             </div>
           )}
 
-          {/* Member Preview Card - Compact */}
+          {/* Member Preview */}
           <div style={{
-            background: 'white',
+            backgroundColor: '#f8fafc',
             border: '1px solid #e2e8f0',
-            borderRadius: '12px',
+            borderRadius: '8px',
             padding: '16px',
             display: 'flex',
             alignItems: 'center',
-            gap: '12px',
-            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)'
+            gap: '12px'
           }}>
             <div style={{
               width: '48px',
@@ -2183,273 +2195,280 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
               {getInitials(formData.name || 'NN')}
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#2d3748' }}>
+              <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#1f2937' }}>
                 {formData.name || 'Not set'}
               </div>
-              <div style={{ fontSize: '14px', color: '#718096' }}>
+              <div style={{ fontSize: '14px', color: '#6b7280' }}>
                 {formData.membership_type} - TTD {formData.monthly_fee}/month
               </div>
             </div>
-            <div>
-              <span style={{
-                padding: '4px 8px',
-                borderRadius: '12px',
-                fontSize: '11px',
-                fontWeight: 'bold',
-                background: formData.status === 'Active' ? '#d4edda' : '#f8d7da',
-                color: formData.status === 'Active' ? '#155724' : '#721c24'
-              }}>
-                {formData.status}
-              </span>
+            <div style={{
+              padding: '4px 8px',
+              borderRadius: '12px',
+              fontSize: '12px',
+              fontWeight: 'bold',
+              backgroundColor: formData.status === 'Active' ? '#dcfce7' : '#fef2f2',
+              color: formData.status === 'Active' ? '#166534' : '#dc2626'
+            }}>
+              {formData.status}
             </div>
           </div>
 
-          {/* Form Fields - Compact Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+          {/* Form Fields */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '16px'
+          }}>
             {/* Name */}
             <div>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4a5568', marginBottom: '6px', textTransform: 'uppercase' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                color: '#374151',
+                marginBottom: '4px'
+              }}>
                 Name *
               </label>
-              <div style={{ position: 'relative' }}>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '12px 12px 12px 36px',
-                    border: `2px solid ${errors.name ? '#ef4444' : '#e2e8f0'}`,
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    background: '#f7fafc',
-                    transition: 'all 0.2s ease'
-                  }}
-                  placeholder="Enter name"
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#00BCD4';
-                    e.target.style.background = 'white';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = errors.name ? '#ef4444' : '#e2e8f0';
-                    e.target.style.background = '#f7fafc';
-                  }}
-                />
-                <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '16px', color: '#718096' }}>
-                  👤
-                </div>
-              </div>
-              {errors.name && <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#ef4444' }}>{errors.name}</p>}
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) => handleInputChange('name', e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: `2px solid ${errors.name ? '#ef4444' : '#d1d5db'}`,
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  backgroundColor: 'white',
+                  outline: 'none',
+                  transition: 'border-color 0.2s ease'
+                }}
+                placeholder="Enter name"
+                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                onBlur={(e) => e.target.style.borderColor = errors.name ? '#ef4444' : '#d1d5db'}
+              />
+              {errors.name && (
+                <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#ef4444' }}>
+                  {errors.name}
+                </p>
+              )}
             </div>
 
             {/* Email */}
             <div>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4a5568', marginBottom: '6px', textTransform: 'uppercase' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                color: '#374151',
+                marginBottom: '4px'
+              }}>
                 Email *
               </label>
-              <div style={{ position: 'relative' }}>
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '12px 12px 12px 36px',
-                    border: `2px solid ${errors.email ? '#ef4444' : '#e2e8f0'}`,
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    background: '#f7fafc',
-                    transition: 'all 0.2s ease'
-                  }}
-                  placeholder="Enter email"
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#00BCD4';
-                    e.target.style.background = 'white';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = errors.email ? '#ef4444' : '#e2e8f0';
-                    e.target.style.background = '#f7fafc';
-                  }}
-                />
-                <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '16px', color: '#718096' }}>
-                  📧
-                </div>
-              </div>
-              {errors.email && <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#ef4444' }}>{errors.email}</p>}
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) => handleInputChange('email', e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: `2px solid ${errors.email ? '#ef4444' : '#d1d5db'}`,
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  backgroundColor: 'white',
+                  outline: 'none',
+                  transition: 'border-color 0.2s ease'
+                }}
+                placeholder="Enter email"
+                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                onBlur={(e) => e.target.style.borderColor = errors.email ? '#ef4444' : '#d1d5db'}
+              />
+              {errors.email && (
+                <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#ef4444' }}>
+                  {errors.email}
+                </p>
+              )}
             </div>
 
             {/* Phone */}
             <div>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4a5568', marginBottom: '6px', textTransform: 'uppercase' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                color: '#374151',
+                marginBottom: '4px'
+              }}>
                 Phone
               </label>
-              <div style={{ position: 'relative' }}>
-                <input
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => handleInputChange('phone', e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '12px 12px 12px 36px',
-                    border: `2px solid ${errors.phone ? '#ef4444' : '#e2e8f0'}`,
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    background: '#f7fafc',
-                    transition: 'all 0.2s ease'
-                  }}
-                  placeholder="Enter phone"
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#00BCD4';
-                    e.target.style.background = 'white';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = errors.phone ? '#ef4444' : '#e2e8f0';
-                    e.target.style.background = '#f7fafc';
-                  }}
-                />
-                <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '16px', color: '#718096' }}>
-                  📱
-                </div>
-              </div>
-              {errors.phone && <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#ef4444' }}>{errors.phone}</p>}
+              <input
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => handleInputChange('phone', e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: `2px solid ${errors.phone ? '#ef4444' : '#d1d5db'}`,
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  backgroundColor: 'white',
+                  outline: 'none',
+                  transition: 'border-color 0.2s ease'
+                }}
+                placeholder="Enter phone"
+                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                onBlur={(e) => e.target.style.borderColor = errors.phone ? '#ef4444' : '#d1d5db'}
+              />
+              {errors.phone && (
+                <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#ef4444' }}>
+                  {errors.phone}
+                </p>
+              )}
             </div>
 
             {/* Status */}
             <div>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4a5568', marginBottom: '6px', textTransform: 'uppercase' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                color: '#374151',
+                marginBottom: '4px'
+              }}>
                 Status
               </label>
-              <div style={{ position: 'relative' }}>
-                <select
-                  value={formData.status}
-                  onChange={(e) => handleInputChange('status', e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '12px 12px 12px 36px',
-                    border: '2px solid #e2e8f0',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    background: '#f7fafc',
-                    cursor: 'pointer'
-                  }}
-                >
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                </select>
-                <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '16px', color: '#718096' }}>
-                  📊
-                </div>
-              </div>
+              <select
+                value={formData.status}
+                onChange={(e) => handleInputChange('status', e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '2px solid #d1d5db',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  backgroundColor: 'white',
+                  outline: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
             </div>
 
             {/* Membership Type */}
             <div>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4a5568', marginBottom: '6px', textTransform: 'uppercase' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                color: '#374151',
+                marginBottom: '4px'
+              }}>
                 Membership
               </label>
-              <div style={{ position: 'relative' }}>
-                <select
-                  value={formData.membership_type}
-                  onChange={(e) => handleMembershipTypeChange(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '12px 12px 12px 36px',
-                    border: '2px solid #e2e8f0',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    background: '#f7fafc',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {membershipTypes.map(type => (
-                    <option key={type.name || type.id} value={type.name}>
-                      {type.name} - TTD {type.monthly_fee || type.fee}
-                    </option>
-                  ))}
-                </select>
-                <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '16px', color: '#718096' }}>
-                  🏋️
-                </div>
-              </div>
+              <select
+                value={formData.membership_type}
+                onChange={(e) => handleMembershipTypeChange(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '2px solid #d1d5db',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  backgroundColor: 'white',
+                  outline: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                {membershipTypes.map(type => (
+                  <option key={type.name || type.id} value={type.name}>
+                    {type.name} - TTD {type.monthly_fee || type.fee}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Monthly Fee */}
             <div>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4a5568', marginBottom: '6px', textTransform: 'uppercase' }}>
-                Fee (TTD) *
+              <label style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                color: '#374151',
+                marginBottom: '4px'
+              }}>
+                Monthly Fee (TTD) *
               </label>
-              <div style={{ position: 'relative' }}>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.monthly_fee}
-                  onChange={(e) => handleInputChange('monthly_fee', parseFloat(e.target.value) || 0)}
-                  style={{
-                    width: '100%',
-                    padding: '12px 12px 12px 36px',
-                    border: `2px solid ${errors.monthly_fee ? '#ef4444' : '#e2e8f0'}`,
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    background: '#f7fafc',
-                    transition: 'all 0.2s ease'
-                  }}
-                  placeholder="Enter fee"
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#00BCD4';
-                    e.target.style.background = 'white';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = errors.monthly_fee ? '#ef4444' : '#e2e8f0';
-                    e.target.style.background = '#f7fafc';
-                  }}
-                />
-                <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '16px', color: '#718096' }}>
-                  💰
-                </div>
-              </div>
-              {errors.monthly_fee && <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#ef4444' }}>{errors.monthly_fee}</p>}
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                value={formData.monthly_fee}
+                onChange={(e) => handleInputChange('monthly_fee', parseFloat(e.target.value) || 0)}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: `2px solid ${errors.monthly_fee ? '#ef4444' : '#d1d5db'}`,
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  backgroundColor: 'white',
+                  outline: 'none',
+                  transition: 'border-color 0.2s ease'
+                }}
+                placeholder="Enter fee"
+                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                onBlur={(e) => e.target.style.borderColor = errors.monthly_fee ? '#ef4444' : '#d1d5db'}
+              />
+              {errors.monthly_fee && (
+                <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#ef4444' }}>
+                  {errors.monthly_fee}
+                </p>
+              )}
             </div>
           </div>
 
-          {/* Start Date - Full width */}
+          {/* Start Date */}
           <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4a5568', marginBottom: '6px', textTransform: 'uppercase' }}>
+            <label style={{
+              display: 'block',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              color: '#374151',
+              marginBottom: '4px'
+            }}>
               Start Date *
             </label>
-            <div style={{ position: 'relative', maxWidth: '300px' }}>
-              <input
-                type="date"
-                value={formData.start_date}
-                onChange={(e) => handleInputChange('start_date', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '12px 12px 12px 36px',
-                  border: `2px solid ${errors.start_date ? '#ef4444' : '#e2e8f0'}`,
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  background: '#f7fafc',
-                  transition: 'all 0.2s ease'
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = '#00BCD4';
-                  e.target.style.background = 'white';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = errors.start_date ? '#ef4444' : '#e2e8f0';
-                  e.target.style.background = '#f7fafc';
-                }}
-              />
-              <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '16px', color: '#718096' }}>
-                📅
-              </div>
-            </div>
-            {errors.start_date && <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#ef4444' }}>{errors.start_date}</p>}
+            <input
+              type="date"
+              value={formData.start_date}
+              onChange={(e) => handleInputChange('start_date', e.target.value)}
+              style={{
+                width: '100%',
+                maxWidth: '200px',
+                padding: '10px 12px',
+                border: `2px solid ${errors.start_date ? '#ef4444' : '#d1d5db'}`,
+                borderRadius: '6px',
+                fontSize: '14px',
+                backgroundColor: 'white',
+                outline: 'none',
+                transition: 'border-color 0.2s ease'
+              }}
+              onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+              onBlur={(e) => e.target.style.borderColor = errors.start_date ? '#ef4444' : '#d1d5db'}
+            />
+            {errors.start_date && (
+              <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#ef4444' }}>
+                {errors.start_date}
+              </p>
+            )}
           </div>
 
           {/* Auto Reminders Toggle */}
           <div style={{
-            background: '#f7fafc',
+            backgroundColor: '#f8fafc',
             border: '1px solid #e2e8f0',
             borderRadius: '8px',
             padding: '16px',
@@ -2458,21 +2477,22 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
             justifyContent: 'space-between'
           }}>
             <div>
-              <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#2d3748', marginBottom: '4px' }}>
-                🔔 Auto Reminders
+              <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#1f2937' }}>
+                Auto Reminders
               </div>
-              <div style={{ fontSize: '12px', color: '#718096' }}>
+              <div style={{ fontSize: '12px', color: '#6b7280' }}>
                 Send payment reminders automatically
               </div>
             </div>
             <label style={{
               position: 'relative',
-              width: '48px',
+              width: '44px',
               height: '24px',
-              background: formData.auto_reminders_enabled ? '#10b981' : '#e2e8f0',
+              backgroundColor: formData.auto_reminders_enabled ? '#10b981' : '#d1d5db',
               borderRadius: '12px',
               cursor: 'pointer',
-              transition: 'background 0.3s ease'
+              transition: 'background-color 0.3s ease',
+              display: 'block'
             }}>
               <input
                 type="checkbox"
@@ -2483,11 +2503,11 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
               <div style={{
                 width: '20px',
                 height: '20px',
-                background: 'white',
+                backgroundColor: 'white',
                 borderRadius: '50%',
                 position: 'absolute',
                 top: '2px',
-                left: formData.auto_reminders_enabled ? '26px' : '2px',
+                left: formData.auto_reminders_enabled ? '22px' : '2px',
                 transition: 'left 0.3s ease',
                 boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
               }} />
@@ -2495,58 +2515,57 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
           </div>
         </div>
 
-        {/* Fixed Bottom Buttons */}
-        <div style={{ 
-          padding: '20px 24px', 
-          borderTop: '1px solid #e2e8f0',
-          background: 'white',
+        {/* Modal Footer - Always Visible */}
+        <div style={{
+          padding: '16px 20px',
+          borderTop: '1px solid #e5e7eb',
+          backgroundColor: '#f9fafb',
+          display: 'flex',
+          gap: '12px',
+          justifyContent: 'flex-end',
+          flexShrink: 0,
           borderBottomLeftRadius: '16px',
-          borderBottomRightRadius: '16px',
-          flexShrink: 0
+          borderBottomRightRadius: '16px'
         }}>
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <button
-              onClick={handleSave}
-              disabled={loading}
-              style={{
-                flex: 1,
-                background: loading ? '#cbd5e0' : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                color: 'white',
-                border: 'none',
-                padding: '14px 20px',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: 'bold',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                transition: 'all 0.2s ease',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px'
-              }}
-            >
-              {loading ? '🔄 Saving...' : '💾 Save Changes'}
-            </button>
-            <button
-              onClick={handleClose}
-              disabled={loading}
-              style={{
-                background: '#f7fafc',
-                border: '1px solid #e2e8f0',
-                color: '#4a5568',
-                padding: '14px 20px',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseOver={(e) => e.target.style.background = '#edf2f7'}
-              onMouseOut={(e) => e.target.style.background = '#f7fafc'}
-            >
-              Cancel
-            </button>
-          </div>
+          <button
+            onClick={handleClose}
+            disabled={loading}
+            style={{
+              padding: '10px 20px',
+              border: '1px solid #d1d5db',
+              backgroundColor: 'white',
+              color: '#374151',
+              borderRadius: '6px',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => !loading && (e.target.style.backgroundColor = '#f3f4f6')}
+            onMouseLeave={(e) => !loading && (e.target.style.backgroundColor = 'white')}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={loading}
+            style={{
+              padding: '10px 20px',
+              border: 'none',
+              backgroundColor: loading ? '#9ca3af' : '#1e40af',
+              color: 'white',
+              borderRadius: '6px',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              transition: 'all 0.2s ease',
+              minWidth: '120px'
+            }}
+            onMouseEnter={(e) => !loading && (e.target.style.backgroundColor = '#1d4ed8')}
+            onMouseLeave={(e) => !loading && (e.target.style.backgroundColor = '#1e40af')}
+          >
+            {loading ? 'Saving...' : 'Save Changes'}
+          </button>
         </div>
       </div>
     </div>
