@@ -5926,6 +5926,26 @@ const Settings = () => {
         />
       )}
 
+      {/* Cache Debug Modal */}
+      {showModal === 'cacheDebug' && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-header">
+              <h3>🔄 Clear App Cache</h3>
+              <button 
+                className="modal-close" 
+                onClick={() => setShowModal(null)}
+              >
+                ×
+              </button>
+            </div>
+            <div className="modal-content">
+              <CacheClearUtility showToast={showToast} />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Confirmation Modal */}
       {showConfirmation && (
         <div className="confirmation-modal-overlay">
