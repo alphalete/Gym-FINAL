@@ -1781,7 +1781,7 @@ const BillingCycleDetailModal = ({ client, isOpen, onClose }) => {
   );
 };
 
-// Member Edit Modal Component - Rebuilt with Correct Logic
+// Member Edit Modal Component - Matching App Style System
 const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
   const [formData, setFormData] = useState({
     id: '',
@@ -2046,19 +2046,77 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
     return null;
   }
 
+  // Generate avatar initials
+  const getInitials = (name) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+  };
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-xl">
-        {/* Header */}
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-600 to-purple-600">
-          <div className="flex justify-between items-center">
-            <div>
-              <h2 className="text-xl font-bold text-white">Edit Member</h2>
-              <p className="text-blue-100 text-sm mt-1">Update member information and settings</p>
+    <div className="confirmation-modal-overlay">
+      <div style={{
+        background: 'white',
+        borderRadius: '16px',
+        maxWidth: '600px',
+        width: '100%',
+        maxHeight: '90vh',
+        overflow: 'auto',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+        margin: '20px'
+      }}>
+        {/* Header - Matching app gradient style */}
+        <div style={{
+          background: 'linear-gradient(135deg, #00BCD4 0%, #2196F3 100%)',
+          color: 'white',
+          padding: '24px',
+          borderTopLeftRadius: '16px',
+          borderTopRightRadius: '16px',
+          position: 'relative'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div className="member-card-avatar" style={{ width: '48px', height: '48px', fontSize: '18px' }}>
+                {getInitials(formData.name || 'NN')}
+              </div>
+              <div>
+                <h2 style={{ 
+                  margin: '0 0 4px 0', 
+                  fontSize: '24px', 
+                  fontWeight: '800',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                }}>
+                  EDIT MEMBER
+                </h2>
+                <p style={{ 
+                  margin: 0, 
+                  fontSize: '14px', 
+                  opacity: 0.9,
+                  fontWeight: '500' 
+                }}>
+                  Update member information and settings
+                </p>
+              </div>
             </div>
             <button
               onClick={handleClose}
-              className="text-white hover:text-gray-300 text-2xl font-bold p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors"
+              style={{
+                background: 'rgba(255, 255, 255, 0.2)',
+                border: 'none',
+                color: 'white',
+                width: '40px',
+                height: '40px',
+                borderRadius: '50%',
+                cursor: 'pointer',
+                fontSize: '20px',
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseOver={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.3)'}
+              onMouseOut={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.2)'}
             >
               ×
             </button>
@@ -2066,217 +2124,244 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-6">
+        <div style={{ padding: '24px' }}>
           {/* Form Error */}
           {errors.submit && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+            <div style={{
+              background: '#fef2f2',
+              border: '1px solid #fecaca',
+              color: '#dc2626',
+              padding: '12px 16px',
+              borderRadius: '8px',
+              marginBottom: '20px',
+              fontSize: '14px'
+            }}>
               <strong>Error:</strong> {errors.submit}
             </div>
           )}
 
-          {/* Member Preview Card */}
-          <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">Preview</h3>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="text-gray-600 dark:text-gray-400">Name:</span>
-                <span className="ml-2 font-medium text-gray-800 dark:text-white">{formData.name || 'Not set'}</span>
-              </div>
-              <div>
-                <span className="text-gray-600 dark:text-gray-400">Status:</span>
-                <span className={`ml-2 px-2 py-1 rounded text-xs font-medium ${
-                  formData.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                }`}>
-                  {formData.status}
-                </span>
-              </div>
-              <div>
-                <span className="text-gray-600 dark:text-gray-400">Email:</span>
-                <span className="ml-2 font-medium text-gray-800 dark:text-white">{formData.email || 'Not set'}</span>
-              </div>
-              <div>
-                <span className="text-gray-600 dark:text-gray-400">Phone:</span>
-                <span className="ml-2 font-medium text-gray-800 dark:text-white">{formData.phone || 'Not set'}</span>
-              </div>
-              <div>
-                <span className="text-gray-600 dark:text-gray-400">Membership:</span>
-                <span className="ml-2 font-medium text-gray-800 dark:text-white">{formData.membership_type}</span>
-              </div>
-              <div>
-                <span className="text-gray-600 dark:text-gray-400">Monthly Fee:</span>
-                <span className="ml-2 font-medium text-gray-800 dark:text-white">TTD {formData.monthly_fee}</span>
+          {/* Member Preview Card - Matching app style */}
+          <div className="modern-member-card" style={{ marginBottom: '24px' }}>
+            <div className="member-card-header">
+              <div className="member-card-left">
+                <div className="member-card-avatar">
+                  {getInitials(formData.name || 'NN')}
+                </div>
+                <div className="member-card-info">
+                  <div className="member-card-name">{formData.name || 'Not set'}</div>
+                  <div className="member-card-plan">{formData.membership_type} - TTD {formData.monthly_fee}/month</div>
+                  <div className="member-card-date">
+                    Status: <span className={`status-pill ${formData.status === 'Active' ? 'paid' : 'overdue'}`} style={{
+                      display: 'inline-flex',
+                      padding: '4px 8px',
+                      fontSize: '11px',
+                      borderRadius: '12px'
+                    }}>
+                      {formData.status}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Form Fields */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Form Fields - Using app's form styling */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px' }}>
             {/* Name */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Name <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                className={`w-full p-3 border rounded-lg bg-white dark:bg-gray-700 dark:text-white ${
-                  errors.name ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                } focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
-                placeholder="Enter member name"
-              />
-              {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
+            <div className="form-field-group">
+              <label className="form-field-label">Name *</label>
+              <div className="form-input-container">
+                <div className="form-input-icon">👤</div>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  className="modern-form-input"
+                  placeholder="Enter member name"
+                  style={errors.name ? { borderColor: '#ef4444' } : {}}
+                />
+              </div>
+              {errors.name && <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#ef4444' }}>{errors.name}</p>}
             </div>
 
             {/* Email */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Email <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
-                className={`w-full p-3 border rounded-lg bg-white dark:bg-gray-700 dark:text-white ${
-                  errors.email ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                } focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
-                placeholder="Enter email address"
-              />
-              {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+            <div className="form-field-group">
+              <label className="form-field-label">Email *</label>
+              <div className="form-input-container">
+                <div className="form-input-icon">📧</div>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  className="modern-form-input"
+                  placeholder="Enter email address"
+                  style={errors.email ? { borderColor: '#ef4444' } : {}}
+                />
+              </div>
+              {errors.email && <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#ef4444' }}>{errors.email}</p>}
             </div>
 
             {/* Phone */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Phone
-              </label>
-              <input
-                type="tel"
-                value={formData.phone}
-                onChange={(e) => handleInputChange('phone', e.target.value)}
-                className={`w-full p-3 border rounded-lg bg-white dark:bg-gray-700 dark:text-white ${
-                  errors.phone ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                } focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
-                placeholder="Enter phone number"
-              />
-              {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
+            <div className="form-field-group">
+              <label className="form-field-label">Phone</label>
+              <div className="form-input-container">
+                <div className="form-input-icon">📱</div>
+                <input
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => handleInputChange('phone', e.target.value)}
+                  className="modern-form-input"
+                  placeholder="Enter phone number"
+                  style={errors.phone ? { borderColor: '#ef4444' } : {}}
+                />
+              </div>
+              {errors.phone && <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#ef4444' }}>{errors.phone}</p>}
             </div>
 
             {/* Status */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Status
-              </label>
-              <select
-                value={formData.status}
-                onChange={(e) => handleInputChange('status', e.target.value)}
-                className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-              </select>
+            <div className="form-field-group">
+              <label className="form-field-label">Status</label>
+              <div className="form-input-container">
+                <div className="form-input-icon">📊</div>
+                <select
+                  value={formData.status}
+                  onChange={(e) => handleInputChange('status', e.target.value)}
+                  className="modern-form-select"
+                >
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+              </div>
             </div>
 
             {/* Membership Type */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Membership Type
-              </label>
-              <select
-                value={formData.membership_type}
-                onChange={(e) => handleMembershipTypeChange(e.target.value)}
-                className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                {membershipTypes.map(type => (
-                  <option key={type.name || type.id} value={type.name}>
-                    {type.name} - TTD {type.monthly_fee || type.fee}/month
-                  </option>
-                ))}
-              </select>
+            <div className="form-field-group">
+              <label className="form-field-label">Membership Type</label>
+              <div className="form-input-container">
+                <div className="form-input-icon">🏋️</div>
+                <select
+                  value={formData.membership_type}
+                  onChange={(e) => handleMembershipTypeChange(e.target.value)}
+                  className="modern-form-select"
+                >
+                  {membershipTypes.map(type => (
+                    <option key={type.name || type.id} value={type.name}>
+                      {type.name} - TTD {type.monthly_fee || type.fee}/month
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             {/* Monthly Fee */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Monthly Fee (TTD) <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                value={formData.monthly_fee}
-                onChange={(e) => handleInputChange('monthly_fee', parseFloat(e.target.value) || 0)}
-                className={`w-full p-3 border rounded-lg bg-white dark:bg-gray-700 dark:text-white ${
-                  errors.monthly_fee ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                } focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
-                placeholder="Enter monthly fee"
-              />
-              {errors.monthly_fee && <p className="mt-1 text-sm text-red-600">{errors.monthly_fee}</p>}
-            </div>
-
-            {/* Start Date */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Start Date <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="date"
-                value={formData.start_date}
-                onChange={(e) => handleInputChange('start_date', e.target.value)}
-                className={`w-full p-3 border rounded-lg bg-white dark:bg-gray-700 dark:text-white ${
-                  errors.start_date ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                } focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
-              />
-              {errors.start_date && <p className="mt-1 text-sm text-red-600">{errors.start_date}</p>}
-            </div>
-
-            {/* Auto Reminders */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Automatic Reminders
-              </label>
-              <div className="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
+            <div className="form-field-group">
+              <label className="form-field-label">Monthly Fee (TTD) *</label>
+              <div className="form-input-container">
+                <div className="form-input-icon">💰</div>
                 <input
-                  id="auto-reminders"
-                  type="checkbox"
-                  checked={formData.auto_reminders_enabled}
-                  onChange={(e) => handleInputChange('auto_reminders_enabled', e.target.checked)}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.monthly_fee}
+                  onChange={(e) => handleInputChange('monthly_fee', parseFloat(e.target.value) || 0)}
+                  className="modern-form-input"
+                  placeholder="Enter monthly fee"
+                  style={errors.monthly_fee ? { borderColor: '#ef4444' } : {}}
                 />
-                <label htmlFor="auto-reminders" className="ml-3 text-sm text-gray-700 dark:text-gray-300">
-                  Send payment reminders automatically
+              </div>
+              {errors.monthly_fee && <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#ef4444' }}>{errors.monthly_fee}</p>}
+            </div>
+
+            {/* Start Date - Full width */}
+            <div className="form-field-group" style={{ gridColumn: '1 / -1' }}>
+              <label className="form-field-label">Start Date *</label>
+              <div className="form-input-container">
+                <div className="form-input-icon">📅</div>
+                <input
+                  type="date"
+                  value={formData.start_date}
+                  onChange={(e) => handleInputChange('start_date', e.target.value)}
+                  className="modern-form-input"
+                  style={errors.start_date ? { borderColor: '#ef4444' } : {}}
+                />
+              </div>
+              {errors.start_date && <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#ef4444' }}>{errors.start_date}</p>}
+            </div>
+          </div>
+
+          {/* Auto Reminders Toggle - Using app's toggle style */}
+          <div className="toggle-section">
+            <div className="toggle-container">
+              <div className="toggle-info">
+                <div className="toggle-title">🔔 Automatic Payment Reminders</div>
+                <div className="toggle-description">Send reminders 3 days before and on payment due date</div>
+              </div>
+              <div className="status-toggle-switch">
+                <label className="toggle-switch" style={{
+                  background: formData.auto_reminders_enabled ? 'linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%)' : '#e2e8f0'
+                }}>
+                  <input
+                    type="checkbox"
+                    checked={formData.auto_reminders_enabled}
+                    onChange={(e) => handleInputChange('auto_reminders_enabled', e.target.checked)}
+                    style={{ display: 'none' }}
+                  />
+                  <div style={{
+                    width: '24px',
+                    height: '24px',
+                    background: 'white',
+                    borderRadius: '50%',
+                    position: 'absolute',
+                    top: '4px',
+                    left: formData.auto_reminders_enabled ? '28px' : '4px',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
+                  }} />
                 </label>
               </div>
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex space-x-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+          {/* Action Buttons - Using app's button styles */}
+          <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
             <button
               onClick={handleSave}
               disabled={loading}
-              className={`flex-1 px-6 py-3 rounded-lg font-medium text-white transition-colors ${
-                loading 
-                  ? 'bg-gray-400 cursor-not-allowed' 
-                  : 'bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-blue-500'
-              }`}
+              style={{
+                flex: 1,
+                background: loading ? '#cbd5e0' : 'linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%)',
+                color: 'white',
+                border: 'none',
+                padding: '16px',
+                borderRadius: '12px',
+                fontSize: '16px',
+                fontWeight: '600',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                transition: 'all 0.3s ease',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                boxShadow: loading ? 'none' : '0 4px 12px rgba(86, 171, 47, 0.3)'
+              }}
+              onMouseOver={(e) => {
+                if (!loading) e.target.style.transform = 'translateY(-1px)';
+              }}
+              onMouseOut={(e) => {
+                if (!loading) e.target.style.transform = 'translateY(0)';
+              }}
             >
-              {loading ? (
-                <span className="flex items-center justify-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Saving...
-                </span>
-              ) : (
-                '💾 Save Changes'
-              )}
+              {loading ? '🔄 Saving...' : '💾 Save Changes'}
             </button>
             <button
               onClick={handleClose}
               disabled={loading}
-              className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+              className="confirmation-btn cancel"
+              style={{
+                padding: '16px 24px',
+                fontSize: '16px',
+                borderRadius: '12px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
+              }}
             >
               Cancel
             </button>
