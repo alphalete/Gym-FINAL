@@ -16,9 +16,17 @@ from reminder_scheduler import initialize_reminder_scheduler, shutdown_reminder_
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection
+# MongoDB connection with proper configuration for production stability
 mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
+client = AsyncIOMotorClient(
+    mongo_url,
+    maxPoolSize=10,         # Maximum connections in the pool
+    minPoolSize=1,          # Minimum connections to maintain
+    maxIdleTimeMS=30000,    # Close connections after 30 seconds of inactivity
+    waitQueueTimeoutMS=5000, # Wait 5 seconds for a connection
+    serverSelectionTimeoutMS=5000,  # Wait 5 seconds for server selection
+    heartbeatFrequencyMS=10000      # Check server every 10 seconds
+)
 db = client[os.environ['DB_NAME']]
 
 # Initialize email service
