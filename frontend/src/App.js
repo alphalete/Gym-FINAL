@@ -2070,13 +2070,14 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
         borderRadius: '12px',
         width: '100%',
         maxWidth: '600px',
-        maxHeight: '85vh',
+        height: '80vh',
+        maxHeight: '700px',
         display: 'flex',
         flexDirection: 'column',
         boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
         overflow: 'hidden'
       }}>
-        {/* Modal Header - High Contrast */}
+        {/* Modal Header - Fixed at Top */}
         <div style={{
           backgroundColor: '#1f2937',
           color: 'white',
@@ -2143,15 +2144,12 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
           </button>
         </div>
 
-        {/* Modal Content - Clear and Visible */}
+        {/* Modal Content - Scrollable Middle Section */}
         <div style={{
           flex: 1,
           overflow: 'auto',
           padding: '20px',
-          backgroundColor: '#f9fafb',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '16px'
+          backgroundColor: '#f9fafb'
         }}>
           {/* Error Display */}
           {errors.submit && (
@@ -2162,13 +2160,14 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
               padding: '12px',
               borderRadius: '8px',
               fontSize: '14px',
-              fontWeight: 'bold'
+              fontWeight: 'bold',
+              marginBottom: '16px'
             }}>
               ❌ {errors.submit}
             </div>
           )}
 
-          {/* Member Preview - High Contrast */}
+          {/* Member Preview */}
           <div style={{
             backgroundColor: '#1f2937',
             borderRadius: '8px',
@@ -2176,7 +2175,8 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
             color: 'white',
             display: 'flex',
             alignItems: 'center',
-            gap: '12px'
+            gap: '12px',
+            marginBottom: '20px'
           }}>
             <div style={{
               width: '48px',
@@ -2212,11 +2212,12 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
             </div>
           </div>
 
-          {/* Form Fields - High Visibility */}
+          {/* Form Fields Grid */}
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-            gap: '16px'
+            gap: '16px',
+            marginBottom: '20px'
           }}>
             {/* Name */}
             <div style={{
@@ -2472,7 +2473,8 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
             border: '1px solid #d1d5db',
             borderRadius: '8px',
             padding: '16px',
-            maxWidth: '300px'
+            maxWidth: '300px',
+            marginBottom: '20px'
           }}>
             <label style={{
               display: 'block',
@@ -2516,7 +2518,8 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
             padding: '16px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between'
+            justifyContent: 'space-between',
+            marginBottom: '20px'
           }}>
             <div>
               <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#111827', marginBottom: '4px' }}>
@@ -2565,22 +2568,24 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
           </div>
         </div>
 
-        {/* Modal Footer - Highly Visible Buttons */}
+        {/* Modal Footer - Fixed at Bottom, Always Visible */}
         <div style={{
-          padding: '20px',
-          backgroundColor: 'white',
+          backgroundColor: '#f8fafc',
+          borderTop: '2px solid #e5e7eb',
+          padding: '16px 20px',
           display: 'flex',
           gap: '12px',
           justifyContent: 'flex-end',
           flexShrink: 0,
-          borderTop: '1px solid #e5e7eb'
+          borderBottomLeftRadius: '12px',
+          borderBottomRightRadius: '12px'
         }}>
           <button
             onClick={handleClose}
             disabled={loading}
             style={{
-              padding: '12px 24px',
-              border: '2px solid #d1d5db',
+              padding: '14px 24px',
+              border: '2px solid #374151',
               backgroundColor: 'white',
               color: '#374151',
               borderRadius: '8px',
@@ -2592,11 +2597,11 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
             }}
             onMouseEnter={(e) => !loading && (
               e.target.style.backgroundColor = '#f3f4f6',
-              e.target.style.borderColor = '#9ca3af'
+              e.target.style.borderColor = '#1f2937'
             )}
             onMouseLeave={(e) => !loading && (
               e.target.style.backgroundColor = 'white',
-              e.target.style.borderColor = '#d1d5db'
+              e.target.style.borderColor = '#374151'
             )}
           >
             Cancel
@@ -2605,7 +2610,7 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
             onClick={handleSave}
             disabled={loading}
             style={{
-              padding: '12px 24px',
+              padding: '14px 24px',
               border: 'none',
               backgroundColor: loading ? '#9ca3af' : '#3b82f6',
               color: 'white',
@@ -2614,10 +2619,17 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
               fontWeight: 'bold',
               cursor: loading ? 'not-allowed' : 'pointer',
               transition: 'all 0.2s ease',
-              minWidth: '130px'
+              minWidth: '140px',
+              boxShadow: loading ? 'none' : '0 4px 8px rgba(59, 130, 246, 0.3)'
             }}
-            onMouseEnter={(e) => !loading && (e.target.style.backgroundColor = '#2563eb')}
-            onMouseLeave={(e) => !loading && (e.target.style.backgroundColor = '#3b82f6')}
+            onMouseEnter={(e) => !loading && (
+              e.target.style.backgroundColor = '#2563eb',
+              e.target.style.boxShadow = '0 6px 12px rgba(59, 130, 246, 0.4)'
+            )}
+            onMouseLeave={(e) => !loading && (
+              e.target.style.backgroundColor = '#3b82f6',
+              e.target.style.boxShadow = '0 4px 8px rgba(59, 130, 246, 0.3)'
+            )}
           >
             {loading ? 'Saving...' : 'Save Changes'}
           </button>
