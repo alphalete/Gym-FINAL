@@ -2067,57 +2067,60 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
     }}>
       <div style={{
         backgroundColor: 'white',
-        borderRadius: '16px',
+        borderRadius: '20px',
         width: '100%',
-        maxWidth: '600px',
+        maxWidth: '650px',
         height: '90vh',
-        maxHeight: '600px',
+        maxHeight: '650px',
         display: 'flex',
         flexDirection: 'column',
-        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
+        boxShadow: '0 25px 50px rgba(0, 0, 0, 0.15)',
         overflow: 'hidden'
       }}>
-        {/* Modal Header - Always Visible */}
+        {/* Modal Header - Matching Dashboard Gradient */}
         <div style={{
-          backgroundColor: '#1e40af',
-          background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           color: 'white',
-          padding: '20px',
+          padding: '24px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           flexShrink: 0,
-          borderTopLeftRadius: '16px',
-          borderTopRightRadius: '16px'
+          borderTopLeftRadius: '20px',
+          borderTopRightRadius: '20px'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{
-              width: '40px',
-              height: '40px',
+              width: '48px',
+              height: '48px',
               borderRadius: '50%',
-              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               color: 'white',
-              fontSize: '16px',
-              fontWeight: 'bold'
+              fontSize: '18px',
+              fontWeight: 'bold',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
             }}>
               {getInitials(formData.name || 'NN')}
             </div>
             <div>
-              <h3 style={{
+              <h2 style={{
                 margin: 0,
-                fontSize: '18px',
+                fontSize: '24px',
                 fontWeight: 'bold',
-                color: 'white'
+                color: 'white',
+                letterSpacing: '0.5px',
+                textTransform: 'uppercase'
               }}>
                 Edit Member
-              </h3>
+              </h2>
               <p style={{
-                margin: '2px 0 0 0',
-                fontSize: '12px',
-                color: 'rgba(255, 255, 255, 0.8)'
+                margin: '4px 0 0 0',
+                fontSize: '14px',
+                color: 'rgba(255, 255, 255, 0.8)',
+                fontWeight: '500'
               }}>
                 Update member information
               </p>
@@ -2126,110 +2129,134 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
           <button
             onClick={handleClose}
             style={{
-              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              background: 'rgba(255, 255, 255, 0.2)',
               border: 'none',
               color: 'white',
-              width: '32px',
-              height: '32px',
+              width: '36px',
+              height: '36px',
               borderRadius: '50%',
               cursor: 'pointer',
-              fontSize: '18px',
+              fontSize: '20px',
               fontWeight: 'bold',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              transition: 'backgroundColor 0.2s ease'
+              transition: 'all 0.2s ease',
+              backdropFilter: 'blur(10px)'
             }}
-            onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.3)'}
-            onMouseLeave={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'}
+            onMouseEnter={(e) => {
+              e.target.style.background = 'rgba(255, 255, 255, 0.3)';
+              e.target.style.transform = 'scale(1.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = 'rgba(255, 255, 255, 0.2)';
+              e.target.style.transform = 'scale(1)';
+            }}
           >
             ×
           </button>
         </div>
 
-        {/* Modal Content - Scrollable */}
+        {/* Modal Content - Dashboard Style */}
         <div style={{
           flex: 1,
           overflow: 'auto',
-          padding: '20px',
+          padding: '24px',
+          backgroundColor: '#f8fafc',
           display: 'flex',
           flexDirection: 'column',
-          gap: '16px'
+          gap: '20px'
         }}>
           {/* Error Display */}
           {errors.submit && (
             <div style={{
-              backgroundColor: '#fef2f2',
-              border: '1px solid #fecaca',
-              color: '#dc2626',
-              padding: '12px',
-              borderRadius: '8px',
-              fontSize: '14px'
+              background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%)',
+              color: 'white',
+              padding: '16px',
+              borderRadius: '12px',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              boxShadow: '0 4px 12px rgba(255, 107, 107, 0.3)'
             }}>
-              <strong>Error:</strong> {errors.submit}
+              ⚠️ {errors.submit}
             </div>
           )}
 
-          {/* Member Preview */}
+          {/* Member Preview Card - Dashboard Style */}
           <div style={{
-            backgroundColor: '#f8fafc',
-            border: '1px solid #e2e8f0',
-            borderRadius: '8px',
-            padding: '16px',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            borderRadius: '16px',
+            padding: '20px',
+            color: 'white',
             display: 'flex',
             alignItems: 'center',
-            gap: '12px'
+            gap: '16px',
+            boxShadow: '0 8px 25px rgba(102, 126, 234, 0.3)'
           }}>
             <div style={{
-              width: '48px',
-              height: '48px',
+              width: '56px',
+              height: '56px',
               borderRadius: '50%',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: 'rgba(255, 255, 255, 0.2)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               color: 'white',
-              fontSize: '18px',
-              fontWeight: 'bold'
+              fontSize: '20px',
+              fontWeight: 'bold',
+              backdropFilter: 'blur(10px)'
             }}>
               {getInitials(formData.name || 'NN')}
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#1f2937' }}>
+              <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '4px' }}>
                 {formData.name || 'Not set'}
               </div>
-              <div style={{ fontSize: '14px', color: '#6b7280' }}>
-                {formData.membership_type} - TTD {formData.monthly_fee}/month
+              <div style={{ fontSize: '14px', opacity: 0.9 }}>
+                {formData.membership_type} • TTD {formData.monthly_fee}/month
               </div>
             </div>
             <div style={{
-              padding: '4px 8px',
-              borderRadius: '12px',
+              padding: '8px 16px',
+              borderRadius: '20px',
               fontSize: '12px',
               fontWeight: 'bold',
-              backgroundColor: formData.status === 'Active' ? '#dcfce7' : '#fef2f2',
-              color: formData.status === 'Active' ? '#166534' : '#dc2626'
+              background: formData.status === 'Active' 
+                ? 'linear-gradient(135deg, #4ade80 0%, #22c55e 100%)' 
+                : 'linear-gradient(135deg, #f87171 0%, #ef4444 100%)',
+              color: 'white',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
             }}>
               {formData.status}
             </div>
           </div>
 
-          {/* Form Fields */}
+          {/* Form Fields - Dashboard Card Style */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '16px'
+            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+            gap: '20px'
           }}>
-            {/* Name */}
-            <div>
+            {/* Name Card */}
+            <div style={{
+              background: 'white',
+              borderRadius: '16px',
+              padding: '20px',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+              border: '1px solid #e2e8f0'
+            }}>
               <label style={{
                 display: 'block',
                 fontSize: '14px',
                 fontWeight: 'bold',
-                color: '#374151',
-                marginBottom: '4px'
+                color: '#64748b',
+                marginBottom: '8px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
               }}>
-                Name *
+                👤 Full Name *
               </label>
               <input
                 type="text"
@@ -2237,35 +2264,54 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
                 onChange={(e) => handleInputChange('name', e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '10px 12px',
-                  border: `2px solid ${errors.name ? '#ef4444' : '#d1d5db'}`,
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  backgroundColor: 'white',
+                  padding: '12px 16px',
+                  border: `2px solid ${errors.name ? '#ef4444' : '#e2e8f0'}`,
+                  borderRadius: '10px',
+                  fontSize: '16px',
+                  backgroundColor: '#f8fafc',
                   outline: 'none',
-                  transition: 'border-color 0.2s ease'
+                  transition: 'all 0.3s ease',
+                  fontWeight: '500'
                 }}
-                placeholder="Enter name"
-                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                onBlur={(e) => e.target.style.borderColor = errors.name ? '#ef4444' : '#d1d5db'}
+                placeholder="Enter full name"
+                onFocus={(e) => {
+                  e.target.style.borderColor = '#667eea';
+                  e.target.style.backgroundColor = 'white';
+                  e.target.style.transform = 'translateY(-1px)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.15)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = errors.name ? '#ef4444' : '#e2e8f0';
+                  e.target.style.backgroundColor = '#f8fafc';
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = 'none';
+                }}
               />
               {errors.name && (
-                <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#ef4444' }}>
-                  {errors.name}
+                <p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#ef4444', fontWeight: 'bold' }}>
+                  ⚠️ {errors.name}
                 </p>
               )}
             </div>
 
-            {/* Email */}
-            <div>
+            {/* Email Card */}
+            <div style={{
+              background: 'white',
+              borderRadius: '16px',
+              padding: '20px',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+              border: '1px solid #e2e8f0'
+            }}>
               <label style={{
                 display: 'block',
                 fontSize: '14px',
                 fontWeight: 'bold',
-                color: '#374151',
-                marginBottom: '4px'
+                color: '#64748b',
+                marginBottom: '8px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
               }}>
-                Email *
+                📧 Email Address *
               </label>
               <input
                 type="email"
@@ -2273,35 +2319,54 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
                 onChange={(e) => handleInputChange('email', e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '10px 12px',
-                  border: `2px solid ${errors.email ? '#ef4444' : '#d1d5db'}`,
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  backgroundColor: 'white',
+                  padding: '12px 16px',
+                  border: `2px solid ${errors.email ? '#ef4444' : '#e2e8f0'}`,
+                  borderRadius: '10px',
+                  fontSize: '16px',
+                  backgroundColor: '#f8fafc',
                   outline: 'none',
-                  transition: 'border-color 0.2s ease'
+                  transition: 'all 0.3s ease',
+                  fontWeight: '500'
                 }}
-                placeholder="Enter email"
-                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                onBlur={(e) => e.target.style.borderColor = errors.email ? '#ef4444' : '#d1d5db'}
+                placeholder="Enter email address"
+                onFocus={(e) => {
+                  e.target.style.borderColor = '#667eea';
+                  e.target.style.backgroundColor = 'white';
+                  e.target.style.transform = 'translateY(-1px)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.15)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = errors.email ? '#ef4444' : '#e2e8f0';
+                  e.target.style.backgroundColor = '#f8fafc';
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = 'none';
+                }}
               />
               {errors.email && (
-                <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#ef4444' }}>
-                  {errors.email}
+                <p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#ef4444', fontWeight: 'bold' }}>
+                  ⚠️ {errors.email}
                 </p>
               )}
             </div>
 
-            {/* Phone */}
-            <div>
+            {/* Phone Card */}
+            <div style={{
+              background: 'white',
+              borderRadius: '16px',
+              padding: '20px',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+              border: '1px solid #e2e8f0'
+            }}>
               <label style={{
                 display: 'block',
                 fontSize: '14px',
                 fontWeight: 'bold',
-                color: '#374151',
-                marginBottom: '4px'
+                color: '#64748b',
+                marginBottom: '8px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
               }}>
-                Phone
+                📱 Phone Number
               </label>
               <input
                 type="tel"
@@ -2309,78 +2374,125 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
                 onChange={(e) => handleInputChange('phone', e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '10px 12px',
-                  border: `2px solid ${errors.phone ? '#ef4444' : '#d1d5db'}`,
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  backgroundColor: 'white',
+                  padding: '12px 16px',
+                  border: `2px solid ${errors.phone ? '#ef4444' : '#e2e8f0'}`,
+                  borderRadius: '10px',
+                  fontSize: '16px',
+                  backgroundColor: '#f8fafc',
                   outline: 'none',
-                  transition: 'border-color 0.2s ease'
+                  transition: 'all 0.3s ease',
+                  fontWeight: '500'
                 }}
-                placeholder="Enter phone"
-                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                onBlur={(e) => e.target.style.borderColor = errors.phone ? '#ef4444' : '#d1d5db'}
+                placeholder="Enter phone number"
+                onFocus={(e) => {
+                  e.target.style.borderColor = '#667eea';
+                  e.target.style.backgroundColor = 'white';
+                  e.target.style.transform = 'translateY(-1px)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.15)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = errors.phone ? '#ef4444' : '#e2e8f0';
+                  e.target.style.backgroundColor = '#f8fafc';
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = 'none';
+                }}
               />
               {errors.phone && (
-                <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#ef4444' }}>
-                  {errors.phone}
+                <p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#ef4444', fontWeight: 'bold' }}>
+                  ⚠️ {errors.phone}
                 </p>
               )}
             </div>
 
-            {/* Status */}
-            <div>
+            {/* Status Card */}
+            <div style={{
+              background: 'white',
+              borderRadius: '16px',
+              padding: '20px',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+              border: '1px solid #e2e8f0'
+            }}>
               <label style={{
                 display: 'block',
                 fontSize: '14px',
                 fontWeight: 'bold',
-                color: '#374151',
-                marginBottom: '4px'
+                color: '#64748b',
+                marginBottom: '8px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
               }}>
-                Status
+                📊 Member Status
               </label>
               <select
                 value={formData.status}
                 onChange={(e) => handleInputChange('status', e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '10px 12px',
-                  border: '2px solid #d1d5db',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  backgroundColor: 'white',
+                  padding: '12px 16px',
+                  border: '2px solid #e2e8f0',
+                  borderRadius: '10px',
+                  fontSize: '16px',
+                  backgroundColor: '#f8fafc',
                   outline: 'none',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  fontWeight: '500',
+                  transition: 'all 0.3s ease'
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = '#667eea';
+                  e.target.style.backgroundColor = 'white';
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = '#e2e8f0';
+                  e.target.style.backgroundColor = '#f8fafc';
                 }}
               >
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
+                <option value="Active">✅ Active</option>
+                <option value="Inactive">❌ Inactive</option>
               </select>
             </div>
 
-            {/* Membership Type */}
-            <div>
+            {/* Membership Card */}
+            <div style={{
+              background: 'white',
+              borderRadius: '16px',
+              padding: '20px',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+              border: '1px solid #e2e8f0'
+            }}>
               <label style={{
                 display: 'block',
                 fontSize: '14px',
                 fontWeight: 'bold',
-                color: '#374151',
-                marginBottom: '4px'
+                color: '#64748b',
+                marginBottom: '8px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
               }}>
-                Membership
+                🏋️ Membership Plan
               </label>
               <select
                 value={formData.membership_type}
                 onChange={(e) => handleMembershipTypeChange(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '10px 12px',
-                  border: '2px solid #d1d5db',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  backgroundColor: 'white',
+                  padding: '12px 16px',
+                  border: '2px solid #e2e8f0',
+                  borderRadius: '10px',
+                  fontSize: '16px',
+                  backgroundColor: '#f8fafc',
                   outline: 'none',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  fontWeight: '500',
+                  transition: 'all 0.3s ease'
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = '#667eea';
+                  e.target.style.backgroundColor = 'white';
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = '#e2e8f0';
+                  e.target.style.backgroundColor = '#f8fafc';
                 }}
               >
                 {membershipTypes.map(type => (
@@ -2391,16 +2503,24 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
               </select>
             </div>
 
-            {/* Monthly Fee */}
-            <div>
+            {/* Monthly Fee Card */}
+            <div style={{
+              background: 'white',
+              borderRadius: '16px',
+              padding: '20px',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+              border: '1px solid #e2e8f0'
+            }}>
               <label style={{
                 display: 'block',
                 fontSize: '14px',
                 fontWeight: 'bold',
-                color: '#374151',
-                marginBottom: '4px'
+                color: '#64748b',
+                marginBottom: '8px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
               }}>
-                Monthly Fee (TTD) *
+                💰 Monthly Fee (TTD) *
               </label>
               <input
                 type="number"
@@ -2410,36 +2530,56 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
                 onChange={(e) => handleInputChange('monthly_fee', parseFloat(e.target.value) || 0)}
                 style={{
                   width: '100%',
-                  padding: '10px 12px',
-                  border: `2px solid ${errors.monthly_fee ? '#ef4444' : '#d1d5db'}`,
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  backgroundColor: 'white',
+                  padding: '12px 16px',
+                  border: `2px solid ${errors.monthly_fee ? '#ef4444' : '#e2e8f0'}`,
+                  borderRadius: '10px',
+                  fontSize: '16px',
+                  backgroundColor: '#f8fafc',
                   outline: 'none',
-                  transition: 'border-color 0.2s ease'
+                  transition: 'all 0.3s ease',
+                  fontWeight: '500'
                 }}
-                placeholder="Enter fee"
-                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                onBlur={(e) => e.target.style.borderColor = errors.monthly_fee ? '#ef4444' : '#d1d5db'}
+                placeholder="Enter monthly fee"
+                onFocus={(e) => {
+                  e.target.style.borderColor = '#667eea';
+                  e.target.style.backgroundColor = 'white';
+                  e.target.style.transform = 'translateY(-1px)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.15)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = errors.monthly_fee ? '#ef4444' : '#e2e8f0';
+                  e.target.style.backgroundColor = '#f8fafc';
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = 'none';
+                }}
               />
               {errors.monthly_fee && (
-                <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#ef4444' }}>
-                  {errors.monthly_fee}
+                <p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#ef4444', fontWeight: 'bold' }}>
+                  ⚠️ {errors.monthly_fee}
                 </p>
               )}
             </div>
           </div>
 
-          {/* Start Date */}
-          <div>
+          {/* Start Date Card */}
+          <div style={{
+            background: 'white',
+            borderRadius: '16px',
+            padding: '20px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+            border: '1px solid #e2e8f0',
+            maxWidth: '300px'
+          }}>
             <label style={{
               display: 'block',
               fontSize: '14px',
               fontWeight: 'bold',
-              color: '#374151',
-              marginBottom: '4px'
+              color: '#64748b',
+              marginBottom: '8px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
             }}>
-              Start Date *
+              📅 Membership Start Date *
             </label>
             <input
               type="date"
@@ -2447,52 +2587,64 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
               onChange={(e) => handleInputChange('start_date', e.target.value)}
               style={{
                 width: '100%',
-                maxWidth: '200px',
-                padding: '10px 12px',
-                border: `2px solid ${errors.start_date ? '#ef4444' : '#d1d5db'}`,
-                borderRadius: '6px',
-                fontSize: '14px',
-                backgroundColor: 'white',
+                padding: '12px 16px',
+                border: `2px solid ${errors.start_date ? '#ef4444' : '#e2e8f0'}`,
+                borderRadius: '10px',
+                fontSize: '16px',
+                backgroundColor: '#f8fafc',
                 outline: 'none',
-                transition: 'border-color 0.2s ease'
+                transition: 'all 0.3s ease',
+                fontWeight: '500'
               }}
-              onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-              onBlur={(e) => e.target.style.borderColor = errors.start_date ? '#ef4444' : '#d1d5db'}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#667eea';
+                e.target.style.backgroundColor = 'white';
+                e.target.style.transform = 'translateY(-1px)';
+                e.target.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.15)';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = errors.start_date ? '#ef4444' : '#e2e8f0';
+                e.target.style.backgroundColor = '#f8fafc';
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = 'none';
+              }}
             />
             {errors.start_date && (
-              <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#ef4444' }}>
-                {errors.start_date}
+              <p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#ef4444', fontWeight: 'bold' }}>
+                ⚠️ {errors.start_date}
               </p>
             )}
           </div>
 
-          {/* Auto Reminders Toggle */}
+          {/* Auto Reminders Card */}
           <div style={{
-            backgroundColor: '#f8fafc',
-            border: '1px solid #e2e8f0',
-            borderRadius: '8px',
-            padding: '16px',
+            background: 'linear-gradient(135deg, #4ade80 0%, #22c55e 100%)',
+            borderRadius: '16px',
+            padding: '20px',
+            color: 'white',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between'
+            justifyContent: 'space-between',
+            boxShadow: '0 8px 25px rgba(74, 222, 128, 0.3)'
           }}>
             <div>
-              <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#1f2937' }}>
-                Auto Reminders
+              <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '4px' }}>
+                🔔 Auto Payment Reminders
               </div>
-              <div style={{ fontSize: '12px', color: '#6b7280' }}>
-                Send payment reminders automatically
+              <div style={{ fontSize: '14px', opacity: 0.9 }}>
+                Automatically send payment reminders to members
               </div>
             </div>
             <label style={{
               position: 'relative',
-              width: '44px',
-              height: '24px',
-              backgroundColor: formData.auto_reminders_enabled ? '#10b981' : '#d1d5db',
-              borderRadius: '12px',
+              width: '60px',
+              height: '32px',
+              backgroundColor: formData.auto_reminders_enabled ? 'rgba(255, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.1)',
+              borderRadius: '16px',
               cursor: 'pointer',
-              transition: 'background-color 0.3s ease',
-              display: 'block'
+              transition: 'all 0.3s ease',
+              display: 'block',
+              border: '2px solid rgba(255, 255, 255, 0.2)'
             }}>
               <input
                 type="checkbox"
@@ -2501,48 +2653,64 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
                 style={{ display: 'none' }}
               />
               <div style={{
-                width: '20px',
-                height: '20px',
+                width: '24px',
+                height: '24px',
                 backgroundColor: 'white',
                 borderRadius: '50%',
                 position: 'absolute',
                 top: '2px',
-                left: formData.auto_reminders_enabled ? '22px' : '2px',
+                left: formData.auto_reminders_enabled ? '32px' : '2px',
                 transition: 'left 0.3s ease',
-                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
-              }} />
+                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '12px'
+              }}>
+                {formData.auto_reminders_enabled ? '✓' : '○'}
+              </div>
             </label>
           </div>
         </div>
 
-        {/* Modal Footer - Always Visible */}
+        {/* Modal Footer - Dashboard Button Style */}
         <div style={{
-          padding: '16px 20px',
-          borderTop: '1px solid #e5e7eb',
-          backgroundColor: '#f9fafb',
+          padding: '24px',
+          backgroundColor: 'white',
           display: 'flex',
-          gap: '12px',
+          gap: '16px',
           justifyContent: 'flex-end',
           flexShrink: 0,
-          borderBottomLeftRadius: '16px',
-          borderBottomRightRadius: '16px'
+          borderBottomLeftRadius: '20px',
+          borderBottomRightRadius: '20px',
+          borderTop: '1px solid #e2e8f0'
         }}>
           <button
             onClick={handleClose}
             disabled={loading}
             style={{
-              padding: '10px 20px',
-              border: '1px solid #d1d5db',
+              padding: '14px 28px',
+              border: '2px solid #e2e8f0',
               backgroundColor: 'white',
-              color: '#374151',
-              borderRadius: '6px',
-              fontSize: '14px',
+              color: '#64748b',
+              borderRadius: '12px',
+              fontSize: '16px',
               fontWeight: 'bold',
               cursor: loading ? 'not-allowed' : 'pointer',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.3s ease',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
             }}
-            onMouseEnter={(e) => !loading && (e.target.style.backgroundColor = '#f3f4f6')}
-            onMouseLeave={(e) => !loading && (e.target.style.backgroundColor = 'white')}
+            onMouseEnter={(e) => !loading && (
+              e.target.style.backgroundColor = '#f1f5f9',
+              e.target.style.borderColor = '#cbd5e1',
+              e.target.style.transform = 'translateY(-2px)'
+            )}
+            onMouseLeave={(e) => !loading && (
+              e.target.style.backgroundColor = 'white',
+              e.target.style.borderColor = '#e2e8f0',
+              e.target.style.transform = 'translateY(0)'
+            )}
           >
             Cancel
           </button>
@@ -2550,21 +2718,32 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
             onClick={handleSave}
             disabled={loading}
             style={{
-              padding: '10px 20px',
+              padding: '14px 32px',
               border: 'none',
-              backgroundColor: loading ? '#9ca3af' : '#1e40af',
+              background: loading 
+                ? 'linear-gradient(135deg, #94a3b8 0%, #64748b 100%)' 
+                : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               color: 'white',
-              borderRadius: '6px',
-              fontSize: '14px',
+              borderRadius: '12px',
+              fontSize: '16px',
               fontWeight: 'bold',
               cursor: loading ? 'not-allowed' : 'pointer',
-              transition: 'all 0.2s ease',
-              minWidth: '120px'
+              transition: 'all 0.3s ease',
+              minWidth: '140px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+              boxShadow: loading ? 'none' : '0 8px 25px rgba(102, 126, 234, 0.4)'
             }}
-            onMouseEnter={(e) => !loading && (e.target.style.backgroundColor = '#1d4ed8')}
-            onMouseLeave={(e) => !loading && (e.target.style.backgroundColor = '#1e40af')}
+            onMouseEnter={(e) => !loading && (
+              e.target.style.transform = 'translateY(-2px)',
+              e.target.style.boxShadow = '0 12px 35px rgba(102, 126, 234, 0.5)'
+            )}
+            onMouseLeave={(e) => !loading && (
+              e.target.style.transform = 'translateY(0)',
+              e.target.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.4)'
+            )}
           >
-            {loading ? 'Saving...' : 'Save Changes'}
+            {loading ? '🔄 Saving...' : '💾 Save Member'}
           </button>
         </div>
       </div>
