@@ -5,6 +5,79 @@ import './App.css';
 
 const localDB = new LocalStorageManager();
 
+// Cache Clear Utility Component - Fix for persistent user issues
+const CacheClearUtility = ({ showToast }) => {
+  const [isClearing, setIsClearing] = useState(false);
+
+  const clearAllCaches = async () => {
+    setIsClearing(true);
+    try {
+      // Clear service worker caches
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        const messageChannel = new MessageChannel();
+        const promise = new Promise((resolve) => {
+          messageChannel.port1.onmessage = (event) => {
+            resolve(event.data);
+          };
+        });
+        
+        navigator.serviceWorker.controller.postMessage(
+          { type: 'CLEAR_ALL_CACHES' },
+          [messageChannel.port2]
+        );
+        
+        await promise;
+      }
+
+      // Clear browser caches
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        await Promise.all(cacheNames.map(name => caches.delete(name)));
+      }
+
+      // Clear localStorage and sessionStorage
+      localStorage.clear();
+      sessionStorage.clear();
+
+      // Force reload to get fresh content
+      showToast('🔄 All caches cleared! Reloading for fresh content...', 'success');
+      
+      setTimeout(() => {
+        window.location.reload(true);
+      }, 1500);
+      
+    } catch (error) {
+      console.error('Cache clear failed:', error);
+      showToast('❌ Cache clear failed. Try refreshing manually.', 'error');
+    } finally {
+      setIsClearing(false);
+    }
+  };
+
+  return (
+    <div className="cache-clear-utility">
+      <h3>🚨 Having Data Loading Issues?</h3>
+      <p>If you're seeing old data or the app isn't working correctly, clear all caches:</p>
+      <button 
+        onClick={clearAllCaches} 
+        disabled={isClearing}
+        className="cache-clear-btn"
+        style={{
+          background: '#ef4444',
+          color: 'white',
+          border: 'none',
+          padding: '12px 24px',
+          borderRadius: '8px',
+          cursor: isClearing ? 'not-allowed' : 'pointer',
+          fontWeight: 'bold'
+        }}
+      >
+        {isClearing ? '🔄 Clearing Caches...' : '🗑️ Clear All Caches & Refresh'}
+      </button>
+    </div>
+  );
+};
+
 // Backup Control Panel Component
 const BackupControlPanel = ({ localDB, onClose, showToast }) => {
   const [storageStatus, setStorageStatus] = useState(null);
