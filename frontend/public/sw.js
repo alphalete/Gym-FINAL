@@ -360,4 +360,4 @@ self.addEventListener('sync', event => {
   }
 });
 
-console.log('📱 Mobile-First PWA Service Worker v14.0.0: Cache bust for URL fix - Optimized for standalone mobile app experience');
+console.log('📱 CRITICAL SERVICE WORKER FIX v16.0.0: Aggressive cache clearing to resolve user discrepancy issues');
