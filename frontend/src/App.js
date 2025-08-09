@@ -3386,10 +3386,20 @@ const ClientManagement = () => {
   };
 
   const handleClientUpdated = (updatedClient) => {
+    console.log('✅ ClientManagement: Client updated successfully:', updatedClient);
+    
+    // Update the clients list with the new data
     setClients(prev => prev.map(client => 
       client.id === updatedClient.id ? updatedClient : client
     ));
+    
+    // Refresh the full client list to ensure consistency
     fetchClients();
+    
+    // Show success notification
+    if (typeof showToast === 'function') {
+      showToast(`✅ ${updatedClient.name} updated successfully!`, 'success');
+    }
   };
 
   const toggleClientStatus = async (client) => {
