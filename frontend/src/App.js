@@ -542,7 +542,7 @@ const getBackendUrl = () => {
   // For production environments where env vars are not available at runtime,
   // detect production hostname and use correct backend URL
   if (window.location.hostname === 'alphalete-club.emergent.host') {
-    const productionBackendUrl = 'https://3c055140-1043-4f1b-9269-d9bc79313707.preview.emergentagent.com';
+    const productionBackendUrl = 'https://alphalete-club.emergent.host';
     console.log('✅ Detected production environment, using backend URL:', productionBackendUrl);
     return productionBackendUrl;
   }
