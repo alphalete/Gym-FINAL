@@ -226,10 +226,14 @@ class LocalStorageManager {
 
   async updateClient(clientId, updateData) {
     try {
+      console.log("🔍 LocalStorageManager: Updating client:", clientId, updateData);
+      
       // Try backend first if online
       if (this.isOnline) {
         try {
           const backendUrl = this.getBackendUrl();
+          console.log("🔍 LocalStorageManager: Updating client on backend...", backendUrl);
+          
           const response = await fetch(`${backendUrl}/api/clients/${clientId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -238,21 +242,51 @@ class LocalStorageManager {
           
           if (response.ok) {
             const updatedClient = await response.json();
+            console.log("✅ LocalStorageManager: Client updated on backend successfully");
+            
+            // Update local storage with backend response
             await this.performDBOperation('clients', 'put', updatedClient);
-            return { data: updatedClient, success: true, offline: false };
+            return { data: updatedClient, success: true, offline: false, synced: true };
+          } else {
+            const errorText = await response.text();
+            console.error("❌ LocalStorageManager: Backend update failed:", response.status, errorText);
+            
+            // Check if this is a business logic error (400-499) vs server error (500+)
+            if (response.status >= 400 && response.status < 500) {
+              let errorMessage = "Unable to update client";
+              try {
+                const errorData = JSON.parse(errorText);
+                if (errorData.detail) {
+                  errorMessage = errorData.detail;
+                }
+              } catch (e) {
+                errorMessage = errorText || errorMessage;
+              }
+              return { data: null, success: false, error: errorMessage };
+            }
+            // Server error (500+) - continue to local storage fallback below
           }
         } catch (error) {
-          console.error("Backend update failed:", error);
+          console.error("❌ LocalStorageManager: Network error during update:", error);
         }
       }
       
-      // Fallback to local storage
+      // Fallback to local storage update
+      console.log("📱 LocalStorageManager: Using local storage for update");
       const existingClient = await this.performDBOperation('clients', 'get', clientId);
       if (existingClient) {
         const updatedClient = { ...existingClient, ...updateData, updated_at: new Date().toISOString() };
         await this.performDBOperation('clients', 'put', updatedClient);
+        
+        // Add to sync queue if online but backend failed
+        if (this.isOnline) {
+          this.addToSyncQueue('UPDATE_CLIENT', updatedClient);
+          return { data: updatedClient, success: true, offline: false, synced: false, message: 'Client updated locally! Changes will sync when connection is restored.' };
+        }
+        
+        // Offline mode
         this.addToSyncQueue('UPDATE_CLIENT', updatedClient);
-        return { data: updatedClient, success: true, offline: !this.isOnline };
+        return { data: updatedClient, success: true, offline: true, synced: false };
       }
       
       return { data: null, success: false, error: 'Client not found' };
