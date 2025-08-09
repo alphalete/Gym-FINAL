@@ -5,7 +5,110 @@ import './App.css';
 
 const localDB = new LocalStorageManager();
 
-// Cache Clear Utility Component - Fix for persistent user issues
+// Cache Issue Detection Banner
+const CacheIssueBanner = ({ onClearCache }) => {
+  const [showBanner, setShowBanner] = useState(false);
+  const [isDismissed, setIsDismissed] = useState(false);
+
+  useEffect(() => {
+    // Check if user might be experiencing cache issues
+    const checkForCacheIssues = () => {
+      try {
+        // Check service worker version mismatch
+        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+          const currentVersion = '16.0.0';
+          const storedVersion = localStorage.getItem('sw_version');
+          
+          if (storedVersion && storedVersion !== currentVersion) {
+            console.log('🚨 Service worker version mismatch detected:', storedVersion, 'vs', currentVersion);
+            setShowBanner(true);
+            return;
+          }
+        }
+
+        // Check for API response inconsistencies (if backend returns data but frontend shows empty)
+        const lastAPICheck = localStorage.getItem('last_api_success');
+        const lastUIUpdate = localStorage.getItem('last_ui_update');
+        
+        if (lastAPICheck && lastUIUpdate && (parseInt(lastAPICheck) - parseInt(lastUIUpdate)) > 60000) {
+          console.log('🚨 API/UI sync discrepancy detected');
+          setShowBanner(true);
+        }
+
+      } catch (error) {
+        console.warn('Cache issue detection failed:', error);
+      }
+    };
+
+    if (!isDismissed) {
+      checkForCacheIssues();
+    }
+  }, [isDismissed]);
+
+  const handleClearCache = () => {
+    setShowBanner(false);
+    onClearCache();
+  };
+
+  const handleDismiss = () => {
+    setIsDismissed(true);
+    setShowBanner(false);
+    localStorage.setItem('cache_banner_dismissed', Date.now().toString());
+  };
+
+  if (!showBanner || isDismissed) return null;
+
+  return (
+    <div className="cache-issue-banner" style={{
+      background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+      color: 'white',
+      padding: '12px 16px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      fontSize: '14px',
+      fontWeight: '500',
+      borderBottom: '1px solid rgba(255,255,255,0.2)',
+      zIndex: 1000
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <span style={{ fontSize: '18px' }}>⚠️</span>
+        <span>Data loading issues detected. Clear cache to see latest updates.</span>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <button 
+          onClick={handleClearCache}
+          style={{
+            background: 'rgba(255,255,255,0.2)',
+            border: '1px solid rgba(255,255,255,0.3)',
+            color: 'white',
+            padding: '6px 12px',
+            borderRadius: '4px',
+            fontSize: '12px',
+            cursor: 'pointer',
+            fontWeight: 'bold'
+          }}
+        >
+          🔄 Clear Cache
+        </button>
+        <button 
+          onClick={handleDismiss}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            color: 'white',
+            padding: '6px',
+            cursor: 'pointer',
+            fontSize: '16px',
+            opacity: 0.7
+          }}
+        >
+          ×
+        </button>
+      </div>
+    </div>
+  );
+};
 const CacheClearUtility = ({ showToast }) => {
   const [isClearing, setIsClearing] = useState(false);
 
