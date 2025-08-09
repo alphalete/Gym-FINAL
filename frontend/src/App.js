@@ -1779,14 +1779,15 @@ const BillingCycleDetailModal = ({ client, isOpen, onClose }) => {
   );
 };
 
-// Edit Client Modal Component - Ultra High Contrast
+// Member Edit Modal Component - Rebuilt with Correct Logic
 const EditClientModal = ({ client, isOpen, onClose, onSave }) => {
-  const [clientData, setClientData] = useState({
+  const [formData, setFormData] = useState({
+    id: '',
     name: '',
     email: '',
     phone: '',
     membership_type: 'Standard',
-    monthly_fee: 0,
+    monthly_fee: 55,
     start_date: '',
     status: 'Active',
     auto_reminders_enabled: true
@@ -1794,261 +1795,482 @@ const EditClientModal = ({ client, isOpen, onClose, onSave }) => {
 
   const [membershipTypes, setMembershipTypes] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [originalData, setOriginalData] = useState({});
 
+  // Load membership types on mount
+  useEffect(() => {
+    if (isOpen) {
+      loadMembershipTypes();
+    }
+  }, [isOpen]);
+
+  // Initialize form data when client changes
   useEffect(() => {
     if (isOpen && client) {
-      // Initialize form with client data
-      setClientData({
+      console.log('🔧 EditClient: Initializing form with client data:', client);
+      
+      const initialData = {
+        id: client.id || '',
         name: client.name || '',
         email: client.email || '',
         phone: client.phone || '',
         membership_type: client.membership_type || 'Standard',
-        monthly_fee: client.monthly_fee || 0,
+        monthly_fee: parseFloat(client.monthly_fee || 55),
         start_date: client.start_date ? formatDateForInput(new Date(client.start_date)) : formatDateForInput(getASTDate()),
         status: client.status || 'Active',
         auto_reminders_enabled: client.auto_reminders_enabled !== undefined ? client.auto_reminders_enabled : true
-      });
-
-      // Fetch membership types
-      fetchMembershipTypes();
+      };
+      
+      setFormData(initialData);
+      setOriginalData(initialData);
+      setErrors({});
+      
+      console.log('✅ EditClient: Form initialized with data:', initialData);
     }
   }, [isOpen, client]);
 
-  const fetchMembershipTypes = async () => {
+  const loadMembershipTypes = async () => {
     try {
-      // Fetch directly from backend API to avoid IndexedDB issues
       const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      console.log('🔍 EditClient: Loading membership types from:', `${backendUrl}/api/membership-types`);
+      
       const response = await fetch(`${backendUrl}/api/membership-types`, {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache'
+        }
       });
       
       if (!response.ok) {
-        throw new Error(`Failed to fetch membership types: ${response.status}`);
+        throw new Error(`Failed to fetch membership types: ${response.status} ${response.statusText}`);
       }
       
-      const membershipTypesData = await response.json();
-      console.log(`✅ Fetched ${membershipTypesData.length} membership types from backend`);
-      setMembershipTypes(membershipTypesData || []);
+      const types = await response.json();
+      console.log('✅ EditClient: Loaded membership types:', types);
+      setMembershipTypes(types || []);
+      
     } catch (error) {
-      console.error('Error fetching membership types:', error);
-      // Fallback to default types if API fails
-      setMembershipTypes([
-        { id: '1', name: 'Standard', monthly_fee: 50.0, description: 'Basic gym access' },
+      console.error('❌ EditClient: Error loading membership types:', error);
+      // Fallback to default types
+      const defaultTypes = [
+        { id: '1', name: 'Standard', monthly_fee: 55.0, description: 'Basic gym access' },
         { id: '2', name: 'Premium', monthly_fee: 75.0, description: 'Gym access plus classes' },
         { id: '3', name: 'Elite', monthly_fee: 100.0, description: 'Premium plus personal training' },
         { id: '4', name: 'VIP', monthly_fee: 150.0, description: 'All-inclusive membership' }
-      ]);
+      ];
+      console.log('🔄 EditClient: Using fallback membership types:', defaultTypes);
+      setMembershipTypes(defaultTypes);
     }
   };
 
-  const handleMembershipChange = (membershipType) => {
-    const selectedType = membershipTypes.find(type => type.name === membershipType);
-    setClientData(prev => ({
+  const validateForm = () => {
+    const newErrors = {};
+    
+    // Required field validation
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name is required';
+    }
+    
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+    
+    if (!formData.start_date) {
+      newErrors.start_date = 'Start date is required';
+    }
+    
+    if (!formData.monthly_fee || formData.monthly_fee <= 0) {
+      newErrors.monthly_fee = 'Monthly fee must be greater than 0';
+    }
+    
+    // Phone validation (optional but must be valid if provided)
+    if (formData.phone && formData.phone.trim()) {
+      const phoneRegex = /^[\+]?[\d\s\-\(\)]{10,}$/;
+      if (!phoneRegex.test(formData.phone.trim())) {
+        newErrors.phone = 'Please enter a valid phone number';
+      }
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleInputChange = (field, value) => {
+    console.log(`🔧 EditClient: Updating ${field} to:`, value);
+    
+    setFormData(prev => ({
       ...prev,
-      membership_type: membershipType,
-      monthly_fee: selectedType ? selectedType.fee : prev.monthly_fee
+      [field]: value
     }));
+    
+    // Clear error for this field when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({
+        ...prev,
+        [field]: ''
+      }));
+    }
+  };
+
+  const handleMembershipTypeChange = (membershipType) => {
+    console.log('🔧 EditClient: Membership type changed to:', membershipType);
+    
+    const selectedType = membershipTypes.find(type => type.name === membershipType);
+    console.log('🔍 EditClient: Selected membership type details:', selectedType);
+    
+    if (selectedType) {
+      setFormData(prev => ({
+        ...prev,
+        membership_type: membershipType,
+        monthly_fee: parseFloat(selectedType.monthly_fee || selectedType.fee || 55)
+      }));
+      console.log('✅ EditClient: Updated membership and fee to:', membershipType, selectedType.monthly_fee || selectedType.fee);
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        membership_type: membershipType
+      }));
+      console.log('⚠️ EditClient: Membership type not found, keeping current fee');
+    }
   };
 
   const handleSave = async () => {
-    // Validation
-    if (!clientData.name || !clientData.email || !clientData.start_date) {
-      alert('Please fill in all required fields');
+    console.log('💾 EditClient: Save button clicked');
+    
+    if (!validateForm()) {
+      console.log('❌ EditClient: Form validation failed:', errors);
       return;
     }
-
+    
+    // Check if any changes were made
+    const hasChanges = Object.keys(formData).some(key => 
+      formData[key] !== originalData[key]
+    );
+    
+    if (!hasChanges) {
+      console.log('ℹ️ EditClient: No changes detected, closing modal');
+      onClose();
+      return;
+    }
+    
+    console.log('🚀 EditClient: Starting save process with data:', formData);
     setLoading(true);
+    
     try {
       const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-      const response = await fetch(`${backendUrl}/api/clients/${client.id}`, {
+      const updateUrl = `${backendUrl}/api/clients/${formData.id}`;
+      
+      console.log('📡 EditClient: Making PUT request to:', updateUrl);
+      
+      const requestBody = {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone ? formData.phone.trim() : null,
+        membership_type: formData.membership_type,
+        monthly_fee: parseFloat(formData.monthly_fee),
+        start_date: formData.start_date,
+        status: formData.status,
+        auto_reminders_enabled: formData.auto_reminders_enabled
+      };
+      
+      console.log('📝 EditClient: Request body:', requestBody);
+      
+      const response = await fetch(updateUrl, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache'
         },
-        body: JSON.stringify({
-          name: clientData.name.trim(),
-          email: clientData.email.trim(),
-          phone: clientData.phone.trim() || null,
-          membership_type: clientData.membership_type,
-          monthly_fee: parseFloat(clientData.monthly_fee),
-          start_date: clientData.start_date,
-          status: clientData.status,
-          auto_reminders_enabled: clientData.auto_reminders_enabled
-        })
+        body: JSON.stringify(requestBody)
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to update client');
-      }
-
-      const updatedClient = await response.json();
       
-      // Update local storage with the complete updated client data from backend
-      await localDB.updateClient(client.id, {
-        ...updatedClient,
-        updated_at: new Date().toISOString()
-      });
-
-      alert(`✅ ${clientData.name} updated successfully!`);
-      onSave && onSave(updatedClient);
+      console.log('📨 EditClient: Response status:', response.status);
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Server error: ${response.status} ${response.statusText}`);
+      }
+      
+      const updatedClient = await response.json();
+      console.log('✅ EditClient: Successfully updated client:', updatedClient);
+      
+      // Update local storage
+      try {
+        await localDB.updateClient(formData.id, {
+          ...updatedClient,
+          updated_at: new Date().toISOString()
+        });
+        console.log('✅ EditClient: Local storage updated');
+      } catch (localError) {
+        console.warn('⚠️ EditClient: Local storage update failed:', localError);
+        // Continue - this isn't critical
+      }
+      
+      // Notify parent component
+      if (onSave) {
+        onSave(updatedClient);
+      }
+      
+      console.log('✅ EditClient: Edit process completed successfully');
       onClose();
       
     } catch (error) {
-      console.error('Error updating client:', error);
-      alert('❌ Error updating client: ' + error.message);
+      console.error('❌ EditClient: Save failed:', error);
+      setErrors({
+        submit: `Failed to update client: ${error.message}`
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  if (!isOpen || !client) return null;
+  const handleClose = () => {
+    console.log('🚪 EditClient: Closing modal');
+    setFormData({});
+    setOriginalData({});
+    setErrors({});
+    onClose();
+  };
+
+  if (!isOpen || !client) {
+    return null;
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="ultra-contrast-modal rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-xl">
+        {/* Header */}
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-600 to-purple-600">
           <div className="flex justify-between items-center">
-            <h2 className="ultra-contrast-modal-header">Edit Client</h2>
+            <div>
+              <h2 className="text-xl font-bold text-white">Edit Member</h2>
+              <p className="text-blue-100 text-sm mt-1">Update member information and settings</p>
+            </div>
             <button
-              onClick={onClose}
-              className="ultra-contrast-button px-4 py-2 rounded-lg"
+              onClick={handleClose}
+              className="text-white hover:text-gray-300 text-2xl font-bold p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors"
             >
-              ✕
+              ×
             </button>
           </div>
         </div>
 
+        {/* Content */}
         <div className="p-6 space-y-6">
-          {/* Client Preview */}
-          <div className="member-card p-4 rounded-lg">
-            <h3 className="ultra-contrast-text text-lg mb-2">Client Preview</h3>
-            <p className="ultra-contrast-secondary">Name: {clientData.name}</p>
-            <p className="ultra-contrast-secondary">Email: {clientData.email}</p>
-            <p className="ultra-contrast-secondary">Membership: {clientData.membership_type} (TTD {clientData.monthly_fee}/month)</p>
-            <p className="ultra-contrast-secondary">Status: {clientData.status}</p>
-            <p className="ultra-contrast-secondary">Auto Reminders: {clientData.auto_reminders_enabled ? '✅ Enabled' : '❌ Disabled'}</p>
+          {/* Form Error */}
+          {errors.submit && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+              <strong>Error:</strong> {errors.submit}
+            </div>
+          )}
+
+          {/* Member Preview Card */}
+          <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">Preview</h3>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="text-gray-600 dark:text-gray-400">Name:</span>
+                <span className="ml-2 font-medium text-gray-800 dark:text-white">{formData.name || 'Not set'}</span>
+              </div>
+              <div>
+                <span className="text-gray-600 dark:text-gray-400">Status:</span>
+                <span className={`ml-2 px-2 py-1 rounded text-xs font-medium ${
+                  formData.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                }`}>
+                  {formData.status}
+                </span>
+              </div>
+              <div>
+                <span className="text-gray-600 dark:text-gray-400">Email:</span>
+                <span className="ml-2 font-medium text-gray-800 dark:text-white">{formData.email || 'Not set'}</span>
+              </div>
+              <div>
+                <span className="text-gray-600 dark:text-gray-400">Phone:</span>
+                <span className="ml-2 font-medium text-gray-800 dark:text-white">{formData.phone || 'Not set'}</span>
+              </div>
+              <div>
+                <span className="text-gray-600 dark:text-gray-400">Membership:</span>
+                <span className="ml-2 font-medium text-gray-800 dark:text-white">{formData.membership_type}</span>
+              </div>
+              <div>
+                <span className="text-gray-600 dark:text-gray-400">Monthly Fee:</span>
+                <span className="ml-2 font-medium text-gray-800 dark:text-white">TTD {formData.monthly_fee}</span>
+              </div>
+            </div>
           </div>
 
           {/* Form Fields */}
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="ultra-contrast-label block mb-2">Name *</label>
-                <input
-                  type="text"
-                  value={clientData.name}
-                  onChange={(e) => setClientData(prev => ({ ...prev, name: e.target.value }))}
-                  className="ultra-contrast-input w-full p-3 rounded-lg"
-                  placeholder="Enter client name"
-                />
-              </div>
-              <div>
-                <label className="ultra-contrast-label block mb-2">Email *</label>
-                <input
-                  type="email"
-                  value={clientData.email}
-                  onChange={(e) => setClientData(prev => ({ ...prev, email: e.target.value }))}
-                  className="ultra-contrast-input w-full p-3 rounded-lg"
-                  placeholder="Enter email address"
-                />
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Name */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Name <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) => handleInputChange('name', e.target.value)}
+                className={`w-full p-3 border rounded-lg bg-white dark:bg-gray-700 dark:text-white ${
+                  errors.name ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                } focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                placeholder="Enter member name"
+              />
+              {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="ultra-contrast-label block mb-2">Phone</label>
-                <input
-                  type="tel"
-                  value={clientData.phone}
-                  onChange={(e) => setClientData(prev => ({ ...prev, phone: e.target.value }))}
-                  className="ultra-contrast-input w-full p-3 rounded-lg"
-                  placeholder="Enter phone number"
-                />
-              </div>
-              <div>
-                <label className="ultra-contrast-label block mb-2">Membership Type</label>
-                <select
-                  value={clientData.membership_type}
-                  onChange={(e) => handleMembershipChange(e.target.value)}
-                  className="ultra-contrast-input w-full p-3 rounded-lg"
-                >
-                  {membershipTypes.map(type => (
-                    <option key={type.name} value={type.name}>
-                      {type.name} - TTD {type.fee}/month
-                    </option>
-                  ))}
-                </select>
-              </div>
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Email <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) => handleInputChange('email', e.target.value)}
+                className={`w-full p-3 border rounded-lg bg-white dark:bg-gray-700 dark:text-white ${
+                  errors.email ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                } focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                placeholder="Enter email address"
+              />
+              {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="ultra-contrast-label block mb-2">Monthly Fee</label>
-                <input
-                  type="number"
-                  value={clientData.monthly_fee}
-                  onChange={(e) => setClientData(prev => ({ ...prev, monthly_fee: e.target.value }))}
-                  className="ultra-contrast-input w-full p-3 rounded-lg"
-                  placeholder="Enter monthly fee"
-                />
-              </div>
-              <div>
-                <label className="ultra-contrast-label block mb-2">Start Date *</label>
-                <input
-                  type="date"
-                  value={clientData.start_date}
-                  onChange={(e) => setClientData(prev => ({ ...prev, start_date: e.target.value }))}
-                  className="ultra-contrast-input w-full p-3 rounded-lg"
-                />
-              </div>
+            {/* Phone */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Phone
+              </label>
+              <input
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => handleInputChange('phone', e.target.value)}
+                className={`w-full p-3 border rounded-lg bg-white dark:bg-gray-700 dark:text-white ${
+                  errors.phone ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                } focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                placeholder="Enter phone number"
+              />
+              {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="ultra-contrast-label block mb-2">Status</label>
-                <select
-                  value={clientData.status}
-                  onChange={(e) => setClientData(prev => ({ ...prev, status: e.target.value }))}
-                  className="ultra-contrast-input w-full p-3 rounded-lg"
-                >
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                </select>
-              </div>
+            {/* Status */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Status
+              </label>
+              <select
+                value={formData.status}
+                onChange={(e) => handleInputChange('status', e.target.value)}
+                className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
             </div>
 
-            {/* Automatic Reminders Toggle */}
-            <div className="member-card p-4 rounded-lg">
-              <div className="flex items-center justify-between">
-                <div>
-                  <label className="ultra-contrast-label block mb-1">Automatic Payment Reminders</label>
-                  <p className="ultra-contrast-secondary text-xs">Send reminders 3 days before and on payment due date</p>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={clientData.auto_reminders_enabled}
-                    onChange={(e) => setClientData(prev => ({ ...prev, auto_reminders_enabled: e.target.checked }))}
-                    className="sr-only peer"
-                  />
-                  <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+            {/* Membership Type */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Membership Type
+              </label>
+              <select
+                value={formData.membership_type}
+                onChange={(e) => handleMembershipTypeChange(e.target.value)}
+                className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                {membershipTypes.map(type => (
+                  <option key={type.name || type.id} value={type.name}>
+                    {type.name} - TTD {type.monthly_fee || type.fee}/month
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Monthly Fee */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Monthly Fee (TTD) <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                value={formData.monthly_fee}
+                onChange={(e) => handleInputChange('monthly_fee', parseFloat(e.target.value) || 0)}
+                className={`w-full p-3 border rounded-lg bg-white dark:bg-gray-700 dark:text-white ${
+                  errors.monthly_fee ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                } focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                placeholder="Enter monthly fee"
+              />
+              {errors.monthly_fee && <p className="mt-1 text-sm text-red-600">{errors.monthly_fee}</p>}
+            </div>
+
+            {/* Start Date */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Start Date <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="date"
+                value={formData.start_date}
+                onChange={(e) => handleInputChange('start_date', e.target.value)}
+                className={`w-full p-3 border rounded-lg bg-white dark:bg-gray-700 dark:text-white ${
+                  errors.start_date ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                } focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+              />
+              {errors.start_date && <p className="mt-1 text-sm text-red-600">{errors.start_date}</p>}
+            </div>
+
+            {/* Auto Reminders */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Automatic Reminders
+              </label>
+              <div className="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
+                <input
+                  id="auto-reminders"
+                  type="checkbox"
+                  checked={formData.auto_reminders_enabled}
+                  onChange={(e) => handleInputChange('auto_reminders_enabled', e.target.checked)}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label htmlFor="auto-reminders" className="ml-3 text-sm text-gray-700 dark:text-gray-300">
+                  Send payment reminders automatically
                 </label>
               </div>
             </div>
           </div>
 
-          <div className="flex space-x-3 pt-4">
+          {/* Action Buttons */}
+          <div className="flex space-x-4 pt-6 border-t border-gray-200 dark:border-gray-700">
             <button
               onClick={handleSave}
               disabled={loading}
-              className="ultra-contrast-button-primary px-6 py-3 rounded-lg flex-1"
+              className={`flex-1 px-6 py-3 rounded-lg font-medium text-white transition-colors ${
+                loading 
+                  ? 'bg-gray-400 cursor-not-allowed' 
+                  : 'bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-blue-500'
+              }`}
             >
-              {loading ? "Saving..." : "✅ Save Changes"}
+              {loading ? (
+                <span className="flex items-center justify-center">
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Saving...
+                </span>
+              ) : (
+                '💾 Save Changes'
+              )}
             </button>
             <button
-              onClick={onClose}
-              className="ultra-contrast-button px-6 py-3 rounded-lg"
+              onClick={handleClose}
+              disabled={loading}
+              className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
             >
               Cancel
             </button>
