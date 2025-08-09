@@ -533,9 +533,6 @@ const formatDateForDisplay = (dateString, includeTime = false) => {
 // GoGym4U Layout Wrapper Component
 // Backend URL helper function with fallback logic
 const getBackendUrl = () => {
-  // For testing purposes, use internal backend URL
-  return 'http://localhost:8001';
-  
   // Try to get from process.env (standard React way)
   if (process.env.REACT_APP_BACKEND_URL && process.env.REACT_APP_BACKEND_URL.trim()) {
     console.log('✅ Using process.env backend URL:', process.env.REACT_APP_BACKEND_URL);
@@ -551,8 +548,9 @@ const getBackendUrl = () => {
   }
   
   // For development or other environments, fallback to current origin
-  console.log('⚠️ Using fallback URL:', window.location.origin);
-  return window.location.origin;
+  const fallbackUrl = `${window.location.protocol}//${window.location.hostname}${window.location.port ? ':' + window.location.port : ''}`;
+  console.log('⚠️ Fallback to current origin:', fallbackUrl);
+  return fallbackUrl;
 };
 
 const GoGymLayout = ({ children, currentPage, onNavigate }) => {
