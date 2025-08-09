@@ -3528,21 +3528,38 @@ const ClientManagement = () => {
 
   const fetchClients = useCallback(async (forceRefresh = false) => {
     try {
-      console.log('🔍 ClientManagement: Starting fetchClients...');
+      console.log('🔍 ClientManagement: Starting DIRECT fetchClients...');
       setLoading(true);
-      const result = await localDB.getClients(forceRefresh);
-      console.log('🔍 ClientManagement: Got result:', result);
       
-      // Handle both old format {data: [...]} and new format [...] 
-      const clientsData = Array.isArray(result) ? result : (Array.isArray(result.data) ? result.data : []);
+      // Direct fetch bypass LocalStorageManager for debugging
+      const backendUrl = getBackendUrl();
+      console.log('🔍 ClientManagement: Using direct fetch to:', `${backendUrl}/api/clients`);
       
-      // Use functional state updates to ensure proper batching
-      setClients(() => clientsData);
-      setIsOffline(() => result.offline || false);
-      setLoading(() => false);
+      const response = await fetch(`${backendUrl}/api/clients`, {
+        method: 'GET',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache'
+        }
+      });
       
-      console.log('✅ ClientManagement: Set clients and loading state, count:', clientsData.length);
-      console.log('🌐 ClientManagement: Offline mode:', result.offline);
+      console.log('📨 ClientManagement: Direct fetch response:', response.status, response.ok);
+      
+      if (response.ok) {
+        const clientsData = await response.json();
+        console.log('✅ ClientManagement: Direct fetch success, got', clientsData.length, 'clients');
+        
+        // Use functional state updates to ensure proper batching
+        setClients(() => clientsData);
+        setIsOffline(() => false);
+        setLoading(() => false);
+        
+        console.log('✅ ClientManagement: Set clients and loading state, count:', clientsData.length);
+        console.log('🌐 ClientManagement: Offline mode: false');
+      } else {
+        throw new Error(`API responded with status ${response.status}`);
+      }
+      
     } catch (error) {
       console.error('❌ ClientManagement: Error fetching clients:', error);
       setClients(() => []);
