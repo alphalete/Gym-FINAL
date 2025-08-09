@@ -1961,7 +1961,7 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
     setLoading(true);
     
     try {
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const backendUrl = getBackendUrl();
       const updateUrl = `${backendUrl}/api/clients/${formData.id}`;
       
       console.log('📡 EditClient: Making PUT request to:', updateUrl);
