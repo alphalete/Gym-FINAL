@@ -1832,7 +1832,7 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
 
   const loadMembershipTypes = async () => {
     try {
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const backendUrl = getBackendUrl();
       console.log('🔍 EditClient: Loading membership types from:', `${backendUrl}/api/membership-types`);
       
       const response = await fetch(`${backendUrl}/api/membership-types`, {
