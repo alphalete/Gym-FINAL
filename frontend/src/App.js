@@ -1178,6 +1178,32 @@ const Layout = ({ children }) => {
           </div>
         </div>
       )}
+
+      {/* Toast Notification for Layout */}
+      {showToast && (
+        <div className={`toast-notification ${showToast.type}`} style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          zIndex: 10000,
+          background: showToast.type === 'success' ? '#10b981' : '#ef4444',
+          color: 'white',
+          padding: '12px 16px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          maxWidth: '400px',
+          fontSize: '14px',
+          fontWeight: '500'
+        }}>
+          <div className="toast-icon">
+            {showToast.type === 'success' ? '✅' : '❌'}
+          </div>
+          <div className="toast-message">{showToast.message}</div>
+        </div>
+      )}
     </div>
   );
 };
