@@ -533,49 +533,36 @@ const formatDateForDisplay = (dateString, includeTime = false) => {
 // GoGym4U Layout Wrapper Component
 // Backend URL helper function with fallback logic
 const getBackendUrl = () => {
-  // TEMPORARY DEBUG: Force the correct backend URL to test the hypothesis
-  const correctBackendUrl = 'https://663f7c71-f625-4db7-a98a-232b99791af0.preview.emergentagent.com';
+  // First try to read from environment variables properly
+  const reactEnvUrl = process.env.REACT_APP_BACKEND_URL;
+  const viteEnvUrl = typeof import !== 'undefined' && import.meta?.env?.REACT_APP_BACKEND_URL;
   
-  console.log('🚨 DEBUG: Forcing backend URL to:', correctBackendUrl);
-  return correctBackendUrl;
+  console.log('🔍 DEBUG getBackendUrl - Environment checks:');
+  console.log('  process.env.REACT_APP_BACKEND_URL:', reactEnvUrl);
+  console.log('  import.meta.env.REACT_APP_BACKEND_URL:', viteEnvUrl);
   
-  // Original logic (commented out for debugging)
-  /*
-  // Try multiple ways to get the environment variable
-  let envUrl = null;
-  
-  // Method 1: React environment variables
-  if (process.env.REACT_APP_BACKEND_URL) {
-    envUrl = process.env.REACT_APP_BACKEND_URL;
+  // Use environment variable if available
+  if (reactEnvUrl && reactEnvUrl.trim() !== '') {
+    console.log('✅ Using React environment URL:', reactEnvUrl);
+    return reactEnvUrl.trim();
   }
   
-  // Method 2: Vite environment variables
-  if (!envUrl && import.meta && import.meta.env && import.meta.env.REACT_APP_BACKEND_URL) {
-    envUrl = import.meta.env.REACT_APP_BACKEND_URL;
+  if (viteEnvUrl && viteEnvUrl.trim() !== '') {
+    console.log('✅ Using Vite environment URL:', viteEnvUrl);
+    return viteEnvUrl.trim();
   }
   
-  // Method 3: Check window.env (sometimes set by build systems)
-  if (!envUrl && window.env && window.env.REACT_APP_BACKEND_URL) {
-    envUrl = window.env.REACT_APP_BACKEND_URL;
+  // For production environments where env vars might not be available at runtime,
+  // detect if we're on the production URL and use the correct backend URL
+  if (window.location.hostname === 'alphalete-club.emergent.host') {
+    const productionBackendUrl = 'https://663f7c71-f625-4db7-a98a-232b99791af0.preview.emergentagent.com';
+    console.log('✅ Detected production environment, using backend URL:', productionBackendUrl);
+    return productionBackendUrl;
   }
   
-  console.log('🔍 DEBUG getBackendUrl - All attempts:');
-  console.log('  process.env.REACT_APP_BACKEND_URL:', process.env.REACT_APP_BACKEND_URL);
-  console.log('  import.meta.env?.REACT_APP_BACKEND_URL:', import.meta?.env?.REACT_APP_BACKEND_URL);
-  console.log('  window.env?.REACT_APP_BACKEND_URL:', window.env?.REACT_APP_BACKEND_URL);
-  console.log('  Final envUrl:', envUrl);
-  console.log('  window.location.origin:', window.location.origin);
-  
-  // If environment variable is available and not empty, use it
-  if (envUrl && envUrl.trim() !== '') {
-    console.log('✅ Using environment URL:', envUrl);
-    return envUrl.trim();
-  }
-  
-  // Fallback to current origin for production builds without env vars
+  // For development or other environments, fallback to current origin
   console.log('⚠️ Using fallback URL:', window.location.origin);
   return window.location.origin;
-  */
 };
 
 const GoGymLayout = ({ children, currentPage, onNavigate }) => {
