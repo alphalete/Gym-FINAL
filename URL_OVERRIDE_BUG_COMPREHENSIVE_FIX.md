@@ -60,7 +60,7 @@ const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_AP
 
 ### **API Endpoint Verification:**
 ```bash
-✅ Backend URL: https://663f7c71-f625-4db7-a98a-232b99791af0.preview.emergentagent.com
+✅ Backend URL: https://3c055140-1043-4f1b-9269-d9bc79313707.preview.emergentagent.com
 ✅ API accessible: Yes (200 OK)
 ✅ Add client works: Yes (tested)
 ✅ All endpoints: Functional
