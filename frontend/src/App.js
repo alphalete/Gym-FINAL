@@ -3660,6 +3660,7 @@ const ClientManagement = () => {
         isOpen={editClientModal.isOpen}
         onClose={closeEditClientModal}
         onSave={handleClientUpdated}
+        showToast={showToast}
       />
 
       {/* Quick Payment Modal */}
