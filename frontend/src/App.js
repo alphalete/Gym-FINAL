@@ -5509,6 +5509,18 @@ const Settings = () => {
               <span className="settings-arrow">›</span>
             </div>
 
+            {/* Cache Clear Utility - Fix for persistent user issues */}
+            <div className="settings-item" onClick={() => setShowModal('cacheDebug')}>
+              <div className="settings-item-left">
+                <div className="settings-item-icon red">🔄</div>
+                <div className="settings-item-info">
+                  <div className="settings-item-title">Clear App Cache</div>
+                  <div className="settings-item-subtitle">Fix data loading issues by clearing all caches</div>
+                </div>
+              </div>
+              <span className="settings-arrow">›</span>
+            </div>
+
             <div 
               className="settings-item" 
               onClick={() => setShowConfirmation('clearData')}
