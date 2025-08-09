@@ -533,6 +533,9 @@ const formatDateForDisplay = (dateString, includeTime = false) => {
 // GoGym4U Layout Wrapper Component
 // Backend URL helper function with fallback logic
 const getBackendUrl = () => {
+  // For testing purposes, use internal backend URL
+  return 'http://localhost:8001';
+  
   // Try to get from process.env (standard React way)
   if (process.env.REACT_APP_BACKEND_URL && process.env.REACT_APP_BACKEND_URL.trim()) {
     console.log('✅ Using process.env backend URL:', process.env.REACT_APP_BACKEND_URL);
