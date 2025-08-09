@@ -1508,95 +1508,187 @@ const MemberInfoModal = ({ client, isOpen, onClose }) => {
 
   return (
     <div className="modern-member-modal-overlay" onClick={onClose}>
-      <div className="modern-member-modal" onClick={(e) => e.stopPropagation()}>
+      {/* Modal Container with Fixed Layout */}
+      <div style={{
+        backgroundColor: 'white',
+        borderRadius: '20px',
+        width: '100%',
+        maxWidth: '480px',
+        height: '70vh',
+        maxHeight: '600px',
+        minHeight: '500px',
+        display: 'flex',
+        flexDirection: 'column',
+        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+        overflow: 'hidden'
+      }} onClick={(e) => e.stopPropagation()}>
         
-        {/* Modern Header */}
-        <div className="modal-header">
-          <div className="modal-header-content">
-            <div className="modal-member-avatar">
+        {/* Fixed Header */}
+        <div style={{
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: 'white',
+          padding: '16px 24px',
+          borderRadius: '20px 20px 0 0',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexShrink: 0,
+          height: '80px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{
+              width: '48px',
+              height: '48px',
+              borderRadius: '50%',
+              background: 'rgba(255, 255, 255, 0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '16px',
+              fontWeight: 'bold'
+            }}>
               {getInitials(client.name)}
             </div>
-            <div className="modal-member-info">
-              <div className="modal-member-name">{client.name}</div>
-              <div className={`modal-member-status ${client.status.toLowerCase()}`}>
+            <div>
+              <div style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>{client.name}</div>
+              <div style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.8)', margin: 0 }}>
                 <span>{client.status === 'Active' ? '🟢' : '⚪'}</span>
-                <span>{client.status} Member</span>
+                <span> {client.status} Member</span>
               </div>
             </div>
           </div>
-          <button className="modal-close-button" onClick={onClose}>
+          <button 
+            onClick={onClose}
+            style={{
+              position: 'absolute',
+              top: '16px',
+              right: '16px',
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              border: 'none',
+              color: 'white',
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
+              cursor: 'pointer',
+              fontSize: '18px',
+              fontWeight: 'bold'
+            }}
+          >
             ×
           </button>
         </div>
 
-        {/* Modal Content */}
-        <div className="modal-content">
-          
+        {/* Scrollable Content */}
+        <div style={{
+          flex: 1,
+          overflow: 'auto',
+          padding: '16px 24px',
+          backgroundColor: '#f9fafb',
+          minHeight: 0
+        }}>
           {/* Contact Information Section */}
-          <div className="modal-section">
-            <div className="modal-section-title">
-              <div className="modal-section-icon blue">👤</div>
+          <div style={{ marginBottom: '24px' }}>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '12px', 
+              marginBottom: '16px',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              color: '#1f2937'
+            }}>
+              <div style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '8px',
+                background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '14px'
+              }}>
+                👤
+              </div>
               Contact Information
             </div>
-            <div className="modal-info-items">
-              <div className="modal-info-item">
-                <div className="modal-info-icon">📧</div>
-                <div className="modal-info-content">
-                  <div className="modal-info-label">Email Address</div>
-                  <div className="modal-info-value">{client.email || 'Not provided'}</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', backgroundColor: 'white', borderRadius: '8px' }}>
+                <div style={{ fontSize: '18px' }}>📧</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold' }}>Email Address</div>
+                  <div style={{ fontSize: '14px', color: '#1f2937' }}>{client.email || 'Not provided'}</div>
                 </div>
               </div>
-              <div className="modal-info-item">
-                <div className="modal-info-icon">📱</div>
-                <div className="modal-info-content">
-                  <div className="modal-info-label">Phone Number</div>
-                  <div className="modal-info-value">{client.phone || 'Not provided'}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', backgroundColor: 'white', borderRadius: '8px' }}>
+                <div style={{ fontSize: '18px' }}>📱</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold' }}>Phone Number</div>
+                  <div style={{ fontSize: '14px', color: '#1f2937' }}>{client.phone || 'Not provided'}</div>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Membership Details Section */}
-          <div className="modal-section">
-            <div className="modal-section-title">
-              <div className="modal-section-icon green">🏋️</div>
+          <div style={{ marginBottom: '24px' }}>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '12px', 
+              marginBottom: '16px',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              color: '#1f2937'
+            }}>
+              <div style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '8px',
+                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '14px'
+              }}>
+                🏋️
+              </div>
               Membership Details
             </div>
-            <div className="modal-info-items">
-              <div className="modal-info-item">
-                <div className="modal-info-icon">🎫</div>
-                <div className="modal-info-content">
-                  <div className="modal-info-label">Membership Type</div>
-                  <div className="modal-info-value">{client.membership_type || 'Standard'}</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', backgroundColor: 'white', borderRadius: '8px' }}>
+                <div style={{ fontSize: '18px' }}>🎫</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold' }}>Membership Type</div>
+                  <div style={{ fontSize: '14px', color: '#1f2937' }}>{client.membership_type || 'Standard'}</div>
                 </div>
               </div>
-              <div className="modal-info-item">
-                <div className="modal-info-icon">💰</div>
-                <div className="modal-info-content">
-                  <div className="modal-info-label">Monthly Fee</div>
-                  <div className="modal-info-value">TTD {client.monthly_fee || 0}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', backgroundColor: 'white', borderRadius: '8px' }}>
+                <div style={{ fontSize: '18px' }}>💰</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold' }}>Monthly Fee</div>
+                  <div style={{ fontSize: '14px', color: '#1f2937' }}>TTD {client.monthly_fee || 0}</div>
                 </div>
               </div>
-              <div className="modal-info-item">
-                <div className="modal-info-icon">📅</div>
-                <div className="modal-info-content">
-                  <div className="modal-info-label">Start Date</div>
-                  <div className="modal-info-value">{formatDate(client.start_date)}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', backgroundColor: 'white', borderRadius: '8px' }}>
+                <div style={{ fontSize: '18px' }}>📅</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold' }}>Start Date</div>
+                  <div style={{ fontSize: '14px', color: '#1f2937' }}>{formatDate(client.start_date)}</div>
                 </div>
               </div>
-              <div className="modal-info-item">
-                <div className="modal-info-icon">🔄</div>
-                <div className="modal-info-content">
-                  <div className="modal-info-label">Billing Interval</div>
-                  <div className="modal-info-value">{client.billing_interval_days || 30} days</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', backgroundColor: 'white', borderRadius: '8px' }}>
+                <div style={{ fontSize: '18px' }}>🔄</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold' }}>Billing Interval</div>
+                  <div style={{ fontSize: '14px', color: '#1f2937' }}>{client.billing_interval_days || 30} days</div>
                 </div>
               </div>
               {client.notes && (
-                <div className="modal-info-item">
-                  <div className="modal-info-icon">📝</div>
-                  <div className="modal-info-content">
-                    <div className="modal-info-label">Notes</div>
-                    <div className="modal-info-value">{client.notes}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', backgroundColor: 'white', borderRadius: '8px' }}>
+                  <div style={{ fontSize: '18px' }}>📝</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold' }}>Notes</div>
+                    <div style={{ fontSize: '14px', color: '#1f2937' }}>{client.notes}</div>
                   </div>
                 </div>
               )}
@@ -1604,33 +1696,52 @@ const MemberInfoModal = ({ client, isOpen, onClose }) => {
           </div>
 
           {/* Payment Status Section */}
-          <div className="modal-section">
-            <div className="modal-section-title">
-              <div className="modal-section-icon orange">💳</div>
+          <div>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '12px', 
+              marginBottom: '16px',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              color: '#1f2937'
+            }}>
+              <div style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '8px',
+                background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '14px'
+              }}>
+                💳
+              </div>
               Payment Status
             </div>
-            <div className="modal-info-items">
-              <div className="modal-info-item">
-                <div className="modal-info-icon">📆</div>
-                <div className="modal-info-content">
-                  <div className="modal-info-label">Next Payment Due</div>
-                  <div className="modal-info-value">{formatDate(client.next_payment_date)}</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', backgroundColor: 'white', borderRadius: '8px' }}>
+                <div style={{ fontSize: '18px' }}>📆</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold' }}>Next Payment Due</div>
+                  <div style={{ fontSize: '14px', color: '#1f2937' }}>{formatDate(client.next_payment_date)}</div>
                 </div>
               </div>
-              <div className="modal-info-item">
-                <div className="modal-info-icon">{paymentStatus.icon}</div>
-                <div className="modal-info-content">
-                  <div className="modal-info-label">Payment Status</div>
-                  <div className={`modal-info-value ${paymentStatus.class}`}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', backgroundColor: 'white', borderRadius: '8px' }}>
+                <div style={{ fontSize: '18px' }}>{paymentStatus.icon}</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold' }}>Payment Status</div>
+                  <div style={{ fontSize: '14px', color: '#1f2937' }}>
                     {paymentStatus.text}
                   </div>
                 </div>
               </div>
-              <div className="modal-info-item">
-                <div className="modal-info-icon">🔔</div>
-                <div className="modal-info-content">
-                  <div className="modal-info-label">Auto Reminders</div>
-                  <div className={`modal-info-value status ${client.auto_reminders_enabled !== false ? 'enabled' : 'disabled'}`}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', backgroundColor: 'white', borderRadius: '8px' }}>
+                <div style={{ fontSize: '18px' }}>🔔</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold' }}>Auto Reminders</div>
+                  <div style={{ fontSize: '14px', color: '#1f2937' }}>
                     {client.auto_reminders_enabled !== false ? '✅ Enabled' : '❌ Disabled'}
                   </div>
                 </div>
@@ -1639,9 +1750,33 @@ const MemberInfoModal = ({ client, isOpen, onClose }) => {
           </div>
         </div>
 
-        {/* Modal Actions */}
-        <div className="modal-actions">
-          <button className="modal-action-btn secondary" onClick={onClose}>
+        {/* Fixed Footer */}
+        <div style={{
+          padding: '16px 24px',
+          backgroundColor: '#f8fafc',
+          borderRadius: '0 0 20px 20px',
+          display: 'flex',
+          gap: '12px',
+          justifyContent: 'flex-end',
+          flexShrink: 0,
+          height: '60px',
+          alignItems: 'center'
+        }}>
+          <button 
+            onClick={onClose}
+            style={{
+              padding: '10px 24px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              minWidth: '80px',
+              height: '36px',
+              border: '2px solid #374151',
+              backgroundColor: 'white',
+              color: '#374151'
+            }}
+          >
             Close
           </button>
         </div>
