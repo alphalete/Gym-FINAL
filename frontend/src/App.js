@@ -533,16 +533,35 @@ const formatDateForDisplay = (dateString, includeTime = false) => {
 // GoGym4U Layout Wrapper Component
 // Backend URL helper function with fallback logic
 const getBackendUrl = () => {
-  // Try to get the environment variable
-  const envUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+  // Try multiple ways to get the environment variable
+  let envUrl = null;
   
-  console.log('🔍 DEBUG getBackendUrl - envUrl:', envUrl);
-  console.log('🔍 DEBUG getBackendUrl - window.location.origin:', window.location.origin);
+  // Method 1: React environment variables
+  if (process.env.REACT_APP_BACKEND_URL) {
+    envUrl = process.env.REACT_APP_BACKEND_URL;
+  }
+  
+  // Method 2: Vite environment variables
+  if (!envUrl && import.meta && import.meta.env && import.meta.env.REACT_APP_BACKEND_URL) {
+    envUrl = import.meta.env.REACT_APP_BACKEND_URL;
+  }
+  
+  // Method 3: Check window.env (sometimes set by build systems)
+  if (!envUrl && window.env && window.env.REACT_APP_BACKEND_URL) {
+    envUrl = window.env.REACT_APP_BACKEND_URL;
+  }
+  
+  console.log('🔍 DEBUG getBackendUrl - All attempts:');
+  console.log('  process.env.REACT_APP_BACKEND_URL:', process.env.REACT_APP_BACKEND_URL);
+  console.log('  import.meta.env?.REACT_APP_BACKEND_URL:', import.meta?.env?.REACT_APP_BACKEND_URL);
+  console.log('  window.env?.REACT_APP_BACKEND_URL:', window.env?.REACT_APP_BACKEND_URL);
+  console.log('  Final envUrl:', envUrl);
+  console.log('  window.location.origin:', window.location.origin);
   
   // If environment variable is available and not empty, use it
   if (envUrl && envUrl.trim() !== '') {
     console.log('✅ Using environment URL:', envUrl);
-    return envUrl;
+    return envUrl.trim();
   }
   
   // Fallback to current origin for production builds without env vars
