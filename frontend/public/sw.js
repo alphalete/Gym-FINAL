@@ -292,11 +292,33 @@ self.addEventListener('fetch', event => {
   );
 });
 
-// Handle app messages for cache management
+// Handle app messages for cache management - Enhanced for user issues
 self.addEventListener('message', event => {
   const { type, payload } = event.data || {};
   
   switch (type) {
+    case 'CLEAR_ALL_CACHES':
+      console.log('📱 PWA: EMERGENCY CACHE CLEAR - Resolving user discrepancy issues...');
+      Promise.all([
+        caches.delete(CACHE_NAME),
+        caches.delete(STATIC_CACHE),
+        caches.delete(API_CACHE),
+        // Clear any legacy cache versions
+        caches.delete('alphalete-mobile-pwa-v15.0.0'),
+        caches.delete('alphalete-static-v15.0.0'),
+        caches.delete('alphalete-api-v15.0.0'),
+        caches.delete('alphalete-mobile-pwa-v14.0.0'),
+        caches.delete('alphalete-static-v14.0.0'),
+        caches.delete('alphalete-api-v14.0.0'),
+        caches.delete('alphalete-mobile-pwa-v13.0.0'),
+        caches.delete('alphalete-static-v13.0.0'),
+        caches.delete('alphalete-api-v13.0.0'),
+      ]).then(() => {
+        console.log('📱 PWA: All caches cleared successfully');
+        event.ports[0]?.postMessage({ success: true, message: 'All caches cleared - fresh data guaranteed' });
+      });
+      break;
+      
     case 'CLEAR_API_CACHE':
       console.log('📱 PWA: Clearing API cache...');
       caches.delete(API_CACHE).then(() => {
@@ -323,7 +345,7 @@ self.addEventListener('message', event => {
         event.ports[0]?.postMessage({
           success: true,
           caches: { appCache, staticCache, apiCache },
-          version: '13.0.0'
+          version: '16.0.0'
         });
       });
       break;
