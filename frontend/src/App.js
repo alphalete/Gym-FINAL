@@ -2052,49 +2052,60 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
   };
 
   return (
-    <div className="confirmation-modal-overlay">
+    <div className="confirmation-modal-overlay" style={{ padding: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{
         background: 'white',
         borderRadius: '16px',
-        maxWidth: '600px',
         width: '100%',
-        maxHeight: '90vh',
-        overflow: 'auto',
+        maxWidth: '650px',
+        maxHeight: '95vh',
+        overflow: 'hidden',
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
-        margin: '20px'
+        display: 'flex',
+        flexDirection: 'column'
       }}>
-        {/* Header - Matching app gradient style */}
+        {/* Header - Fixed readability */}
         <div style={{
           background: 'linear-gradient(135deg, #00BCD4 0%, #2196F3 100%)',
           color: 'white',
-          padding: '24px',
+          padding: '20px 24px',
           borderTopLeftRadius: '16px',
           borderTopRightRadius: '16px',
-          position: 'relative'
+          flexShrink: 0
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div className="member-card-avatar" style={{ width: '48px', height: '48px', fontSize: '18px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '50%',
+                background: 'rgba(255, 255, 255, 0.2)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                fontSize: '16px',
+                fontWeight: 'bold'
+              }}>
                 {getInitials(formData.name || 'NN')}
               </div>
               <div>
                 <h2 style={{ 
-                  margin: '0 0 4px 0', 
-                  fontSize: '24px', 
-                  fontWeight: '800',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                  margin: '0', 
+                  fontSize: '20px', 
+                  fontWeight: 'bold',
+                  color: 'white',
+                  textShadow: 'none'
                 }}>
-                  EDIT MEMBER
+                  Edit Member
                 </h2>
                 <p style={{ 
-                  margin: 0, 
-                  fontSize: '14px', 
-                  opacity: 0.9,
-                  fontWeight: '500' 
+                  margin: '4px 0 0 0', 
+                  fontSize: '13px', 
+                  color: 'rgba(255, 255, 255, 0.9)',
+                  fontWeight: 'normal'
                 }}>
-                  Update member information and settings
+                  Update member information
                 </p>
               </div>
             </div>
@@ -2104,16 +2115,16 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
                 background: 'rgba(255, 255, 255, 0.2)',
                 border: 'none',
                 color: 'white',
-                width: '40px',
-                height: '40px',
+                width: '32px',
+                height: '32px',
                 borderRadius: '50%',
                 cursor: 'pointer',
-                fontSize: '20px',
+                fontSize: '18px',
                 fontWeight: 'bold',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                transition: 'all 0.2s ease'
+                transition: 'background 0.2s ease'
               }}
               onMouseOver={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.3)'}
               onMouseOut={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.2)'}
@@ -2123,8 +2134,15 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
           </div>
         </div>
 
-        {/* Content */}
-        <div style={{ padding: '24px' }}>
+        {/* Scrollable Content */}
+        <div style={{ 
+          flex: 1, 
+          overflow: 'auto', 
+          padding: '20px 24px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '20px'
+        }}>
           {/* Form Error */}
           {errors.submit && (
             <div style={{
@@ -2133,220 +2151,378 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
               color: '#dc2626',
               padding: '12px 16px',
               borderRadius: '8px',
-              marginBottom: '20px',
               fontSize: '14px'
             }}>
               <strong>Error:</strong> {errors.submit}
             </div>
           )}
 
-          {/* Member Preview Card - Matching app style */}
-          <div className="modern-member-card" style={{ marginBottom: '24px' }}>
-            <div className="member-card-header">
-              <div className="member-card-left">
-                <div className="member-card-avatar">
-                  {getInitials(formData.name || 'NN')}
-                </div>
-                <div className="member-card-info">
-                  <div className="member-card-name">{formData.name || 'Not set'}</div>
-                  <div className="member-card-plan">{formData.membership_type} - TTD {formData.monthly_fee}/month</div>
-                  <div className="member-card-date">
-                    Status: <span className={`status-pill ${formData.status === 'Active' ? 'paid' : 'overdue'}`} style={{
-                      display: 'inline-flex',
-                      padding: '4px 8px',
-                      fontSize: '11px',
-                      borderRadius: '12px'
-                    }}>
-                      {formData.status}
-                    </span>
-                  </div>
-                </div>
+          {/* Member Preview Card - Compact */}
+          <div style={{
+            background: 'white',
+            border: '1px solid #e2e8f0',
+            borderRadius: '12px',
+            padding: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)'
+          }}>
+            <div style={{
+              width: '48px',
+              height: '48px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontSize: '18px',
+              fontWeight: 'bold'
+            }}>
+              {getInitials(formData.name || 'NN')}
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#2d3748' }}>
+                {formData.name || 'Not set'}
               </div>
+              <div style={{ fontSize: '14px', color: '#718096' }}>
+                {formData.membership_type} - TTD {formData.monthly_fee}/month
+              </div>
+            </div>
+            <div>
+              <span style={{
+                padding: '4px 8px',
+                borderRadius: '12px',
+                fontSize: '11px',
+                fontWeight: 'bold',
+                background: formData.status === 'Active' ? '#d4edda' : '#f8d7da',
+                color: formData.status === 'Active' ? '#155724' : '#721c24'
+              }}>
+                {formData.status}
+              </span>
             </div>
           </div>
 
-          {/* Form Fields - Using app's form styling */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px' }}>
+          {/* Form Fields - Compact Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
             {/* Name */}
-            <div className="form-field-group">
-              <label className="form-field-label">Name *</label>
-              <div className="form-input-container">
-                <div className="form-input-icon">👤</div>
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4a5568', marginBottom: '6px', textTransform: 'uppercase' }}>
+                Name *
+              </label>
+              <div style={{ position: 'relative' }}>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => handleInputChange('name', e.target.value)}
-                  className="modern-form-input"
-                  placeholder="Enter member name"
-                  style={errors.name ? { borderColor: '#ef4444' } : {}}
+                  style={{
+                    width: '100%',
+                    padding: '12px 12px 12px 36px',
+                    border: `2px solid ${errors.name ? '#ef4444' : '#e2e8f0'}`,
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    background: '#f7fafc',
+                    transition: 'all 0.2s ease'
+                  }}
+                  placeholder="Enter name"
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#00BCD4';
+                    e.target.style.background = 'white';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = errors.name ? '#ef4444' : '#e2e8f0';
+                    e.target.style.background = '#f7fafc';
+                  }}
                 />
+                <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '16px', color: '#718096' }}>
+                  👤
+                </div>
               </div>
               {errors.name && <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#ef4444' }}>{errors.name}</p>}
             </div>
 
             {/* Email */}
-            <div className="form-field-group">
-              <label className="form-field-label">Email *</label>
-              <div className="form-input-container">
-                <div className="form-input-icon">📧</div>
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4a5568', marginBottom: '6px', textTransform: 'uppercase' }}>
+                Email *
+              </label>
+              <div style={{ position: 'relative' }}>
                 <input
                   type="email"
                   value={formData.email}
                   onChange={(e) => handleInputChange('email', e.target.value)}
-                  className="modern-form-input"
-                  placeholder="Enter email address"
-                  style={errors.email ? { borderColor: '#ef4444' } : {}}
+                  style={{
+                    width: '100%',
+                    padding: '12px 12px 12px 36px',
+                    border: `2px solid ${errors.email ? '#ef4444' : '#e2e8f0'}`,
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    background: '#f7fafc',
+                    transition: 'all 0.2s ease'
+                  }}
+                  placeholder="Enter email"
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#00BCD4';
+                    e.target.style.background = 'white';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = errors.email ? '#ef4444' : '#e2e8f0';
+                    e.target.style.background = '#f7fafc';
+                  }}
                 />
+                <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '16px', color: '#718096' }}>
+                  📧
+                </div>
               </div>
               {errors.email && <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#ef4444' }}>{errors.email}</p>}
             </div>
 
             {/* Phone */}
-            <div className="form-field-group">
-              <label className="form-field-label">Phone</label>
-              <div className="form-input-container">
-                <div className="form-input-icon">📱</div>
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4a5568', marginBottom: '6px', textTransform: 'uppercase' }}>
+                Phone
+              </label>
+              <div style={{ position: 'relative' }}>
                 <input
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => handleInputChange('phone', e.target.value)}
-                  className="modern-form-input"
-                  placeholder="Enter phone number"
-                  style={errors.phone ? { borderColor: '#ef4444' } : {}}
+                  style={{
+                    width: '100%',
+                    padding: '12px 12px 12px 36px',
+                    border: `2px solid ${errors.phone ? '#ef4444' : '#e2e8f0'}`,
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    background: '#f7fafc',
+                    transition: 'all 0.2s ease'
+                  }}
+                  placeholder="Enter phone"
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#00BCD4';
+                    e.target.style.background = 'white';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = errors.phone ? '#ef4444' : '#e2e8f0';
+                    e.target.style.background = '#f7fafc';
+                  }}
                 />
+                <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '16px', color: '#718096' }}>
+                  📱
+                </div>
               </div>
               {errors.phone && <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#ef4444' }}>{errors.phone}</p>}
             </div>
 
             {/* Status */}
-            <div className="form-field-group">
-              <label className="form-field-label">Status</label>
-              <div className="form-input-container">
-                <div className="form-input-icon">📊</div>
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4a5568', marginBottom: '6px', textTransform: 'uppercase' }}>
+                Status
+              </label>
+              <div style={{ position: 'relative' }}>
                 <select
                   value={formData.status}
                   onChange={(e) => handleInputChange('status', e.target.value)}
-                  className="modern-form-select"
+                  style={{
+                    width: '100%',
+                    padding: '12px 12px 12px 36px',
+                    border: '2px solid #e2e8f0',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    background: '#f7fafc',
+                    cursor: 'pointer'
+                  }}
                 >
                   <option value="Active">Active</option>
                   <option value="Inactive">Inactive</option>
                 </select>
+                <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '16px', color: '#718096' }}>
+                  📊
+                </div>
               </div>
             </div>
 
             {/* Membership Type */}
-            <div className="form-field-group">
-              <label className="form-field-label">Membership Type</label>
-              <div className="form-input-container">
-                <div className="form-input-icon">🏋️</div>
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4a5568', marginBottom: '6px', textTransform: 'uppercase' }}>
+                Membership
+              </label>
+              <div style={{ position: 'relative' }}>
                 <select
                   value={formData.membership_type}
                   onChange={(e) => handleMembershipTypeChange(e.target.value)}
-                  className="modern-form-select"
+                  style={{
+                    width: '100%',
+                    padding: '12px 12px 12px 36px',
+                    border: '2px solid #e2e8f0',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    background: '#f7fafc',
+                    cursor: 'pointer'
+                  }}
                 >
                   {membershipTypes.map(type => (
                     <option key={type.name || type.id} value={type.name}>
-                      {type.name} - TTD {type.monthly_fee || type.fee}/month
+                      {type.name} - TTD {type.monthly_fee || type.fee}
                     </option>
                   ))}
                 </select>
+                <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '16px', color: '#718096' }}>
+                  🏋️
+                </div>
               </div>
             </div>
 
             {/* Monthly Fee */}
-            <div className="form-field-group">
-              <label className="form-field-label">Monthly Fee (TTD) *</label>
-              <div className="form-input-container">
-                <div className="form-input-icon">💰</div>
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4a5568', marginBottom: '6px', textTransform: 'uppercase' }}>
+                Fee (TTD) *
+              </label>
+              <div style={{ position: 'relative' }}>
                 <input
                   type="number"
                   step="0.01"
                   min="0"
                   value={formData.monthly_fee}
                   onChange={(e) => handleInputChange('monthly_fee', parseFloat(e.target.value) || 0)}
-                  className="modern-form-input"
-                  placeholder="Enter monthly fee"
-                  style={errors.monthly_fee ? { borderColor: '#ef4444' } : {}}
+                  style={{
+                    width: '100%',
+                    padding: '12px 12px 12px 36px',
+                    border: `2px solid ${errors.monthly_fee ? '#ef4444' : '#e2e8f0'}`,
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    background: '#f7fafc',
+                    transition: 'all 0.2s ease'
+                  }}
+                  placeholder="Enter fee"
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#00BCD4';
+                    e.target.style.background = 'white';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = errors.monthly_fee ? '#ef4444' : '#e2e8f0';
+                    e.target.style.background = '#f7fafc';
+                  }}
                 />
+                <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '16px', color: '#718096' }}>
+                  💰
+                </div>
               </div>
               {errors.monthly_fee && <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#ef4444' }}>{errors.monthly_fee}</p>}
             </div>
-
-            {/* Start Date - Full width */}
-            <div className="form-field-group" style={{ gridColumn: '1 / -1' }}>
-              <label className="form-field-label">Start Date *</label>
-              <div className="form-input-container">
-                <div className="form-input-icon">📅</div>
-                <input
-                  type="date"
-                  value={formData.start_date}
-                  onChange={(e) => handleInputChange('start_date', e.target.value)}
-                  className="modern-form-input"
-                  style={errors.start_date ? { borderColor: '#ef4444' } : {}}
-                />
-              </div>
-              {errors.start_date && <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#ef4444' }}>{errors.start_date}</p>}
-            </div>
           </div>
 
-          {/* Auto Reminders Toggle - Using app's toggle style */}
-          <div className="toggle-section">
-            <div className="toggle-container">
-              <div className="toggle-info">
-                <div className="toggle-title">🔔 Automatic Payment Reminders</div>
-                <div className="toggle-description">Send reminders 3 days before and on payment due date</div>
-              </div>
-              <div className="status-toggle-switch">
-                <label className="toggle-switch" style={{
-                  background: formData.auto_reminders_enabled ? 'linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%)' : '#e2e8f0'
-                }}>
-                  <input
-                    type="checkbox"
-                    checked={formData.auto_reminders_enabled}
-                    onChange={(e) => handleInputChange('auto_reminders_enabled', e.target.checked)}
-                    style={{ display: 'none' }}
-                  />
-                  <div style={{
-                    width: '24px',
-                    height: '24px',
-                    background: 'white',
-                    borderRadius: '50%',
-                    position: 'absolute',
-                    top: '4px',
-                    left: formData.auto_reminders_enabled ? '28px' : '4px',
-                    transition: 'all 0.3s ease',
-                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
-                  }} />
-                </label>
+          {/* Start Date - Full width */}
+          <div>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4a5568', marginBottom: '6px', textTransform: 'uppercase' }}>
+              Start Date *
+            </label>
+            <div style={{ position: 'relative', maxWidth: '300px' }}>
+              <input
+                type="date"
+                value={formData.start_date}
+                onChange={(e) => handleInputChange('start_date', e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '12px 12px 12px 36px',
+                  border: `2px solid ${errors.start_date ? '#ef4444' : '#e2e8f0'}`,
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  background: '#f7fafc',
+                  transition: 'all 0.2s ease'
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = '#00BCD4';
+                  e.target.style.background = 'white';
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = errors.start_date ? '#ef4444' : '#e2e8f0';
+                  e.target.style.background = '#f7fafc';
+                }}
+              />
+              <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '16px', color: '#718096' }}>
+                📅
               </div>
             </div>
+            {errors.start_date && <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#ef4444' }}>{errors.start_date}</p>}
           </div>
 
-          {/* Action Buttons - Using app's button styles */}
-          <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+          {/* Auto Reminders Toggle */}
+          <div style={{
+            background: '#f7fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: '8px',
+            padding: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}>
+            <div>
+              <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#2d3748', marginBottom: '4px' }}>
+                🔔 Auto Reminders
+              </div>
+              <div style={{ fontSize: '12px', color: '#718096' }}>
+                Send payment reminders automatically
+              </div>
+            </div>
+            <label style={{
+              position: 'relative',
+              width: '48px',
+              height: '24px',
+              background: formData.auto_reminders_enabled ? '#10b981' : '#e2e8f0',
+              borderRadius: '12px',
+              cursor: 'pointer',
+              transition: 'background 0.3s ease'
+            }}>
+              <input
+                type="checkbox"
+                checked={formData.auto_reminders_enabled}
+                onChange={(e) => handleInputChange('auto_reminders_enabled', e.target.checked)}
+                style={{ display: 'none' }}
+              />
+              <div style={{
+                width: '20px',
+                height: '20px',
+                background: 'white',
+                borderRadius: '50%',
+                position: 'absolute',
+                top: '2px',
+                left: formData.auto_reminders_enabled ? '26px' : '2px',
+                transition: 'left 0.3s ease',
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
+              }} />
+            </label>
+          </div>
+        </div>
+
+        {/* Fixed Bottom Buttons */}
+        <div style={{ 
+          padding: '20px 24px', 
+          borderTop: '1px solid #e2e8f0',
+          background: 'white',
+          borderBottomLeftRadius: '16px',
+          borderBottomRightRadius: '16px',
+          flexShrink: 0
+        }}>
+          <div style={{ display: 'flex', gap: '12px' }}>
             <button
               onClick={handleSave}
               disabled={loading}
               style={{
                 flex: 1,
-                background: loading ? '#cbd5e0' : 'linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%)',
+                background: loading ? '#cbd5e0' : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                 color: 'white',
                 border: 'none',
-                padding: '16px',
-                borderRadius: '12px',
-                fontSize: '16px',
-                fontWeight: '600',
+                padding: '14px 20px',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: 'bold',
                 cursor: loading ? 'not-allowed' : 'pointer',
-                transition: 'all 0.3s ease',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-                boxShadow: loading ? 'none' : '0 4px 12px rgba(86, 171, 47, 0.3)'
-              }}
-              onMouseOver={(e) => {
-                if (!loading) e.target.style.transform = 'translateY(-1px)';
-              }}
-              onMouseOut={(e) => {
-                if (!loading) e.target.style.transform = 'translateY(0)';
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
               }}
             >
               {loading ? '🔄 Saving...' : '💾 Save Changes'}
@@ -2354,14 +2530,19 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
             <button
               onClick={handleClose}
               disabled={loading}
-              className="confirmation-btn cancel"
               style={{
-                padding: '16px 24px',
-                fontSize: '16px',
-                borderRadius: '12px',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px'
+                background: '#f7fafc',
+                border: '1px solid #e2e8f0',
+                color: '#4a5568',
+                padding: '14px 20px',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
               }}
+              onMouseOver={(e) => e.target.style.background = '#edf2f7'}
+              onMouseOut={(e) => e.target.style.background = '#f7fafc'}
             >
               Cancel
             </button>
