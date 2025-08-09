@@ -1,9 +1,9 @@
-const CACHE_NAME = 'alphalete-mobile-pwa-v16.0.0';
-const STATIC_CACHE = 'alphalete-static-v16.0.0';
-const API_CACHE = 'alphalete-api-v16.0.0';
+const CACHE_NAME = 'alphalete-mobile-pwa-v17.0.0';
+const STATIC_CACHE = 'alphalete-static-v17.0.0';
+const API_CACHE = 'alphalete-api-v17.0.0';
 
-// Mobile-First PWA Service Worker - Critical Cache Issue Fix
-console.log('📱 CRITICAL SERVICE WORKER FIX v16.0.0 - Resolving Cache Discrepancy Issues');
+// Mobile-First PWA Service Worker - API Debug Mode
+console.log('📱 SERVICE WORKER DEBUG v17.0.0 - Temporarily disabling API interference for troubleshooting');
 
 // Core mobile-first resources for immediate caching
 const CORE_MOBILE_RESOURCES = [
