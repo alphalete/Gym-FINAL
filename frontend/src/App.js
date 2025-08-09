@@ -533,6 +533,14 @@ const formatDateForDisplay = (dateString, includeTime = false) => {
 // GoGym4U Layout Wrapper Component
 // Backend URL helper function with fallback logic
 const getBackendUrl = () => {
+  // TEMPORARY DEBUG: Force the correct backend URL to test the hypothesis
+  const correctBackendUrl = 'https://663f7c71-f625-4db7-a98a-232b99791af0.preview.emergentagent.com';
+  
+  console.log('🚨 DEBUG: Forcing backend URL to:', correctBackendUrl);
+  return correctBackendUrl;
+  
+  // Original logic (commented out for debugging)
+  /*
   // Try multiple ways to get the environment variable
   let envUrl = null;
   
@@ -567,6 +575,7 @@ const getBackendUrl = () => {
   // Fallback to current origin for production builds without env vars
   console.log('⚠️ Using fallback URL:', window.location.origin);
   return window.location.origin;
+  */
 };
 
 const GoGymLayout = ({ children, currentPage, onNavigate }) => {
