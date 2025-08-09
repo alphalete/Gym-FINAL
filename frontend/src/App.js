@@ -2063,31 +2063,124 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
       alignItems: 'center',
       justifyContent: 'center',
       zIndex: 1000,
-      padding: '20px'
+      padding: '10px'
     }}>
       <div style={{
         backgroundColor: 'white',
         borderRadius: '12px',
         width: '100%',
         maxWidth: '600px',
-        height: '80vh',
-        maxHeight: '700px',
+        height: '70vh',
+        maxHeight: '600px',
+        minHeight: '500px',
         display: 'flex',
         flexDirection: 'column',
         boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
         overflow: 'hidden'
       }}>
-        {/* Modal Header - Fixed at Top */}
+        {/* Modal Header - Fixed Height */}
         <div style={{
           backgroundColor: '#1f2937',
           color: 'white',
-          padding: '20px',
+          padding: '16px 20px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          flexShrink: 0
+          flexShrink: 0,
+          height: '70px'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              backgroundColor: '#3b82f6',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontSize: '14px',
+              fontWeight: 'bold'
+            }}>
+              {getInitials(formData.name || 'NN')}
+            </div>
+            <div>
+              <h2 style={{
+                margin: 0,
+                fontSize: '18px',
+                fontWeight: 'bold',
+                color: 'white'
+              }}>
+                Edit Member
+              </h2>
+              <p style={{
+                margin: '2px 0 0 0',
+                fontSize: '12px',
+                color: '#d1d5db'
+              }}>
+                Update information
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={handleClose}
+            style={{
+              backgroundColor: '#374151',
+              border: 'none',
+              color: 'white',
+              width: '28px',
+              height: '28px',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#4b5563'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#374151'}
+          >
+            ×
+          </button>
+        </div>
+
+        {/* Modal Content - Calculated Height */}
+        <div style={{
+          flex: 1,
+          overflow: 'auto',
+          padding: '16px',
+          backgroundColor: '#f9fafb',
+          minHeight: 0 // Important for flex child with overflow
+        }}>
+          {/* Error Display */}
+          {errors.submit && (
+            <div style={{
+              backgroundColor: '#fef2f2',
+              border: '2px solid #fecaca',
+              color: '#991b1b',
+              padding: '10px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              marginBottom: '12px'
+            }}>
+              ❌ {errors.submit}
+            </div>
+          )}
+
+          {/* Member Preview - Compact */}
+          <div style={{
+            backgroundColor: '#1f2937',
+            borderRadius: '8px',
+            padding: '12px',
+            color: 'white',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            marginBottom: '16px'
+          }}>
             <div style={{
               width: '40px',
               height: '40px',
@@ -2102,108 +2195,18 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
             }}>
               {getInitials(formData.name || 'NN')}
             </div>
-            <div>
-              <h2 style={{
-                margin: 0,
-                fontSize: '20px',
-                fontWeight: 'bold',
-                color: 'white'
-              }}>
-                Edit Member
-              </h2>
-              <p style={{
-                margin: '2px 0 0 0',
-                fontSize: '14px',
-                color: '#d1d5db'
-              }}>
-                Update member information
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={handleClose}
-            style={{
-              backgroundColor: '#374151',
-              border: 'none',
-              color: 'white',
-              width: '32px',
-              height: '32px',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontSize: '18px',
-              fontWeight: 'bold',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => e.target.style.backgroundColor = '#4b5563'}
-            onMouseLeave={(e) => e.target.style.backgroundColor = '#374151'}
-          >
-            ×
-          </button>
-        </div>
-
-        {/* Modal Content - Scrollable Middle Section */}
-        <div style={{
-          flex: 1,
-          overflow: 'auto',
-          padding: '20px',
-          backgroundColor: '#f9fafb'
-        }}>
-          {/* Error Display */}
-          {errors.submit && (
-            <div style={{
-              backgroundColor: '#fef2f2',
-              border: '2px solid #fecaca',
-              color: '#991b1b',
-              padding: '12px',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: 'bold',
-              marginBottom: '16px'
-            }}>
-              ❌ {errors.submit}
-            </div>
-          )}
-
-          {/* Member Preview */}
-          <div style={{
-            backgroundColor: '#1f2937',
-            borderRadius: '8px',
-            padding: '16px',
-            color: 'white',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            marginBottom: '20px'
-          }}>
-            <div style={{
-              width: '48px',
-              height: '48px',
-              borderRadius: '50%',
-              backgroundColor: '#3b82f6',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              fontSize: '18px',
-              fontWeight: 'bold'
-            }}>
-              {getInitials(formData.name || 'NN')}
-            </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: '18px', fontWeight: 'bold', color: 'white' }}>
+              <div style={{ fontSize: '16px', fontWeight: 'bold', color: 'white' }}>
                 {formData.name || 'Not set'}
               </div>
-              <div style={{ fontSize: '14px', color: '#d1d5db' }}>
+              <div style={{ fontSize: '12px', color: '#d1d5db' }}>
                 {formData.membership_type} • TTD {formData.monthly_fee}/month
               </div>
             </div>
             <div style={{
-              padding: '6px 12px',
-              borderRadius: '6px',
-              fontSize: '12px',
+              padding: '4px 8px',
+              borderRadius: '4px',
+              fontSize: '10px',
               fontWeight: 'bold',
               backgroundColor: formData.status === 'Active' ? '#10b981' : '#ef4444',
               color: 'white'
@@ -2212,26 +2215,26 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
             </div>
           </div>
 
-          {/* Form Fields Grid */}
+          {/* Form Fields - Compact Grid */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-            gap: '16px',
-            marginBottom: '20px'
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '12px',
+            marginBottom: '16px'
           }}>
             {/* Name */}
             <div style={{
               backgroundColor: 'white',
               border: '1px solid #d1d5db',
-              borderRadius: '8px',
-              padding: '16px'
+              borderRadius: '6px',
+              padding: '12px'
             }}>
               <label style={{
                 display: 'block',
-                fontSize: '14px',
+                fontSize: '12px',
                 fontWeight: 'bold',
                 color: '#111827',
-                marginBottom: '6px'
+                marginBottom: '4px'
               }}>
                 Name *
               </label>
@@ -2241,10 +2244,10 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
                 onChange={(e) => handleInputChange('name', e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '10px 12px',
+                  padding: '8px 10px',
                   border: `2px solid ${errors.name ? '#ef4444' : '#d1d5db'}`,
-                  borderRadius: '6px',
-                  fontSize: '16px',
+                  borderRadius: '4px',
+                  fontSize: '14px',
                   backgroundColor: 'white',
                   color: '#111827',
                   outline: 'none',
@@ -2255,7 +2258,7 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
                 onBlur={(e) => e.target.style.borderColor = errors.name ? '#ef4444' : '#d1d5db'}
               />
               {errors.name && (
-                <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#ef4444', fontWeight: 'bold' }}>
+                <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#ef4444', fontWeight: 'bold' }}>
                   {errors.name}
                 </p>
               )}
@@ -2265,15 +2268,15 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
             <div style={{
               backgroundColor: 'white',
               border: '1px solid #d1d5db',
-              borderRadius: '8px',
-              padding: '16px'
+              borderRadius: '6px',
+              padding: '12px'
             }}>
               <label style={{
                 display: 'block',
-                fontSize: '14px',
+                fontSize: '12px',
                 fontWeight: 'bold',
                 color: '#111827',
-                marginBottom: '6px'
+                marginBottom: '4px'
               }}>
                 Email *
               </label>
@@ -2283,10 +2286,10 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
                 onChange={(e) => handleInputChange('email', e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '10px 12px',
+                  padding: '8px 10px',
                   border: `2px solid ${errors.email ? '#ef4444' : '#d1d5db'}`,
-                  borderRadius: '6px',
-                  fontSize: '16px',
+                  borderRadius: '4px',
+                  fontSize: '14px',
                   backgroundColor: 'white',
                   color: '#111827',
                   outline: 'none',
@@ -2297,7 +2300,7 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
                 onBlur={(e) => e.target.style.borderColor = errors.email ? '#ef4444' : '#d1d5db'}
               />
               {errors.email && (
-                <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#ef4444', fontWeight: 'bold' }}>
+                <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#ef4444', fontWeight: 'bold' }}>
                   {errors.email}
                 </p>
               )}
@@ -2307,15 +2310,15 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
             <div style={{
               backgroundColor: 'white',
               border: '1px solid #d1d5db',
-              borderRadius: '8px',
-              padding: '16px'
+              borderRadius: '6px',
+              padding: '12px'
             }}>
               <label style={{
                 display: 'block',
-                fontSize: '14px',
+                fontSize: '12px',
                 fontWeight: 'bold',
                 color: '#111827',
-                marginBottom: '6px'
+                marginBottom: '4px'
               }}>
                 Phone
               </label>
@@ -2325,10 +2328,10 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
                 onChange={(e) => handleInputChange('phone', e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '10px 12px',
+                  padding: '8px 10px',
                   border: `2px solid ${errors.phone ? '#ef4444' : '#d1d5db'}`,
-                  borderRadius: '6px',
-                  fontSize: '16px',
+                  borderRadius: '4px',
+                  fontSize: '14px',
                   backgroundColor: 'white',
                   color: '#111827',
                   outline: 'none',
@@ -2339,7 +2342,7 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
                 onBlur={(e) => e.target.style.borderColor = errors.phone ? '#ef4444' : '#d1d5db'}
               />
               {errors.phone && (
-                <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#ef4444', fontWeight: 'bold' }}>
+                <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#ef4444', fontWeight: 'bold' }}>
                   {errors.phone}
                 </p>
               )}
@@ -2349,15 +2352,15 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
             <div style={{
               backgroundColor: 'white',
               border: '1px solid #d1d5db',
-              borderRadius: '8px',
-              padding: '16px'
+              borderRadius: '6px',
+              padding: '12px'
             }}>
               <label style={{
                 display: 'block',
-                fontSize: '14px',
+                fontSize: '12px',
                 fontWeight: 'bold',
                 color: '#111827',
-                marginBottom: '6px'
+                marginBottom: '4px'
               }}>
                 Status
               </label>
@@ -2366,10 +2369,10 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
                 onChange={(e) => handleInputChange('status', e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '10px 12px',
+                  padding: '8px 10px',
                   border: '2px solid #d1d5db',
-                  borderRadius: '6px',
-                  fontSize: '16px',
+                  borderRadius: '4px',
+                  fontSize: '14px',
                   backgroundColor: 'white',
                   color: '#111827',
                   outline: 'none',
@@ -2386,15 +2389,15 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
             <div style={{
               backgroundColor: 'white',
               border: '1px solid #d1d5db',
-              borderRadius: '8px',
-              padding: '16px'
+              borderRadius: '6px',
+              padding: '12px'
             }}>
               <label style={{
                 display: 'block',
-                fontSize: '14px',
+                fontSize: '12px',
                 fontWeight: 'bold',
                 color: '#111827',
-                marginBottom: '6px'
+                marginBottom: '4px'
               }}>
                 Membership
               </label>
@@ -2403,10 +2406,10 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
                 onChange={(e) => handleMembershipTypeChange(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '10px 12px',
+                  padding: '8px 10px',
                   border: '2px solid #d1d5db',
-                  borderRadius: '6px',
-                  fontSize: '16px',
+                  borderRadius: '4px',
+                  fontSize: '14px',
                   backgroundColor: 'white',
                   color: '#111827',
                   outline: 'none',
@@ -2426,15 +2429,15 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
             <div style={{
               backgroundColor: 'white',
               border: '1px solid #d1d5db',
-              borderRadius: '8px',
-              padding: '16px'
+              borderRadius: '6px',
+              padding: '12px'
             }}>
               <label style={{
                 display: 'block',
-                fontSize: '14px',
+                fontSize: '12px',
                 fontWeight: 'bold',
                 color: '#111827',
-                marginBottom: '6px'
+                marginBottom: '4px'
               }}>
                 Monthly Fee (TTD) *
               </label>
@@ -2446,10 +2449,10 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
                 onChange={(e) => handleInputChange('monthly_fee', parseFloat(e.target.value) || 0)}
                 style={{
                   width: '100%',
-                  padding: '10px 12px',
+                  padding: '8px 10px',
                   border: `2px solid ${errors.monthly_fee ? '#ef4444' : '#d1d5db'}`,
-                  borderRadius: '6px',
-                  fontSize: '16px',
+                  borderRadius: '4px',
+                  fontSize: '14px',
                   backgroundColor: 'white',
                   color: '#111827',
                   outline: 'none',
@@ -2460,123 +2463,130 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
                 onBlur={(e) => e.target.style.borderColor = errors.monthly_fee ? '#ef4444' : '#d1d5db'}
               />
               {errors.monthly_fee && (
-                <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#ef4444', fontWeight: 'bold' }}>
+                <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#ef4444', fontWeight: 'bold' }}>
                   {errors.monthly_fee}
                 </p>
               )}
             </div>
           </div>
 
-          {/* Start Date */}
+          {/* Additional Fields Row */}
           <div style={{
-            backgroundColor: 'white',
-            border: '1px solid #d1d5db',
-            borderRadius: '8px',
-            padding: '16px',
-            maxWidth: '300px',
-            marginBottom: '20px'
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '12px',
+            marginBottom: '16px'
           }}>
-            <label style={{
-              display: 'block',
-              fontSize: '14px',
-              fontWeight: 'bold',
-              color: '#111827',
-              marginBottom: '6px'
+            {/* Start Date */}
+            <div style={{
+              backgroundColor: 'white',
+              border: '1px solid #d1d5db',
+              borderRadius: '6px',
+              padding: '12px'
             }}>
-              Start Date *
-            </label>
-            <input
-              type="date"
-              value={formData.start_date}
-              onChange={(e) => handleInputChange('start_date', e.target.value)}
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                border: `2px solid ${errors.start_date ? '#ef4444' : '#d1d5db'}`,
-                borderRadius: '6px',
-                fontSize: '16px',
-                backgroundColor: 'white',
-                color: '#111827',
-                outline: 'none',
-                fontWeight: '500'
-              }}
-              onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-              onBlur={(e) => e.target.style.borderColor = errors.start_date ? '#ef4444' : '#d1d5db'}
-            />
-            {errors.start_date && (
-              <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#ef4444', fontWeight: 'bold' }}>
-                {errors.start_date}
-              </p>
-            )}
-          </div>
-
-          {/* Auto Reminders */}
-          <div style={{
-            backgroundColor: 'white',
-            border: '1px solid #d1d5db',
-            borderRadius: '8px',
-            padding: '16px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: '20px'
-          }}>
-            <div>
-              <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#111827', marginBottom: '4px' }}>
-                Auto Reminders
-              </div>
-              <div style={{ fontSize: '12px', color: '#6b7280' }}>
-                Send payment reminders automatically
-              </div>
-            </div>
-            <label style={{
-              position: 'relative',
-              width: '48px',
-              height: '28px',
-              backgroundColor: formData.auto_reminders_enabled ? '#10b981' : '#d1d5db',
-              borderRadius: '14px',
-              cursor: 'pointer',
-              transition: 'background-color 0.3s ease',
-              display: 'block'
-            }}>
-              <input
-                type="checkbox"
-                checked={formData.auto_reminders_enabled}
-                onChange={(e) => handleInputChange('auto_reminders_enabled', e.target.checked)}
-                style={{ display: 'none' }}
-              />
-              <div style={{
-                width: '24px',
-                height: '24px',
-                backgroundColor: 'white',
-                borderRadius: '50%',
-                position: 'absolute',
-                top: '2px',
-                left: formData.auto_reminders_enabled ? '22px' : '2px',
-                transition: 'left 0.3s ease',
-                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+              <label style={{
+                display: 'block',
                 fontSize: '12px',
                 fontWeight: 'bold',
-                color: formData.auto_reminders_enabled ? '#10b981' : '#6b7280'
+                color: '#111827',
+                marginBottom: '4px'
               }}>
-                {formData.auto_reminders_enabled ? '✓' : '○'}
+                Start Date *
+              </label>
+              <input
+                type="date"
+                value={formData.start_date}
+                onChange={(e) => handleInputChange('start_date', e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '8px 10px',
+                  border: `2px solid ${errors.start_date ? '#ef4444' : '#d1d5db'}`,
+                  borderRadius: '4px',
+                  fontSize: '14px',
+                  backgroundColor: 'white',
+                  color: '#111827',
+                  outline: 'none',
+                  fontWeight: '500'
+                }}
+                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                onBlur={(e) => e.target.style.borderColor = errors.start_date ? '#ef4444' : '#d1d5db'}
+              />
+              {errors.start_date && (
+                <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#ef4444', fontWeight: 'bold' }}>
+                  {errors.start_date}
+                </p>
+              )}
+            </div>
+
+            {/* Auto Reminders */}
+            <div style={{
+              backgroundColor: 'white',
+              border: '1px solid #d1d5db',
+              borderRadius: '6px',
+              padding: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            }}>
+              <div>
+                <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#111827', marginBottom: '2px' }}>
+                  Auto Reminders
+                </div>
+                <div style={{ fontSize: '10px', color: '#6b7280' }}>
+                  Send automatically
+                </div>
               </div>
-            </label>
+              <label style={{
+                position: 'relative',
+                width: '40px',
+                height: '22px',
+                backgroundColor: formData.auto_reminders_enabled ? '#10b981' : '#d1d5db',
+                borderRadius: '11px',
+                cursor: 'pointer',
+                transition: 'background-color 0.3s ease',
+                display: 'block'
+              }}>
+                <input
+                  type="checkbox"
+                  checked={formData.auto_reminders_enabled}
+                  onChange={(e) => handleInputChange('auto_reminders_enabled', e.target.checked)}
+                  style={{ display: 'none' }}
+                />
+                <div style={{
+                  width: '18px',
+                  height: '18px',
+                  backgroundColor: 'white',
+                  borderRadius: '50%',
+                  position: 'absolute',
+                  top: '2px',
+                  left: formData.auto_reminders_enabled ? '20px' : '2px',
+                  transition: 'left 0.3s ease',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '10px',
+                  fontWeight: 'bold',
+                  color: formData.auto_reminders_enabled ? '#10b981' : '#6b7280'
+                }}>
+                  {formData.auto_reminders_enabled ? '✓' : '○'}
+                </div>
+              </label>
+            </div>
           </div>
         </div>
 
-        {/* Modal Footer - Fixed at Bottom, Always Visible */}
+        {/* Modal Footer - Fixed Height, Always Visible */}
         <div style={{
           backgroundColor: '#f8fafc',
           borderTop: '2px solid #e5e7eb',
-          padding: '16px 20px',
+          padding: '12px 16px',
           display: 'flex',
-          gap: '12px',
+          gap: '10px',
           justifyContent: 'flex-end',
           flexShrink: 0,
+          height: '60px',
+          alignItems: 'center',
           borderBottomLeftRadius: '12px',
           borderBottomRightRadius: '12px'
         }}>
@@ -2584,16 +2594,17 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
             onClick={handleClose}
             disabled={loading}
             style={{
-              padding: '14px 24px',
+              padding: '10px 20px',
               border: '2px solid #374151',
               backgroundColor: 'white',
               color: '#374151',
-              borderRadius: '8px',
-              fontSize: '16px',
+              borderRadius: '6px',
+              fontSize: '14px',
               fontWeight: 'bold',
               cursor: loading ? 'not-allowed' : 'pointer',
               transition: 'all 0.2s ease',
-              minWidth: '100px'
+              minWidth: '80px',
+              height: '36px'
             }}
             onMouseEnter={(e) => !loading && (
               e.target.style.backgroundColor = '#f3f4f6',
@@ -2610,25 +2621,26 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
             onClick={handleSave}
             disabled={loading}
             style={{
-              padding: '14px 24px',
+              padding: '10px 20px',
               border: 'none',
               backgroundColor: loading ? '#9ca3af' : '#3b82f6',
               color: 'white',
-              borderRadius: '8px',
-              fontSize: '16px',
+              borderRadius: '6px',
+              fontSize: '14px',
               fontWeight: 'bold',
               cursor: loading ? 'not-allowed' : 'pointer',
               transition: 'all 0.2s ease',
-              minWidth: '140px',
-              boxShadow: loading ? 'none' : '0 4px 8px rgba(59, 130, 246, 0.3)'
+              minWidth: '110px',
+              height: '36px',
+              boxShadow: loading ? 'none' : '0 2px 4px rgba(59, 130, 246, 0.3)'
             }}
             onMouseEnter={(e) => !loading && (
               e.target.style.backgroundColor = '#2563eb',
-              e.target.style.boxShadow = '0 6px 12px rgba(59, 130, 246, 0.4)'
+              e.target.style.boxShadow = '0 4px 8px rgba(59, 130, 246, 0.4)'
             )}
             onMouseLeave={(e) => !loading && (
               e.target.style.backgroundColor = '#3b82f6',
-              e.target.style.boxShadow = '0 4px 8px rgba(59, 130, 246, 0.3)'
+              e.target.style.boxShadow = '0 2px 4px rgba(59, 130, 246, 0.3)'
             )}
           >
             {loading ? 'Saving...' : 'Save Changes'}
