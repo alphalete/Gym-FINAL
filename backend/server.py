@@ -442,48 +442,66 @@ async def seed_default_membership_types():
 @api_router.post("/clients", response_model=Client)
 async def create_client(client_data: ClientCreate):
     """Create a new client and their initial billing cycle"""
-    client_dict = client_data.dict()
-    
-    # Handle next payment date logic - always calculate one month ahead for consistency
-    # This ensures proper monthly billing cycles regardless of payment status
-    next_payment_date = calculate_next_payment_date(client_data.start_date)
-    client_dict['next_payment_date'] = next_payment_date
-    
-    # Handle amount owed based on payment status
-    payment_status = client_dict.get('payment_status', 'due')  # Default to 'due' if not provided
-    if payment_status == 'paid':
-        # Client paid on joining, no amount owed
-        client_dict['amount_owed'] = 0.0
-    else:
-        # Client hasn't paid yet, they owe the monthly fee
-        # Check if amount_owed is None specifically (not just missing from dict)
-        if client_dict.get('amount_owed') is None:
-            client_dict['amount_owed'] = client_dict['monthly_fee']
-    
-    client_obj = Client(**client_dict)
-    
-    # Check if client with this email already exists
-    existing_client = await db.clients.find_one({"email": client_obj.email})
-    if existing_client:
-        raise HTTPException(status_code=400, detail="Client with this email already exists")
-    
-    # Convert dates to strings for MongoDB storage
-    client_dict_for_db = client_obj.dict()
-    client_dict_for_db['start_date'] = client_obj.start_date.isoformat()
-    client_dict_for_db['next_payment_date'] = client_obj.next_payment_date.isoformat()
-    
-    # Insert client first
-    await db.clients.insert_one(client_dict_for_db)
-    
-    # Create initial billing cycle for this member
     try:
-        await create_billing_cycle_for_member(client_obj.id, client_dict_for_db)
-        logger.info(f"Created initial billing cycle for member {client_obj.name}")
-    except Exception as e:
-        logger.error(f"Error creating billing cycle for member {client_obj.name}: {str(e)}")
-        # Continue even if billing cycle creation fails to maintain backward compatibility
-    
-    return client_obj
+        client_dict = client_data.dict()
+        
+        # Handle next payment date logic - always calculate one month ahead for consistency
+        # This ensures proper monthly billing cycles regardless of payment status
+        next_payment_date = calculate_next_payment_date(client_data.start_date)
+        client_dict['next_payment_date'] = next_payment_date
+        
+        # Handle amount owed based on payment status
+        payment_status = client_dict.get('payment_status', 'due')  # Default to 'due' if not provided
+        if payment_status == 'paid':
+            # Client paid on joining, no amount owed
+            client_dict['amount_owed'] = 0.0
+        else:
+            # Client hasn't paid yet, they owe the monthly fee
+            # Check if amount_owed is None specifically (not just missing from dict)
+            if client_dict.get('amount_owed') is None:
+                client_dict['amount_owed'] = client_dict['monthly_fee']
+        
+        client_obj = Client(**client_dict)
+        
+        # Check if client with this email already exists
+        try:
+            existing_client = await db.clients.find_one({"email": client_obj.email})
+        except Exception as db_error:
+            logger.error(f"Database connection error during email check: {str(db_error)}")
+            raise HTTPException(status_code=500, detail="Database connection error. Please try again.")
+            
+        if existing_client:
+            raise HTTPException(status_code=400, detail="Client with this email already exists")
+        
+        # Convert dates to strings for MongoDB storage
+        client_dict_for_db = client_obj.dict()
+        client_dict_for_db['start_date'] = client_obj.start_date.isoformat()
+        client_dict_for_db['next_payment_date'] = client_obj.next_payment_date.isoformat()
+        
+        # Insert client first with retry mechanism
+        try:
+            await db.clients.insert_one(client_dict_for_db)
+            logger.info(f"Successfully created client: {client_obj.name}")
+        except Exception as insert_error:
+            logger.error(f"Failed to insert client {client_obj.name}: {str(insert_error)}")
+            raise HTTPException(status_code=500, detail="Failed to create client. Database error.")
+        
+        # Create initial billing cycle for this member
+        try:
+            await create_billing_cycle_for_member(client_obj.id, client_dict_for_db)
+            logger.info(f"Created initial billing cycle for member {client_obj.name}")
+        except Exception as e:
+            logger.error(f"Error creating billing cycle for member {client_obj.name}: {str(e)}")
+            # Continue even if billing cycle creation fails to maintain backward compatibility
+        
+        return client_obj
+        
+    except HTTPException:
+        # Re-raise HTTP exceptions (400, 500, etc.)
+        raise
+    except Exception as unexpected_error:
+        logger.error(f"Unexpected error in create_client: {str(unexpected_error)}")
+        raise HTTPException(status_code=500, detail="Internal server error. Please try again.")
 
 @api_router.get("/clients", response_model=List[Client])
 async def get_clients(response: Response):
