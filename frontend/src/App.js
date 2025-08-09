@@ -1780,7 +1780,7 @@ const BillingCycleDetailModal = ({ client, isOpen, onClose }) => {
 };
 
 // Member Edit Modal Component - Rebuilt with Correct Logic
-const EditClientModal = ({ client, isOpen, onClose, onSave }) => {
+const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
   const [formData, setFormData] = useState({
     id: '',
     name: '',
