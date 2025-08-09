@@ -7,7 +7,7 @@ from datetime import datetime, date, timedelta
 from typing import Dict, Any
 
 class ClientCreationTester:
-    def __init__(self, base_url="https://8946e9ec-df2e-459a-b703-5486fcda63fa.preview.emergentagent.com"):
+    def __init__(self, base_url="https://663f7c71-f625-4db7-a98a-232b99791af0.preview.emergentagent.com"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
         self.tests_run = 0
