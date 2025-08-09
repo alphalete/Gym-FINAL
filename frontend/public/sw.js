@@ -171,88 +171,35 @@ self.addEventListener('fetch', event => {
     return;
   }
   
-  // API requests - Network First with Minimal Caching (FIX FOR USER ISSUES)
+  // API requests - Network First with Minimal Caching (TEMPORARY DEBUG MODE)
   if (pathname.startsWith('/api/')) {
+    console.log('🚨 SW DEBUG: API request detected:', pathname);
+    
+    // TEMPORARY: Let API requests pass through without interference
     event.respondWith(
-      // ALWAYS fetch fresh data - no aggressive caching that causes user confusion
-      fetch(event.request.url + (event.request.url.includes('?') ? '&' : '?') + `_t=${Date.now()}`, {
-        method: event.request.method,
-        headers: {
-          ...Object.fromEntries(event.request.headers.entries()),
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0',
-          'X-Mobile-Request': 'true'
-        },
-        body: event.request.body,
-        mode: event.request.mode,
-        credentials: event.request.credentials
-      }).then(response => {
-        // Only cache critical GET requests for offline fallback (not for performance)
-        if (response.ok && event.request.method === 'GET' && response.status === 200) {
-          // Only cache essential endpoints, not all API calls
-          const essentialEndpoints = ['/api/clients', '/api/payments/stats'];
-          const isEssential = essentialEndpoints.some(endpoint => pathname.includes(endpoint));
-          
-          if (isEssential) {
-            caches.open(API_CACHE).then(cache => {
-              // Store with short TTL for offline fallback only
-              const cacheKey = event.request.url + '?offline_fallback=' + Date.now();
-              cache.put(cacheKey, response.clone());
-              
-              // Aggressive cleanup - keep only latest entry per endpoint
-              cache.keys().then(keys => {
-                const endpointKeys = keys.filter(req => req.url.includes(pathname));
-                if (endpointKeys.length > 1) {
-                  // Delete all but the most recent
-                  endpointKeys.slice(0, -1).forEach(key => cache.delete(key));
-                }
-              });
-            });
-          }
-        }
-        
+      fetch(event.request).then(response => {
+        console.log('✅ SW DEBUG: API request successful:', response.status, pathname);
         return response;
-      }).catch(() => {
-        // Offline fallback - return cached data only as last resort
-        return caches.open(API_CACHE).then(cache => {
-          return cache.keys().then(keys => {
-            const matchingKeys = keys.filter(req => req.url.includes(pathname));
-            if (matchingKeys.length > 0) {
-              // Return most recent cached response with offline indicator
-              const latestKey = matchingKeys.sort((a, b) => {
-                const aTime = new URL(a.url).searchParams.get('offline_fallback') || '0';
-                const bTime = new URL(b.url).searchParams.get('offline_fallback') || '0';
-                return parseInt(bTime) - parseInt(aTime);
-              })[0];
-              
-              return cache.match(latestKey).then(cachedResponse => {
-                if (cachedResponse) {
-                  console.warn('📱 SW: Serving cached data due to network failure for:', pathname);
-                  return cachedResponse;
-                }
-              });
+      }).catch(error => {
+        console.error('❌ SW DEBUG: API request failed:', error, pathname);
+        
+        // Return a proper error response instead of masking the real error
+        return new Response(
+          JSON.stringify({ 
+            offline: false,
+            error: 'API request failed',
+            message: `Failed to fetch ${pathname}: ${error.message}`,
+            timestamp: Date.now(),
+            debug: true
+          }),
+          { 
+            status: 503,
+            headers: { 
+              'Content-Type': 'application/json',
+              'X-Debug-SW': 'true'
             }
-            
-            // No cached data available - return proper offline response
-            return new Response(
-              JSON.stringify({ 
-                offline: true,
-                error: 'Network unavailable',
-                message: 'Please check your internet connection',
-                timestamp: Date.now()
-              }),
-              { 
-                status: 503,
-                headers: { 
-                  'Content-Type': 'application/json',
-                  'X-Offline-Response': 'true',
-                  'Cache-Control': 'no-cache'
-                }
-              }
-            );
-          });
-        });
+          }
+        );
       })
     );
     return;
