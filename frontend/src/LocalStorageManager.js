@@ -52,6 +52,11 @@ class LocalStorageManager {
         if (!db.objectStoreNames.contains('syncQueue')) {
           db.createObjectStore('syncQueue', { keyPath: 'id', autoIncrement: true });
         }
+        
+        // Create settings store
+        if (!db.objectStoreNames.contains('settings')) {
+          db.createObjectStore('settings', { keyPath: 'id' });
+        }
       };
     });
   }
