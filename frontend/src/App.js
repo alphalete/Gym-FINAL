@@ -533,27 +533,14 @@ const formatDateForDisplay = (dateString, includeTime = false) => {
 // GoGym4U Layout Wrapper Component
 // Backend URL helper function with fallback logic
 const getBackendUrl = () => {
-  // First try to read from environment variables properly
-  const reactEnvUrl = process.env.REACT_APP_BACKEND_URL;
-  const viteEnvUrl = (typeof import !== 'undefined' && import.meta && import.meta.env) ? import.meta.env.REACT_APP_BACKEND_URL : null;
-  
-  console.log('🔍 DEBUG getBackendUrl - Environment checks:');
-  console.log('  process.env.REACT_APP_BACKEND_URL:', reactEnvUrl);
-  console.log('  import.meta.env.REACT_APP_BACKEND_URL:', viteEnvUrl);
-  
-  // Use environment variable if available
-  if (reactEnvUrl && reactEnvUrl.trim() !== '') {
-    console.log('✅ Using React environment URL:', reactEnvUrl);
-    return reactEnvUrl.trim();
+  // Try to get from process.env (standard React way)
+  if (process.env.REACT_APP_BACKEND_URL && process.env.REACT_APP_BACKEND_URL.trim()) {
+    console.log('✅ Using process.env backend URL:', process.env.REACT_APP_BACKEND_URL);
+    return process.env.REACT_APP_BACKEND_URL.trim();
   }
   
-  if (viteEnvUrl && viteEnvUrl.trim() !== '') {
-    console.log('✅ Using Vite environment URL:', viteEnvUrl);
-    return viteEnvUrl.trim();
-  }
-  
-  // For production environments where env vars might not be available at runtime,
-  // detect if we're on the production URL and use the correct backend URL
+  // For production environments where env vars are not available at runtime,
+  // detect production hostname and use correct backend URL
   if (window.location.hostname === 'alphalete-club.emergent.host') {
     const productionBackendUrl = 'https://663f7c71-f625-4db7-a98a-232b99791af0.preview.emergentagent.com';
     console.log('✅ Detected production environment, using backend URL:', productionBackendUrl);
