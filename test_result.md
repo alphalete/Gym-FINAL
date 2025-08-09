@@ -215,7 +215,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Test client creation functionality after implementing the critical bug fix for success validation. User still reports 'client successfully added but not showing any members' - need to verify backend is working correctly so frontend fix will resolve the issue."
+user_problem_statement: "User reports that the Edit Member modal has buttons at the bottom that are 'partially cut off'. Investigation required to definitively resolve this UI issue and test the modal to ensure buttons are fully visible."
 
 backend:
   - task: "Client Creation API Endpoint"
