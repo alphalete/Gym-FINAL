@@ -3404,9 +3404,7 @@ const ClientManagement = () => {
     fetchClients();
     
     // Show success notification
-    if (typeof showToast === 'function') {
-      showToast(`✅ ${updatedClient.name} updated successfully!`, 'success');
-    }
+    showToast(`✅ ${updatedClient.name} updated successfully!`, 'success');
   };
 
   const toggleClientStatus = async (client) => {
