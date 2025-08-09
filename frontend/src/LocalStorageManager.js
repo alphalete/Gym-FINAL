@@ -100,6 +100,8 @@ class LocalStorageManager {
 
   // Client management methods
   async getClients(forceRefresh = false) {
+    console.log("🚀 LocalStorageManager.getClients: Starting - forceRefresh:", forceRefresh, "isOnline:", this.isOnline);
+    
     try {
       // First try to fetch from backend if online
       if (this.isOnline) {
@@ -107,33 +109,44 @@ class LocalStorageManager {
           const backendUrl = this.getBackendUrl();
           console.log("🔍 LocalStorageManager: Fetching clients from backend...", backendUrl);
           
+          console.log("📡 LocalStorageManager: About to make fetch request...");
           const response = await fetch(`${backendUrl}/api/clients`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
           });
+          console.log("📨 LocalStorageManager: Fetch request completed, status:", response.status, "ok:", response.ok);
           
           if (response.ok) {
+            console.log("📄 LocalStorageManager: About to parse JSON...");
             const clients = await response.json();
             console.log("✅ LocalStorageManager: Fetched", clients.length, "clients from backend");
             
+            console.log("💾 LocalStorageManager: About to update local storage...");
             // Update local storage with fresh data
             await this.performDBOperation('clients', 'clear');
             for (const client of clients) {
               await this.performDBOperation('clients', 'put', client);
             }
+            console.log("💾 LocalStorageManager: Local storage updated successfully");
             
+            console.log("🎯 LocalStorageManager: Returning clients from backend:", clients.length);
             return clients;
           } else {
-            console.warn("⚠️ Backend fetch failed, falling back to local storage");
+            console.warn("⚠️ Backend fetch failed with status:", response.status, "falling back to local storage");
           }
         } catch (error) {
           console.warn("⚠️ Backend error, falling back to local storage:", error.message);
+          console.error("🔥 Full error details:", error);
         }
+      } else {
+        console.log("📱 LocalStorageManager: Offline mode, skipping backend fetch");
       }
       
       // Fallback to local storage
-      console.log("📱 LocalStorageManager: Using local storage data");
+      console.log("📱 LocalStorageManager: About to fetch from local storage...");
       const localClients = await this.performDBOperation('clients', 'getAll');
+      console.log("📱 LocalStorageManager: Got from local storage:", localClients ? localClients.length : 'null');
+      console.log("🎯 LocalStorageManager: Returning clients from local storage:", localClients ? localClients.length : 0);
       return localClients || [];
       
     } catch (error) {
