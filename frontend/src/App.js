@@ -4161,78 +4161,185 @@ const ClientManagement = () => {
       {/* Quick Payment Modal */}
       {quickPaymentModal.isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="ultra-contrast-modal rounded-lg p-6 w-full max-w-md">
-            <div className="ultra-contrast-modal-header mb-4">
-              <h3 className="text-lg font-bold">Record Payment</h3>
-              {quickPaymentModal.client && (
-                <p className="text-sm text-gray-600">{quickPaymentModal.client.name} - {quickPaymentModal.client.membership_type}</p>
-              )}
-            </div>
+          {/* Modal Container with Fixed Layout */}
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            width: '100%',
+            maxWidth: '500px',
+            height: '70vh',
+            maxHeight: '600px',
+            minHeight: '500px',
+            display: 'flex',
+            flexDirection: 'column',
+            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
+            overflow: 'hidden'
+          }}>
             
-            <div className="space-y-4">
+            {/* Fixed Header */}
+            <div style={{
+              backgroundColor: '#1f2937',
+              color: 'white',
+              padding: '16px 20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexShrink: 0,
+              height: '70px'
+            }}>
               <div>
-                <label className="block font-bold mb-1" style={{ color: '#000000' }}>Amount Paid (TTD)</label>
-                <input
-                  type="number"
-                  value={quickPaymentForm.amount_paid}
-                  onChange={(e) => setQuickPaymentForm(prev => ({ ...prev, amount_paid: e.target.value }))}
-                  className="ultra-contrast-input w-full p-2 rounded"
-                  placeholder="0.00"
-                  step="0.01"
-                  required
-                />
-              </div>
-              
-              <div>
-                <label className="block font-bold mb-1" style={{ color: '#000000' }}>Payment Date</label>
-                <input
-                  type="date"
-                  value={quickPaymentForm.payment_date}
-                  onChange={(e) => setQuickPaymentForm(prev => ({ ...prev, payment_date: e.target.value }))}
-                  className="ultra-contrast-input w-full p-2 rounded"
-                  required
-                />
-              </div>
-              
-              <div>
-                <label className="block font-bold mb-1" style={{ color: '#000000' }}>Payment Method</label>
-                <select
-                  value={quickPaymentForm.payment_method}
-                  onChange={(e) => setQuickPaymentForm(prev => ({ ...prev, payment_method: e.target.value }))}
-                  className="ultra-contrast-input w-full p-2 rounded"
-                >
-                  <option value="Cash">Cash</option>
-                  <option value="Card">Card</option>
-                  <option value="Bank Transfer">Bank Transfer</option>
-                  <option value="Check">Check</option>
-                  <option value="Online Payment">Online Payment</option>
-                </select>
-              </div>
-              
-              <div>
-                <label className="block font-bold mb-1" style={{ color: '#000000' }}>Notes (Optional)</label>
-                <input
-                  type="text"
-                  value={quickPaymentForm.notes}
-                  onChange={(e) => setQuickPaymentForm(prev => ({ ...prev, notes: e.target.value }))}
-                  className="ultra-contrast-input w-full p-2 rounded"
-                  placeholder="Any additional notes..."
-                />
+                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold' }}>Record Payment</h3>
+                {quickPaymentModal.client && (
+                  <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#d1d5db' }}>
+                    {quickPaymentModal.client.name} - {quickPaymentModal.client.membership_type}
+                  </p>
+                )}
               </div>
             </div>
             
-            <div className="flex justify-end space-x-3 mt-6">
+            {/* Scrollable Content */}
+            <div style={{
+              flex: 1,
+              overflow: 'auto',
+              padding: '16px',
+              backgroundColor: '#f9fafb',
+              minHeight: 0
+            }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#111827' }}>
+                    Amount Paid (TTD)
+                  </label>
+                  <input
+                    type="number"
+                    value={quickPaymentForm.amount_paid}
+                    onChange={(e) => setQuickPaymentForm(prev => ({ ...prev, amount_paid: e.target.value }))}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      border: '2px solid #d1d5db',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      backgroundColor: 'white'
+                    }}
+                    placeholder="0.00"
+                    step="0.01"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#111827' }}>
+                    Payment Date
+                  </label>
+                  <input
+                    type="date"
+                    value={quickPaymentForm.payment_date}
+                    onChange={(e) => setQuickPaymentForm(prev => ({ ...prev, payment_date: e.target.value }))}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      border: '2px solid #d1d5db',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      backgroundColor: 'white'
+                    }}
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#111827' }}>
+                    Payment Method
+                  </label>
+                  <select
+                    value={quickPaymentForm.payment_method}
+                    onChange={(e) => setQuickPaymentForm(prev => ({ ...prev, payment_method: e.target.value }))}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      border: '2px solid #d1d5db',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      backgroundColor: 'white'
+                    }}
+                  >
+                    <option value="Cash">Cash</option>
+                    <option value="Card">Card</option>
+                    <option value="Bank Transfer">Bank Transfer</option>
+                    <option value="Check">Check</option>
+                    <option value="Online Payment">Online Payment</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#111827' }}>
+                    Notes (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={quickPaymentForm.notes}
+                    onChange={(e) => setQuickPaymentForm(prev => ({ ...prev, notes: e.target.value }))}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      border: '2px solid #d1d5db',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      backgroundColor: 'white'
+                    }}
+                    placeholder="Any additional notes..."
+                  />
+                </div>
+              </div>
+            </div>
+            
+            {/* Fixed Footer */}
+            <div style={{
+              backgroundColor: '#f8fafc',
+              borderTop: '2px solid #e5e7eb',
+              padding: '12px 16px',
+              display: 'flex',
+              gap: '10px',
+              justifyContent: 'flex-end',
+              flexShrink: 0,
+              height: '60px',
+              alignItems: 'center'
+            }}>
               <button
                 onClick={() => setQuickPaymentModal({ isOpen: false, client: null })}
-                className="px-4 py-2 bg-gray-300 text-gray-700 rounded font-medium"
                 disabled={paymentLoading}
+                style={{
+                  padding: '10px 20px',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                  cursor: paymentLoading ? 'not-allowed' : 'pointer',
+                  minWidth: '80px',
+                  height: '36px',
+                  border: '2px solid #374151',
+                  backgroundColor: 'white',
+                  color: '#374151'
+                }}
               >
                 Cancel
               </button>
               <button
                 onClick={recordQuickPayment}
                 disabled={paymentLoading || !quickPaymentForm.amount_paid}
-                className="ultra-contrast-button-primary px-4 py-2 rounded font-medium disabled:opacity-50"
+                style={{
+                  padding: '10px 20px',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                  cursor: (paymentLoading || !quickPaymentForm.amount_paid) ? 'not-allowed' : 'pointer',
+                  minWidth: '140px',
+                  height: '36px',
+                  border: 'none',
+                  backgroundColor: (paymentLoading || !quickPaymentForm.amount_paid) ? '#9ca3af' : '#3b82f6',
+                  color: 'white',
+                  boxShadow: '0 2px 4px rgba(59, 130, 246, 0.3)'
+                }}
               >
                 {paymentLoading ? 'Recording...' : '💰 Record Payment'}
               </button>
