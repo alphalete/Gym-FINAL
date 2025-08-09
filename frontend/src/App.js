@@ -1065,6 +1065,7 @@ const Layout = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isMobileView, setIsMobileView] = useState(window.innerWidth <= 768);
+  const [showToast, setShowToast] = useState(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -1074,8 +1075,52 @@ const Layout = ({ children }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const handleClearCache = async () => {
+    try {
+      // Clear service worker caches
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        const messageChannel = new MessageChannel();
+        const promise = new Promise((resolve) => {
+          messageChannel.port1.onmessage = (event) => {
+            resolve(event.data);
+          };
+        });
+        
+        navigator.serviceWorker.controller.postMessage(
+          { type: 'CLEAR_ALL_CACHES' },
+          [messageChannel.port2]
+        );
+        
+        await promise;
+      }
+
+      // Clear browser caches
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        await Promise.all(cacheNames.map(name => caches.delete(name)));
+      }
+
+      // Clear localStorage and sessionStorage
+      localStorage.clear();
+      sessionStorage.clear();
+
+      setShowToast({ message: '🔄 All caches cleared! Reloading for fresh content...', type: 'success' });
+      
+      setTimeout(() => {
+        window.location.reload(true);
+      }, 1500);
+      
+    } catch (error) {
+      console.error('Cache clear failed:', error);
+      setShowToast({ message: '❌ Cache clear failed. Try refreshing manually.', type: 'error' });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Cache Issue Banner - Always at top */}
+      <CacheIssueBanner onClearCache={handleClearCache} />
+      
       {/* Desktop Layout */}
       {!isMobileView && (
         <>
