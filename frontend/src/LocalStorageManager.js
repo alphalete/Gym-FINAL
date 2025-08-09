@@ -422,6 +422,27 @@ class LocalStorageManager {
       return { success: false, error: error.message };
     }
   }
+
+  // Settings functionality
+  async getSetting(key, defaultValue = null) {
+    try {
+      const settings = await this.performDBOperation('settings', 'get', key);
+      return settings ? settings.value : defaultValue;
+    } catch (error) {
+      console.error("Error getting setting:", error);
+      return defaultValue;
+    }
+  }
+
+  async setSetting(key, value) {
+    try {
+      await this.performDBOperation('settings', 'put', { id: key, value });
+      return { success: true };
+    } catch (error) {
+      console.error("Error setting value:", error);
+      return { success: false, error: error.message };
+    }
+  }
 }
 
 export default LocalStorageManager;
