@@ -688,41 +688,67 @@ async def send_custom_payment_reminder(reminder_request: CustomEmailRequest):
 @api_router.post("/email/payment-reminder", response_model=EmailResponse)
 async def send_payment_reminder(reminder_request: CustomEmailRequest):
     """Send payment reminder to a specific client"""
-    # Get client details
-    client = await db.clients.find_one({"id": reminder_request.client_id})
-    if not client:
-        raise HTTPException(status_code=404, detail="Client not found")
-    
-    # Convert date strings back to date objects if needed
-    if 'start_date' in client and isinstance(client['start_date'], str):
-        client['start_date'] = datetime.fromisoformat(client['start_date']).date()
-    if 'next_payment_date' in client and isinstance(client['next_payment_date'], str):
-        client['next_payment_date'] = datetime.fromisoformat(client['next_payment_date']).date()
-    
-    client_obj = Client(**client)
-    
-    # Use custom amount or client's monthly fee
-    amount = reminder_request.custom_amount or client_obj.monthly_fee
-    
-    # Use custom due date or client's next payment date
-    due_date = reminder_request.custom_due_date or client_obj.next_payment_date.strftime("%B %d, %Y")
-    
-    # Send email with customization
-    success = email_service.send_payment_reminder(
-        client_email=client_obj.email,
-        client_name=client_obj.name,
-        amount=amount,
-        due_date=due_date,
-        template_name=reminder_request.template_name or "default",
-        custom_subject=reminder_request.custom_subject,
-        custom_message=reminder_request.custom_message
-    )
-    
-    return EmailResponse(
-        success=success,
-        message="Payment reminder sent successfully!" if success else "Failed to send payment reminder",
-        client_email=client_obj.email
-    )
+    try:
+        # Get client details with database error handling
+        try:
+            client = await db.clients.find_one({"id": reminder_request.client_id})
+        except Exception as db_error:
+            logger.error(f"Database error finding client {reminder_request.client_id}: {str(db_error)}")
+            raise HTTPException(status_code=500, detail="Database connection error. Please try again.")
+        
+        if not client:
+            raise HTTPException(status_code=404, detail="Client not found")
+        
+        # Convert date strings back to date objects if needed
+        if 'start_date' in client and isinstance(client['start_date'], str):
+            client['start_date'] = datetime.fromisoformat(client['start_date']).date()
+        if 'next_payment_date' in client and isinstance(client['next_payment_date'], str):
+            client['next_payment_date'] = datetime.fromisoformat(client['next_payment_date']).date()
+        
+        client_obj = Client(**client)
+        
+        # Use custom amount or client's monthly fee
+        amount = reminder_request.custom_amount or client_obj.monthly_fee
+        
+        # Use custom due date or client's next payment date
+        due_date = reminder_request.custom_due_date or client_obj.next_payment_date.strftime("%B %d, %Y")
+        
+        # Send email with error handling
+        try:
+            success = email_service.send_payment_reminder(
+                client_email=client_obj.email,
+                client_name=client_obj.name,
+                amount=amount,
+                due_date=due_date,
+                template_name=reminder_request.template_name or "default",
+                custom_subject=reminder_request.custom_subject,
+                custom_message=reminder_request.custom_message
+            )
+            
+            if success:
+                logger.info(f"Successfully sent payment reminder to {client_obj.email}")
+            else:
+                logger.warning(f"Failed to send payment reminder to {client_obj.email}")
+                
+        except Exception as email_error:
+            logger.error(f"Email service error for {client_obj.email}: {str(email_error)}")
+            return EmailResponse(
+                success=False,
+                message="Failed to send payment reminder due to email service error",
+                client_email=client_obj.email
+            )
+        
+        return EmailResponse(
+            success=success,
+            message="Payment reminder sent successfully!" if success else "Failed to send payment reminder",
+            client_email=client_obj.email
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as unexpected_error:
+        logger.error(f"Unexpected error in send_payment_reminder: {str(unexpected_error)}")
+        raise HTTPException(status_code=500, detail="Internal server error. Please try again.")
 
 @api_router.post("/payments/record")
 async def record_client_payment(payment_request: PaymentRecordRequest):
