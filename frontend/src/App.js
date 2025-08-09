@@ -3068,7 +3068,14 @@ const ClientManagement = () => {
   const [quickPaymentModal, setQuickPaymentModal] = useState({ isOpen: false, client: null });
   const [billingCycleModal, setBillingCycleModal] = useState({ isOpen: false, client: null });
   const [isOffline, setIsOffline] = useState(false);
+  const [toast, setToast] = useState(null);  // Add toast state
   const navigate = useNavigate();
+
+  // Show toast notification
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 4000);
+  };
 
   // Get member initials for avatar
   const getInitials = (name) => {
