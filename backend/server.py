@@ -753,141 +753,153 @@ async def send_payment_reminder(reminder_request: CustomEmailRequest):
 @api_router.post("/payments/record")
 async def record_client_payment(payment_request: PaymentRecordRequest):
     """Record a payment and update client's next payment date and billing cycle"""
-    # Get client details
-    client = await db.clients.find_one({"id": payment_request.client_id})
-    if not client:
-        raise HTTPException(status_code=404, detail="Client not found")
-    
-    # Convert date strings back to date objects if needed
-    if 'start_date' in client and isinstance(client['start_date'], str):
-        client['start_date'] = datetime.fromisoformat(client['start_date']).date()
-    if 'next_payment_date' in client and isinstance(client['next_payment_date'], str):
-        client['next_payment_date'] = datetime.fromisoformat(client['next_payment_date']).date()
-    
-    client_obj = Client(**client)
-    
-    # Find current active billing cycle for this client
-    current_cycle = await db.billing_cycles.find_one({
-        "member_id": payment_request.client_id,
-        "status": {"$in": ["Unpaid", "Partially Paid"]}
-    })
-    
-    # Calculate remaining balance after payment
-    current_amount_owed = client_obj.amount_owed if client_obj.amount_owed else client_obj.monthly_fee
-    remaining_balance = current_amount_owed - payment_request.amount_paid
-    
-    # Determine payment status and due date advancement
-    current_due_date = client_obj.next_payment_date
-    if remaining_balance <= 0:
-        # Payment fully covers what was owed
-        payment_status = "paid"
-        amount_owed = 0.0
-        
-        # Only advance due date if this payment amount is >= monthly_fee
-        # This distinguishes between:
-        # 1. Completing partial payments (don't advance due date)
-        # 2. Making fresh full monthly payments (advance due date)
-        if payment_request.amount_paid >= client_obj.monthly_fee:
-            # Fresh full payment - advance due date by one month
-            final_next_payment_date = calculate_next_payment_date(current_due_date)
-        else:
-            # Completing partial payments - don't advance due date
-            final_next_payment_date = current_due_date
-    else:
-        # Partial payment - keep as due with updated balance
-        payment_status = "due"
-        amount_owed = remaining_balance
-        # Don't advance due date for partial payments
-        final_next_payment_date = current_due_date
-    
-    # Update client's payment status and next payment date
-    await db.clients.update_one(
-        {"id": payment_request.client_id}, 
-        {
-            "$set": {
-                "next_payment_date": final_next_payment_date.isoformat(),
-                "payment_status": payment_status,
-                "amount_owed": amount_owed,
-                "updated_at": datetime.utcnow()
-            }
-        }
-    )
-    
-    # Record the payment in legacy payment_records collection for backward compatibility
-    payment_record = {
-        "id": str(uuid.uuid4()),
-        "client_id": payment_request.client_id,
-        "client_name": client_obj.name,
-        "client_email": client_obj.email,
-        "amount_paid": payment_request.amount_paid,
-        "payment_date": payment_request.payment_date.isoformat(),
-        "payment_method": payment_request.payment_method,
-        "notes": payment_request.notes,
-        "previous_due_date": client_obj.next_payment_date.isoformat(),
-        "new_due_date": final_next_payment_date.isoformat(),
-        "payment_type": "full_monthly" if payment_request.amount_paid >= client_obj.monthly_fee else ("completion" if remaining_balance <= 0 else "partial"),
-        "remaining_balance": amount_owed,
-        "recorded_at": datetime.utcnow()
-    }
-    
-    # Store payment records in legacy collection for revenue tracking
     try:
-        await db.payment_records.insert_one(payment_record)
-        logger.info(f"Payment record stored successfully for client {client_obj.name}")
-    except Exception as e:
-        logger.error(f"Error storing payment record: {str(e)}")
-    
-    # Also record payment in new billing cycle system if cycle exists
-    if current_cycle:
+        # Get client details with database error handling
         try:
-            # Create payment in new system
-            billing_payment = Payment(
-                billing_cycle_id=current_cycle['id'],
-                member_id=payment_request.client_id,
-                amount=payment_request.amount_paid,
-                date=payment_request.payment_date,
-                method=payment_request.payment_method,
-                notes=payment_request.notes
-            )
+            client = await db.clients.find_one({"id": payment_request.client_id})
+        except Exception as db_error:
+            logger.error(f"Database error finding client {payment_request.client_id}: {str(db_error)}")
+            raise HTTPException(status_code=500, detail="Database connection error. Please try again.")
+        
+        if not client:
+            raise HTTPException(status_code=404, detail="Client not found")
+        
+        # Convert date strings back to date objects if needed
+        if 'start_date' in client and isinstance(client['start_date'], str):
+            client['start_date'] = datetime.fromisoformat(client['start_date']).date()
+        if 'next_payment_date' in client and isinstance(client['next_payment_date'], str):
+            client['next_payment_date'] = datetime.fromisoformat(client['next_payment_date']).date()
+        
+        client_obj = Client(**client)
+        
+        # Find current active billing cycle for this client
+        current_cycle = await db.billing_cycles.find_one({
+            "member_id": payment_request.client_id,
+            "status": {"$in": ["Unpaid", "Partially Paid"]}
+        })
+        
+        # Calculate remaining balance after payment
+        current_amount_owed = client_obj.amount_owed if client_obj.amount_owed else client_obj.monthly_fee
+        remaining_balance = current_amount_owed - payment_request.amount_paid
+        
+        # Determine payment status and due date advancement
+        current_due_date = client_obj.next_payment_date
+        if remaining_balance <= 0:
+            # Payment fully covers what was owed
+            payment_status = "paid"
+            amount_owed = 0.0
             
-            billing_payment_dict = billing_payment.dict()
-            billing_payment_dict['date'] = billing_payment_dict['date'].isoformat()
-            
-            await db.payments.insert_one(billing_payment_dict)
-            
-            # Update billing cycle status
-            await update_billing_cycle_status(current_cycle['id'])
-            
-            logger.info(f"Payment recorded in billing cycle system for client {client_obj.name}")
+            # Only advance due date if this payment amount is >= monthly_fee
+            # This distinguishes between:
+            # 1. Completing partial payments (don't advance due date)
+            # 2. Making fresh full monthly payments (advance due date)
+            if payment_request.amount_paid >= client_obj.monthly_fee:
+                # Fresh full payment - advance due date by one month
+                final_next_payment_date = calculate_next_payment_date(current_due_date)
+            else:
+                # Completing partial payments - don't advance due date
+                final_next_payment_date = current_due_date
+        else:
+            # Partial payment - keep as due with updated balance
+            payment_status = "due"
+            amount_owed = remaining_balance
+            # Don't advance due date for partial payments
+            final_next_payment_date = current_due_date
+        
+        # Update client's payment status and next payment date
+        await db.clients.update_one(
+            {"id": payment_request.client_id}, 
+            {
+                "$set": {
+                    "next_payment_date": final_next_payment_date.isoformat(),
+                    "payment_status": payment_status,
+                    "amount_owed": amount_owed,
+                    "updated_at": datetime.utcnow()
+                }
+            }
+        )
+        
+        # Record the payment in legacy payment_records collection for backward compatibility
+        payment_record = {
+            "id": str(uuid.uuid4()),
+            "client_id": payment_request.client_id,
+            "client_name": client_obj.name,
+            "client_email": client_obj.email,
+            "amount_paid": payment_request.amount_paid,
+            "payment_date": payment_request.payment_date.isoformat(),
+            "payment_method": payment_request.payment_method,
+            "notes": payment_request.notes,
+            "previous_due_date": client_obj.next_payment_date.isoformat(),
+            "new_due_date": final_next_payment_date.isoformat(),
+            "payment_type": "full_monthly" if payment_request.amount_paid >= client_obj.monthly_fee else ("completion" if remaining_balance <= 0 else "partial"),
+            "remaining_balance": amount_owed,
+            "recorded_at": datetime.utcnow()
+        }
+        
+        # Store payment records in legacy collection for revenue tracking
+        try:
+            await db.payment_records.insert_one(payment_record)
+            logger.info(f"Payment record stored successfully for client {client_obj.name}")
         except Exception as e:
-            logger.error(f"Error recording payment in billing cycle system: {str(e)}")
-            # Continue execution even if billing cycle update fails
-    
-    # Send automatic invoice email
-    invoice_success = email_service.send_payment_invoice(
-        client_email=client_obj.email,
-        client_name=client_obj.name,
-        amount_paid=payment_request.amount_paid,
-        payment_date=payment_request.payment_date.strftime("%B %d, %Y"),
-        payment_method=payment_request.payment_method,
-        notes=payment_request.notes
-    )
-    
-    return {
-        "success": True,
-        "message": f"Payment recorded successfully for {client_obj.name}",
-        "client_name": client_obj.name,
-        "amount_paid": payment_request.amount_paid,
-        "payment_type": "full" if remaining_balance <= 0 else "partial",
-        "remaining_balance": amount_owed,
-        "payment_status": payment_status,
-        "due_date_advanced": payment_request.amount_paid >= client_obj.monthly_fee and remaining_balance <= 0,
-        "new_next_payment_date": final_next_payment_date.strftime("%B %d, %Y"),
-        "payment_id": payment_record["id"],
-        "invoice_sent": invoice_success,
-        "invoice_message": "Invoice email sent successfully!" if invoice_success else "Invoice email failed to send",
-        "billing_cycle_updated": current_cycle is not None
-    }
+            logger.error(f"Error storing payment record: {str(e)}")
+        
+        # Also record payment in new billing cycle system if cycle exists
+        if current_cycle:
+            try:
+                # Create payment in new system
+                billing_payment = Payment(
+                    billing_cycle_id=current_cycle['id'],
+                    member_id=payment_request.client_id,
+                    amount=payment_request.amount_paid,
+                    date=payment_request.payment_date,
+                    method=payment_request.payment_method,
+                    notes=payment_request.notes
+                )
+                
+                billing_payment_dict = billing_payment.dict()
+                billing_payment_dict['date'] = billing_payment_dict['date'].isoformat()
+                
+                await db.payments.insert_one(billing_payment_dict)
+                
+                # Update billing cycle status
+                await update_billing_cycle_status(current_cycle['id'])
+                
+                logger.info(f"Payment recorded in billing cycle system for client {client_obj.name}")
+            except Exception as e:
+                logger.error(f"Error recording payment in billing cycle system: {str(e)}")
+                # Continue execution even if billing cycle update fails
+        
+        # Send automatic invoice email
+        invoice_success = email_service.send_payment_invoice(
+            client_email=client_obj.email,
+            client_name=client_obj.name,
+            amount_paid=payment_request.amount_paid,
+            payment_date=payment_request.payment_date.strftime("%B %d, %Y"),
+            payment_method=payment_request.payment_method,
+            notes=payment_request.notes
+        )
+        
+        return {
+            "success": True,
+            "message": f"Payment recorded successfully for {client_obj.name}",
+            "client_name": client_obj.name,
+            "amount_paid": payment_request.amount_paid,
+            "payment_type": "full" if remaining_balance <= 0 else "partial",
+            "remaining_balance": amount_owed,
+            "payment_status": payment_status,
+            "due_date_advanced": payment_request.amount_paid >= client_obj.monthly_fee and remaining_balance <= 0,
+            "new_next_payment_date": final_next_payment_date.strftime("%B %d, %Y"),
+            "payment_id": payment_record["id"],
+            "invoice_sent": invoice_success,
+            "invoice_message": "Invoice email sent successfully!" if invoice_success else "Invoice email failed to send",
+            "billing_cycle_updated": current_cycle is not None
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as unexpected_error:
+        logger.error(f"Unexpected error in record_client_payment: {str(unexpected_error)}")
+        raise HTTPException(status_code=500, detail="Internal server error. Please try again.")
 
 @api_router.get("/payments/stats")
 async def get_payment_statistics(response: Response):
