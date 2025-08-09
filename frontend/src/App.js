@@ -2705,6 +2705,12 @@ const ClientManagement = () => {
     }
   }, []);
 
+  // Fetch clients on component mount
+  useEffect(() => {
+    console.log('🔍 ClientManagement: Component mounted, calling fetchClients...');
+    fetchClients();
+  }, [fetchClients]);
+
   const sendPaymentReminder = async (client) => {
     try {
       const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
