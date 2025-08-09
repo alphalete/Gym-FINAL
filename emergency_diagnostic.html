@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Diagnostic - Alphalete Club</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .test-section { background: white; margin: 10px 0; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .success { color: #16a34a; }
+        .error { color: #dc2626; }
+        .loading { color: #2563eb; }
+        .result { margin: 10px 0; padding: 10px; border-left: 4px solid #ddd; }
+        .result.success { border-color: #16a34a; background: #f0fdf4; }
+        .result.error { border-color: #dc2626; background: #fef2f2; }
+        button { background: #2563eb; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; }
+        button:hover { background: #1d4ed8; }
+        .data-display { background: #f8fafc; padding: 10px; border-radius: 4px; margin: 10px 0; max-height: 200px; overflow-y: auto; }
+        pre { white-space: pre-wrap; word-wrap: break-word; }
+        .test-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+    </style>
+</head>
+<body>
+    <h1>🚨 Emergency Diagnostic - Alphalete Club PWA</h1>
+    <p><strong>Purpose:</strong> Identify why user reports "still not working" despite all fixes</p>
+    
+    <div class="test-grid">
+        <!-- Environment Variable Test -->
+        <div class="test-section">
+            <h3>🔧 Environment Variables</h3>
+            <button onclick="testEnvironmentVariables()">Test Environment</button>
+            <div id="env-result" class="result"></div>
+        </div>
+
+        <!-- Backend API Test -->
+        <div class="test-section">
+            <h3>🌐 Backend API Connectivity</h3>
+            <button onclick="testBackendAPI()">Test Backend</button>
+            <div id="api-result" class="result"></div>
+        </div>
+
+        <!-- LocalStorageManager Test -->
+        <div class="test-section">
+            <h3>💾 LocalStorageManager</h3>
+            <button onclick="testLocalStorageManager()">Test LocalStorage</button>
+            <div id="localstorage-result" class="result"></div>
+        </div>
+
+        <!-- Frontend Data Loading Test -->
+        <div class="test-section">
+            <h3>📊 Frontend Data Loading</h3>
+            <button onclick="testFrontendDataLoading()">Test Data Loading</button>
+            <div id="frontend-result" class="result"></div>
+        </div>
+
+        <!-- Service Worker Test -->
+        <div class="test-section">
+            <h3>⚙️ Service Worker Status</h3>
+            <button onclick="testServiceWorker()">Test Service Worker</button>
+            <div id="sw-result" class="result"></div>
+        </div>
+
+        <!-- Browser Compatibility Test -->
+        <div class="test-section">
+            <h3>🌐 Browser Compatibility</h3>
+            <button onclick="testBrowserCompatibility()">Test Browser</button>
+            <div id="browser-result" class="result"></div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>📋 Complete System Test</h3>
+        <button onclick="runCompleteTest()" style="background: #dc2626;">🚨 Run All Tests</button>
+        <div id="complete-result" class="result"></div>
+    </div>
+
+    <script>
+        // Test Environment Variables
+        function testEnvironmentVariables() {
+            const resultDiv = document.getElementById('env-result');
+            resultDiv.innerHTML = '<div class="loading">Testing environment variables...</div>';
+            
+            try {
+                const backendUrl = process?.env?.REACT_APP_BACKEND_URL || 'UNDEFINED';
+                const windowOrigin = window.location.origin;
+                const userAgent = navigator.userAgent;
+                
+                resultDiv.innerHTML = `
+                    <div class="success">✅ Environment Variable Test Complete</div>
+                    <div class="data-display">
+                        <strong>REACT_APP_BACKEND_URL:</strong> ${backendUrl}<br>
+                        <strong>Window Origin:</strong> ${windowOrigin}<br>
+                        <strong>User Agent:</strong> ${userAgent.substring(0, 100)}...
+                    </div>
+                `;
+                resultDiv.className = 'result success';
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Environment test failed: ${error.message}</div>`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        // Test Backend API
+        async function testBackendAPI() {
+            const resultDiv = document.getElementById('api-result');
+            resultDiv.innerHTML = '<div class="loading">Testing backend API...</div>';
+            
+            try {
+                const backendUrl = 'https://alphalete-club.emergent.host';
+                console.log('🔍 Testing backend API at:', backendUrl);
+                
+                const startTime = Date.now();
+                const response = await fetch(`${backendUrl}/api/clients`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const endTime = Date.now();
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ Backend API response:', data);
+                    
+                    resultDiv.innerHTML = `
+                        <div class="success">✅ Backend API Working</div>
+                        <div class="data-display">
+                            <strong>Status:</strong> ${response.status} OK<br>
+                            <strong>Response Time:</strong> ${endTime - startTime}ms<br>
+                            <strong>Clients Found:</strong> ${data.length}<br>
+                            <strong>Sample Data:</strong><br>
+                            <pre>${JSON.stringify(data.slice(0, 2), null, 2)}</pre>
+                        </div>
+                    `;
+                    resultDiv.className = 'result success';
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                console.error('❌ Backend API error:', error);
+                resultDiv.innerHTML = `<div class="error">❌ Backend API failed: ${error.message}</div>`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        // Test LocalStorageManager
+        async function testLocalStorageManager() {
+            const resultDiv = document.getElementById('localstorage-result');
+            resultDiv.innerHTML = '<div class="loading">Testing LocalStorageManager...</div>';
+            
+            try {
+                // Check if LocalStorageManager exists in global scope
+                if (typeof LocalStorageManager === 'undefined') {
+                    throw new Error('LocalStorageManager class not found in global scope');
+                }
+                
+                const localDB = new LocalStorageManager();
+                console.log('🔍 Created LocalStorageManager instance');
+                
+                const clients = await localDB.getClients();
+                console.log('✅ LocalStorageManager getClients result:', clients);
+                
+                resultDiv.innerHTML = `
+                    <div class="success">✅ LocalStorageManager Working</div>
+                    <div class="data-display">
+                        <strong>Clients Retrieved:</strong> ${clients ? clients.length : 'null'}<br>
+                        <strong>Data Type:</strong> ${typeof clients}<br>
+                        <strong>Is Array:</strong> ${Array.isArray(clients)}<br>
+                        <strong>Sample Data:</strong><br>
+                        <pre>${JSON.stringify(clients?.slice(0, 2) || 'No data', null, 2)}</pre>
+                    </div>
+                `;
+                resultDiv.className = 'result success';
+            } catch (error) {
+                console.error('❌ LocalStorageManager error:', error);
+                resultDiv.innerHTML = `<div class="error">❌ LocalStorageManager failed: ${error.message}</div>`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        // Test Frontend Data Loading
+        async function testFrontendDataLoading() {
+            const resultDiv = document.getElementById('frontend-result');
+            resultDiv.innerHTML = '<div class="loading">Testing frontend data loading...</div>';
+            
+            try {
+                // Check current page content
+                const memberCount = document.body.textContent.match(/(\d+)\s+OF\s+(\d+)\s+MEMBERS/i);
+                const dashboardStats = document.body.textContent.match(/(\d+)\s+ACTIVE\s+MEMBERS/i);
+                const loadingIndicators = document.querySelectorAll('[class*="loading"], [class*="spinner"]');
+                
+                resultDiv.innerHTML = `
+                    <div class="success">✅ Frontend Content Analysis</div>
+                    <div class="data-display">
+                        <strong>Member Count Display:</strong> ${memberCount ? memberCount[0] : 'Not found'}<br>
+                        <strong>Dashboard Stats:</strong> ${dashboardStats ? dashboardStats[0] : 'Not found'}<br>
+                        <strong>Loading Indicators:</strong> ${loadingIndicators.length}<br>
+                        <strong>Page Title:</strong> ${document.title}<br>
+                        <strong>Current URL:</strong> ${window.location.href}
+                    </div>
+                `;
+                resultDiv.className = 'result success';
+            } catch (error) {
+                console.error('❌ Frontend analysis error:', error);
+                resultDiv.innerHTML = `<div class="error">❌ Frontend analysis failed: ${error.message}</div>`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        // Test Service Worker
+        async function testServiceWorker() {
+            const resultDiv = document.getElementById('sw-result');
+            resultDiv.innerHTML = '<div class="loading">Testing service worker...</div>';
+            
+            try {
+                const swSupported = 'serviceWorker' in navigator;
+                let swRegistration = null;
+                let swStatus = 'Not registered';
+                
+                if (swSupported) {
+                    swRegistration = await navigator.serviceWorker.getRegistration();
+                    if (swRegistration) {
+                        swStatus = swRegistration.active ? 'Active' : 'Registered but inactive';
+                    }
+                }
+                
+                resultDiv.innerHTML = `
+                    <div class="success">✅ Service Worker Check Complete</div>
+                    <div class="data-display">
+                        <strong>SW Supported:</strong> ${swSupported}<br>
+                        <strong>SW Status:</strong> ${swStatus}<br>
+                        <strong>SW Scope:</strong> ${swRegistration?.scope || 'N/A'}<br>
+                        <strong>SW Update Found:</strong> ${swRegistration?.updatefound || 'No'}
+                    </div>
+                `;
+                resultDiv.className = 'result success';
+            } catch (error) {
+                console.error('❌ Service worker error:', error);
+                resultDiv.innerHTML = `<div class="error">❌ Service worker test failed: ${error.message}</div>`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        // Test Browser Compatibility
+        function testBrowserCompatibility() {
+            const resultDiv = document.getElementById('browser-result');
+            resultDiv.innerHTML = '<div class="loading">Testing browser compatibility...</div>';
+            
+            try {
+                const features = {
+                    'IndexedDB': 'indexedDB' in window,
+                    'Service Workers': 'serviceWorker' in navigator,
+                    'Fetch API': 'fetch' in window,
+                    'LocalStorage': 'localStorage' in window,
+                    'Promises': 'Promise' in window,
+                    'Arrow Functions': eval('(() => true)()'),
+                    'Async/Await': eval('(async () => true)()') instanceof Promise
+                };
+                
+                const results = Object.entries(features).map(([feature, supported]) => 
+                    `<strong>${feature}:</strong> ${supported ? '✅' : '❌'}`
+                ).join('<br>');
+                
+                resultDiv.innerHTML = `
+                    <div class="success">✅ Browser Compatibility Check</div>
+                    <div class="data-display">
+                        ${results}<br><br>
+                        <strong>Browser:</strong> ${navigator.userAgent.split(' ').pop()}<br>
+                        <strong>Cookies Enabled:</strong> ${navigator.cookieEnabled ? '✅' : '❌'}<br>
+                        <strong>Online:</strong> ${navigator.onLine ? '✅' : '❌'}
+                    </div>
+                `;
+                resultDiv.className = 'result success';
+            } catch (error) {
+                console.error('❌ Browser compatibility error:', error);
+                resultDiv.innerHTML = `<div class="error">❌ Browser compatibility test failed: ${error.message}</div>`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        // Run Complete Test
+        async function runCompleteTest() {
+            const resultDiv = document.getElementById('complete-result');
+            resultDiv.innerHTML = '<div class="loading">Running complete diagnostic...</div>';
+            
+            try {
+                console.log('🚨 EMERGENCY DIAGNOSTIC: Starting complete system test');
+                
+                await testEnvironmentVariables();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                await testBackendAPI();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                await testLocalStorageManager();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                await testFrontendDataLoading();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                await testServiceWorker();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                testBrowserCompatibility();
+                
+                resultDiv.innerHTML = `
+                    <div class="success">🎉 Complete Diagnostic Finished</div>
+                    <div class="data-display">
+                        All individual tests have been run. Check each section above for detailed results.<br><br>
+                        <strong>Diagnostic Complete:</strong> ${new Date().toLocaleString()}<br>
+                        <strong>Next Steps:</strong> Review all test results to identify the root cause of "still not working" issue.
+                    </div>
+                `;
+                resultDiv.className = 'result success';
+                
+                console.log('✅ EMERGENCY DIAGNOSTIC: Complete system test finished');
+            } catch (error) {
+                console.error('❌ EMERGENCY DIAGNOSTIC ERROR:', error);
+                resultDiv.innerHTML = `<div class="error">❌ Complete diagnostic failed: ${error.message}</div>`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        // Auto-run basic tests on page load
+        window.addEventListener('load', () => {
+            console.log('🚨 EMERGENCY DIAGNOSTIC PAGE LOADED');
+            testEnvironmentVariables();
+        });
+    </script>
+</body>
+</html>
