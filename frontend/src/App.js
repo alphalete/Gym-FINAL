@@ -2020,9 +2020,13 @@ const EditClientModal = ({ client, isOpen, onClose, onSave, showToast }) => {
       
     } catch (error) {
       console.error('❌ EditClient: Save failed:', error);
-      setErrors({
-        submit: `Failed to update client: ${error.message}`
-      });
+      if (showToast) {
+        showToast(`Failed to update client: ${error.message}`, 'error');
+      } else {
+        setErrors({
+          submit: `Failed to update client: ${error.message}`
+        });
+      }
     } finally {
       setLoading(false);
     }
