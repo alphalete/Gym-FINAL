@@ -6332,19 +6332,24 @@ const Settings = () => {
     }
 
     try {
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const backendUrl = getBackendUrl(); // Use the proper getBackendUrl function
       const membershipData = {
         name: newMembership.name,
         monthly_fee: parseFloat(newMembership.monthly_fee),
-        description: newMembership.description,
+        description: newMembership.description || '',
+        features: [], // Add missing features field
         is_active: newMembership.is_active
       };
+
+      console.log('🔍 Saving membership type:', membershipData);
 
       const url = editingMembership 
         ? `${backendUrl}/api/membership-types/${editingMembership}`
         : `${backendUrl}/api/membership-types`;
       
       const method = editingMembership ? 'PUT' : 'POST';
+      
+      console.log('🔍 Making request:', { method, url });
 
       const response = await fetch(url, {
         method: method,
@@ -6352,17 +6357,23 @@ const Settings = () => {
         body: JSON.stringify(membershipData)
       });
 
+      console.log('🔍 Response status:', response.status);
+
       if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Membership type saved successfully:', result);
         showToast(`Membership type ${editingMembership ? 'updated' : 'created'} successfully`);
         fetchMembershipTypes();
         setNewMembership({ name: '', monthly_fee: '', description: '', is_active: true });
         setEditingMembership(null);
       } else {
-        throw new Error('Failed to save membership type');
+        const errorText = await response.text();
+        console.error('❌ API Error:', response.status, errorText);
+        throw new Error(`API Error: ${response.status} - ${errorText}`);
       }
     } catch (error) {
-      console.error('Error saving membership type:', error);
-      showToast('Error saving membership type', 'error');
+      console.error('❌ Error saving membership type:', error);
+      showToast(`Error saving membership type: ${error.message}`, 'error');
     }
   };
 
