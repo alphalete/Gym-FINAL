@@ -4504,11 +4504,11 @@ const ClientManagement = () => {
 
       {/* Toast Notification */}
       {toast && (
-        <div className={`fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 ${
-          toast.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-        }`}>
-          <span>{toast.type === 'success' ? '✅' : '❌'}</span>
-          <span>{toast.message}</span>
+        <div className={`toast-notification ${toast.type}`}>
+          <div className="toast-icon">
+            {toast.type === 'success' ? '✅' : '❌'}
+          </div>
+          <div className="toast-message">{toast.message}</div>
         </div>
       )}
     </div>
