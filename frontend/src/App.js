@@ -6900,18 +6900,28 @@ const Settings = () => {
                         <div style={{ fontWeight: '600', color: '#2d3748' }}>{type.name}</div>
                         <div style={{ fontSize: '14px', color: '#718096' }}>TTD {type.monthly_fee}/month - {type.description}</div>
                       </div>
-                      <button
-                        onClick={() => deleteMembershipType(type.id, type.name)}
-                        style={{ background: '#dc3545', color: 'white', border: 'none', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer' }}
-                      >
-                        🗑️
-                      </button>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                          onClick={() => editMembershipType(type)}
+                          style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer' }}
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          onClick={() => deleteMembershipType(type.id, type.name)}
+                          style={{ background: '#dc3545', color: 'white', border: 'none', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer' }}
+                        >
+                          🗑️
+                        </button>
+                      </div>
                     </div>
                   ))}
                   
-                  {/* Add New Membership Form */}
+                  {/* Add/Edit Membership Form */}
                   <div style={{ padding: '16px', background: '#f7fafc', border: '2px dashed #e2e8f0', borderRadius: '8px', marginTop: '16px' }}>
-                    <div style={{ fontWeight: '600', marginBottom: '12px', color: '#2d3748' }}>Add New Membership</div>
+                    <div style={{ fontWeight: '600', marginBottom: '12px', color: '#2d3748' }}>
+                      {editingMembership ? 'Edit Membership' : 'Add New Membership'}
+                    </div>
                     <div style={{ marginBottom: '12px' }}>
                       <input
                         type="text"
@@ -6922,6 +6932,7 @@ const Settings = () => {
                       />
                       <input
                         type="number"
+                        step="0.01"
                         placeholder="Monthly Fee (TTD)"
                         value={newMembership.monthly_fee}
                         onChange={(e) => setNewMembership(prev => ({ ...prev, monthly_fee: e.target.value }))}
@@ -6935,12 +6946,22 @@ const Settings = () => {
                         style={{ width: '100%', padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: '4px' }}
                       />
                     </div>
-                    <button
-                      onClick={saveMembershipType}
-                      style={{ background: '#56ab2f', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer', fontWeight: '600' }}
-                    >
-                      ➕ Add Membership
-                    </button>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button
+                        onClick={saveMembershipType}
+                        style={{ background: '#56ab2f', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer', fontWeight: '600' }}
+                      >
+                        {editingMembership ? '✅ Update Membership' : '➕ Add Membership'}
+                      </button>
+                      {editingMembership && (
+                        <button
+                          onClick={cancelEditMembership}
+                          style={{ background: '#6b7280', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer', fontWeight: '600' }}
+                        >
+                          ❌ Cancel
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div className="confirmation-modal-actions">
