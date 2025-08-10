@@ -6331,6 +6331,23 @@ const Settings = () => {
     }
   };
 
+  const editMembershipType = (membershipType) => {
+    console.log('✏️ Editing membership type:', membershipType);
+    setEditingMembership(membershipType.id);
+    setNewMembership({
+      name: membershipType.name,
+      monthly_fee: membershipType.monthly_fee.toString(),
+      description: membershipType.description || '',
+      is_active: membershipType.is_active !== false
+    });
+  };
+
+  const cancelEditMembership = () => {
+    console.log('❌ Canceling membership edit');
+    setEditingMembership(null);
+    setNewMembership({ name: '', monthly_fee: '', description: '', is_active: true });
+  };
+
   const saveMembershipType = async () => {
     if (!newMembership.name || !newMembership.monthly_fee) {
       showToast('Please fill in all required fields', 'error');
