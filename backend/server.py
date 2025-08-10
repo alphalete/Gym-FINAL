@@ -56,6 +56,9 @@ class MembershipType(BaseModel):
     monthly_fee: float
     description: str
     features: List[str] = []
+    is_active: bool = True
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
 
 # New Billing Cycle Models
 class BillingCycle(BaseModel):
