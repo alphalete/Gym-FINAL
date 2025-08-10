@@ -348,12 +348,20 @@ async def get_status_checks():
 async def create_membership_type(membership_data: MembershipTypeCreate):
     """Create a new membership type"""
     membership_dict = membership_data.dict()
+    
+    # Normalize the name (trim whitespace and title case)
+    normalized_name = membership_dict["name"].strip().title()
+    membership_dict["name"] = normalized_name
+    
     membership_obj = MembershipType(**membership_dict)
     
-    # Check if membership type with this name already exists
-    existing_membership = await db.membership_types.find_one({"name": membership_obj.name})
+    # Check if membership type with this name already exists (case-insensitive, only active types)
+    existing_membership = await db.membership_types.find_one({
+        "name": {"$regex": f"^{normalized_name}$", "$options": "i"},
+        "is_active": True
+    })
     if existing_membership:
-        raise HTTPException(status_code=400, detail="Membership type with this name already exists")
+        raise HTTPException(status_code=400, detail=f"Membership type '{normalized_name}' already exists")
     
     await db.membership_types.insert_one(membership_obj.dict())
     return membership_obj
