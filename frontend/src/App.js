@@ -4700,15 +4700,24 @@ const AddClient = () => {
           }
         } catch (paymentError) {
           console.error('Error recording initial payment:', paymentError);
-          showSuccessMessage(`✅ CLIENT SUCCESSFULLY ADDED!\n\n${formData.name} is now in your member list.${syncMessage}\n\nNote: Initial payment recording failed - you can record the payment from the Payments page.`);
+          const successMsg = `✅ CLIENT SUCCESSFULLY ADDED!\n\n${formData.name} is now in your member list.${syncMessage}\n\nNote: Initial payment recording failed - you can record the payment from the Payments page.`;
+          console.log('Success message:', successMsg);
+          
+          setTimeout(() => {
+            navigate('/clients', { state: { successMessage: successMsg } });
+          }, 500);
         }
       } else {
         // No payment recorded - client owes money immediately (only show if client was successfully created)
-        showSuccessMessage(`✅ ${formData.name} added successfully! Payment of TTD ${formData.monthly_fee} is due immediately.${syncMessage}`);
+        const successMsg = `✅ ${formData.name} added successfully! Payment of TTD ${formData.monthly_fee} is due immediately.${syncMessage}`;
+        console.log('Success message:', successMsg);
+        
+        setTimeout(() => {
+          navigate('/clients', { state: { successMessage: successMsg } });
+        }, 500);
       }
       
-      // Navigate to clients page - the useEffect will refresh data automatically
-      navigate('/clients');
+      // Remove the immediate navigation - we now navigate in the success cases above
     } catch (error) {
       console.error('Error adding client:', error);
       alert('❌ Error adding client: ' + error.message);
