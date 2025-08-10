@@ -3683,6 +3683,18 @@ const ClientManagement = () => {
   const [isOffline, setIsOffline] = useState(false);
   const [toast, setToast] = useState(null);  // Add toast state
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Check for success message from navigation state (when coming from Add Client)
+  useEffect(() => {
+    if (location.state && location.state.successMessage) {
+      console.log('📢 Received success message from navigation:', location.state.successMessage);
+      showToast(location.state.successMessage, 'success');
+      
+      // Clear the state to prevent showing the message again on refresh
+      navigate('/clients', { replace: true });
+    }
+  }, [location.state, navigate]);
 
   // Show toast notification
   const showToast = (message, type = 'success') => {
