@@ -6349,15 +6349,29 @@ const Settings = () => {
   };
 
   const saveMembershipType = async () => {
-    if (!newMembership.name || !newMembership.monthly_fee) {
+    // Normalize the name (trim whitespace and title case)
+    const normalizedName = newMembership.name.trim();
+    
+    if (!normalizedName || !newMembership.monthly_fee) {
       showToast('Please fill in all required fields', 'error');
+      return;
+    }
+
+    // Check for duplicate names locally (case-insensitive)
+    const existingType = membershipTypes.find(type => 
+      type.name.toLowerCase() === normalizedName.toLowerCase() && 
+      (!editingMembership || type.id !== editingMembership)
+    );
+    
+    if (existingType) {
+      showToast(`Membership type "${existingType.name}" already exists`, 'error');
       return;
     }
 
     try {
       const backendUrl = getBackendUrl(); // Use the proper getBackendUrl function
       const membershipData = {
-        name: newMembership.name,
+        name: normalizedName, // Use normalized name
         monthly_fee: parseFloat(newMembership.monthly_fee),
         description: newMembership.description || '',
         features: [], // Add missing features field
@@ -6392,7 +6406,14 @@ const Settings = () => {
       } else {
         const errorText = await response.text();
         console.error('❌ API Error:', response.status, errorText);
-        throw new Error(`API Error: ${response.status} - ${errorText}`);
+        
+        // Parse error message for better user feedback
+        try {
+          const errorJson = JSON.parse(errorText);
+          throw new Error(errorJson.detail || `API Error: ${response.status}`);
+        } catch (parseError) {
+          throw new Error(`API Error: ${response.status} - ${errorText}`);
+        }
       }
     } catch (error) {
       console.error('❌ Error saving membership type:', error);
