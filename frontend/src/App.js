@@ -4680,10 +4680,23 @@ const AddClient = () => {
           if (paymentResponse.ok) {
             const paymentResult = await paymentResponse.json();
             console.log('✅ Initial payment recorded:', paymentResult);
-            showSuccessMessage(`✅ ${formData.name} added successfully with initial payment of TTD ${paymentData.amount_paid}!${syncMessage}`);
+            
+            // Use global toast notification instead of local success message
+            const successMsg = `✅ ${formData.name} added successfully with initial payment of TTD ${paymentData.amount_paid}!${syncMessage}`;
+            console.log('Success message:', successMsg);
+            
+            // Navigate after a short delay to allow user to see any immediate feedback
+            setTimeout(() => {
+              navigate('/clients', { state: { successMessage: successMsg } });
+            }, 500);
           } else {
             console.warn('⚠️ Client added but payment recording failed');
-            showSuccessMessage(`✅ CLIENT SUCCESSFULLY ADDED!\n\n${formData.name} is now in your member list.${syncMessage}\n\nNote: Initial payment recording failed - you can record the payment from the Payments page.`);
+            const successMsg = `✅ CLIENT SUCCESSFULLY ADDED!\n\n${formData.name} is now in your member list.${syncMessage}\n\nNote: Initial payment recording failed - you can record the payment from the Payments page.`;
+            console.log('Success message:', successMsg);
+            
+            setTimeout(() => {
+              navigate('/clients', { state: { successMessage: successMsg } });
+            }, 500);
           }
         } catch (paymentError) {
           console.error('Error recording initial payment:', paymentError);
