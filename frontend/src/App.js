@@ -6299,13 +6299,19 @@ const Settings = () => {
 
   const fetchMembershipTypes = async () => {
     try {
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const backendUrl = getBackendUrl(); // Use the proper getBackendUrl function
+      console.log('🔍 Fetching membership types from:', `${backendUrl}/api/membership-types`);
+      
       const response = await fetch(`${backendUrl}/api/membership-types`);
+      
+      console.log('🔍 Fetch membership types response status:', response.status);
       
       if (response.ok) {
         const data = await response.json();
+        console.log('✅ Fetched membership types:', data);
         setMembershipTypes(data || []);
       } else {
+        console.warn('⚠️ Failed to fetch membership types, using fallback data');
         // Fallback data
         setMembershipTypes([
           { id: '1', name: 'Standard', monthly_fee: 50.0, description: 'Basic gym access', is_active: true },
@@ -6315,7 +6321,7 @@ const Settings = () => {
         ]);
       }
     } catch (error) {
-      console.error('Error fetching membership types:', error);
+      console.error('❌ Error fetching membership types:', error);
       setMembershipTypes([
         { id: '1', name: 'Standard', monthly_fee: 50.0, description: 'Basic gym access', is_active: true },
         { id: '2', name: 'Premium', monthly_fee: 75.0, description: 'Gym access plus classes', is_active: true },
