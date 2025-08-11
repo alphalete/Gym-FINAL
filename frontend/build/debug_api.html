@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug API URL</title>
+</head>
+<body>
+    <h1>Debug API URL Resolution</h1>
+    <div id="debug-output"></div>
+    
+    <script>
+        const debugOutput = document.getElementById('debug-output');
+        
+        function log(message) {
+            debugOutput.innerHTML += '<p>' + message + '</p>';
+            console.log(message);
+        }
+        
+        // Test environment variable access
+        log('🔍 Testing environment variable access:');
+        log('process.env: ' + JSON.stringify(process.env || {}));
+        log('import.meta: ' + JSON.stringify(import.meta || {}));
+        log('window.location.origin: ' + window.location.origin);
+        
+        // Try to replicate the getBackendUrl function
+        function testGetBackendUrl() {
+            let envUrl = null;
+            
+            // Method 1: React environment variables
+            if (typeof process !== 'undefined' && process.env && process.env.REACT_APP_BACKEND_URL) {
+                envUrl = process.env.REACT_APP_BACKEND_URL;
+                log('✅ Found via process.env: ' + envUrl);
+            } else {
+                log('❌ process.env.REACT_APP_BACKEND_URL not available');
+            }
+            
+            // Method 2: Vite environment variables
+            if (!envUrl && typeof import !== 'undefined' && import.meta && import.meta.env && import.meta.env.REACT_APP_BACKEND_URL) {
+                envUrl = import.meta.env.REACT_APP_BACKEND_URL;
+                log('✅ Found via import.meta.env: ' + envUrl);
+            } else {
+                log('❌ import.meta.env.REACT_APP_BACKEND_URL not available');
+            }
+            
+            // Method 3: Check window.env
+            if (!envUrl && window.env && window.env.REACT_APP_BACKEND_URL) {
+                envUrl = window.env.REACT_APP_BACKEND_URL;
+                log('✅ Found via window.env: ' + envUrl);
+            } else {
+                log('❌ window.env.REACT_APP_BACKEND_URL not available');
+            }
+            
+            if (envUrl && envUrl.trim() !== '') {
+                log('🎯 Final backend URL: ' + envUrl.trim());
+                return envUrl.trim();
+            }
+            
+            log('⚠️ Using fallback URL: ' + window.location.origin);
+            return window.location.origin;
+        }
+        
+        const backendUrl = testGetBackendUrl();
+        
+        // Test API call
+        log('🚀 Testing API call to: ' + backendUrl + '/api/clients');
+        
+        fetch(backendUrl + '/api/clients')
+            .then(response => {
+                log('📡 Response status: ' + response.status);
+                return response.json();
+            })
+            .then(data => {
+                log('✅ API call successful, clients count: ' + data.length);
+            })
+            .catch(error => {
+                log('❌ API call failed: ' + error.message);
+            });
+    </script>
+</body>
+</html>
