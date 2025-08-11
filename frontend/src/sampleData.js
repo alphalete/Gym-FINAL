@@ -8,8 +8,8 @@ export const sampleClients = [
   },
   {
     id: "c2", 
-    name: "Oscar Overdue",
-    joinDate: new Date(new Date().setDate(new Date().getDate() - 100)).toISOString().slice(0,10), // 100 days ago to ensure overdue
+    name: "Oscar Overdue", 
+    joinDate: "2025-04-01", // Fixed date that should be overdue by now
     email: "oscar@example.com",
     phone: "555-0002"
   }
