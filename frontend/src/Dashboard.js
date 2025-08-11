@@ -184,7 +184,7 @@ const Dashboard = () => {
 
   const getDueDateColor = (daysToDue, status) => {
     if (status === "Overdue") return "text-red-600 font-semibold";
-    if (daysToDue !== null && daysToDue <= getDueSoonDays()) return "text-orange-600 font-semibold";
+    if (daysToDue !== null && daysToDue <= dueSoonDays) return "text-orange-600 font-semibold";
     return "text-gray-600";
   };
 
