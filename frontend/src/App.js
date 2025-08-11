@@ -731,6 +731,7 @@ const GoGymLayout = ({ children, currentPage, onNavigate }) => {
     { id: '/payments', label: 'Payments', icon: '💳' },
     { id: '/email-center', label: 'Reminders', icon: '📧' },
     { id: '/reports', label: 'Reports', icon: '📋' },
+    { id: '/settings', label: 'Settings', icon: '⚙️' },
   ];
 
   // Sample payment data matching the reference
