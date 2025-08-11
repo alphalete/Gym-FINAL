@@ -47,6 +47,7 @@ const Dashboard = () => {
   };
 
   // Compute clients with billing info using the new billing logic
+  const dueSoonDays = getDueSoonDays();
   const clientsWithBilling = clients.map(client => {
     const paymentStatus = getClientPaymentStatus(client);
     const dueDate = client.next_payment_date;
@@ -57,7 +58,7 @@ const Dashboard = () => {
     let status = "Active";
     if (paymentStatus === 'overdue') {
       status = "Overdue";
-    } else if (paymentStatus === 'due-soon') {
+    } else if (paymentStatus === 'due-soon' || (daysToDue !== null && daysToDue >= 0 && daysToDue <= dueSoonDays)) {
       status = "Due Soon";
     } else if (paymentStatus === 'paid') {
       status = "Paid";
