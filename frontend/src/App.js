@@ -5510,7 +5510,18 @@ const Payments = () => {
       return;
     }
     
-    const amount = prompt(`Enter payment amount for ${client.name}:`, client.monthly_fee);
+    // Get default payment amount from settings
+    let defaultAmount = client.monthly_fee;
+    try {
+      const gymSettings = await localDB.getSetting('gymSettings') || {};
+      if (gymSettings.membershipFeeDefault && Number(gymSettings.membershipFeeDefault) > 0) {
+        defaultAmount = Number(gymSettings.membershipFeeDefault);
+      }
+    } catch (error) {
+      console.warn('Could not load payment settings, using client fee:', error);
+    }
+    
+    const amount = prompt(`Enter payment amount for ${client.name}:`, defaultAmount);
     if (amount && parseFloat(amount) > 0) {
       try {
         let backendUrl = getBackendUrl();
