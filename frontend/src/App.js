@@ -5074,7 +5074,7 @@ const AddClient = () => {
                 ) : recordPayment ? (
                   <>
                     <span>➕</span>
-                    <span>Save Client & Record Payment</span>
+                    <span>Save Client & Record Payment <LockBadge /></span>
                   </>
                 ) : (
                   <>
