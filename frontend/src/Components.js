@@ -290,9 +290,9 @@ const PaymentComponent = () => {
                 type="number"
                 step="0.01"
                 min="0"
-                value={paymentAmount}
+                value={paymentAmount || defaultFee}
                 onChange={(e) => setPaymentAmount(e.target.value)}
-                placeholder={`Enter amount (default: $${monthlyFee})`}
+                placeholder={`Enter amount (default: $${defaultFee || monthlyFee})`}
                 className="payment-amount-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               {/* Monthly fee hint */}
