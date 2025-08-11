@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate 
 import LocalStorageManager from './LocalStorageManager';
 import NewDashboard from './Dashboard';
 import SettingsTab from './SettingsTab';
+import PlansTab from './PlansTab';
 import { requirePinIfEnabled } from './pinlock';
 import LockBadge from './LockBadge';
 import './App.css';
