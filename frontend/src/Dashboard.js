@@ -196,7 +196,7 @@ const Dashboard = () => {
     if (status === "Overdue") {
       const overdueDays = Math.abs(daysToDue);
       return `${formatted} (${overdueDays} days overdue)`;
-    } else if (daysToDue !== null && daysToDue <= 7 && daysToDue >= 0) {
+    } else if (daysToDue !== null && daysToDue <= dueSoonDays && daysToDue >= 0) {
       return `${formatted} (${daysToDue} days)`;
     }
     return formatted;
