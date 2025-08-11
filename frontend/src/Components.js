@@ -72,7 +72,18 @@ const PaymentComponent = () => {
       setLoading(true);
       const savedClients = await gymStorage.getAllMembers();
       const normalized = savedClients.map(recomputeStatus);
-      setClients(normalized);
+      
+      // If no clients exist, load sample data
+      if (!normalized || normalized.length === 0) {
+        console.log('No clients found, loading sample data...');
+        setClients(sampleClients);
+        // Optionally, persist them to storage
+        for (const client of sampleClients) {
+          await gymStorage.saveData('members', client);
+        }
+      } else {
+        setClients(normalized);
+      }
     } catch (error) {
       console.error('Error loading clients from phone:', error);
     } finally {
