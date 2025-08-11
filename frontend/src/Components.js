@@ -300,7 +300,7 @@ const PaymentComponent = () => {
                 disabled={isPaymentInvalid}
                 className={`flex-1 rounded-lg px-4 py-2 font-semibold text-white ${isPaymentInvalid ? 'bg-gray-300 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700'}`}
               >
-                Record Payment
+                Record Payment <LockBadge />
               </button>
             </div>
           </form>
