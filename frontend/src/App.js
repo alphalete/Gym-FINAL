@@ -6487,6 +6487,11 @@ const Settings = () => {
   };
 
   const deleteMembershipType = async (id, name) => {
+    // PIN protection for deletion
+    if (!(await requirePinIfEnabled("delete membership type"))) {
+      return;
+    }
+    
     if (!confirm(`Are you sure you want to delete "${name}"?`)) return;
 
     try {
