@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { nextDueDateFromJoin, isOverdue } from './billing';
-import { getDueSoonDays, formatMoney } from "./settings";
+import { getSetting } from "./settingsStore";
 import { buildReminder, waLink } from "./reminders";
 
 const Dashboard = () => {
