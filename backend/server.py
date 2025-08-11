@@ -1319,13 +1319,17 @@ async def migrate_existing_clients():
 # Include the router in the main app
 app.include_router(api_router)
 
+ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "https://alphalete-club.emergent.host",
+]
+
 app.add_middleware(
     CORSMiddleware,
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_origins=["*"],
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_methods=["GET","POST","PUT","DELETE","OPTIONS"],
     allow_headers=["*"],
-    expose_headers=["*"]
 )
 
 # Configure logging
