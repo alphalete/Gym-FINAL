@@ -5479,30 +5479,28 @@ const Payments = () => {
 
   const sendPaymentReminder = async (client) => {
     try {
-      let backendUrl = getBackendUrl();
-      const response = await fetch(`${backendUrl}/api/email/payment-reminder`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          client_id: client.id,
-          client_email: client.email,
-          client_name: client.name,
-          amount: client.monthly_fee,
-          due_date: client.next_payment_date,
-          template_name: 'professional',
-          custom_subject: '',
-          custom_message: ''
-        })
-      });
-      
-      if (response.ok) {
-        alert(`✅ Payment reminder sent to ${client.name}`);
-      } else {
-        throw new Error('Failed to send reminder');
+      const s = await localDB.getSetting('gymSettings') || {};
+      const due = client?.next_payment_date || client?._dueDate || 'soon';
+      const subject = `Alphalete membership due ${due}`;
+      const amountTxt = s?.membershipFeeDefault ? ` Amount: ${s.membershipFeeDefault}.` : '';
+      const body = `Hi ${client?.name || 'member'}, your Alphalete membership is due on ${due}.${amountTxt}\n\nYou can reply here with a payment receipt. Thank you!`;
+
+      // Prefer WhatsApp when phone is present; else fall back to email
+      const hasPhone = client?.phone && client.phone.replace(/\D/g, '').length >= 7;
+      if (hasPhone) {
+        const wa = `https://wa.me/?text=${encodeURIComponent(body)}`;
+        window.open(wa, '_blank');
+        return;
       }
-    } catch (error) {
-      console.error('Error sending reminder:', error);
-      alert('❌ Error sending payment reminder');
+      if (client?.email) {
+        const mailto = `mailto:${encodeURIComponent(client.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        window.location.href = mailto;
+        return;
+      }
+      alert('No phone or email on file for this client.');
+    } catch (e) {
+      console.error('Reminder failed', e);
+      alert('Could not open your email/WhatsApp app on this device.');
     }
   };
 
