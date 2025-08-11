@@ -3039,7 +3039,15 @@ const GoGymDashboard = () => {
           today.setHours(0, 0, 0, 0);
           
           const overdueCount = activeClients.filter(client => {
-            if (!client.next_payment_date) return false;
+            // Use the same logic as getClientPaymentStatus for consistency
+            // Check if client has actually paid (amount_owed should be 0 or very small)
+            if (client.amount_owed === 0 || client.amount_owed < 0.01) {
+              return false; // Paid clients are not overdue
+            }
+            
+            // If client owes money, check when their payment is due
+            if (!client.next_payment_date) return true; // No due date but owes money = overdue
+            
             return new Date(client.next_payment_date) < today;
           }).length;
           
