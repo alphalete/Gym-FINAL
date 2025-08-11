@@ -5680,7 +5680,7 @@ const Payments = () => {
                       data-tooltip="Mark as Paid"
                       onClick={() => markAsPaid(client)}
                     >
-                      ✓
+                      ✓<LockBadge className="ml-0" />
                     </button>
                     <button
                       className="payment-action-btn edit"
