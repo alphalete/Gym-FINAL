@@ -3937,10 +3937,22 @@ const ClientManagement = () => {
     setEditClientModal({ isOpen: true, client });
   };
 
-  const openRecordPaymentModal = (client) => {
+  const openRecordPaymentModal = async (client) => {
     setQuickPaymentModal({ isOpen: true, client });
+    
+    // Get default payment amount from settings
+    let defaultAmount = client.monthly_fee;
+    try {
+      const gymSettings = await localDB.getSetting('gymSettings') || {};
+      if (gymSettings.membershipFeeDefault && Number(gymSettings.membershipFeeDefault) > 0) {
+        defaultAmount = Number(gymSettings.membershipFeeDefault);
+      }
+    } catch (error) {
+      console.warn('Could not load payment settings, using client fee:', error);
+    }
+    
     setQuickPaymentForm({
-      amount_paid: client.monthly_fee.toString(),
+      amount_paid: defaultAmount.toString(),
       payment_date: formatDateForInput(getASTDate()),
       payment_method: 'Cash',
       notes: ''
