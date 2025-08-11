@@ -4968,7 +4968,7 @@ const AddClient = () => {
                     <div className="toggle-knob"></div>
                   </div>
                   <span className={`toggle-label ${recordPayment ? 'active' : ''}`}>
-                    Record Payment
+                    Record Payment <LockBadge />
                   </span>
                 </div>
               </div>
