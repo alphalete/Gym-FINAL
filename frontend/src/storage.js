@@ -91,7 +91,21 @@ class GymStorage {
   }
 
   // Payments
-  async savePayment(payment) {
+  async savePayment(payment, client) {
+    // Add cycle information if client is provided
+    if (client && client.joinDate) {
+      const { start, end } = currentCycleWindow(client.joinDate, new Date(), 30);
+      payment = {
+        id: crypto?.randomUUID ? crypto.randomUUID() : String(Date.now()),
+        clientId: client.id,
+        amount: payment.amount,
+        paidAt: new Date().toISOString(),
+        cycleStart: start ? start.toISOString().slice(0,10) : null,
+        cycleEnd: end ? end.toISOString().slice(0,10) : null,
+        ...payment // preserve any existing properties
+      };
+    }
+    
     const result = await this.saveData('payments', payment);
     await this.saveAudit({ 
       type: 'payment_save', 
