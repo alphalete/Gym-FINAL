@@ -1,4 +1,4 @@
-import { formatMoney } from "./settings";
+import { formatMoney } from "./settings.js";
 
 export function buildReminder({ name, dueISO, amount }) {
   const due = dueISO ? new Date(dueISO).toLocaleDateString(undefined, { month: "short", day: "2-digit", year: "numeric" }) : "soon";
