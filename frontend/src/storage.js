@@ -21,14 +21,26 @@ class GymStorage {
         const db = event.target.result;
         const ensureStore = (name, options) => { 
           if (!db.objectStoreNames.contains(name)) {
-            db.createObjectStore(name, options);
+            return db.createObjectStore(name, options);
           }
+          return null;
         };
 
         ensureStore('members', { keyPath: 'id' });
         ensureStore('payments', { keyPath: 'id' });
         ensureStore('statusChecks', { keyPath: 'id' });
         ensureStore('audit', { keyPath: 'id' });
+        
+        // Create or update plans store with active index
+        let plansStore;
+        if (!db.objectStoreNames.contains('plans')) {
+          plansStore = db.createObjectStore('plans', { keyPath: 'id' });
+        } else {
+          plansStore = event.target.transaction.objectStore('plans');
+        }
+        if (plansStore && !plansStore.indexNames.contains('active')) {
+          plansStore.createIndex('active', 'active', { unique: false });
+        }
       };
     });
   }
