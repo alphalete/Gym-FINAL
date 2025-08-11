@@ -322,11 +322,11 @@ const Dashboard = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                         <button
                           onClick={() => handleWhatsApp(client)}
-                          className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg text-xs font-medium transition-colors"
+                          className="btn btn-primary"
                         >
                           WhatsApp
                         </button>
-                        <button className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg text-xs font-medium transition-colors">
+                        <button className="btn btn-outline">
                           Payment
                         </button>
                       </td>
