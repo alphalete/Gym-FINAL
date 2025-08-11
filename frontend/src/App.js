@@ -4272,7 +4272,7 @@ const ClientManagement = () => {
                       title="Record Payment"
                       onClick={() => openRecordPaymentModal(client)}
                     >
-                      💰
+                      💰<LockBadge className="ml-0" />
                     </button>
                     <button
                       className="action-btn billing"
