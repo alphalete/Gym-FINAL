@@ -3856,6 +3856,22 @@ const ClientManagement = () => {
     fetchClients();
   }, [fetchClients]);
 
+  // Load due-soon days setting on component mount
+  useEffect(() => {
+    const loadDueSoonDays = async () => {
+      try {
+        const gymSettings = await localDB.getSetting('gymSettings') || {};
+        const days = Number(gymSettings.dueSoonDays ?? 3);
+        setDueSoonDays(days);
+        console.log('📅 Loaded due-soon threshold:', days, 'days');
+      } catch (error) {
+        console.warn('Could not load due-soon setting, using default:', error);
+        setDueSoonDays(3);
+      }
+    };
+    loadDueSoonDays();
+  }, []);
+
   const sendPaymentReminder = async (client) => {
     try {
       const s = await localDB.getSetting('gymSettings') || {};
