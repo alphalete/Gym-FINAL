@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import LocalStorageManager from './LocalStorageManager';
-import Dashboard from './Dashboard';
+import NewDashboard from './Dashboard';
 import './App.css';
 
 const localDB = new LocalStorageManager();
