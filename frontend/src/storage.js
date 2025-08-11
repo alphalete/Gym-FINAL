@@ -159,4 +159,106 @@ class GymStorage {
 }
 
 const gymStorage = new GymStorage();
+
+// Dedicated Plans Store Functions with Active Index
+export async function getDB() {
+  await gymStorage.ensureDB();
+  return gymStorage.db;
+}
+
+export async function listPlans(opts = {}) {
+  const { active } = opts;
+  const db = await getDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(['plans'], 'readonly');
+    const store = tx.objectStore('plans');
+    if (typeof active === 'boolean' && store.indexNames.contains('active')) {
+      const idx = store.index('active');
+      const req = idx.openCursor(IDBKeyRange.only(active));
+      const out = [];
+      req.onsuccess = e => { 
+        const c = e.target.result; 
+        if (c) { 
+          out.push(c.value); 
+          c.continue(); 
+        } else { 
+          resolve(out); 
+        } 
+      };
+      req.onerror = () => reject(req.error);
+      return;
+    }
+    const out = [];
+    const req = store.openCursor();
+    req.onsuccess = e => { 
+      const c = e.target.result; 
+      if (c) { 
+        out.push(c.value); 
+        c.continue(); 
+      } else { 
+        resolve(out); 
+      } 
+    };
+    req.onerror = () => reject(req.error);
+  });
+}
+
+export async function upsertPlan(plan) {
+  const db = await getDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(['plans'], 'readwrite');
+    const store = tx.objectStore('plans');
+    const req = store.put(plan);
+    req.onsuccess = () => resolve(plan);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+export async function deletePlan(id) {
+  const db = await getDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(['plans'], 'readwrite');
+    const store = tx.objectStore('plans');
+    const req = store.delete(id);
+    req.onsuccess = () => resolve(true);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+// Settings Helper Functions
+export async function getSetting(key, defaultValue = null) {
+  return gymStorage.getSetting(key, defaultValue);
+}
+
+export async function saveSetting(key, value) {
+  return gymStorage.saveSetting(key, value);
+}
+
+// Migration Function
+export async function migratePlansFromSettingsIfNeeded() {
+  if (migratePlansFromSettingsIfNeeded.done) return;
+  migratePlansFromSettingsIfNeeded.done = true;
+  try {
+    const legacy = await getSetting('membershipPlans', null);
+    if (legacy && Array.isArray(legacy) && legacy.length) {
+      const existing = await listPlans();
+      const ids = new Set(existing.map(p => p.id));
+      for (const p of legacy) {
+        const id = p.id || crypto.randomUUID();
+        if (!ids.has(id)) {
+          await upsertPlan({ 
+            ...p, 
+            id,
+            active: p.active !== undefined ? p.active : true // Default to active
+          });
+        }
+      }
+      await saveSetting('membershipPlans', []);
+      console.log('Plans migrated from settings → plans store');
+    }
+  } catch (e) {
+    console.warn('Plans migration skipped:', e);
+  }
+}
+
 export default gymStorage;
