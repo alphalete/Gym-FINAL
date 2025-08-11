@@ -265,7 +265,7 @@ const Dashboard = () => {
               </div>
               <div className="ml-4">
                 <h3 className="text-sm font-medium text-gray-500">Total Revenue</h3>
-                <p className="text-2xl font-semibold text-green-600">TTD {stats.totalRevenue}</p>
+                <p className="text-2xl font-semibold text-brand-600">{formatMoney(stats.totalRevenue)}</p>
               </div>
             </div>
           </div>
