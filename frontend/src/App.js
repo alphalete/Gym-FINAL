@@ -3751,7 +3751,7 @@ const ClientManagement = () => {
     const daysDiff = Math.ceil((paymentDate - today) / (1000 * 60 * 60 * 24));
     
     if (daysDiff < 0) return 'overdue';
-    if (daysDiff <= 7) return 'due-soon';
+    if (daysDiff <= dueSoonDays) return 'due-soon';
     return 'due'; // Due in the future (not 'paid'!)
   };
 
