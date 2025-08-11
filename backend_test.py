@@ -22,7 +22,7 @@ import os
 from datetime import datetime
 
 # Get backend URL from environment
-BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://3c055140-1043-4f1b-9269-d9bc79313707.preview.emergentagent.com')
+BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://da41ac02-7fb8-489b-8efd-903cb45b565e.preview.emergentagent.com')
 if not BACKEND_URL.endswith('/api'):
     BACKEND_URL = f"{BACKEND_URL}/api"
 

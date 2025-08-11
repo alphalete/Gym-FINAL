@@ -3,19 +3,19 @@ The previous AI engineer's work centered on stabilizing the Alphalete Club PWA, 
 </analysis>
 
 <product_requirements>
-The Alphalete Club PWA is a gym management application for client and payment handling, aiming for a robust, mobile-first experience with offline capabilities. Key features include comprehensive client management (add, edit, view), accurate payment processing with invoicing and owed amount display, automated billing cycles, and reliable dashboard statistics (revenue, owed, active members). The PWA requires strong offline data synchronization via a local-first architecture (IndexedDB), standalone mode, no address bar, maskable/adaptive icons, and WhatsApp reminders. Critical bug fixes included 404 API errors, late fee persistence, notification toggles, and URL override issues affecting core functions and data loading. The implementation has so far addressed core API connectivity, rebuilt the member edit functionality, and refined its styling.
+The Alphalete Club PWA is a gym management application for client and payment handling, aiming for a robust, mobile-first experience with offline capabilities. Key features include comprehensive client management (add, edit, view), accurate payment processing with invoicing and owed amount display, automated billing cycles, and reliable dashboard statistics (revenue, owed, active members). The PWA requires strong offline data synchronization via a local-first architecture (IndexedDB), standalone mode, no address bar, maskable/adaptive icons, and WhatsApp reminders. Critical bug fixes addressed 404 API errors, late fee persistence, notification toggles, and URL override issues affecting core functions. The implementation so far has stabilized core API connectivity, rebuilt member edit functionality and its styling, enabled membership plan management, fixed duplicate membership type handling, enhanced notifications, corrected overdue figures, and introduced a 30-day strict billing cycle with payment preview, Zod validation, and a payment history view with CSV export, backed by an upgraded IndexedDB schema with auditing.
 </product_requirements>
 
 <key_technical_concepts>
-- **FastAPI**: Python framework for backend APIs.
-- **React**: JavaScript library for frontend UI.
-- **MongoDB**: NoSQL database.
-- **PWA (Progressive Web App)**: Service Workers for caching, IndexedDB for offline storage.
-- **Tailwind CSS**: Utility-first CSS framework.
-- **Supervisor**: Process manager.
-- **Environment Variables**: Strict use of  and .
-- **Trusted Web Activity (TWA)**: Android PWA integration.
-- **Error Handling & Connection Pooling**: Backend stability.
+-   **FastAPI**: Python framework for backend APIs.
+-   **React**: JavaScript library for frontend UI.
+-   **MongoDB**: NoSQL database.
+-   **PWA (Progressive Web App)**: Service Workers for caching, IndexedDB for offline storage.
+-   **Tailwind CSS**: Utility-first CSS framework.
+-   **Supervisor**: Process manager.
+-   **Environment Variables**: Strict use of  and .
+-   **Zod**: Schema validation library.
+-   **Trusted Web Activity (TWA)**: Android PWA integration.
 </key_technical_concepts>
 
 <code_architecture>
@@ -23,37 +23,42 @@ The application consists of a FastAPI backend and a React frontend.
 
 
 
-- **backend/server.py**: Core FastAPI application for API routes and database interactions. Changes include  and  models,  blocks for database errors (returning 500/503), and MongoDB connection pooling for stability.
-- **frontend/src/App.js**: Main React component managing UI, state, and API interaction.
-    - **Changes**: Integrated  modal; removed hardcoded URL overrides; implemented  state and .  modified for  data parsing.  calls replaced with  hook. Dashboard data fetching fixed (). Introduced/refined  helper for consistent URL resolution.  in  ensures  on mount.
-    - **Recent Key Changes**: Rebuilt  completely, removing old bugs (alerts, membership type handler), adding modern React patterns, validation, loading states, and change detection. Integrated  prop for feedback. Enhanced  to be more robust, especially for environment variable access. Added  and related functions for cache clearing and integrated into . Added notification banner components.
-- **frontend/src/LocalStorageManager.js**: Manages local IndexedDB for offline data.
-    - **Changes**: Removed hardcoded URL overrides. Improved offline data handling. Fixed  on backend failures.  now differentiates 4xx and 5xx errors.  makes proper PUT API calls. Rewritten to standardize  usage. Added .
-- **frontend/public/manifest.json**: PWA manifest. Changes include updated icon purposes (, ),  mode (), theme colors, and TWA configurations.
-- **frontend/public/index.html**: Root HTML file for PWA. Comprehensive meta tags for icons, , and viewport.
-- **frontend/public/sw.js**: Service worker for caching and offline.
-    - **Changes**:  incremented multiple times ( to ) to force cache refreshes. Temporarily modified to disable API interception for debugging; updated cache clearing list to include new versions.  message source identified here.
-- **frontend/src/App.css**: Styling for the application. Added styles for billing cycle components, offline banner, and toast notifications.
-    - **Recent Key Changes**: Extensive modifications to support the rebuilt 's styling, ensuring it matches the app's modern card design, gradient headers, consistent form inputs, spacing, and shadows, specifically updated to match the dashboard's design system (purple-blue header, white cards for fields).
-- **frontend/public/assetlinks.json**: New file created for TWA verification for Android.
-- **frontend/.env**: Stores frontend environment variables. Fluctuated, now settled on  for .
-- **frontend/craco.config.js**: Added  to fix Invalid Host header errors.
-- **frontend/package.json**: Managed dependencies and scripts, yarn install v1.22.22
-[1/4] Resolving packages...
-success Already up-to-date.
-Done in 0.24s. is used.
+-   **backend/server.py**: Core FastAPI application for API routes and database interactions.
+    -   **Changes**:  model updated to include  and timestamp fields; duplicate membership type validation logic enhanced for case-insensitivity and name normalization to prevent conflicts.
+-   **frontend/src/App.js**: Main React component managing UI, state, and API interaction.
+    -   **Changes**:  updated to correctly use , removing hardcoded preview URLs.  temporarily simplified to bypass  for debugging. , , ,  refactored for consistent fixed header/footer and scrollable content.  success notifications now utilize global toast system via navigation state. Overdue calculations across dashboard components (, , ) were aligned with  logic to ensure consistency by checking .
+-   **frontend/src/LocalStorageManager.js**: Manages local IndexedDB for offline data.
+    -   **Changes**:  method signature corrected to accept  parameter, and an invalid  property was removed.
+-   **frontend/public/sw.js**: Service worker for caching and offline.
+    -   **Changes**:  was incremented to ; temporarily modified to disable API interception for debugging purposes. This file is currently targeted for a versioned caching upgrade.
+-   **frontend/src/App.css**: Styling for the application.
+    -   **Changes**: Extensive modifications for the rebuilt  and other modals, ensuring consistent modern design. Toast notification styling was improved using the  class for better visibility.
+-   **frontend/.env**: Stores frontend environment variables.
+    -   **Changes**:  value was confirmed and corrected.
+-   **frontend/package.json**: Managed dependencies.
+    -   **Changes**:  library was added as a new dependency.
+-   **frontend/src/Components.js (NEW)**: Centralized component for core business logic, including client management and payments.
+    -   **Changes**: Created to encapsulate payment and client-related functions. It includes , , , , , and the  component (modal UI). Implements strict 30-day billing cycle logic, live payment preview, and integrates Zod validation for client and payment forms. Also hosts the new tab navigation for Dashboard and Payments History.
+-   **frontend/src/utils/date.js (NEW)**: Provides reusable date manipulation and status computation utilities.
+    -   **Changes**: Created to export , , , , and . These functions replace redundant inline date logic throughout the application.
+-   **frontend/src/utils/validation.js (NEW)**: Houses Zod schemas for frontend form validation.
+    -   **Changes**: Created to export  and  for robust data validation before persistence.
+-   **frontend/src/hooks/usePayments.js (NEW)**: Custom React hook for managing payments data from IndexedDB.
+    -   **Changes**: Created to fetch, sort, and expose payment records, along with loading state and a reload mechanism for the  component.
+-   **frontend/src/components/payments/PaymentsHistory.jsx (NEW)**: Dedicated UI component for displaying payment transaction history.
+    -   **Changes**: Created to provide a tabular view of payment records, including total counts and sums, and enables CSV export functionality for financial reporting.
+-   **frontend/src/storage.js (NEW - previously implicitly used as )**: Centralized IndexedDB management.
+    -   **Changes**: Created as the primary IndexedDB interface. Schema upgraded to version 2, ensuring existence of , , , and a new  object store for logging. Implemented  function to record critical operations like member and payment saves, enhancing data traceability.
 </code_architecture>
 
 <pending_tasks>
-- Investigate and definitively resolve the discrepancy where the agent's diagnostics report the app is fully operational, but the user repeatedly states that the Buttons at bottom are partially cut off in the Edit Member modal.
+-   Upgrade the PWA service worker () to implement a versioned caching strategy, including defining  and , pre-caching app shell assets, deleting old caches, and using stale-while-revalidate for specific requests while using a cache-first approach for others.
 </pending_tasks>
 
 <current_work>
-Immediately before this summary request, the previous AI engineer was addressing a persistent UI bug where the buttons at the bottom of the Edit Member modal were reported as partially cut off by the user (Chat 302). This issue has been reported multiple times previously (Chat 248, Chat 263, Chat 284, Chat 293), despite the engineer's previous attempts to fix it and subsequent perfect visual confirmations via screenshots.
-
-The engineer's last action was in response to Chat 302. They acknowledged the user's report (Chat 304) and applied a fix (Chat 305) by modifying the  file. This fix specifically aimed to adjust the modal height and ensure the footer containing the buttons is always fully visible. Following this code change, the frontend service was restarted (Chat 306). The current state is that the code has been updated to address the button cutoff, and the frontend service is running with these changes, awaiting a re-test to verify the resolution.
+Immediately before this summary request, the previous AI engineer was addressing the task of improving the PWA service worker. The objective is to enhance the application's caching strategy by modifying the  file. This involves introducing a versioned cache name to manage different cache versions, specifically . The  event listener needs to be updated to pre-cache essential application shell assets such as the root path (), , and . Furthermore, the  event listener will be configured to clean up outdated caches, ensuring that only the current version of the application assets is retained. For  events, a stale-while-revalidate strategy will be applied to critical resources like HTML documents, JavaScript files, and stylesheets, which means the cached version will be served immediately while a network request is made to update the cache. For all other requests, a cache-first strategy will be implemented. The current state is that the engineer has just finished reading the  file and is poised to implement these modifications.
 </current_work>
 
 <optional_next_step>
-Test the Edit Member modal to verify that the buttons at the bottom are no longer partially cut off.
+Implement the PWA service worker upgrade by modifying  as detailed in the user's last request.
 </optional_next_step>
