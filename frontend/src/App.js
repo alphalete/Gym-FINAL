@@ -7009,7 +7009,7 @@ const Settings = () => {
                           onClick={() => deleteMembershipType(type.id, type.name)}
                           style={{ background: '#dc3545', color: 'white', border: 'none', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer' }}
                         >
-                          🗑️
+                          🗑️<LockBadge className="ml-0" />
                         </button>
                       </div>
                     </div>
