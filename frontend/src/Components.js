@@ -24,6 +24,17 @@ function withRecomputedStatus(client) {
     overdue: overdueDays
   };
 }
+
+/* === Payment Preview Helper (added) === */
+function computeNextDuePreview(currentNextDueISO, monthsCovered) {
+  let next = currentNextDueISO;
+  for (let i = 0; i < Math.max(1, monthsCovered); i++) {
+    next = addDaysFromDate(next, 30); // strict 30-day cycle
+  }
+  return next;
+}
+/* === End Preview Helper === */
+
 /* === End Helpers === */
 
 // Component with payment logic
