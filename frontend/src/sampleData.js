@@ -7,9 +7,9 @@ export const sampleClients = [
     phone: "555-0001"
   },
   {
-    id: "c2",
+    id: "c2", 
     name: "Oscar Overdue",
-    joinDate: new Date(new Date().setDate(new Date().getDate() - 45)).toISOString().slice(0,10),
+    joinDate: new Date(new Date().setDate(new Date().getDate() - 60)).toISOString().slice(0,10), // 60 days ago to ensure overdue
     email: "oscar@example.com",
     phone: "555-0002"
   }
