@@ -7501,7 +7501,6 @@ function App() {
             <Route path="/reports" element={<Reports />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/reminders" element={<AutoReminders />} />
-            <Route path="/test-billing" element={<PaymentComponent />} />
           </Routes>
         </Layout>
       </div>
