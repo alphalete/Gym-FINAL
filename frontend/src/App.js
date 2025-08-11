@@ -7502,7 +7502,7 @@ function App() {
             <Route path="/email-center" element={<EmailCenter />} />
             <Route path="/payments" element={<Payments />} />
             <Route path="/reports" element={<Reports />} />
-            <Route path="/settings" element={<Settings />} />
+            <Route path="/settings" element={<SettingsPanel />} />
             <Route path="/reminders" element={<AutoReminders />} />
           </Routes>
         </Layout>
