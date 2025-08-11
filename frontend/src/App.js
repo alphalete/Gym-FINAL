@@ -932,7 +932,8 @@ const MobileNavigation = ({ currentPage }) => {
     { path: "/", icon: "🏠", label: "Home" },
     { path: "/clients", icon: "👥", label: "Members" },
     { path: "/payments", icon: "💳", label: "Payments" },
-    { path: "/settings", icon: "⚙️", label: "Settings" }
+    { path: "/settings", icon: "⚙️", label: "Settings" },
+    { path: "/plans", icon: "🎫", label: "Plans" }
   ];
 
   if (!isMobileView) return null;
