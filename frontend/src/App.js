@@ -4093,6 +4093,11 @@ const ClientManagement = () => {
   };
 
   const deleteClient = async (client) => {
+    // PIN protection for member deletion
+    if (!(await requirePinIfEnabled("delete this member"))) {
+      return;
+    }
+
     // Confirm deletion
     const confirmDelete = window.confirm(
       `⚠️ Are you sure you want to delete ${client.name}?\n\nThis action cannot be undone.`
