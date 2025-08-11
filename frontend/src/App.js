@@ -3332,6 +3332,7 @@ const Dashboard = () => {
   const [clients, setClients] = useState([]);
   const [currentFilter, setCurrentFilter] = useState('all');
   const [syncStatus, setSyncStatus] = useState('online'); // Add syncStatus for the debug section
+  const [dueSoonDays, setDueSoonDays] = useState(3); // Default to 3 days
   const navigate = useNavigate();
 
   // Helper function to get due-soon threshold from settings
