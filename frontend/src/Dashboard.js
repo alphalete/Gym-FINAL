@@ -378,11 +378,11 @@ const Dashboard = () => {
                 <div className="flex space-x-2">
                   <button
                     onClick={() => handleWhatsApp(client)}
-                    className="flex-1 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-xs font-medium transition-colors"
+                    className="flex-1 btn btn-primary"
                   >
                     WhatsApp
                   </button>
-                  <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs font-medium transition-colors">
+                  <button className="flex-1 btn btn-outline">
                     Payment
                   </button>
                 </div>
