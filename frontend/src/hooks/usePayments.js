@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import gymStorage from '../gymStorage';
+import gymStorage from '../storage';
 
 export function usePayments() {
   const [payments, setPayments] = useState([]);
