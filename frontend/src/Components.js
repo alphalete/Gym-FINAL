@@ -260,9 +260,41 @@ const PaymentComponent = () => {
 
   return (
     <div>
-      {/* Component JSX would go here */}
-      <h1>Payment Management Component</h1>
-      {/* Add your UI components here */}
+      {/* Tab Navigation */}
+      <div className="bg-white border-b">
+        <div className="flex space-x-8 px-6">
+          <button
+            onClick={() => setActiveTab('dashboard')}
+            className={`py-3 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'dashboard'
+                ? 'border-red-500 text-red-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Dashboard
+          </button>
+          <button
+            onClick={() => setActiveTab('paymentsHistory')}
+            className={`py-3 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'paymentsHistory'
+                ? 'border-red-500 text-red-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Payments History
+          </button>
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === 'dashboard' && (
+        <div>
+          <h1>Payment Management Component</h1>
+          {/* Add your existing dashboard UI components here */}
+        </div>
+      )}
+      
+      {activeTab === 'paymentsHistory' && <PaymentsHistory />}
       
       {/* Payment Modal */}
       <PaymentTracking />
