@@ -1,3 +1,5 @@
+import { currentCycleWindow } from "./billing";
+
 class GymStorage {
   constructor() {
     this.dbName = 'GymDB';
