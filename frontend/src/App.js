@@ -7495,6 +7495,7 @@ function App() {
         <Layout>
           <Routes>
             <Route path="/" element={<GoGymDashboard />} />
+            <Route path="/dashboard" element={<NewDashboard />} />
             <Route path="/clients" element={<ClientManagement />} />
             <Route path="/add-client" element={<AddClient />} />
             <Route path="/email-center" element={<EmailCenter />} />
