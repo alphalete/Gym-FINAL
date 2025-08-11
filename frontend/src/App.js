@@ -1195,6 +1195,13 @@ const Layout = ({ children }) => {
               <div className="gogym-nav-bottom-icon">⚙️</div>
               <div className="gogym-nav-bottom-label">Settings</div>
             </button>
+            <button 
+              className={`gogym-nav-bottom-item ${location.pathname === '/plans' ? 'active' : ''}`}
+              onClick={() => navigate('/plans')}
+            >
+              <div className="gogym-nav-bottom-icon">🎫</div>
+              <div className="gogym-nav-bottom-label">Plans</div>
+            </button>
           </div>
         </div>
       )}
