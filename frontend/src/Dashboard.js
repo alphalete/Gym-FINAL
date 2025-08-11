@@ -202,18 +202,24 @@ const Dashboard = () => {
     return formatted;
   };
 
-  const handleWhatsApp = (client) => {
-    const message = buildReminder({ 
-      name: client.name, 
-      dueISO: client._dueDate, 
-      amount: client.amount_owed 
-    });
-    const phoneNumber = client.phone?.replace(/[^\d]/g, '') || '';
-    if (phoneNumber) {
-      const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-      window.open(url, '_blank');
-    } else {
-      alert('No phone number available for this client.');
+  const handleWhatsApp = async (client) => {
+    try {
+      const message = await buildReminder({ 
+        name: client.name, 
+        dueISO: client._dueDate, 
+        amount: client.amount_owed,
+        currencyFormatter: formatMoney
+      });
+      const phoneNumber = client.phone?.replace(/[^\d]/g, '') || '';
+      if (phoneNumber) {
+        const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+        window.open(url, '_blank');
+      } else {
+        alert('No phone number available for this client.');
+      }
+    } catch (error) {
+      console.error('Error building WhatsApp message:', error);
+      alert('Error creating message. Please try again.');
     }
   };
 
