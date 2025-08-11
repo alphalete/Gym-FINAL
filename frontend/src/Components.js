@@ -124,6 +124,18 @@ const PaymentComponent = () => {
         await gymStorage.saveMembers(updated);
 
         // Save a payment record (history)
+        const payCheck = PaymentSchema.safeParse({
+          clientId: c.id,
+          date: todayISO,
+          amount: paid,
+          monthsCovered,
+          method: 'cash'
+        });
+        if (!payCheck.success) { 
+          alert(payCheck.error.issues[0]?.message || 'Invalid payment'); 
+          return c; 
+        }
+        
         await gymStorage.savePayment({
           id: Date.now().toString(),
           clientId: c.id,
