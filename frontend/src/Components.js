@@ -1,41 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import gymStorage from './gymStorage'; // Assuming this is the correct import path
-
-/* === Payment & Status Helpers (30-day cycle) === */
-function addDaysFromDate(dateISO, days = 30) {
-  const d = new Date(dateISO);
-  d.setDate(d.getDate() + days);
-  return d.toISOString().split('T')[0];
-}
-
-function daysBetween(aISO, bISO) {
-  const a = new Date(aISO);
-  const b = new Date(bISO);
-  return Math.ceil((a - b) / (1000 * 60 * 60 * 24));
-}
-
-function withRecomputedStatus(client) {
-  const todayISO = new Date().toISOString().split('T')[0];
-  const isOverdue = new Date(client.nextDue) < new Date(todayISO);
-  const overdueDays = isOverdue ? Math.max(0, daysBetween(todayISO, client.nextDue)) : 0;
-  return {
-    ...client,
-    status: isOverdue ? 'Overdue' : 'Active',
-    overdue: overdueDays
-  };
-}
+import { toISODate, add30DaysFrom, recomputeStatus, advanceNextDueByCycles, daysBetween } from './utils/date';
 
 /* === Payment Preview Helper (added) === */
 function computeNextDuePreview(currentNextDueISO, monthsCovered) {
-  let next = currentNextDueISO;
-  for (let i = 0; i < Math.max(1, monthsCovered); i++) {
-    next = addDaysFromDate(next, 30); // strict 30-day cycle
-  }
-  return next;
+  return advanceNextDueByCycles(currentNextDueISO, monthsCovered);
 }
 /* === End Preview Helper === */
-
-/* === End Helpers === */
 
 // Component with payment logic
 const PaymentComponent = () => {
