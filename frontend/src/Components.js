@@ -27,7 +27,7 @@ const PaymentComponent = () => {
   const loadDashboardData = async () => {
     try {
       const savedClients = await gymStorage.getAllMembers();
-      const normalized = savedClients.map(withRecomputedStatus);
+      const normalized = savedClients.map(recomputeStatus);
       setClients(normalized);
     } catch (error) {
       console.error('Error loading dashboard data:', error);
