@@ -2,87 +2,199 @@ import React, { useState, useEffect } from 'react';
 import { nextDueDateFromJoin, isOverdue } from './billing';
 
 const Dashboard = () => {
-  // Mock data - will be replaced with real data
   const [clients, setClients] = useState([]);
+  const [stats, setStats] = useState({
+    activeMembers: 0,
+    overdueAccounts: 0,
+    dueSoon: 0,
+    totalRevenue: 0
+  });
   const [loading, setLoading] = useState(true);
 
-  // Mock clients data for demo (replace with real clientsWithBilling)
-  const mockClients = [
-    {
-      id: 1,
-      name: "Alice Johnson",
-      joinDate: "2025-07-15",
-      email: "alice@example.com",
-      phone: "+1234567890",
-      monthlyFee: 55,
-      status: "Active",
-      lastPayment: "2025-07-15"
-    },
-    {
-      id: 2,
-      name: "Bob Smith",
-      joinDate: "2025-06-01",
-      email: "bob@example.com",
-      phone: "+1234567891",
-      monthlyFee: 75,
-      status: "Overdue", 
-      lastPayment: "2025-06-01"
-    },
-    {
-      id: 3,
-      name: "Carol White",
-      joinDate: "2025-07-25",
-      email: "carol@example.com",
-      phone: "+1234567892",
-      monthlyFee: 65,
-      status: "Active",
-      lastPayment: "2025-07-25"
-    },
-    {
-      id: 4,
-      name: "David Brown",
-      joinDate: "2025-05-15",
-      email: "david@example.com", 
-      phone: "+1234567893",
-      monthlyFee: 85,
-      status: "Due Soon",
-      lastPayment: "2025-06-15"
-    }
-  ];
+  // Get backend URL (same as existing system)
+  const getBackendUrl = () => {
+    return process.env.REACT_APP_BACKEND_URL || import.meta.env?.REACT_APP_BACKEND_URL || '';
+  };
 
-  // Compute clients with billing info
-  const clientsWithBilling = mockClients.map(client => {
-    const dueDate = client.joinDate ? nextDueDateFromJoin(client.joinDate) : null;
-    const overdue = client.joinDate ? isOverdue(client.joinDate) : false;
-    const today = new Date();
+  // Get AST date (Atlantic Standard Time - same as existing system)
+  const getASTDate = () => {
+    const now = new Date();
+    const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
+    const astOffset = -4; // AST is UTC-4
+    return new Date(utcTime + (astOffset * 3600000));
+  };
+
+  // Get client payment status (same logic as existing system)
+  const getClientPaymentStatus = (client) => {
+    // Check if client has actually paid (amount_owed should be 0 or very small)
+    if (client.amount_owed === 0 || client.amount_owed < 0.01) {
+      return 'paid';
+    }
+    
+    // If client owes money, check when their payment is due
+    if (!client.next_payment_date) return 'overdue'; // No due date but owes money = overdue
+    
+    const today = getASTDate();
+    today.setHours(0, 0, 0, 0);
+    const paymentDate = new Date(client.next_payment_date);
+    const daysDiff = Math.ceil((paymentDate - today) / (1000 * 60 * 60 * 24));
+    
+    if (daysDiff < 0) return 'overdue';    // Past due date
+    if (daysDiff <= 7) return 'due-soon';  // Due within 7 days
+    return 'due';                          // Due in the future
+  };
+
+  // Compute clients with billing info using the new billing logic
+  const clientsWithBilling = clients.map(client => {
+    const paymentStatus = getClientPaymentStatus(client);
+    const dueDate = client.next_payment_date;
+    const today = getASTDate();
     const due = dueDate ? new Date(dueDate) : null;
     const daysToDue = due ? Math.ceil((due - today) / (1000 * 60 * 60 * 24)) : null;
     
     let status = "Active";
-    if (overdue) {
+    if (paymentStatus === 'overdue') {
       status = "Overdue";
-    } else if (daysToDue !== null && daysToDue <= 7 && daysToDue > 0) {
+    } else if (paymentStatus === 'due-soon') {
       status = "Due Soon";
+    } else if (paymentStatus === 'paid') {
+      status = "Paid";
     }
     
     return {
       ...client,
-      _dueDate: dueDate ? new Date(dueDate).toISOString().slice(0, 10) : null,
+      _dueDate: dueDate,
       _status: status,
-      _daysToDue: daysToDue
+      _daysToDue: daysToDue,
+      _paymentStatus: paymentStatus
     };
   });
 
-  // Calculate summary stats
-  const totalClients = clientsWithBilling.length;
-  const overdueClients = clientsWithBilling.filter(c => c._status === "Overdue").length;
-  const dueSoonClients = clientsWithBilling.filter(c => c._status === "Due Soon").length;
-  const monthlyRevenue = clientsWithBilling.reduce((sum, client) => sum + (client.monthlyFee || 0), 0);
-
+  // Load data from API (same as existing system)
   useEffect(() => {
-    // Simulate loading
-    setTimeout(() => setLoading(false), 1000);
+    const fetchStats = async () => {
+      try {
+        setLoading(true);
+        const backendUrl = getBackendUrl();
+        
+        if (!backendUrl) {
+          console.log('Dashboard: No backend URL configured');
+          setLoading(false);
+          return;
+        }
+        
+        // Get clients and payment stats in parallel
+        const [clientsResponse, paymentsResponse] = await Promise.all([
+          fetch(`${backendUrl}/api/clients`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' }
+          }),
+          fetch(`${backendUrl}/api/payments/stats`, {
+            method: 'GET', 
+            headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' }
+          })
+        ]);
+        
+        if (clientsResponse.ok && paymentsResponse.ok) {
+          const [clientsData, paymentStats] = await Promise.all([
+            clientsResponse.json(),
+            paymentsResponse.json()
+          ]);
+          
+          setClients(clientsData);
+          
+          const activeClients = clientsData.filter(c => c.status === 'Active');
+          const today = getASTDate();
+          today.setHours(0, 0, 0, 0);
+          
+          // Calculate statistics using same logic as existing system
+          const overdueCount = activeClients.filter(client => {
+            if (client.amount_owed === 0 || client.amount_owed < 0.01) {
+              return false; // Paid clients are not overdue
+            }
+            if (!client.next_payment_date) return true;
+            const paymentDate = new Date(client.next_payment_date);
+            return paymentDate < today;
+          }).length;
+          
+          const dueSoonCount = activeClients.filter(client => {
+            if (!client.next_payment_date) return false;
+            const paymentDate = new Date(client.next_payment_date);
+            const diffTime = paymentDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays >= 0 && diffDays <= 7;
+          }).length;
+
+          setStats({
+            activeMembers: activeClients.length,
+            overdueAccounts: overdueCount,
+            dueSoon: dueSoonCount,
+            totalRevenue: paymentStats.total_revenue || 0
+          });
+        }
+      } catch (error) {
+        console.error('Dashboard: Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
   }, []);
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "Overdue":
+        return "bg-red-100 text-red-800";
+      case "Due Soon":
+        return "bg-yellow-100 text-yellow-800";
+      case "Paid":
+        return "bg-green-100 text-green-800";
+      case "Active":
+        return "bg-blue-100 text-blue-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const getDueDateColor = (daysToDue, status) => {
+    if (status === "Overdue") return "text-red-600 font-semibold";
+    if (daysToDue !== null && daysToDue <= 7) return "text-yellow-600 font-semibold";
+    return "text-gray-600";
+  };
+
+  const formatDueDate = (dateStr, daysToDue, status) => {
+    if (!dateStr) return "No due date";
+    const date = new Date(dateStr);
+    const formatted = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    
+    if (status === "Overdue") {
+      const overdueDays = Math.abs(daysToDue);
+      return `${formatted} (${overdueDays} days overdue)`;
+    } else if (daysToDue !== null && daysToDue <= 7 && daysToDue >= 0) {
+      return `${formatted} (${daysToDue} days)`;
+    }
+    return formatted;
+  };
+
+  const handleWhatsApp = (client) => {
+    const message = `Hi ${client.name}, this is a reminder about your membership payment.`;
+    const phoneNumber = client.phone?.replace(/[^\d]/g, '') || '';
+    if (phoneNumber) {
+      const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+      window.open(url, '_blank');
+    } else {
+      alert('No phone number available for this client.');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   const getStatusColor = (status) => {
     switch (status) {
