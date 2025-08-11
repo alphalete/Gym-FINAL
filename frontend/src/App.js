@@ -3334,6 +3334,17 @@ const Dashboard = () => {
   const [syncStatus, setSyncStatus] = useState('online'); // Add syncStatus for the debug section
   const navigate = useNavigate();
 
+  // Helper function to get due-soon threshold from settings
+  const getDueSoonDays = async () => {
+    try {
+      const gymSettings = await localDB.getSetting('gymSettings') || {};
+      return Number(gymSettings.dueSoonDays ?? 3); // Default to 3 days if not set
+    } catch (error) {
+      console.warn('Could not load due-soon setting, using default:', error);
+      return 3; // Default fallback
+    }
+  };
+
   // Helper functions
   const getClientPaymentStatus = (client) => {
     // Check if client has actually paid (amount_owed should be 0 or very small)
