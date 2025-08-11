@@ -76,7 +76,7 @@ export default function PlansTab(){
               </div>
               <div className="flex items-center gap-2">
                 <button className="btn" onClick={()=>setEditing(p)}>Edit</button>
-                <button className="btn" onClick={()=>onDelete(p.id)}>Delete</button>
+                <button className="btn" onClick={()=>onDelete(p.id)}>Delete <LockBadge className="ml-0" /></button>
               </div>
             </div>
           ))}
