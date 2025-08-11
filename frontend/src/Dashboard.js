@@ -196,52 +196,6 @@ const Dashboard = () => {
     );
   }
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "Overdue":
-        return "bg-red-100 text-red-800";
-      case "Due Soon":
-        return "bg-yellow-100 text-yellow-800";
-      case "Active":
-        return "bg-green-100 text-green-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getDueDateColor = (daysToDue, status) => {
-    if (status === "Overdue") return "text-red-600 font-semibold";
-    if (daysToDue !== null && daysToDue <= 7) return "text-yellow-600 font-semibold";
-    return "text-gray-600";
-  };
-
-  const formatDueDate = (dateStr, daysToDue, status) => {
-    if (!dateStr) return "No due date";
-    const date = new Date(dateStr);
-    const formatted = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    
-    if (status === "Overdue") {
-      return `${formatted} (${Math.abs(daysToDue)} days overdue)`;
-    } else if (daysToDue !== null && daysToDue <= 7 && daysToDue > 0) {
-      return `${formatted} (${daysToDue} days)`;
-    }
-    return formatted;
-  };
-
-  const handleWhatsApp = (client) => {
-    const message = `Hi ${client.name}, this is a reminder about your membership payment.`;
-    const url = `https://wa.me/${client.phone?.replace(/[^\d]/g, '')}?text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank');
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gray-50 p-4 lg:p-8">
       <div className="max-w-7xl mx-auto">
@@ -262,7 +216,7 @@ const Dashboard = () => {
               </div>
               <div className="ml-4">
                 <h3 className="text-sm font-medium text-gray-500">Total Members</h3>
-                <p className="text-2xl font-semibold text-gray-900">{totalClients}</p>
+                <p className="text-2xl font-semibold text-gray-900">{stats.activeMembers}</p>
               </div>
             </div>
           </div>
@@ -276,7 +230,7 @@ const Dashboard = () => {
               </div>
               <div className="ml-4">
                 <h3 className="text-sm font-medium text-gray-500">Overdue</h3>
-                <p className="text-2xl font-semibold text-red-600">{overdueClients}</p>
+                <p className="text-2xl font-semibold text-red-600">{stats.overdueAccounts}</p>
               </div>
             </div>
           </div>
@@ -290,7 +244,7 @@ const Dashboard = () => {
               </div>
               <div className="ml-4">
                 <h3 className="text-sm font-medium text-gray-500">Due Soon</h3>
-                <p className="text-2xl font-semibold text-yellow-600">{dueSoonClients}</p>
+                <p className="text-2xl font-semibold text-yellow-600">{stats.dueSoon}</p>
               </div>
             </div>
           </div>
@@ -303,8 +257,8 @@ const Dashboard = () => {
                 </svg>
               </div>
               <div className="ml-4">
-                <h3 className="text-sm font-medium text-gray-500">Monthly Revenue</h3>
-                <p className="text-2xl font-semibold text-green-600">TTD {monthlyRevenue}</p>
+                <h3 className="text-sm font-medium text-gray-500">Total Revenue</h3>
+                <p className="text-2xl font-semibold text-green-600">TTD {stats.totalRevenue}</p>
               </div>
             </div>
           </div>
@@ -323,7 +277,7 @@ const Dashboard = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Member</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monthly Fee</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount Owed</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
@@ -335,7 +289,7 @@ const Dashboard = () => {
                           <div className="flex-shrink-0 h-10 w-10">
                             <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
                               <span className="text-sm font-medium text-gray-700">
-                                {client.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
+                                {client.name ? client.name.split(' ').map(n => n[0]).join('').substring(0, 2) : '??'}
                               </span>
                             </div>
                           </div>
@@ -356,7 +310,7 @@ const Dashboard = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        TTD {client.monthlyFee}
+                        TTD {client.amount_owed || 0}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                         <button
@@ -387,7 +341,7 @@ const Dashboard = () => {
                     <div className="flex-shrink-0 h-10 w-10">
                       <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
                         <span className="text-sm font-medium text-gray-700">
-                          {client.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
+                          {client.name ? client.name.split(' ').map(n => n[0]).join('').substring(0, 2) : '??'}
                         </span>
                       </div>
                     </div>
@@ -409,8 +363,8 @@ const Dashboard = () => {
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">Monthly Fee</p>
-                    <p className="text-sm font-medium text-gray-900">TTD {client.monthlyFee}</p>
+                    <p className="text-xs text-gray-500">Amount Owed</p>
+                    <p className="text-sm font-medium text-gray-900">TTD {client.amount_owed || 0}</p>
                   </div>
                 </div>
 
