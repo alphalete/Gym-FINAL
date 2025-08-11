@@ -5349,7 +5349,15 @@ const Payments = () => {
       console.log(`📱 Mobile: Current time in AST: ${astNow.toISOString()}`);
       
       const overdueClients = activeClients.filter(client => {
-        if (!client.next_payment_date) return false;
+        // Use the same logic as getClientPaymentStatus for consistency
+        // Check if client has actually paid (amount_owed should be 0 or very small)
+        if (client.amount_owed === 0 || client.amount_owed < 0.01) {
+          return false; // Paid clients are not overdue
+        }
+        
+        // If client owes money, check when their payment is due
+        if (!client.next_payment_date) return true; // No due date but owes money = overdue
+        
         try {
           const paymentDate = new Date(client.next_payment_date + 'T00:00:00');
           const astPaymentDate = new Date(paymentDate.getTime() + (astOffset * 60 * 1000));
