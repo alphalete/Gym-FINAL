@@ -125,7 +125,7 @@ const Dashboard = () => {
             const paymentDate = new Date(client.next_payment_date);
             const diffTime = paymentDate - today;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            return diffDays >= 0 && diffDays <= 7;
+            return diffDays >= 0 && diffDays <= getDueSoonDays();
           }).length;
 
           setStats({
