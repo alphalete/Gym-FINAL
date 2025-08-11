@@ -4502,7 +4502,7 @@ const ClientManagement = () => {
                   boxShadow: '0 2px 4px rgba(59, 130, 246, 0.3)'
                 }}
               >
-                {paymentLoading ? 'Recording...' : '💰 Record Payment'}
+                {paymentLoading ? 'Recording...' : <>💰 Record Payment <LockBadge /></>}
               </button>
             </div>
           </div>
