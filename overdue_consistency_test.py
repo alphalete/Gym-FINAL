@@ -23,7 +23,7 @@ from datetime import datetime, date, timedelta
 import uuid
 
 # Get backend URL from environment
-BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://da41ac02-7fb8-489b-8efd-903cb45b565e.preview.emergentagent.com')
+BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://46206bdc-27f0-428b-bb53-27c7a4990807.preview.emergentagent.com')
 if not BACKEND_URL.endswith('/api'):
     BACKEND_URL = f"{BACKEND_URL}/api"
 

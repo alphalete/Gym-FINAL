@@ -10,7 +10,7 @@ from typing import Dict, Any
 class ServiceWorkerCacheFixTester:
     def __init__(self):
         # Use the exact URL from frontend/.env
-        self.base_url = "https://da41ac02-7fb8-489b-8efd-903cb45b565e.preview.emergentagent.com"
+        self.base_url = "https://46206bdc-27f0-428b-bb53-27c7a4990807.preview.emergentagent.com"
         self.api_url = f"{self.base_url}/api"
         self.tests_run = 0
         self.tests_passed = 0
