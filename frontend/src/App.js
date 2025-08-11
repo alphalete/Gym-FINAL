@@ -3846,40 +3846,28 @@ const ClientManagement = () => {
 
   const sendPaymentReminder = async (client) => {
     try {
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-      
-      console.log('Sending payment reminder for client:', client.id);
-      
-      const response = await fetch(`${backendUrl}/api/email/payment-reminder`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          client_id: client.id,
-          template_name: 'default'
-        })
-      });
+      const s = await localDB.getSetting('gymSettings') || {};
+      const due = client?.next_payment_date || client?._dueDate || 'soon';
+      const subject = `Alphalete membership due ${due}`;
+      const amountTxt = s?.membershipFeeDefault ? ` Amount: ${s.membershipFeeDefault}.` : '';
+      const body = `Hi ${client?.name || 'member'}, your Alphalete membership is due on ${due}.${amountTxt}\n\nYou can reply here with a payment receipt. Thank you!`;
 
-      console.log('Payment reminder response status:', response.status);
-      
-      if (response.ok) {
-        const result = await response.json();
-        console.log('Payment reminder result:', result);
-        
-        if (result.success) {
-          alert(`✅ Payment reminder sent to ${client.name}`);
-        } else {
-          alert(`❌ Failed to send reminder: ${result.message}`);
-        }
-      } else {
-        const error = await response.json();
-        console.error('Payment reminder error:', error);
-        alert(`❌ Failed to send reminder: ${error.detail || 'Unknown error'}`);
+      // Prefer WhatsApp when phone is present; else fall back to email
+      const hasPhone = client?.phone && client.phone.replace(/\D/g, '').length >= 7;
+      if (hasPhone) {
+        const wa = `https://wa.me/?text=${encodeURIComponent(body)}`;
+        window.open(wa, '_blank');
+        return;
       }
-    } catch (error) {
-      console.error('Error sending reminder:', error);
-      alert('❌ Error sending reminder');
+      if (client?.email) {
+        const mailto = `mailto:${encodeURIComponent(client.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        window.location.href = mailto;
+        return;
+      }
+      alert('No phone or email on file for this client.');
+    } catch (e) {
+      console.error('Reminder failed', e);
+      alert('Could not open your email/WhatsApp app on this device.');
     }
   };
 
