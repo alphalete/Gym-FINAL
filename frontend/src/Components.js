@@ -176,12 +176,47 @@ const PaymentComponent = () => {
 
     const isPaymentInvalid = !selectedClient || !Number.isFinite(paid) || paid <= 0 || (monthlyFee || 0) <= 0;
 
+    // Focus management for accessibility
+    useEffect(() => {
+      if (isRecordingPayment && selectedClient) {
+        const focusFirstInput = () => {
+          const firstInput = document.querySelector('.payment-amount-input');
+          if (firstInput) {
+            firstInput.focus();
+          }
+        };
+        // Small delay to ensure modal is rendered
+        setTimeout(focusFirstInput, 100);
+      }
+    }, [isRecordingPayment, selectedClient]);
+
+    // ESC key handler
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setIsRecordingPayment(false);
+        setSelectedClient(null);
+        setPaymentAmount('');
+      }
+    };
+
     if (!isRecordingPayment || !selectedClient) return null;
 
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-          <h3 className="text-lg font-semibold mb-4">Record Payment</h3>
+      <div 
+        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+        role="dialog" 
+        aria-modal="true" 
+        aria-labelledby="paymentModalTitle"
+        onKeyDown={handleKeyDown}
+      >
+        <div 
+          className="bg-white rounded-lg p-6 w-full max-w-md mx-4"
+          tabIndex="-1"
+          role="document"
+          aria-describedby="paymentModalDesc"
+        >
+          <h3 id="paymentModalTitle" className="text-xl font-bold text-gray-900 mb-6">Record Payment</h3>
+          <p id="paymentModalDesc" className="sr-only">Enter amount to record a payment and review the new next due date.</p>
           <p className="text-gray-600 mb-4">
             Recording payment for <strong>{selectedClient.name}</strong>
           </p>
@@ -198,8 +233,7 @@ const PaymentComponent = () => {
                 value={paymentAmount}
                 onChange={(e) => setPaymentAmount(e.target.value)}
                 placeholder={`Enter amount (default: $${monthlyFee})`}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                autoFocus
+                className="payment-amount-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               {/* Monthly fee hint */}
               <p className="mt-1 text-xs text-gray-500">
