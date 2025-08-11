@@ -4293,7 +4293,7 @@ const ClientManagement = () => {
                       title="Delete Client"
                       onClick={() => deleteClient(client)}
                     >
-                      🗑️
+                      🗑️<LockBadge className="ml-0" />
                     </button>
                   </div>
                 </div>
