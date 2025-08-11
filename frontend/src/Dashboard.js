@@ -12,6 +12,29 @@ const Dashboard = () => {
     totalRevenue: 0
   });
   const [loading, setLoading] = useState(true);
+  const [dueSoonDays, setDueSoonDays] = useState(5);
+  const [currencyCode, setCurrencyCode] = useState("TTD");
+
+  // Load settings
+  useEffect(() => { 
+    (async () => {
+      setDueSoonDays(Number(await getSetting("dueSoonDays") ?? 5));
+      setCurrencyCode((await getSetting("currencyCode")) || "TTD");
+    })(); 
+  }, []);
+
+  // Money formatting function
+  const formatMoney = React.useMemo(() => (amt) => {
+    try {
+      return new Intl.NumberFormat('en-TT', { 
+        style: 'currency', 
+        currency: currencyCode, 
+        maximumFractionDigits: 0 
+      }).format(amt || 0);
+    } catch {
+      return `${currencyCode} ${Number(amt || 0).toFixed(0)}`;
+    }
+  }, [currencyCode]);
 
   // Get backend URL (same as existing system)
   const getBackendUrl = () => {
