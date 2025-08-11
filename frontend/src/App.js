@@ -1515,293 +1515,249 @@ const MemberInfoModal = ({ client, isOpen, onClose }) => {
   const paymentStatus = getPaymentStatus();
 
   return (
-    <div className="modern-member-modal-overlay" onClick={onClose}>
-      {/* Modal Container with Fixed Layout */}
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.6)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000,
+      padding: '10px'
+    }} onClick={onClose}>
+      {/* Modal Container with Fixed Layout - Same as other modals */}
       <div style={{
         backgroundColor: 'white',
-        borderRadius: '20px',
+        borderRadius: '12px',
         width: '100%',
-        maxWidth: '480px',
+        maxWidth: '600px',
         height: '70vh',
         maxHeight: '600px',
         minHeight: '500px',
         display: 'flex',
         flexDirection: 'column',
-        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
         overflow: 'hidden'
       }} onClick={(e) => e.stopPropagation()}>
         
-        {/* Fixed Header */}
+        {/* Modal Header - Fixed Height - Same as other modals */}
         <div style={{
-          background: 'linear-gradient(135deg, #1f2937 0%, #374151 100%)',
+          backgroundColor: '#1f2937',
           color: 'white',
-          padding: '16px 24px',
-          borderRadius: '20px 20px 0 0',
+          padding: '16px 20px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           flexShrink: 0,
-          height: '80px',
-          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+          height: '70px'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{
-              width: '48px',
-              height: '48px',
+              width: '36px',
+              height: '36px',
               borderRadius: '50%',
-              background: 'rgba(255, 255, 255, 0.15)',
+              backgroundColor: '#3b82f6',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '16px',
-              fontWeight: 'bold',
               color: 'white',
-              border: '2px solid rgba(255, 255, 255, 0.2)'
+              fontSize: '14px',
+              fontWeight: 'bold'
             }}>
               {getInitials(client.name)}
             </div>
             <div>
-              <div style={{ 
-                fontSize: '18px', 
-                fontWeight: '700', 
-                margin: 0, 
-                color: 'white',
-                textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
-                letterSpacing: '0.025em'
-              }}>
-                {client.name}
-              </div>
-              <div style={{ 
-                fontSize: '12px', 
-                color: 'rgba(255, 255, 255, 0.9)', 
-                margin: 0,
-                fontWeight: '500'
-              }}>
-                <span>{client.status === 'Active' ? '🟢' : '⚪'}</span>
-                <span> {client.status} Member</span>
-              </div>
+              <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: 'white' }}>
+                Member Information
+              </h2>
+              <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#d1d5db' }}>
+                View details for {client.name}
+              </p>
             </div>
           </div>
-          <button 
+          <button
             onClick={onClose}
             style={{
-              position: 'absolute',
-              top: '16px',
-              right: '16px',
-              backgroundColor: 'rgba(255, 255, 255, 0.15)',
-              border: '2px solid rgba(255, 255, 255, 0.2)',
+              backgroundColor: '#374151',
+              border: 'none',
               color: 'white',
-              width: '32px',
-              height: '32px',
-              borderRadius: '50%',
+              width: '28px',
+              height: '28px',
+              borderRadius: '6px',
               cursor: 'pointer',
-              fontSize: '18px',
-              fontWeight: 'bold',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseOver={(e) => {
-              e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.25)';
-            }}
-            onMouseOut={(e) => {
-              e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.15)';
+              fontSize: '16px',
+              fontWeight: 'bold'
             }}
           >
-            ×
+            ✕
           </button>
         </div>
 
-        {/* Scrollable Content */}
+        {/* Scrollable Content - Same as other modals */}
         <div style={{
           flex: 1,
           overflow: 'auto',
-          padding: '16px 24px',
+          padding: '16px',
           backgroundColor: '#f9fafb',
           minHeight: 0
         }}>
-          {/* Contact Information Section */}
-          <div style={{ marginBottom: '24px' }}>
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '12px', 
-              marginBottom: '16px',
+          {/* Member Preview Card */}
+          <div style={{
+            backgroundColor: '#1f2937',
+            borderRadius: '8px',
+            padding: '12px',
+            color: 'white',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            marginBottom: '16px'
+          }}>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              backgroundColor: '#3b82f6',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
               fontSize: '16px',
-              fontWeight: 'bold',
-              color: '#1f2937'
+              fontWeight: 'bold'
             }}>
-              <div style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '8px',
-                background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '14px'
-              }}>
-                👤
-              </div>
-              Contact Information
+              {getInitials(client.name)}
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', backgroundColor: 'white', borderRadius: '8px' }}>
-                <div style={{ fontSize: '18px' }}>📧</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold' }}>Email Address</div>
-                  <div style={{ fontSize: '14px', color: '#1f2937' }}>{client.email || 'Not provided'}</div>
-                </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: '16px', fontWeight: 'bold' }}>{client.name}</div>
+              <div style={{ fontSize: '12px', color: '#d1d5db' }}>
+                {client.membership_type || 'Standard'} • TTD {client.monthly_fee || 0}/month
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', backgroundColor: 'white', borderRadius: '8px' }}>
-                <div style={{ fontSize: '18px' }}>📱</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold' }}>Phone Number</div>
-                  <div style={{ fontSize: '14px', color: '#1f2937' }}>{client.phone || 'Not provided'}</div>
+            </div>
+            <div style={{
+              padding: '4px 8px',
+              borderRadius: '4px',
+              fontSize: '10px',
+              fontWeight: 'bold',
+              backgroundColor: client.status === 'Active' ? '#10b981' : '#6b7280',
+              color: 'white'
+            }}>
+              {client.status || 'Active'}
+            </div>
+          </div>
+
+          {/* Contact Information Section */}
+          <div style={{ marginBottom: '16px' }}>
+            <div style={{
+              backgroundColor: 'white',
+              borderRadius: '6px',
+              padding: '12px'
+            }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#111827', marginBottom: '4px' }}>
+                Contact Information
+              </label>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold', marginBottom: '2px' }}>Email</div>
+                  <div style={{ fontSize: '14px', color: '#111827' }}>{client.email || 'Not provided'}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold', marginBottom: '2px' }}>Phone</div>
+                  <div style={{ fontSize: '14px', color: '#111827' }}>{client.phone || 'Not provided'}</div>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Membership Details Section */}
-          <div style={{ marginBottom: '24px' }}>
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '12px', 
-              marginBottom: '16px',
-              fontSize: '16px',
-              fontWeight: 'bold',
-              color: '#1f2937'
+          <div style={{ marginBottom: '16px' }}>
+            <div style={{
+              backgroundColor: 'white',
+              borderRadius: '6px',
+              padding: '12px'
             }}>
-              <div style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '8px',
-                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '14px'
-              }}>
-                🏋️
-              </div>
-              Membership Details
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', backgroundColor: 'white', borderRadius: '8px' }}>
-                <div style={{ fontSize: '18px' }}>🎫</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold' }}>Membership Type</div>
-                  <div style={{ fontSize: '14px', color: '#1f2937' }}>{client.membership_type || 'Standard'}</div>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#111827', marginBottom: '4px' }}>
+                Membership Details
+              </label>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold', marginBottom: '2px' }}>Membership Type</div>
+                  <div style={{ fontSize: '14px', color: '#111827' }}>{client.membership_type || 'Standard'}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold', marginBottom: '2px' }}>Monthly Fee</div>
+                  <div style={{ fontSize: '14px', color: '#111827' }}>TTD {client.monthly_fee || 0}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold', marginBottom: '2px' }}>Start Date</div>
+                  <div style={{ fontSize: '14px', color: '#111827' }}>{formatDate(client.start_date)}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold', marginBottom: '2px' }}>Billing Interval</div>
+                  <div style={{ fontSize: '14px', color: '#111827' }}>{client.billing_interval_days || 30} days</div>
                 </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', backgroundColor: 'white', borderRadius: '8px' }}>
-                <div style={{ fontSize: '18px' }}>💰</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold' }}>Monthly Fee</div>
-                  <div style={{ fontSize: '14px', color: '#1f2937' }}>TTD {client.monthly_fee || 0}</div>
-                </div>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', backgroundColor: 'white', borderRadius: '8px' }}>
-                <div style={{ fontSize: '18px' }}>📅</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold' }}>Start Date</div>
-                  <div style={{ fontSize: '14px', color: '#1f2937' }}>{formatDate(client.start_date)}</div>
-                </div>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', backgroundColor: 'white', borderRadius: '8px' }}>
-                <div style={{ fontSize: '18px' }}>🔄</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold' }}>Billing Interval</div>
-                  <div style={{ fontSize: '14px', color: '#1f2937' }}>{client.billing_interval_days || 30} days</div>
-                </div>
-              </div>
-              {client.notes && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', backgroundColor: 'white', borderRadius: '8px' }}>
-                  <div style={{ fontSize: '18px' }}>📝</div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold' }}>Notes</div>
-                    <div style={{ fontSize: '14px', color: '#1f2937' }}>{client.notes}</div>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
 
           {/* Payment Status Section */}
-          <div>
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '12px', 
-              marginBottom: '16px',
-              fontSize: '16px',
-              fontWeight: 'bold',
-              color: '#1f2937'
+          <div style={{ marginBottom: '16px' }}>
+            <div style={{
+              backgroundColor: 'white',
+              borderRadius: '6px',
+              padding: '12px'
             }}>
-              <div style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '8px',
-                background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '14px'
-              }}>
-                💳
-              </div>
-              Payment Status
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', backgroundColor: 'white', borderRadius: '8px' }}>
-                <div style={{ fontSize: '18px' }}>📆</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold' }}>Next Payment Due</div>
-                  <div style={{ fontSize: '14px', color: '#1f2937' }}>{formatDate(client.next_payment_date)}</div>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#111827', marginBottom: '4px' }}>
+                Payment Status
+              </label>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold', marginBottom: '2px' }}>Next Payment Due</div>
+                  <div style={{ fontSize: '14px', color: '#111827' }}>{formatDate(client.next_payment_date)}</div>
                 </div>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', backgroundColor: 'white', borderRadius: '8px' }}>
-                <div style={{ fontSize: '18px' }}>{paymentStatus.icon}</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold' }}>Payment Status</div>
-                  <div style={{ fontSize: '14px', color: '#1f2937' }}>
-                    {paymentStatus.text}
+                <div>
+                  <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold', marginBottom: '2px' }}>Payment Status</div>
+                  <div style={{ fontSize: '14px', color: '#111827' }}>
+                    {paymentStatus.icon} {paymentStatus.text}
                   </div>
                 </div>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', backgroundColor: 'white', borderRadius: '8px' }}>
-                <div style={{ fontSize: '18px' }}>🔔</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold' }}>Auto Reminders</div>
-                  <div style={{ fontSize: '14px', color: '#1f2937' }}>
+                <div>
+                  <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold', marginBottom: '2px' }}>Auto Reminders</div>
+                  <div style={{ fontSize: '14px', color: '#111827' }}>
                     {client.auto_reminders_enabled !== false ? '✅ Enabled' : '❌ Disabled'}
                   </div>
                 </div>
+                {client.notes && (
+                  <div>
+                    <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold', marginBottom: '2px' }}>Notes</div>
+                    <div style={{ fontSize: '14px', color: '#111827' }}>{client.notes}</div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Fixed Footer */}
+        {/* Fixed Footer - Same as other modals */}
         <div style={{
-          padding: '16px 24px',
           backgroundColor: '#f8fafc',
-          borderRadius: '0 0 20px 20px',
+          borderTop: '2px solid #e5e7eb',
+          padding: '12px 16px',
           display: 'flex',
-          gap: '12px',
+          gap: '10px',
           justifyContent: 'flex-end',
           flexShrink: 0,
           height: '60px',
-          alignItems: 'center'
+          alignItems: 'center',
+          borderBottomLeftRadius: '12px',
+          borderBottomRightRadius: '12px'
         }}>
-          <button 
+          <button
             onClick={onClose}
             style={{
-              padding: '10px 24px',
-              borderRadius: '8px',
+              padding: '10px 20px',
+              borderRadius: '6px',
               fontSize: '14px',
               fontWeight: 'bold',
               cursor: 'pointer',
