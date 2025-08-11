@@ -4,6 +4,7 @@ import LocalStorageManager from './LocalStorageManager';
 import NewDashboard from './Dashboard';
 import SettingsTab from './SettingsTab';
 import { requirePinIfEnabled } from './pinlock';
+import LockBadge from './LockBadge';
 import './App.css';
 
 const localDB = new LocalStorageManager();
