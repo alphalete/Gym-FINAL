@@ -9,7 +9,7 @@ export const sampleClients = [
   {
     id: "c2", 
     name: "Oscar Overdue", 
-    joinDate: "2025-04-01", // Fixed date that should be overdue by now
+    joinDate: "2025-01-01", // January 1st should definitely be overdue by August 11
     email: "oscar@example.com",
     phone: "555-0002"
   }
