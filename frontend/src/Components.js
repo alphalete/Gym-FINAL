@@ -19,6 +19,7 @@ const PaymentComponent = () => {
   const [selectedClient, setSelectedClient] = useState(null);
   const [isRecordingPayment, setIsRecordingPayment] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState('');
+  const [activeTab, setActiveTab] = useState('dashboard');
 
   const membershipPricing = {
     'Monthly': 59,
