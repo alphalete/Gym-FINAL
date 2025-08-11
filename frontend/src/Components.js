@@ -97,19 +97,16 @@ const PaymentComponent = () => {
     // cover at least 1 "month" = 30 days
     const monthsCovered = Math.max(1, Math.floor(paid / (monthlyFee || 1)));
 
-    const todayISO = new Date().toISOString().split('T')[0];
+    const todayISO = toISODate();
 
     const updatedClients = await Promise.all(
       clients.map(async (c) => {
         if (c.id !== selectedClient.id) return c;
 
         // Advance FROM the existing nextDue, not from today
-        let nextDueISO = c.nextDue || todayISO;
-        for (let i = 0; i < monthsCovered; i++) {
-          nextDueISO = addDaysFromDate(nextDueISO, 30);
-        }
+        const nextDueISO = advanceNextDueByCycles(c.nextDue || todayISO, monthsCovered);
 
-        const updated = withRecomputedStatus({
+        const updated = recomputeStatus({
           ...c,
           lastPayment: todayISO,
           nextDue: nextDueISO
