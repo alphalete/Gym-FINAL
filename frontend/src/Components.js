@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import gymStorage from './gymStorage'; // Assuming this is the correct import path
 import { toISODate, add30DaysFrom, recomputeStatus, advanceNextDueByCycles, daysBetween } from './utils/date';
 import { ClientSchema, PaymentSchema } from './utils/validation';
+import PaymentsHistory from './components/payments/PaymentsHistory';
 
 /* === Payment Preview Helper (added) === */
 function computeNextDuePreview(currentNextDueISO, monthsCovered) {
