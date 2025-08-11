@@ -178,6 +178,24 @@ const PaymentComponent = () => {
     loadDashboardData();
   }, []);
 
+  // Settings Usage
+  const [defaultFee, setDefaultFee] = useState(0);
+  const [dueSoonDays, setDueSoonDays] = useState(3);
+  
+  useEffect(() => {
+    (async () => {
+      const s = await gymStorage.getSetting('gymSettings', {}) || {};
+      if (s?.membershipFeeDefault) setDefaultFee(Number(s.membershipFeeDefault) || 0);
+      setDueSoonDays(Number(s?.reminderDays ?? 3));
+    })();
+  }, []);
+
+  const isDueSoon = (iso) => {
+    if (!iso) return false;
+    const diff = (new Date(iso) - new Date()) / 86400000;
+    return diff >= 0 && diff <= dueSoonDays;
+  };
+
   // PaymentTracking component with modal
   const PaymentTracking = () => {
     // --- Payment preview computed values ---
