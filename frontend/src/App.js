@@ -3952,6 +3952,11 @@ const ClientManagement = () => {
       return;
     }
 
+    // PIN protection for payment recording
+    if (!(await requirePinIfEnabled("record payment"))) {
+      return;
+    }
+
     setPaymentLoading(true);
     try {
       let backendUrl = getBackendUrl();
