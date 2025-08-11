@@ -40,6 +40,21 @@ const PaymentComponent = () => {
     }
   };
 
+  // Compute clients with billing info
+  const clientsWithBilling = (Array.isArray(clients) ? clients : []).map(c => {
+    const due = c?.joinDate ? nextDueDateFromJoin(c.joinDate) : null;
+    const overdue = c?.joinDate ? isOverdue(c.joinDate) : false;
+    return {
+      ...c,
+      _dueDate: due ? due.toISOString().slice(0, 10) : null,
+      _status: overdue ? "Overdue" : "Active"
+    };
+  });
+
+  // Dashboard counts
+  const overdueClients = clientsWithBilling.filter(c => c._status === "Overdue").length;
+  const totalClients = clientsWithBilling.length;
+
   const loadClientsFromPhone = async () => {
     try {
       setLoading(true);
