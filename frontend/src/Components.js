@@ -76,6 +76,13 @@ const PaymentComponent = () => {
       };
 
       const normalized = recomputeStatus(client);
+      
+      const parseResult = ClientSchema.safeParse(normalized);
+      if (!parseResult.success) { 
+        alert(parseResult.error.issues[0]?.message || 'Invalid client data'); 
+        return; 
+      }
+      
       await gymStorage.saveMembers(normalized);
       await loadClientsFromPhone();
 
