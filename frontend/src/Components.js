@@ -193,6 +193,31 @@ const PaymentComponent = () => {
 
     const isPaymentInvalid = !selectedClient || !Number.isFinite(paid) || paid <= 0 || (monthlyFee || 0) <= 0;
 
+    // Real Reminders Function (WhatsApp/Email)
+    const sendReminder = async (client) => {
+      try {
+        const s = await gymStorage.getSetting('gymSettings', {}) || {};
+        const due = client?.nextDue || client?._dueDate || 'soon';
+        const subject = `Alphalete membership due ${due}`;
+        const amountTxt = s?.membershipFeeDefault ? ` Amount: ${s.membershipFeeDefault}.` : '';
+        const body = `Hi ${client?.name || 'member'}, your Alphalete membership is due on ${due}.${amountTxt}\n\nYou can reply here with a payment receipt. Thank you!`;
+
+        const hasPhone = client?.phone && client.phone.replace(/\D/g, '').length >= 7;
+        if (hasPhone) {
+          window.open(`https://wa.me/?text=${encodeURIComponent(body)}`, '_blank');
+          return;
+        }
+        if (client?.email) {
+          window.location.href = `mailto:${encodeURIComponent(client.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+          return;
+        }
+        alert('No phone or email on file for this client.');
+      } catch (e) {
+        console.error('Reminder failed', e);
+        alert('Could not open your email/WhatsApp app on this device.');
+      }
+    };
+
     // Focus management for accessibility
     useEffect(() => {
       if (isRecordingPayment && selectedClient) {
