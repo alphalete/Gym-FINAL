@@ -40,7 +40,7 @@ const PaymentComponent = () => {
     try {
       setLoading(true);
       const savedClients = await gymStorage.getAllMembers();
-      const normalized = savedClients.map(withRecomputedStatus);
+      const normalized = savedClients.map(recomputeStatus);
       setClients(normalized);
     } catch (error) {
       console.error('Error loading clients from phone:', error);
