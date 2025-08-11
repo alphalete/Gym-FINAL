@@ -1533,7 +1533,7 @@ const MemberInfoModal = ({ client, isOpen, onClose }) => {
         
         {/* Fixed Header */}
         <div style={{
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          background: 'linear-gradient(135deg, #1f2937 0%, #374151 100%)',
           color: 'white',
           padding: '16px 24px',
           borderRadius: '20px 20px 0 0',
@@ -1541,25 +1541,42 @@ const MemberInfoModal = ({ client, isOpen, onClose }) => {
           alignItems: 'center',
           justifyContent: 'space-between',
           flexShrink: 0,
-          height: '80px'
+          height: '80px',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{
               width: '48px',
               height: '48px',
               borderRadius: '50%',
-              background: 'rgba(255, 255, 255, 0.2)',
+              background: 'rgba(255, 255, 255, 0.15)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: '16px',
-              fontWeight: 'bold'
+              fontWeight: 'bold',
+              color: 'white',
+              border: '2px solid rgba(255, 255, 255, 0.2)'
             }}>
               {getInitials(client.name)}
             </div>
             <div>
-              <div style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>{client.name}</div>
-              <div style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.8)', margin: 0 }}>
+              <div style={{ 
+                fontSize: '18px', 
+                fontWeight: '700', 
+                margin: 0, 
+                color: 'white',
+                textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
+                letterSpacing: '0.025em'
+              }}>
+                {client.name}
+              </div>
+              <div style={{ 
+                fontSize: '12px', 
+                color: 'rgba(255, 255, 255, 0.9)', 
+                margin: 0,
+                fontWeight: '500'
+              }}>
                 <span>{client.status === 'Active' ? '🟢' : '⚪'}</span>
                 <span> {client.status} Member</span>
               </div>
@@ -1571,15 +1588,25 @@ const MemberInfoModal = ({ client, isOpen, onClose }) => {
               position: 'absolute',
               top: '16px',
               right: '16px',
-              backgroundColor: 'rgba(255, 255, 255, 0.2)',
-              border: 'none',
+              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              border: '2px solid rgba(255, 255, 255, 0.2)',
               color: 'white',
               width: '32px',
               height: '32px',
               borderRadius: '50%',
               cursor: 'pointer',
               fontSize: '18px',
-              fontWeight: 'bold'
+              fontWeight: 'bold',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseOver={(e) => {
+              e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.25)';
+            }}
+            onMouseOut={(e) => {
+              e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.15)';
             }}
           >
             ×
