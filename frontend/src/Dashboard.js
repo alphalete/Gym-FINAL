@@ -181,7 +181,11 @@ const Dashboard = () => {
   };
 
   const handleWhatsApp = (client) => {
-    const message = `Hi ${client.name}, this is a reminder about your membership payment.`;
+    const message = buildReminder({ 
+      name: client.name, 
+      dueISO: client._dueDate, 
+      amount: client.amount_owed 
+    });
     const phoneNumber = client.phone?.replace(/[^\d]/g, '') || '';
     if (phoneNumber) {
       const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
