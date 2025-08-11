@@ -5500,6 +5500,11 @@ const Payments = () => {
   };
 
   const markAsPaid = async (client) => {
+    // PIN protection for payment recording
+    if (!(await requirePinIfEnabled("record payment"))) {
+      return;
+    }
+    
     const amount = prompt(`Enter payment amount for ${client.name}:`, client.monthly_fee);
     if (amount && parseFloat(amount) > 0) {
       try {
