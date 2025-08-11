@@ -165,7 +165,7 @@ const Dashboard = () => {
     };
 
     fetchStats();
-  }, []);
+  }, [dueSoonDays]);
 
   const getStatusColor = (status) => {
     switch (status) {
