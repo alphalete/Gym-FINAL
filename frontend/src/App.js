@@ -3709,6 +3709,7 @@ const ClientManagement = () => {
   const [billingCycleModal, setBillingCycleModal] = useState({ isOpen: false, client: null });
   const [isOffline, setIsOffline] = useState(false);
   const [toast, setToast] = useState(null);  // Add toast state
+  const [dueSoonDays, setDueSoonDays] = useState(3); // Default to 3 days
   const navigate = useNavigate();
   const location = useLocation();
 
