@@ -988,6 +988,7 @@ const Navigation = ({ currentPage }) => {
     { path: "/reminders", icon: "⏰", label: "Automation", description: "Auto Reminders" },
     { path: "/reports", icon: "📊", label: "Analytics", description: "Reports & Data" },
     { path: "/settings", icon: "⚙️", label: "Settings", description: "Configuration" },
+    { path: "/plans", icon: "🎫", label: "Plans", description: "Membership Plans" },
   ];
 
   return (
