@@ -148,11 +148,11 @@ const Dashboard = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case "Overdue":
-        return "bg-red-100 text-red-800";
+        return "badge-danger";
       case "Due Soon":
-        return "bg-yellow-100 text-yellow-800";
+        return "badge-warn";
       case "Paid":
-        return "bg-green-100 text-green-800";
+        return "badge-success";
       case "Active":
         return "bg-blue-100 text-blue-800";
       default:
