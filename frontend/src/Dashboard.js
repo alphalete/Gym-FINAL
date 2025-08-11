@@ -357,7 +357,7 @@ const Dashboard = () => {
                       <div className="text-xs text-gray-500">{client.email}</div>
                     </div>
                   </div>
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(client._status)}`}>
+                  <span className={`badge ${getStatusColor(client._status)}`}>
                     {client._status}
                   </span>
                 </div>
