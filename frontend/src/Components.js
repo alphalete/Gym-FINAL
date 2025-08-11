@@ -62,19 +62,19 @@ const PaymentComponent = () => {
   const handleAddClient = async (e) => {
     e.preventDefault();
     try {
-      const todayISO = new Date().toISOString().split('T')[0];
+      const todayISO = toISODate();
       const client = {
         ...newClient,
         id: Date.now().toString(),
         joinDate: todayISO,
         lastPayment: todayISO, // set to null if you don't want a payment at join
-        nextDue: addDaysFromDate(todayISO, 30), // strict 30-day cycle
+        nextDue: add30DaysFrom(todayISO), // strict 30-day cycle
         status: 'Active',
         overdue: 0,
         amount: membershipPricing[newClient.membershipType] || newClient.amount
       };
 
-      const normalized = withRecomputedStatus(client);
+      const normalized = recomputeStatus(client);
       await gymStorage.saveMembers(normalized);
       await loadClientsFromPhone();
 
