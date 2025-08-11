@@ -2,6 +2,7 @@ import React from "react";
 import { settingsStore } from "./settingsStore";
 import { requirePinIfEnabled } from "./pinlock";
 import { makeMoneyFormatter } from "./money";
+import LockBadge from "./LockBadge";
 
 function Field({ label, children }){ return (
   <label className="block">
