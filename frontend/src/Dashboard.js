@@ -70,7 +70,6 @@ const Dashboard = () => {
   };
 
   // Compute clients with billing info using the new billing logic
-  const dueSoonDays = getDueSoonDays();
   const clientsWithBilling = clients.map(client => {
     const paymentStatus = getClientPaymentStatus(client);
     const dueDate = client.next_payment_date;
