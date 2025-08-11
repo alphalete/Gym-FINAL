@@ -371,7 +371,7 @@ const Dashboard = () => {
                   </div>
                   <div>
                     <p className="text-xs text-gray-500">Amount Owed</p>
-                    <p className="text-sm font-medium text-gray-900">TTD {client.amount_owed || 0}</p>
+                    <p className="text-sm font-medium text-gray-900">{formatMoney(client.amount_owed)}</p>
                   </div>
                 </div>
 
