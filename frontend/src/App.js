@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate 
 import LocalStorageManager from './LocalStorageManager';
 import NewDashboard from './Dashboard';
 import SettingsTab from './SettingsTab';
+import { requirePinIfEnabled } from './pinlock';
 import './App.css';
 
 const localDB = new LocalStorageManager();
