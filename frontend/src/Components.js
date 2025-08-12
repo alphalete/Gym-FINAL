@@ -599,22 +599,22 @@ const Dashboard = () => {
   };
 
   // KPIs
-  const activeCount = members.filter(m => (m.status || "Active") === "Active").length;
+  const activeCount = clients.filter(m => (m.status || "Active") === "Active").length;
   const startOfMonth = new Date(todayISO.slice(0,7) + "-01");
-  const newMTD = members.filter(m => {
+  const newMTD = clients.filter(m => {
     const c = parseISO(m.createdAt?.slice(0,10) || m.joinDate);
     return c && c >= startOfMonth;
   }).length;
   const revenueMTD = payments
     .filter(p => p.paidOn && p.paidOn.slice(0,7) === todayISO.slice(0,7))
     .reduce((sum,p)=> sum + Number(p.amount||0), 0);
-  const overdueCount = members.filter(m => isOverdue(m.nextDue)).length;
+  const overdueCount = clients.filter(m => isOverdue(m.nextDue)).length;
 
   // Lists
-  const dueToday = members.filter(m => isDueToday(m.nextDue))
+  const dueToday = clients.filter(m => isDueToday(m.nextDue))
                           .sort((a,b)=> (a.name||"").localeCompare(b.name||""))
                           .slice(0,5);
-  const overdue = members.filter(m => isOverdue(m.nextDue))
+  const overdue = clients.filter(m => isOverdue(m.nextDue))
                          .sort((a,b)=> (new Date(a.nextDue) - new Date(b.nextDue)))
                          .slice(0,5);
 
