@@ -315,15 +315,25 @@ const PaymentComponent = () => {
           <form onSubmit={handleSubmitPayment}>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
+                Payment Date
+              </label>
+              <input
+                type="date"
+                defaultValue={new Date().toISOString().split('T')[0]}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Payment Amount (${monthlyFee} monthly fee)
               </label>
               <input
                 type="number"
                 step="0.01"
                 min="0"
-                value={paymentAmount || defaultFee}
+                value={paymentAmount}
                 onChange={(e) => setPaymentAmount(e.target.value)}
-                placeholder={`Enter amount (default: $${defaultFee || monthlyFee})`}
+                placeholder={defaultFee ? String(defaultFee) : ""}
                 className="payment-amount-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               {/* Monthly fee hint */}
