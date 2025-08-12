@@ -4221,6 +4221,9 @@ const ClientManagement = () => {
     // Refresh the full client list to ensure consistency
     fetchClients();
     
+    // Dispatch data changed event for dashboard update
+    window.dispatchEvent(new Event('alphalete:data-changed'));
+    
     // Show success notification
     showToast(`✅ ${updatedClient.name} updated successfully!`, 'success');
   };
