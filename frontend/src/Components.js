@@ -184,7 +184,8 @@ const PaymentComponent = () => {
         lastDueISO: client.nextDue,
         paidOnISO: paidOn,
         cycleDays,
-        graceDays
+        graceDays,
+        mode: cycleAnchorMode
       });
       setNextDuePreview(preview);
       setIsRecordingPayment(true);
