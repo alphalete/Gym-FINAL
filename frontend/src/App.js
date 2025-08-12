@@ -3330,6 +3330,10 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [recentClients, setRecentClients] = useState([]);
   const [activeTab, setActiveTab] = useState('overview');
+  
+  useEffect(() => {
+    window.setActiveTab = setActiveTab;   // allow Dashboard to change tabs
+  }, [setActiveTab]);
   const [memberInfoModal, setMemberInfoModal] = useState({ isOpen: false, client: null }); // Add member info modal state
   const [clients, setClients] = useState([]);
   const [currentFilter, setCurrentFilter] = useState('all');
