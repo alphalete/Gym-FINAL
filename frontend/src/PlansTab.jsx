@@ -50,16 +50,22 @@ export default function PlansTab(){
       active: fd.get("active")==="on"
     };
     if(!plan.name){ alert("Plan name is required."); return; }
-    await settingsStore.upsertPlan(plan);
-    setPlans(await settingsStore.listPlans());
+    await upsertPlan(plan);
+    // Refresh based on current filter
+    if (filter === 'all') setPlans(await listPlans());
+    else if (filter === 'active') setPlans(await listPlans({ active: true }));
+    else setPlans(await listPlans({ active: false }));
     setEditing(null);
     e.currentTarget.reset();
   };
 
   const onDelete = async (id)=>{
     if(!(await requirePinIfEnabled("delete this plan"))) return;
-    await settingsStore.deletePlan(id);
-    setPlans(await settingsStore.listPlans());
+    await deletePlan(id);
+    // Refresh based on current filter
+    if (filter === 'all') setPlans(await listPlans());
+    else if (filter === 'active') setPlans(await listPlans({ active: true }));
+    else setPlans(await listPlans({ active: false }));
   };
 
   return (
