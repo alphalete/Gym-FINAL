@@ -141,6 +141,7 @@ const PaymentComponent = () => {
     // Settings-based state
     const [cycleDays, setCycleDays] = useState(30);
     const [graceDays, setGraceDays] = useState(0);
+    const [cycleAnchorMode, setCycleAnchorMode] = useState("anchored");
     const [nextDuePreview, setNextDuePreview] = useState("");
 
     useEffect(() => {
@@ -148,6 +149,7 @@ const PaymentComponent = () => {
         const s = await gymStorage.getSetting('gymSettings', {}) || {};
         setCycleDays(Number(s.billingCycleDays ?? 30) || 30);
         setGraceDays(Number(s.graceDays ?? 0) || 0);
+        setCycleAnchorMode(s.cycleAnchorMode || "anchored");
       })();
     }, []);
 
