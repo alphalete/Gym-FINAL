@@ -7786,129 +7786,39 @@ const Settings = () => {
 };
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(true); // Assume logged in for now
-  const [showInstallPrompt, setShowInstallPrompt] = useState(false);
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [installPromptDismissed, setInstallPromptDismissed] = useState(false);
-  
-  // Tab-based navigation system
   const [activeTab, setActiveTab] = useState('dashboard');
 
+  // Init DB once
   useEffect(() => {
-    // Debug verification for storage methods
-    console.log('[storage] has getSetting:', typeof gymStorage.getSetting);
-    console.log('[storage] has saveSetting:', typeof gymStorage.saveSetting);
-    
-    // Force remove loading screen with stronger methods
-    const loadingScreen = document.getElementById('loading-screen');
-    if (loadingScreen) {
-      console.log('React App mounted, removing loading screen...');
-      
-      // Use stronger CSS overrides with !important
-      loadingScreen.style.setProperty('opacity', '0', 'important');
-      loadingScreen.style.setProperty('pointer-events', 'none', 'important');
-      loadingScreen.style.setProperty('z-index', '-1', 'important');
-      
-      setTimeout(() => {
-        // Complete DOM removal instead of just hiding
-        console.log('Completely removing loading screen from DOM');
-        loadingScreen.remove();
-      }, 300);
-    } else {
-      console.log('Loading screen element not found');
-    }
-
-    // Register service worker
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js')
-        .then((registration) => {
-          console.log('SW: Registration successful', registration);
-        })
-        .catch((error) => {
-          console.log('SW: Registration failed', error);
-        });
-    }
+    (async () => {
+      try { await gymStorage.init(); console.log('[App] storage init ok'); }
+      catch(e){ console.error('[App] storage init failed', e); }
+    })();
   }, []);
 
-  // Navigation fallbacks - global and event-based
+  // Global + event fallback
   useEffect(() => {
-    // Global navigation function
     window.setActiveTab = (tab) => setActiveTab(String(tab).toLowerCase());
-    
-    // Event-based fallback navigation
-    const onNav = (e) => { 
-      const t = e?.detail; 
-      if (typeof t === 'string') setActiveTab(t.toLowerCase()); 
-    };
+    const onNav = (e) => { const t = e?.detail; if (typeof t === 'string') setActiveTab(t.toLowerCase()); };
     window.addEventListener('NAVIGATE', onNav);
-    
-    return () => { 
-      try { delete window.setActiveTab; } catch {} 
-      window.removeEventListener('NAVIGATE', onNav); 
-    };
+    return () => { try { delete window.setActiveTab; } catch {} window.removeEventListener('NAVIGATE', onNav); };
   }, []);
 
-  // URL hash ↔ state sync
+  // Hash sync
   useEffect(() => {
-    const apply = () => { 
-      const m = location.hash.match(/tab=([a-z]+)/i); 
-      if (m) setActiveTab(m[1].toLowerCase()); 
-    };
+    const apply = () => { const m = location.hash.match(/tab=([a-z]+)/i); if (m) setActiveTab(m[1].toLowerCase()); };
     window.addEventListener('hashchange', apply);
     apply();
     return () => window.removeEventListener('hashchange', apply);
   }, []);
-
+  
   useEffect(() => {
     const desired = `#tab=${activeTab}`;
     if (location.hash !== desired) history.replaceState(null, '', desired);
   }, [activeTab]);
 
-  // PWA install prompt logic - only after login
-  useEffect(() => {
-    if (!isLoggedIn || installPromptDismissed) return;
-
-    const handleBeforeInstallPrompt = (e) => {
-      console.log('PWA: beforeinstallprompt event fired');
-      e.preventDefault();
-      setDeferredPrompt(e);
-      
-      // Show install prompt with delay
-      setTimeout(() => {
-        if (!installPromptDismissed) {
-          setShowInstallPrompt(true);
-        }
-      }, 600);
-    };
-
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    };
-  }, [isLoggedIn, installPromptDismissed]);
-
-  const handleInstallApp = async () => {
-    if (!deferredPrompt) return;
-
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    console.log('PWA: User choice outcome:', outcome);
-    
-    setDeferredPrompt(null);
-    setShowInstallPrompt(false);
-    setInstallPromptDismissed(true);
-  };
-
-  const handleDismissInstall = () => {
-    console.log('PWA: Install prompt dismissed by user');
-    setShowInstallPrompt(false);
-    setDeferredPrompt(null);
-    setInstallPromptDismissed(true);
-  };
-
-  // Tab content renderer
-  const renderTabContent = () => {
+  // Ensure the switch renders Components.*
+  function renderActiveComponent() {
     switch (activeTab) {
       case 'home':
       case 'dashboard':  return <Components.Dashboard />;
@@ -7919,27 +7829,14 @@ function App() {
       case 'settings':   return <Components.Settings />;
       default:           return <Components.Dashboard />;
     }
-  };
+  }
 
   return (
-    <Router>
-      <div className="App">
-        <Layout>
-          {/* Use tab-based routing instead of React Router for main content */}
-          {renderTabContent()}
-        </Layout>
-        
-        {/* PWA Install Prompt - Only show when appropriate */}
-        {showInstallPrompt && deferredPrompt && (
-          <InstallPrompt
-            showPrompt={showInstallPrompt}
-            onInstall={handleInstallApp}
-            onDismiss={handleDismissInstall}
-          />
-        )}
-      </div>
-    </Router>
+    <div className="App">
+      {renderActiveComponent()}
+    </div>
   );
+}
 }
 
 export default App;
