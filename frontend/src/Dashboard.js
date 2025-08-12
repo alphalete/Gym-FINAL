@@ -190,6 +190,7 @@ const Dashboard = () => {
         <div className="lg:grid lg:grid-cols-4 lg:gap-3">
           {/* Mobile: horizontal scroll with snap */}
           <div 
+            ref={kpiScrollerRef}
             role="region" 
             aria-label="Key performance indicators"
             className="flex lg:block gap-3 overflow-x-auto lg:overflow-visible snap-x snap-mandatory px-1 -mx-1 pb-2 hide-scrollbar"
