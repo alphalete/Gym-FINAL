@@ -261,6 +261,7 @@ const PaymentComponent = () => {
         overdue: 0
       };
       await gymStorage.saveData('members', updatedMember);
+      signalDataChanged('member');
 
       // Update UI state
       setClients(prev => prev.map(c => c.id === updatedMember.id ? updatedMember : c));
