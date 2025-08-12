@@ -143,27 +143,18 @@ const PaymentComponent = () => {
         // Persist member update
         await gymStorage.saveMembers(updated);
 
-        // Save a payment record (history)
-        const payCheck = PaymentSchema.safeParse({
-          clientId: c.id,
-          date: todayISO,
-          amount: paid,
-          monthsCovered,
-          method: 'cash'
-        });
-        if (!payCheck.success) { 
-          alert(payCheck.error.issues[0]?.message || 'Invalid payment'); 
-          return c; 
+        // Save a payment record (history) - basic validation
+        if (paid > 0 && monthsCovered > 0) {
+          const paymentRecord = {
+            id: Date.now().toString(),
+            clientId: c.id,
+            date: todayISO,
+            amount: paid,
+            monthsCovered,
+            method: 'cash'
+          };
+          await gymStorage.savePayment(paymentRecord);
         }
-        
-        await gymStorage.savePayment({
-          id: Date.now().toString(),
-          clientId: c.id,
-          date: todayISO,
-          amount: paid,
-          monthsCovered,
-          method: 'cash' // replace if you add a selector
-        });
 
         return updated;
       })
