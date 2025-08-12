@@ -503,7 +503,7 @@ const ClientManagement = () => {
                   className="text-xs border rounded px-2 py-1 hover:bg-gray-50" 
                   onClick={() => { 
                     setEditing(m); 
-                    setForm({ name:m.name||"", email:m.email||"", phone:m.phone||"" }); 
+                    setForm({ name:m.name||"", email:m.email||"", phone:m.phone||"", planId: m.planId || "" }); 
                     setIsOpen(true); 
                   }}
                 >
