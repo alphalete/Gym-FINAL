@@ -566,60 +566,29 @@ const PaymentComponent = () => {
 const Dashboard = () => {
   const [clients, setClients] = useState([]);
   const [payments, setPayments] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [settings, setSettings] = useState({ billingCycleDays: 30, graceDays: 0, dueSoonDays: 3 });
-  const [search, setSearch] = useState("");
-
-  // mobile swipe state for KPI + dot indicators
-  const kpiScrollerRef = React.useRef(null);
-  const [kpiPage, setKpiPage] = React.useState(0);
-  const kpiCount = 4;
-
   const todayISO = new Date().toISOString().slice(0,10);
 
-  async function loadDashboardData() {
+  // Simple data loading without complex dependencies
+  async function loadDashboard() {
     try {
-      setLoading(true);
-      // Prefer your helpers; fall back to generic store reads
-      const m1 = await (gymStorage.getAllMembers?.() ?? []);
-      const m2 = await (gymStorage.getAll?.('members') ?? []);
-      const m3 = await (gymStorage.getAll?.('clients') ?? []); // legacy name, just in case
-      
-      // merge by id
-      const byId = new Map();
-      [...m1, ...m2, ...m3].forEach(x => { 
-        if (!x) return; 
-        const id = String(x.id || x.memberId || crypto.randomUUID?.() || Date.now()); 
-        byId.set(id, { ...byId.get(id), ...x, id }); 
-      });
-      setClients(Array.from(byId.values()));
-
-      const p1 = await (gymStorage.getAllPayments?.() ?? []);
-      const p2 = await (gymStorage.getAll?.('payments') ?? []);
-      setPayments([...(p1||[]), ...(p2||[])]);
-
-      const s = 
-        (await (gymStorage.getSetting?.('gymSettings', {}) )) ??
-        (await (getSettingNamed?.('gymSettings', {}) )) ??
-        {};
-      setSettings(prev => ({ ...prev, ...(s || {}) }));
-      
-      console.log('[Dashboard] loaded', { clients: byId.size, payments: [...(p1||[]), ...(p2||[])].length });
-    } catch (e) {
+      const m = await (gymStorage.getAllMembers?.() ?? []);
+      const p = await (gymStorage.getAllPayments?.() ?? []);
+      setClients(Array.isArray(m) ? m : []);
+      setPayments(Array.isArray(p) ? p : []);
+      console.log('[Dashboard] loaded', { clients: m?.length || 0, payments: p?.length || 0 });
+    } catch(e) {
       console.error('[Dashboard] load error', e);
-      setClients([]); setPayments([]);
-    } finally {
-      setLoading(false);
+      setClients([]);
+      setPayments([]);
     }
   }
-
-  useEffect(() => { loadDashboardData(); }, []);
   
-  // refresh whenever data changes, tab changes back to dashboard, or app becomes visible
+  useEffect(() => { loadDashboard(); }, []);
+  
   useEffect(() => {
-    const onChanged = () => loadDashboardData();
-    const onVisible = () => { if (!document.hidden) loadDashboardData(); };
-    const onHash = () => { if (location.hash.includes('tab=dashboard') || location.hash.includes('tab=home')) loadDashboardData(); };
+    const onChanged = () => loadDashboard();
+    const onVisible = () => { if (!document.hidden) loadDashboard(); };
+    const onHash = () => { if (location.hash.includes('tab=dashboard') || location.hash.includes('tab=home')) loadDashboard(); };
     
     window.addEventListener('DATA_CHANGED', onChanged);
     document.addEventListener('visibilitychange', onVisible);
@@ -632,246 +601,73 @@ const Dashboard = () => {
     };
   }, []);
 
-  // track swipe position (mobile)
-  React.useEffect(() => {
-    const el = kpiScrollerRef.current;
-    if (!el) return;
-    const onScroll = () => {
-      const w = el.getBoundingClientRect().width || el.clientWidth || 1;
-      const page = Math.round(el.scrollLeft / Math.max(1, w * 0.72)); // matches min-w-[72%]
-      setKpiPage(Math.max(0, Math.min(kpiCount - 1, page)));
-    };
-    el.addEventListener('scroll', onScroll, { passive: true });
-    return () => el.removeEventListener('scroll', onScroll);
-  }, [kpiCount]);
-
-  function snapToKpi(idx) {
-    const el = kpiScrollerRef.current;
-    if (!el) return;
-    const w = el.getBoundingClientRect().width || el.clientWidth || 1;
-    const itemWidth = Math.max(1, w * 0.72);
-    el.scrollTo({ left: itemWidth * idx, behavior: 'smooth' });
-  }
-
-  const parseISO = (s) => s ? new Date(s) : null;
-  const isOverdue  = (iso) => !!iso && parseISO(iso) < new Date(todayISO);
-  const isDueToday = (iso) => iso === todayISO;
-  const dueSoonDays = Number(settings.dueSoonDays ?? settings.reminderDays ?? 3) || 3;
-  const isDueSoon  = (iso) => {
-    if (!iso) return false;
-    const d = parseISO(iso), t = new Date(todayISO);
-    const diff = Math.round((d - t) / 86400000);
-    return diff > 0 && diff <= dueSoonDays;
-  };
-
-  // KPIs
+  // Simple KPIs
   const activeCount = clients.filter(m => (m.status || "Active") === "Active").length;
-  const startOfMonth = new Date(todayISO.slice(0,7) + "-01");
-  const newMTD = clients.filter(m => {
-    const c = parseISO(m.createdAt?.slice(0,10) || m.joinDate);
-    return c && c >= startOfMonth;
+  const overdueCount = clients.filter(m => {
+    const due = m.nextDue;
+    if (!due) return false;
+    return new Date(due) < new Date(todayISO);
   }).length;
+
   const revenueMTD = payments
     .filter(p => p.paidOn && p.paidOn.slice(0,7) === todayISO.slice(0,7))
     .reduce((sum,p)=> sum + Number(p.amount||0), 0);
-  const overdueCount = clients.filter(m => isOverdue(m.nextDue)).length;
-
-  // Lists
-  const dueToday = clients.filter(m => isDueToday(m.nextDue))
-                          .sort((a,b)=> (a.name||"").localeCompare(b.name||""))
-                          .slice(0,5);
-  const overdue = clients.filter(m => isOverdue(m.nextDue))
-                         .sort((a,b)=> (new Date(a.nextDue) - new Date(b.nextDue)))
-                         .slice(0,5);
-
-  // Search (keeps your existing list behavior below cards)
-  const filteredMembers = clients.filter(m => {
-    const q = search.trim().toLowerCase();
-    if (!q) return true;
-    return [m.name, m.email, m.phone].some(v => (v||"").toLowerCase().includes(q));
-  });
-
-  // Bridge to Payments → auto-open modal
-  const goRecordPayment = (member) => {
-    try { localStorage.setItem("pendingPaymentMemberId", member.id); } catch {}
-    navigate('payments');
-  };
-
-  // Reminder (WhatsApp/email)
-  const sendReminder = async (client) => {
-    try {
-      const s = 
-        (await (gymStorage.getSetting?.('gymSettings', {}) )) ??
-        (await (getSettingNamed?.('gymSettings', {}) )) ??
-        {};
-      const due = client?.nextDue || "soon";
-      const subject = `Membership due ${due}`;
-      const amountTxt = s?.membershipFeeDefault ? ` Amount: ${s.membershipFeeDefault}.` : '';
-      const body = `Hi ${client?.name || 'member'}, your membership is due on ${due}.${amountTxt}\n\nThank you!`;
-      const hasPhone = client?.phone && client.phone.replace(/\D/g, '').length >= 7;
-      if (hasPhone) { window.open(`https://wa.me/?text=${encodeURIComponent(body)}`, '_blank'); return; }
-      if (client?.email) {
-        window.location.href = `mailto:${encodeURIComponent(client.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        return;
-      }
-      alert('No phone or email on file.');
-    } catch {
-      alert('Could not open your email/WhatsApp app.');
-    }
-  };
-
-  // Tiny revenue sparkline (last 8 weeks)
-  const revenuePoints = (() => {
-    const byWeek = new Map();
-    const d = new Date(todayISO);
-    for (let i=0;i<56;i++){ // ensure buckets exist
-      const cur = new Date(d.getTime() - i*86400000);
-      const year = cur.getFullYear();
-      const oneJan = new Date(year,0,1);
-      const week = Math.ceil((((cur - oneJan)/86400000) + oneJan.getDay()+1)/7);
-      byWeek.set(`${year}-${week}`, 0);
-    }
-    payments.forEach(p => {
-      if (!p.paidOn) return;
-      const dt = new Date(p.paidOn);
-      const year = dt.getFullYear();
-      const oneJan = new Date(year,0,1);
-      const week = Math.ceil((((dt - oneJan)/86400000) + oneJan.getDay()+1)/7);
-      const key = `${year}-${week}`;
-      if (byWeek.has(key)) byWeek.set(key, byWeek.get(key) + Number(p.amount||0));
-    });
-    return Array.from(byWeek.entries()).slice(-8).map(([,v])=>v);
-  })();
-  const maxRev = Math.max(1, ...revenuePoints);
-  const spark = (w=160, h=40) => {
-    const step = w / Math.max(1, revenuePoints.length-1);
-    const pts = revenuePoints.map((v,i)=>{
-      const x = i*step;
-      const y = h - (v/maxRev)*h;
-      return `${x},${y}`;
-    }).join(" ");
-    return (
-      <svg width={w} height={h} className="overflow-visible text-gray-400">
-        <polyline fill="none" stroke="currentColor" strokeWidth="2" points={pts} />
-      </svg>
-    );
-  };
 
   return (
     <div className="p-4 space-y-4">
+      <h1 className="text-2xl font-bold">Dashboard</h1>
       
-      {/* --- Swipeable KPI cards (reuse your colorful cards inside each slot) --- */}
-      <div className="lg:grid lg:grid-cols-4 lg:gap-3">
-        <div
-          ref={kpiScrollerRef}
-          role="region"
-          aria-label="Key performance indicators"
-          className="relative z-0 flex lg:block gap-3 overflow-x-auto lg:overflow-visible snap-x snap-mandatory px-1 -mx-1 pb-2 hide-scrollbar"
-        >
-          <div className="min-w-[72%] sm:min-w-[320px] snap-start">
-            {/* Card 1 content → Active Members */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border">
-              <p className="text-sm font-medium text-gray-600">Active Members</p>
-              <p className="text-3xl font-bold text-emerald-600">{activeCount}</p>
-            </div>
-          </div>
-          <div className="min-w-[72%] sm:min-w-[320px] snap-start">
-            {/* Card 2 → Payments Due Today */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border">
-              <p className="text-sm font-medium text-gray-600">Payments Due Today</p>
-              <p className="text-3xl font-bold text-indigo-600">{dueToday.length}</p>
-            </div>
-          </div>
-          <div className="min-w-[72%] sm:min-w-[320px] snap-start">
-            {/* Card 3 → Overdue Accounts */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border">
-              <p className="text-sm font-medium text-gray-600">Overdue Accounts</p>
-              <p className="text-3xl font-bold text-red-600">{overdue.length}</p>
-            </div>
-          </div>
-          <div className="min-w-[72%] sm:min-w-[320px] snap-start">
-            {/* Card 4 → Revenue MTD */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border">
-              <p className="text-sm font-medium text-gray-600">Revenue (MTD)</p>
-              <p className="text-3xl font-bold text-blue-600">${revenueMTD.toFixed(2)}</p>
-            </div>
-          </div>
+      {/* KPIs */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-white rounded-xl border p-4">
+          <div className="text-2xl font-bold text-green-600">{activeCount}</div>
+          <div className="text-sm text-gray-600">Active Members</div>
         </div>
-      </div>
-
-      {/* Dots under cards (mobile only) */}
-      <div className="flex items-center justify-center gap-2 py-1 lg:hidden">
-        {Array.from({ length: kpiCount }).map((_, i) => (
-          <button
-            key={i}
-            type="button"
-            aria-label={`Go to KPI ${i + 1}`}
-            onClick={() => snapToKpi(i)}
-            className={["kpi-dot h-2 w-2 rounded-full transition-transform",
-                        i === kpiPage ? "scale-125 kpi-dot-active" : "opacity-60"].join(" ")}
-          />
-        ))}
+        
+        <div className="bg-white rounded-xl border p-4">
+          <div className="text-2xl font-bold text-blue-600">0</div>
+          <div className="text-sm text-gray-600">Due Today</div>
+        </div>
+        
+        <div className="bg-white rounded-xl border p-4">
+          <div className="text-2xl font-bold text-red-600">{overdueCount}</div>
+          <div className="text-sm text-gray-600">Overdue</div>
+        </div>
+        
+        <div className="bg-white rounded-xl border p-4">
+          <div className="text-2xl font-bold text-purple-600">${revenueMTD.toFixed(2)}</div>
+          <div className="text-sm text-gray-600">Revenue (MTD)</div>
+        </div>
       </div>
 
       {/* Quick Actions */}
-      <div className="relative z-10 pointer-events-auto flex flex-col sm:flex-row gap-2">
-        <button type="button" className="rounded-xl border px-3 py-2" onClick={()=> navigate('payments')}>+ Add Payment</button>
-        <button type="button" className="rounded-xl border px-3 py-2" onClick={()=> navigate('clients')}>+ Add Member</button>
-        <button type="button" className="rounded-xl border px-3 py-2" onClick={()=> overdue.concat(dueToday).forEach(m=>sendReminder(m))}>Send Reminders</button>
+      <div className="flex flex-wrap gap-2">
+        <button type="button" className="rounded-xl bg-blue-500 text-white px-4 py-2" onClick={()=> navigate('payments')}>
+          + Add Payment
+        </button>
+        <button type="button" className="rounded-xl bg-green-500 text-white px-4 py-2" onClick={()=> navigate('clients')}>
+          + Add Member
+        </button>
+        <button type="button" className="rounded-xl border px-4 py-2">
+          Send Reminders
+        </button>
       </div>
 
-      {/* Due Today */}
-      <div className="bg-white rounded-2xl border p-4">
-        <div className="font-semibold mb-2">Due Today</div>
-        {dueToday.length === 0 ? (
-          <div className="text-sm text-gray-500">No members due today.</div>
-        ) : dueToday.map(m => (
-          <div key={m.id} className="flex items-center justify-between py-2 border-b last:border-0">
-            <div>
-              <div className="font-medium">{m.name}</div>
-              <div className="text-xs text-gray-500">{m.nextDue}</div>
-            </div>
-            <div className="flex gap-2">
-              <button type="button" className="text-sm rounded-lg border px-2 py-1" onClick={()=> goRecordPayment(m)}>Record</button>
-              <button type="button" className="text-sm rounded-lg border px-2 py-1" onClick={()=> sendReminder(m)}>Remind</button>
-            </div>
+      {/* Recent Activity */}
+      <div className="bg-white rounded-xl border p-4">
+        <h3 className="font-semibold mb-2">Recent Activity</h3>
+        {payments.length > 0 ? (
+          <div className="space-y-2">
+            {payments.slice(-5).reverse().map(p => (
+              <div key={p.id} className="flex justify-between text-sm">
+                <span>Payment: ${p.amount}</span>
+                <span className="text-gray-500">{p.paidOn}</span>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-
-      {/* Overdue */}
-      <div className="bg-white rounded-2xl border p-4">
-        <div className="font-semibold mb-2">Overdue</div>
-        {overdue.length === 0 ? (
-          <div className="text-sm text-gray-500">No overdue members 🎉</div>
-        ) : overdue.map(m => (
-          <div key={m.id} className="flex items-center justify-between py-2 border-b last:border-0">
-            <div>
-              <div className="font-medium">{m.name}</div>
-              <div className="text-xs text-red-600">{m.nextDue}</div>
-            </div>
-            <div className="flex gap-2">
-              <button type="button" className="text-sm rounded-lg border px-2 py-1" onClick={()=> goRecordPayment(m)}>Record</button>
-              <button type="button" className="text-sm rounded-lg border px-2 py-1" onClick={()=> sendReminder(m)}>Remind</button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Trends + Plans snapshot */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-        <div className="bg-white rounded-2xl border p-4 lg:col-span-2">
-          <div className="flex items-center justify-between mb-2">
-            <div className="font-semibold">Collections (last 8 weeks)</div>
-            <button type="button" className="text-xs text-gray-500" onClick={()=> navigate('reports')}>View Reports</button>
-          </div>
-          {spark()}
-        </div>
-
-        <div className="bg-white rounded-2xl border p-4">
-          <div className="font-semibold mb-2">Plans snapshot</div>
-          <PlansMini />
-        </div>
+        ) : (
+          <p className="text-gray-500 text-sm">No recent activity</p>
+        )}
       </div>
     </div>
   );
