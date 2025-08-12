@@ -4619,11 +4619,13 @@ const AddClient = () => {
   });
 
   const [membershipTypes, setMembershipTypes] = useState([]);
+  const [membershipPlans, setMembershipPlans] = useState([]); // IndexedDB plans
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchMembershipTypes();
+    fetchMembershipPlans(); // Load IndexedDB plans
   }, []);
 
   const fetchMembershipTypes = async () => {
