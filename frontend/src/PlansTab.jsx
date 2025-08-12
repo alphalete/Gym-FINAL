@@ -157,13 +157,7 @@ export default function PlansTab(){
                   <input
                     type="checkbox"
                     checked={!!p.active}
-                    onChange={async ()=> {
-                      const updated = { ...p, active: !p.active };
-                      await upsertPlan(updated);
-                      if (filter === 'all') setPlans(await listPlans());
-                      else if (filter === 'active') setPlans(await listPlans({ active: true }));
-                      else setPlans(await listPlans({ active: false }));
-                    }}
+                    onChange={() => toggleActiveOptimistic(p)}
                   />
                   <span>{p.active ? "Active" : "Inactive"}</span>
                 </label>
