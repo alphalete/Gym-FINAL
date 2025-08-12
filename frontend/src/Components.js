@@ -50,6 +50,26 @@ function computeNextDuePreview(currentNextDueISO, monthsCovered) {
 /* === End Preview Helper === */
 
 // --- WhatsApp/Email/Share helpers ---
+function addDaysISO(iso, days){
+  const d = new Date(iso); d.setDate(d.getDate() + Number(days||0));
+  return d.toISOString().slice(0,10);
+}
+
+/**
+ * Option A: Keep the original cadence.
+ * - If member has a previous nextDue, roll forward by whole cycles until nextDue > paidOn.
+ * - If it's the first payment (no nextDue), set from paidOn + cycleDays.
+ */
+function computeNextDueOptionA(prevNextDueISO, paidOnISO, cycleDays){
+  const cycle = Number(cycleDays || 30);
+  const paid = new Date(paidOnISO);
+  if (!prevNextDueISO) return addDaysISO(paidOnISO, cycle);
+  let nextDue = new Date(prevNextDueISO);
+  // roll forward by full cycles until the next due date is AFTER the paid date
+  while (nextDue <= paid) nextDue.setDate(nextDue.getDate() + cycle);
+  return nextDue.toISOString().slice(0,10);
+}
+
 function openWhatsApp(text, phone){
   const msg = encodeURIComponent(text);
   const pn  = phone ? encodeURIComponent(String(phone)) : "";
