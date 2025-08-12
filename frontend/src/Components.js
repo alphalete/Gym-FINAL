@@ -97,9 +97,9 @@ const PaymentComponent = () => {
 
       const normalized = recomputeStatus(client);
       
-      const parseResult = ClientSchema.safeParse(normalized);
-      if (!parseResult.success) { 
-        alert(parseResult.error.issues[0]?.message || 'Invalid client data'); 
+      // Basic validation - check if required fields exist
+      if (!normalized.name?.trim() || !normalized.membershipType) { 
+        alert('Name and membership type are required'); 
         return; 
       }
       
