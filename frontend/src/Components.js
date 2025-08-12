@@ -25,8 +25,8 @@ function navigate(tab) {
   } else {
     window.dispatchEvent(new CustomEvent('NAVIGATE', { detail: t }));
   }
-  // TEMP debug so you see taps working; remove later:
-  try { console.log('[NAV]', t); alert(`Navigating to: ${t}`); } catch {}
+  // Navigation logging
+  try { console.log('[NAV]', t); } catch {}
 }
 
 // Dev Inspector Component
