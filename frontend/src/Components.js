@@ -904,6 +904,9 @@ const Settings = () => (
   </div>
 );
 
+// Alias for backward compatibility
+const PaymentTracking = PaymentComponent;
+
 // Explicit component exports
 export {
   Dashboard,
@@ -917,7 +920,7 @@ export {
 // Default export object for App.js
 const Components = {
   Dashboard,
-  PaymentTracking: PaymentComponent,
+  PaymentTracking,
   ClientManagement,
   MembershipManagement,
   Reports,
