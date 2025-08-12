@@ -4,74 +4,37 @@ import Components from "./Components";
 import gymStorage from "./storage";
 import "./index.css";
 
-// PWA Install Prompt Component
-const InstallPrompt = ({ showPrompt, onInstall, onDismiss }) => {
-  if (!showPrompt) return null;
-
-  return (
-    <div className="install-prompt-overlay" style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 10000,
-      padding: '20px'
-    }}>
-      <div className="install-prompt" style={{
-        backgroundColor: 'white',
-        borderRadius: '12px',
-        padding: '24px',
-        maxWidth: '400px',
-        width: '100%',
-        textAlign: 'center',
-        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)'
-      }}>
-        <div style={{ fontSize: '48px', marginBottom: '16px' }}>📱</div>
-        <h3 style={{ margin: '0 0 12px 0', fontSize: '18px', fontWeight: 'bold' }}>
-          Install Alphalete Club
-        </h3>
-        <p style={{ margin: '0 0 20px 0', color: '#666', fontSize: '14px' }}>
-          Install this app for a better experience and quick access from your home screen.
-        </p>
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-          <button
-            onClick={onDismiss}
-            style={{
-              padding: '10px 20px',
-              border: '1px solid #ccc',
-              backgroundColor: 'white',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontSize: '14px'
-            }}
-          >
-            Not Now
-          </button>
-          <button
-            onClick={onInstall}
-            style={{
-              padding: '10px 20px',
-              backgroundColor: '#3b82f6',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: 'bold'
-            }}
-          >
-            Install App
-          </button>
-        </div>
+// Error Boundary
+function ErrorBoundary({ children }) {
+  const [err, setErr] = useState(null);
+  
+  useEffect(() => {
+    const handleError = (event) => {
+      setErr(event.error);
+    };
+    
+    window.addEventListener('error', handleError);
+    return () => window.removeEventListener('error', handleError);
+  }, []);
+  
+  if (err) {
+    return (
+      <div className="p-4 text-sm">
+        <div className="font-semibold mb-2">Something went wrong.</div>
+        <pre className="text-xs whitespace-pre-wrap bg-gray-100 p-2 rounded">{String(err?.stack || err)}</pre>
+        <button 
+          type="button" 
+          className="mt-2 border px-2 py-1 rounded hover:bg-gray-50" 
+          onClick={() => location.reload()}
+        >
+          Reload
+        </button>
       </div>
-    </div>
-  );
-};
+    );
+  }
+  
+  return children;
+}
 
 // Cache Issue Detection Banner
 const CacheIssueBanner = ({ onClearCache }) => {
