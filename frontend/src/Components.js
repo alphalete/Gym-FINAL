@@ -292,7 +292,10 @@ const PaymentComponent = () => {
     // Real Reminders Function (WhatsApp/Email)
     const sendReminder = async (client) => {
       try {
-        const s = await gymStorage.getSetting('gymSettings', {}) || {};
+        const s = 
+          (await (gymStorage.getSetting?.('gymSettings', {}) )) ??
+          (await (getSettingNamed?.('gymSettings', {}) )) ??
+          {};
         const due = client?.nextDue || client?._dueDate || 'soon';
         const subject = `Alphalete membership due ${due}`;
         const amountTxt = s?.membershipFeeDefault ? ` Amount: ${s.membershipFeeDefault}.` : '';
