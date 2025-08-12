@@ -496,6 +496,10 @@ const ClientManagement = () => {
                   {m.email || "—"} • {m.phone || "—"} • {m.status || "Active"}
                   {m.joinDate && ` • Joined ${m.joinDate}`}
                 </div>
+                <div className="text-xs text-gray-500">
+                  {(m.planName ? `${m.planName} • $${Number(m.fee||0).toFixed(2)} / ${m.cycleDays||30}d` : "No plan")}
+                </div>
+                {m.nextDue && <div className="text-xs">{`Next due: ${m.nextDue}`}</div>}
               </div>
               <div className="flex gap-2">
                 <button 
