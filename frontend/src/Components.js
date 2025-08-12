@@ -14,6 +14,52 @@ function signalDataChanged(what = '') {
   } catch {}
 }
 
+// Simple plans helpers (since we removed complex plans store)
+const planHelpers = {
+  async listPlans() {
+    try {
+      const plans = await gymStorage.getSetting('membershipPlans', []);
+      return Array.isArray(plans) ? plans : [];
+    } catch (e) {
+      console.warn('Failed to load plans:', e);
+      return [];
+    }
+  },
+  
+  async upsertPlan(plan) {
+    try {
+      const plans = await this.listPlans();
+      const id = plan.id || crypto.randomUUID?.() || String(Date.now());
+      const newPlan = { ...plan, id };
+      const idx = plans.findIndex(p => p.id === id);
+      
+      if (idx >= 0) plans[idx] = newPlan;
+      else plans.push(newPlan);
+      
+      await gymStorage.saveSetting('membershipPlans', plans);
+      return newPlan;
+    } catch (e) {
+      console.error('Failed to save plan:', e);
+      throw e;
+    }
+  },
+  
+  async deletePlan(id) {
+    try {
+      const plans = await this.listPlans();
+      const filtered = plans.filter(p => p.id !== id);
+      await gymStorage.saveSetting('membershipPlans', filtered);
+      return true;
+    } catch (e) {
+      console.error('Failed to delete plan:', e);
+      throw e;
+    }
+  }
+};
+
+// Add plan methods to gymStorage for backward compatibility
+Object.assign(gymStorage, planHelpers);
+
 // Navigation helper function
 function navTo(tab){
   const t = String(tab).toLowerCase();
