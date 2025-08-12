@@ -8,6 +8,14 @@ import { listPlans, upsertPlan, deletePlan, migratePlansFromSettingsIfNeeded } f
 import { requirePinIfEnabled } from './pinlock';
 
 // Navigation helper function
+function navTo(tab){
+  const t = String(tab).toLowerCase();
+  try { location.hash = `#tab=${t}`; } catch {}
+  if (typeof window.setActiveTab === 'function') window.setActiveTab(t);
+  else window.dispatchEvent(new CustomEvent('NAVIGATE', { detail: t }));
+}
+
+// Navigation helper function (enhanced version)
 function navigate(tab) {
   const t = String(tab).toLowerCase();
   // Update hash first (works even if globals aren't ready):
@@ -20,6 +28,67 @@ function navigate(tab) {
   // TEMP debug so you see taps working; remove later:
   try { console.log('[NAV]', t); alert(`Navigating to: ${t}`); } catch {}
 }
+
+// Dev Inspector Component
+const DevInspector = () => {
+  const [open, setOpen] = useState(false);
+  const [snapshot, setSnapshot] = useState({ members: 0, payments: 0, sampleMember: null });
+
+  async function refresh() {
+    try {
+      const m = await (gymStorage.getAllMembers?.() ?? gymStorage.getAllData?.('members') ?? []);
+      const p = await (gymStorage.getAllPayments?.() ?? gymStorage.getAllData?.('payments') ?? []);
+      setSnapshot({ members: (m||[]).length, payments: (p||[]).length, sampleMember: (m||[])[0] || null });
+      console.log('[DevInspector] members', m, 'payments', p);
+    } catch (e) {
+      console.error('[DevInspector] error', e);
+    }
+  }
+
+  async function seedOne() {
+    const id = String(Date.now());
+    const member = { 
+      id, 
+      name: 'Debug User', 
+      email: 'debug@example.com', 
+      phone: '000', 
+      joinDate: new Date().toISOString().slice(0,10), 
+      lastPayment: new Date().toISOString().slice(0,10), 
+      nextDue: new Date(Date.now()+30*86400000).toISOString().slice(0,10), 
+      status: 'Active', 
+      overdue: 0 
+    };
+    await gymStorage.saveData('members', member);
+    signalDataChanged('member');
+    await refresh();
+  }
+
+  useEffect(()=>{ if (open) refresh(); }, [open]);
+
+  return (
+    <>
+      {/* Long-press title to toggle */}
+      <button
+        onPointerDown={(e)=>{ const t=setTimeout(()=>setOpen(v=>!v),700); e.currentTarget.dataset.t=t; }}
+        onPointerUp={(e)=>{ clearTimeout(e.currentTarget.dataset.t); }}
+        className="hidden" aria-hidden
+      />
+      {open && (
+        <div className="fixed bottom-4 right-4 z-[9999] bg-white border rounded-xl shadow p-3 w-[90%] max-w-sm">
+          <div className="text-xs font-semibold mb-2">Dev Inspector</div>
+          <div className="text-xs">members: <b>{snapshot.members}</b> • payments: <b>{snapshot.payments}</b></div>
+          <div className="text-[11px] break-words mt-1">{snapshot.sampleMember ? JSON.stringify(snapshot.sampleMember) : 'no sample'}</div>
+          <div className="mt-2 flex gap-2">
+            <button className="border rounded px-2 py-1 text-xs" onClick={refresh}>Refresh</button>
+            <button className="border rounded px-2 py-1 text-xs" onClick={seedOne}>Seed 1 member</button>
+            <button className="border rounded px-2 py-1 text-xs" onClick={()=>navTo('clients')}>Go Clients</button>
+            <button className="border rounded px-2 py-1 text-xs" onClick={()=>navTo('payments')}>Go Payments</button>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
 
 /* === Payment Preview Helper (added) === */
 function computeNextDuePreview(currentNextDueISO, monthsCovered) {
