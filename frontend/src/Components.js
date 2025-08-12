@@ -43,11 +43,34 @@ function navigate(tab) {
   try { console.log('[NAV]', t); } catch {}
 }
 
-/* === Payment Preview Helper (added) === */
+/* === Preview Helper (added) === */
 function computeNextDuePreview(currentNextDueISO, monthsCovered) {
   return advanceNextDueByCycles(currentNextDueISO, monthsCovered);
 }
 /* === End Preview Helper === */
+
+// --- WhatsApp/Email/Share helpers ---
+function openWhatsApp(text, phone){
+  const msg = encodeURIComponent(text);
+  const pn  = phone ? encodeURIComponent(String(phone)) : "";
+  const url = pn ? `https://wa.me/${pn}?text=${msg}` : `https://wa.me/?text=${msg}`;
+  window.open(url, "_blank");
+}
+function openEmail(subject, body, to){
+  const s = encodeURIComponent(subject||"");
+  const b = encodeURIComponent(body||"");
+  const t = to ? encodeURIComponent(to) : "";
+  window.location.href = `mailto:${t}?subject=${s}&body=${b}`;
+}
+function shareFallback(text){
+  if (navigator.share) { try { navigator.share({ text }); } catch {} }
+  else { alert(text); }
+}
+function buildReminder(m){
+  const due = m.nextDue || "your due date";
+  const amt = m.fee != null ? `$${Number(m.fee).toFixed(2)}` : "your fee";
+  return `Hi ${m.name||''}, this is a reminder from Alphalete Club. ${amt} is due on ${due}. Reply if you have any questions.`;
+}
 
 // --- Payments (PaymentTracking) ---
 const PaymentComponent = () => {
