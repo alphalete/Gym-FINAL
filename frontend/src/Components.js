@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import gymStorage, { getAll as getAllStore, signalDataChanged, getSetting as getSettingNamed } from './storage'; // Updated to correct import path
+import gymStorage, { getAll as getAllStore, getSetting as getSettingNamed } from './storage';
 import { toISODate, add30DaysFrom, recomputeStatus, advanceNextDueByCycles, daysBetween } from './utils/date';
 import PaymentsHistory from './components/payments/PaymentsHistory';
 import { nextDueDateFromJoin, isOverdue, nextDueAfterPayment } from "./billing";
 import LockBadge from "./LockBadge";
-import { listPlans, upsertPlan, deletePlan, migratePlansFromSettingsIfNeeded } from './storage';
 import { requirePinIfEnabled } from './pinlock';
 
 // Navigation helper function
