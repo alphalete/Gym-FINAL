@@ -184,16 +184,16 @@ const Dashboard = () => {
       {/* KPI cards — swipeable on mobile, grid on lg+ */}
       <div className="relative">
         {/* Optional scroll cues (fade edges on mobile) */}
-        <div className="pointer-events-none absolute left-0 top-0 h-full w-6 bg-gradient-to-r from-white to-transparent md:hidden z-10" />
-        <div className="pointer-events-none absolute right-0 top-0 h-full w-6 bg-gradient-to-l from-white to-transparent md:hidden z-10" />
+        <div className="pointer-events-none absolute left-0 top-0 h-full w-6 bg-gradient-to-r from-white to-transparent sm:hidden z-10" />
+        <div className="pointer-events-none absolute right-0 top-0 h-full w-6 bg-gradient-to-l from-white to-transparent sm:hidden z-10" />
         
-        <div className="md:grid md:grid-cols-4 md:gap-3">
+        <div className="sm:grid sm:grid-cols-4 sm:gap-3">
           {/* Mobile: horizontal scroll with snap */}
           <div 
             ref={kpiScrollerRef}
             role="region" 
             aria-label="Key performance indicators"
-            className="flex md:block gap-3 overflow-x-auto md:overflow-visible snap-x snap-mandatory px-1 -mx-1 pb-2 hide-scrollbar"
+            className="flex sm:block gap-3 overflow-x-auto sm:overflow-visible snap-x snap-mandatory px-1 -mx-1 pb-2 hide-scrollbar"
           >
             <div className="min-w-[72%] sm:min-w-[320px] snap-start">
               <div className="bg-white rounded-2xl border p-4">
