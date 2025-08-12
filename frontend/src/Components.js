@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import gymStorage from './storage'; // Updated to correct import path
 import { toISODate, add30DaysFrom, recomputeStatus, advanceNextDueByCycles, daysBetween } from './utils/date';
-import { ClientSchema, PaymentSchema } from './utils/validation';
 import PaymentsHistory from './components/payments/PaymentsHistory';
 import { nextDueDateFromJoin, isOverdue } from "./billing";
 import LockBadge from "./LockBadge";
