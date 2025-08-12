@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import Components from './Components';
-import gymStorage from './storage';
-import './App.css';
+// frontend/src/App.js — clean reboot
+import React, { useEffect, useState } from "react";
+import Components from "./Components";
+import gymStorage from "./storage";
+import "./index.css";
 
 // PWA Install Prompt Component
 const InstallPrompt = ({ showPrompt, onInstall, onDismiss }) => {
