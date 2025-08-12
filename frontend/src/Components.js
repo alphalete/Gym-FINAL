@@ -343,12 +343,12 @@ const Dashboard = () => {
         </div>
         
         <div className="bg-white rounded-xl border p-4">
-          <div className="text-2xl font-bold text-blue-600">0</div>
+          <div className="text-2xl font-bold text-blue-600">{dueToday.length}</div>
           <div className="text-sm text-gray-600">Due Today</div>
         </div>
         
         <div className="bg-white rounded-xl border p-4">
-          <div className="text-2xl font-bold text-red-600">{overdueCount}</div>
+          <div className="text-2xl font-bold text-red-600">{overdue.length}</div>
           <div className="text-sm text-gray-600">Overdue</div>
         </div>
         
