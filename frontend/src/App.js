@@ -7749,56 +7749,133 @@ const Settings = () => {
   );
 };
 
-function App() {
-  const [activeTab, setActiveTab] = useState('dashboard');
+export default function App() {
+  const [activeTab, setActiveTab] = useState("dashboard");
 
-  // Init DB once
+  // Ensure DB is ready (and won't crash if init is missing)
   useEffect(() => {
     (async () => {
-      try { await gymStorage.init(); console.log('[App] storage init ok'); }
-      catch(e){ console.error('[App] storage init failed', e); }
+      try { 
+        await (gymStorage.init?.()); 
+        console.log("[App] storage init ok"); 
+      } catch (e) { 
+        console.warn("[App] storage init skipped/failed", e); 
+      }
     })();
   }, []);
 
-  // Global + event fallback
+  // Global + event fallback so any component can navigate
   useEffect(() => {
-    window.setActiveTab = (tab) => setActiveTab(String(tab).toLowerCase());
-    const onNav = (e) => { const t = e?.detail; if (typeof t === 'string') setActiveTab(t.toLowerCase()); };
-    window.addEventListener('NAVIGATE', onNav);
-    return () => { try { delete window.setActiveTab; } catch {} window.removeEventListener('NAVIGATE', onNav); };
+    window.setActiveTab = (tab) => setActiveTab(String(tab || "").toLowerCase());
+    const onNav = (e) => {
+      const t = e?.detail;
+      if (typeof t === "string") setActiveTab(t.toLowerCase());
+    };
+    window.addEventListener("NAVIGATE", onNav);
+    return () => {
+      try { delete window.setActiveTab; } catch {}
+      window.removeEventListener("NAVIGATE", onNav);
+    };
   }, []);
 
-  // Hash sync
+  // URL hash ↔ state sync (works even if globals fail)
   useEffect(() => {
-    const apply = () => { const m = location.hash.match(/tab=([a-z]+)/i); if (m) setActiveTab(m[1].toLowerCase()); };
-    window.addEventListener('hashchange', apply);
-    apply();
-    return () => window.removeEventListener('hashchange', apply);
+    const applyFromHash = () => {
+      const m = window.location.hash.match(/tab=([a-z]+)/i);
+      if (m) setActiveTab(m[1].toLowerCase());
+    };
+    window.addEventListener("hashchange", applyFromHash);
+    applyFromHash();
+    return () => window.removeEventListener("hashchange", applyFromHash);
   }, []);
-  
+
   useEffect(() => {
     const desired = `#tab=${activeTab}`;
-    if (location.hash !== desired) history.replaceState(null, '', desired);
+    if (window.location.hash !== desired) {
+      history.replaceState(null, "", desired);
+    }
   }, [activeTab]);
 
-  // Ensure the switch renders Components.*
+  // Tab renderer - ensure Components.* usage
   function renderActiveComponent() {
-    switch (activeTab) {
-      case 'home':
-      case 'dashboard':  return <Components.Dashboard />;
-      case 'clients':    return <Components.ClientManagement />;
-      case 'payments':   return <Components.PaymentTracking />;
-      case 'plans':      return <Components.MembershipManagement />;
-      case 'reports':    return <Components.Reports />;
-      case 'settings':   return <Components.Settings />;
-      default:           return <Components.Dashboard />;
+    console.log("[App] Rendering tab:", activeTab);
+    try {
+      switch (activeTab) {
+        case "home":
+        case "dashboard":
+          return <Components.Dashboard />;
+        case "clients":
+          return <Components.ClientManagement />;
+        case "payments":
+          return <Components.PaymentTracking />;
+        case "plans":
+          return <Components.MembershipManagement />;
+        case "reports":
+          return <Components.Reports />;
+        case "settings":
+          return <Components.Settings />;
+        default:
+          return <Components.Dashboard />;
+      }
+    } catch (error) {
+      console.error("[App] Component render error:", error);
+      return (
+        <div className="p-4 text-sm">
+          <div className="font-semibold mb-2">Component Error</div>
+          <div className="text-red-600">{error.message}</div>
+        </div>
+      );
     }
   }
 
+  // Minimal bottom nav (touch-safe)
+  const tabs = [
+    { key: "dashboard", label: "Home" },
+    { key: "clients", label: "Members" },
+    { key: "add", label: "Add Member" }, // will route to clients add flow
+    { key: "payments", label: "Payments" },
+    { key: "settings", label: "Settings" },
+    { key: "plans", label: "Plans" },
+  ];
+
+  const go = (key) => {
+    console.log("[App] Navigation to:", key);
+    if (key === "add") {
+      // Route to members tab; your ClientManagement should open its add form
+      setActiveTab("clients");
+      window.dispatchEvent(new CustomEvent("OPEN_ADD_MEMBER"));
+      return;
+    }
+    setActiveTab(key);
+  };
+
   return (
-    <div className="App">
-      {renderActiveComponent()}
-    </div>
+    <ErrorBoundary>
+      <div className="min-h-screen bg-gray-50 text-gray-900 flex flex-col">
+        <main className="flex-1">
+          {renderActiveComponent()}
+        </main>
+
+        {/* Bottom nav (simple, no icons) */}
+        <nav className="sticky bottom-0 bg-white border-t">
+          <div className="max-w-4xl mx-auto grid grid-cols-6 text-xs">
+            {tabs.map((t) => (
+              <button
+                key={t.key}
+                type="button"
+                onClick={() => go(t.key)}
+                className={[
+                  "py-2.5 px-2 focus:outline-none",
+                  activeTab === t.key ? "text-indigo-600 font-semibold" : "text-gray-600"
+                ].join(" ")}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+        </nav>
+      </div>
+    </ErrorBoundary>
   );
 }
 
