@@ -737,7 +737,7 @@ const Dashboard = () => {
         <div className="bg-white rounded-2xl border p-4 lg:col-span-2">
           <div className="flex items-center justify-between mb-2">
             <div className="font-semibold">Collections (last 8 weeks)</div>
-            <button className="text-xs text-gray-500" onClick={()=> window.setActiveTab?.('reports')}>View Reports</button>
+            <button type="button" className="text-xs text-gray-500" onClick={()=> navigate('reports')}>View Reports</button>
           </div>
           {spark()}
         </div>
