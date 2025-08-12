@@ -501,8 +501,9 @@ const PaymentComponent = () => {
 };
 
 const Dashboard = () => {
-  const [members, setMembers] = useState([]);
+  const [clients, setClients] = useState([]);
   const [payments, setPayments] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [settings, setSettings] = useState({ billingCycleDays: 30, graceDays: 0, dueSoonDays: 3 });
   const [search, setSearch] = useState("");
 
@@ -515,59 +516,55 @@ const Dashboard = () => {
 
   async function loadDashboardData() {
     try {
-      // Prefer dedicated helpers, fall back to generic getters
-      const m1 = (await gymStorage.getAllMembers?.()) ?? [];
-      const m2 = await getAllStore('members');
-      const m3 = await getAllStore('clients'); // legacy/alt store name
-      // Merge by id (prefer objects with more fields)
+      setLoading(true);
+      // Prefer your helpers; fall back to generic store reads
+      const m1 = await (gymStorage.getAllMembers?.() ?? []);
+      const m2 = await (gymStorage.getAll?.('members') ?? []);
+      const m3 = await (gymStorage.getAll?.('clients') ?? []); // legacy name, just in case
+      
+      // merge by id
       const byId = new Map();
-      [...m1, ...m2, ...m3].forEach(x => {
-        if (!x) return;
-        const id = String(x.id || x.memberId || x._id || x.phone || x.email || Math.random());
-        const prev = byId.get(id) || {};
-        byId.set(id, { ...prev, ...x, id });
+      [...m1, ...m2, ...m3].forEach(x => { 
+        if (!x) return; 
+        const id = String(x.id || x.memberId || crypto.randomUUID?.() || Date.now()); 
+        byId.set(id, { ...byId.get(id), ...x, id }); 
       });
-      const allMembers = Array.from(byId.values());
+      setClients(Array.from(byId.values()));
 
-      const p1 = (await gymStorage.getAllPayments?.()) ?? [];
-      const p2 = await getAllStore('payments');
-      const allPayments = [...p1, ...p2];
+      const p1 = await (gymStorage.getAllPayments?.() ?? []);
+      const p2 = await (gymStorage.getAll?.('payments') ?? []);
+      setPayments([...(p1||[]), ...(p2||[])]);
 
-      const s = (await gymStorage.getSetting?.('gymSettings', {})) ?? {};
-
-      setMembers(allMembers);
-      setPayments(allPayments);
-      setSettings(s);
-      console.log('[Dashboard] loaded', { members: allMembers.length, payments: allPayments.length });
+      const s = await (gymStorage.getSetting?.('gymSettings', {}) ?? {});
+      setSettings(prev => ({ ...prev, ...(s || {}) }));
+      
+      console.log('[Dashboard] loaded', { clients: byId.size, payments: [...(p1||[]), ...(p2||[])].length });
     } catch (e) {
       console.error('[Dashboard] load error', e);
-      setMembers([]); setPayments([]);
+      setClients([]); setPayments([]);
+    } finally {
+      setLoading(false);
     }
   }
 
   useEffect(() => { loadDashboardData(); }, []);
-
-  // Refresh when the page becomes visible again (mobile switch-back) or when we signal data changes
+  
+  // refresh whenever data changes, tab changes back to dashboard, or app becomes visible
   useEffect(() => {
-    const onVisible = () => { if (!document.hidden) loadDashboardData(); };
     const onChanged = () => loadDashboardData();
-    const onAlphaleteChanged = () => {
-      console.log('MobileDashboard: alphalete:data-changed event received, refreshing...');
-      loadDashboardData();
-    };
-    
-    document.addEventListener('visibilitychange', onVisible);
-    window.addEventListener('DATA_CHANGED', onChanged);
-    window.addEventListener('alphalete:data-changed', onAlphaleteChanged);
-    
+    const onVisible = () => { if (!document.hidden) loadDashboardData(); };
     const onHash = () => { if (location.hash.includes('tab=dashboard') || location.hash.includes('tab=home')) loadDashboardData(); };
+    
+    window.addEventListener('DATA_CHANGED', onChanged);
+    document.addEventListener('visibilitychange', onVisible);
     window.addEventListener('hashchange', onHash);
     
     return () => {
-      document.removeEventListener('visibilitychange', onVisible);
       window.removeEventListener('DATA_CHANGED', onChanged);
-      window.removeEventListener('alphalete:data-changed', onAlphaleteChanged);
+      document.removeEventListener('visibilitychange', onVisible);
       window.removeEventListener('hashchange', onHash);
+    };
+  }, []);
     };
   }, []);
 
