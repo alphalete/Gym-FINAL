@@ -92,6 +92,26 @@ class GymStorage {
   async getAllMembers() { return this.getAll('members'); }
   async getAllPayments() { return this.getAll('payments'); }
 
+  // Generic getAll method
+  async getAll(storeName) {
+    const ok = await this.init();
+    if (ok) {
+      return new Promise((resolve) => {
+        try {
+          const tx = this.db.transaction([storeName], 'readonly');
+          const store = tx.objectStore(storeName);
+          const out = [];
+          const req = store.openCursor();
+          req.onsuccess = (e) => { const c = e.target.result; if (c) { out.push(c.value); c.continue(); } else resolve(out); };
+          req.onerror = () => resolve([]);
+        } catch (_e) { resolve([]); }
+      });
+    }
+    // fallback
+    const key = `__${storeName}__`;
+    return JSON.parse(localStorage.getItem(key) || '[]');
+  }
+
   async getSetting(name, fallback = {}) {
     const ok = await this.init();
     if (ok) {
