@@ -7712,7 +7712,7 @@ function App() {
       <div className="App">
         <Layout>
           <Routes>
-            <Route path="/" element={<GoGymDashboard />} />
+            <Route path="/" element={<MobileDashboard />} />
             <Route path="/dashboard" element={<MobileDashboard />} />
             <Route path="/clients" element={<ClientManagement />} />
             <Route path="/add-client" element={<AddClient />} />
