@@ -113,16 +113,30 @@ export default function PlansTab(){
           {plans.map(p=>(
             <div key={p.id} className="p-4 flex items-start justify-between gap-3">
               <div>
-                <div className="font-medium text-gray-900">{p.name} {p.active? <span className="badge badge-success ml-2">Active</span> : <span className="badge ml-2">Inactive</span>}</div>
+                <div className="font-medium text-gray-900">{p.name}</div>
                 <div className="text-sm text-gray-600">{money(p.price)} • {p.cycleDays} days</div>
                 {p.description && <div className="text-sm text-gray-500 mt-1">{p.description}</div>}
+                <label className="inline-flex items-center gap-2 text-sm mt-2">
+                  <input
+                    type="checkbox"
+                    checked={!!p.active}
+                    onChange={async ()=> {
+                      const updated = { ...p, active: !p.active };
+                      await upsertPlan(updated);
+                      if (filter === 'all') setPlans(await listPlans());
+                      else if (filter === 'active') setPlans(await listPlans({ active: true }));
+                      else setPlans(await listPlans({ active: false }));
+                    }}
+                  />
+                  <span>{p.active ? "Active" : "Inactive"}</span>
+                </label>
               </div>
               <div className="flex items-center gap-2">
                 <button className="btn" onClick={()=>setEditing(p)}>Edit</button>
                 <button className="btn" onClick={()=>onDelete(p.id)}>Delete <LockBadge className="ml-0" /></button>
               </div>
             </div>
-          ))}
+          ))}}
           {plans.length===0 && <div className="p-4 text-sm text-gray-500">No plans yet. Create your first plan above.</div>}
         </div>
       </div>
