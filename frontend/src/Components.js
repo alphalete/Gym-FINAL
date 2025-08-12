@@ -49,477 +49,153 @@ function computeNextDuePreview(currentNextDueISO, monthsCovered) {
 }
 /* === End Preview Helper === */
 
-// Component with payment logic
+// --- Payments (PaymentTracking) ---
 const PaymentComponent = () => {
-  const [clients, setClients] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [newClient, setNewClient] = useState({ name: '', email: '', phone: '', membershipType: 'Monthly', amount: 59 });
-  const [isAddingClient, setIsAddingClient] = useState(false);
-  const [selectedClient, setSelectedClient] = useState(null);
-  const [isRecordingPayment, setIsRecordingPayment] = useState(false);
-  const [paymentAmount, setPaymentAmount] = useState('');
-  const [activeTab, setActiveTab] = useState('dashboard');
-
-  const membershipPricing = {
-    'Monthly': 59,
-    'Quarterly': 150,
-    'Annual': 500
-  };
-
-  const loadDashboardData = async () => {
-    try {
-      const savedClients = await gymStorage.getAllMembers();
-      const normalized = savedClients.map(recomputeStatus);
-      setClients(normalized);
-    } catch (error) {
-      console.error('Error loading dashboard data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Compute clients with billing info
-  const clientsWithBilling = (Array.isArray(clients) ? clients : []).map(c => {
-    const due = c?.joinDate ? nextDueDateFromJoin(c.joinDate) : null;
-    const overdue = c?.joinDate ? isOverdue(c.joinDate) : false;
-    return {
-      ...c,
-      _dueDate: due ? due.toISOString().slice(0, 10) : null,
-      _status: overdue ? "Overdue" : "Active"
-    };
+  const [members, setMembers] = useState([]);
+  const [payments, setPayments] = useState([]);
+  const [form, setForm] = useState({ 
+    memberId: "", 
+    amount: "", 
+    paidOn: new Date().toISOString().slice(0,10) 
   });
 
-  // Dashboard counts
-  const overdueClients = clientsWithBilling.filter(c => c._status === "Overdue").length;
-  const totalClients = clientsWithBilling.length;
+  async function load() {
+    const m1 = await (gymStorage.getAllMembers?.() ?? []);
+    const m2 = await (getAllStore?.('members') ?? []);
+    const byId = new Map(); 
+    [...m1, ...m2].forEach(x => { 
+      if (!x) return; 
+      const id = String(x.id || x.memberId || x.email || x.phone || Date.now()); 
+      byId.set(id, { ...x, id }); 
+    });
+    setMembers(Array.from(byId.values()).sort((a,b) => (a.name||"").localeCompare(b.name||"")));
 
-  const loadClientsFromPhone = async () => {
-    try {
-      setLoading(true);
-      const savedClients = await gymStorage.getAllMembers();
-      const normalized = savedClients.map(recomputeStatus);
-      setClients(normalized);
-    } catch (error) {
-      console.error('Error loading clients from phone:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const saveClientToPhone = async (client) => {
-    try {
-      await gymStorage.saveMembers(client);
-      signalDataChanged('member');
-      await loadClientsFromPhone(); // refreshed with recomputed status
-    } catch (error) {
-      console.error('Error saving client to phone:', error);
-      alert('Error saving client data. Please try again.');
-    }
-  };
-
-  const handleAddClient = async (e) => {
-    e.preventDefault();
-    try {
-      const todayISO = toISODate();
-      const client = {
-        ...newClient,
-        id: Date.now().toString(),
-        joinDate: todayISO,
-        lastPayment: todayISO, // set to null if you don't want a payment at join
-        nextDue: add30DaysFrom(todayISO), // strict 30-day cycle
-        status: 'Active',
-        overdue: 0,
-        amount: membershipPricing[newClient.membershipType] || newClient.amount
-      };
-
-      const normalized = recomputeStatus(client);
-      
-      // Basic validation - check if required fields exist
-      if (!normalized.name?.trim() || !normalized.membershipType) { 
-        alert('Name and membership type are required'); 
-        return; 
-      }
-      
-      await gymStorage.saveMembers(normalized);
-      signalDataChanged('member');
-      await loadClientsFromPhone();
-
-      setNewClient({ name: '', email: '', phone: '', membershipType: 'Monthly', amount: 59 });
-      setIsAddingClient(false);
-    } catch (error) {
-      console.error('Error adding client:', error);
-      alert('Error adding client. Please try again.');
-    }
-  };
-
-  useEffect(() => {
-    loadDashboardData();
-  }, []);
-
-  // Settings Usage
-  const [defaultFee, setDefaultFee] = useState(0);
-  const [dueSoonDays, setDueSoonDays] = useState(3);
+    const p1 = await (gymStorage.getAllPayments?.() ?? []);
+    const p2 = await (getAllStore?.('payments') ?? []);
+    setPayments([...(p1||[]), ...(p2||[])]
+      .sort((a,b) => (new Date(b.paidOn||0) - new Date(a.paidOn||0))));
+  }
   
-  useEffect(() => {
-    (async () => {
-      const s = 
-        (await (gymStorage.getSetting?.('gymSettings', {}) )) ??
-        (await (getSettingNamed?.('gymSettings', {}) )) ??
-        {};
-      if (s?.membershipFeeDefault) setDefaultFee(Number(s.membershipFeeDefault) || 0);
-      setDueSoonDays(Number(s?.reminderDays ?? 3));
-    })();
+  useEffect(() => { load(); }, []);
+  
+  useEffect(() => { 
+    const onChanged = () => load(); 
+    window.addEventListener('DATA_CHANGED', onChanged); 
+    return () => window.removeEventListener('DATA_CHANGED', onChanged); 
   }, []);
 
-  const isDueSoon = (iso) => {
-    if (!iso) return false;
-    const diff = (new Date(iso) - new Date()) / 86400000;
-    return diff >= 0 && diff <= dueSoonDays;
-  };
-
-  // PaymentTracking component with modal
-  const PaymentTracking = () => {
-    // Settings-based state
-    const [cycleDays, setCycleDays] = useState(30);
-    const [graceDays, setGraceDays] = useState(0);
-    const [cycleAnchorMode, setCycleAnchorMode] = useState("anchored");
-    const [nextDuePreview, setNextDuePreview] = useState("");
-
-    useEffect(() => {
-      (async () => {
-        const s = 
-          (await (gymStorage.getSetting?.('gymSettings', {}) )) ??
-          (await (getSettingNamed?.('gymSettings', {}) )) ??
-          {};
-        setCycleDays(Number(s.billingCycleDays ?? 30) || 30);
-        setGraceDays(Number(s.graceDays ?? 0) || 0);
-        setCycleAnchorMode(s.cycleAnchorMode || "anchored");
-      })();
-    }, []);
-
-    // Auto-open payment modal if Dashboard requested it
-    useEffect(() => {
-      const pendingId = localStorage.getItem("pendingPaymentMemberId");
-      if (!pendingId || !clients?.length) return;
-      const m = clients.find(c => String(c.id) === String(pendingId));
-      if (m && typeof handleRecordPayment === "function") {
-        localStorage.removeItem("pendingPaymentMemberId");
-        handleRecordPayment(m);
-      }
-    }, [clients]);
-
-    function addDays(dateISO, days) {
-      const d = new Date(dateISO);
-      d.setDate(d.getDate() + Number(days || 0));
-      return d.toISOString().split('T')[0];
+  // Auto-open for Dashboard "Record" jump
+  useEffect(() => {
+    const pendingId = localStorage.getItem("pendingPaymentMemberId");
+    if (pendingId && members.length) {
+      setForm(f => ({ ...f, memberId: String(pendingId) }));
+      localStorage.removeItem("pendingPaymentMemberId");
     }
+  }, [members]);
 
-    // --- Payment preview computed values ---
-    const monthlyFee = Number(selectedClient?.amount || 0);
-    const paid = Number((paymentAmount || '').toString().trim() || (monthlyFee || 0));
-    const monthsCovered = Number.isFinite(paid) && (monthlyFee || 0) > 0
-      ? Math.max(1, Math.floor(paid / monthlyFee))
-      : 0;
-
-    const previewNextDue = selectedClient && monthsCovered > 0
-      ? computeNextDuePreview(selectedClient.nextDue || new Date().toISOString().split('T')[0], monthsCovered)
-      : null;
-
-    const isPaymentInvalid = !selectedClient || !Number.isFinite(paid) || paid <= 0 || (monthlyFee || 0) <= 0;
-
-    // Handle recording payment with prefill and preview
-    const handleRecordPayment = (client) => {
-      setSelectedClient(client);
-      const amt = (client?.amount != null && client.amount !== '') ? client.amount : defaultFee;
-      setPaymentAmount(String(amt ?? ''));
-      const paidOn = new Date().toISOString().split('T')[0];
-      const joinISO = client.joinDate || client.createdAt?.slice(0,10) || paidOn;
-      const preview = nextDueAfterPayment({
-        joinISO,
-        lastDueISO: client.nextDue,
-        paidOnISO: paidOn,
-        cycleDays,
-        graceDays,
-        mode: cycleAnchorMode
-      });
-      setNextDuePreview(preview);
-      setIsRecordingPayment(true);
+  async function savePayment() {
+    if (!form.memberId || !form.amount) {
+      alert('Please select a member and enter an amount.');
+      return;
+    }
+    
+    const id = crypto.randomUUID?.() || String(Date.now());
+    const amount = Number(form.amount || 0);
+    const rec = { 
+      id, 
+      memberId: String(form.memberId || ""), 
+      amount, 
+      paidOn: form.paidOn || new Date().toISOString().slice(0,10) 
     };
-
-    // Handle payment form submission
-    const handleSubmitPayment = async (e) => {
-      e.preventDefault();
-      if (!selectedClient) return;
-
-      const form = e.currentTarget;
-      const paymentDateInput = form.querySelector('input[type="date"]');
-      const paidOn = paymentDateInput?.value || new Date().toISOString().split('T')[0];
-
-      const amountNum = Number(paymentAmount || 0);
-      if (Number.isNaN(amountNum) || amountNum <= 0) {
-        alert("Enter a valid amount.");
-        return;
-      }
-
-      const joinISO = selectedClient.joinDate || selectedClient.createdAt?.slice(0,10) || paidOn;
-      const nextDueISO = nextDueAfterPayment({
-        joinISO,
-        lastDueISO: selectedClient.nextDue,
-        paidOnISO: paidOn,
-        cycleDays,
-        graceDays,
-        mode: cycleAnchorMode
-      });
-
-      // Save payment record
-      const payment = {
-        id: crypto.randomUUID(),
-        memberId: selectedClient.id,
-        amount: amountNum,
-        paidOn,
-        recordedAt: new Date().toISOString(),
-        note: "Recorded via PaymentTracking"
-      };
-      await gymStorage.saveData('payments', payment);
-      signalDataChanged('payment');
-
-      // Update member record
-      const updatedMember = {
-        ...selectedClient,
-        lastPayment: paidOn,
-        nextDue: nextDueISO,
-        status: 'Active',
-        overdue: 0
-      };
-      await gymStorage.saveData('members', updatedMember);
-      signalDataChanged('member');
-
-      // Update UI state
-      setClients(prev => prev.map(c => c.id === updatedMember.id ? updatedMember : c));
-
-      setIsRecordingPayment(false);
-      setSelectedClient(null);
-      setPaymentAmount('');
-      setNextDuePreview('');
-    };
-
-    // Real Reminders Function (WhatsApp/Email)
-    const sendReminder = async (client) => {
-      try {
-        const s = 
-          (await (gymStorage.getSetting?.('gymSettings', {}) )) ??
-          (await (getSettingNamed?.('gymSettings', {}) )) ??
-          {};
-        const due = client?.nextDue || client?._dueDate || 'soon';
-        const subject = `Alphalete membership due ${due}`;
-        const amountTxt = s?.membershipFeeDefault ? ` Amount: ${s.membershipFeeDefault}.` : '';
-        const body = `Hi ${client?.name || 'member'}, your Alphalete membership is due on ${due}.${amountTxt}\n\nYou can reply here with a payment receipt. Thank you!`;
-
-        const hasPhone = client?.phone && client.phone.replace(/\D/g, '').length >= 7;
-        if (hasPhone) {
-          window.open(`https://wa.me/?text=${encodeURIComponent(body)}`, '_blank');
-          return;
-        }
-        if (client?.email) {
-          window.location.href = `mailto:${encodeURIComponent(client.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-          return;
-        }
-        alert('No phone or email on file for this client.');
-      } catch (e) {
-        console.error('Reminder failed', e);
-        alert('Could not open your email/WhatsApp app on this device.');
-      }
-    };
-
-    // Focus management for accessibility
-    useEffect(() => {
-      if (isRecordingPayment && selectedClient) {
-        const focusFirstInput = () => {
-          const firstInput = document.querySelector('.payment-amount-input');
-          if (firstInput) {
-            firstInput.focus();
-          }
-        };
-        // Small delay to ensure modal is rendered
-        setTimeout(focusFirstInput, 100);
-      }
-    }, [isRecordingPayment, selectedClient]);
-
-    // ESC key handler
-    const handleKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        setIsRecordingPayment(false);
-        setSelectedClient(null);
-        setPaymentAmount('');
-      }
-    };
-
-    if (!isRecordingPayment || !selectedClient) return null;
-
-    return (
-      <div 
-        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-        role="dialog" 
-        aria-modal="true" 
-        aria-labelledby="paymentModalTitle"
-        onKeyDown={handleKeyDown}
-      >
-        <div 
-          className="bg-white rounded-lg p-6 w-full max-w-md mx-4"
-          tabIndex="-1"
-          role="document"
-          aria-describedby="paymentModalDesc"
-        >
-          <h3 id="paymentModalTitle" className="text-xl font-bold text-gray-900 mb-6">Record Payment</h3>
-          <p id="paymentModalDesc" className="sr-only">Enter amount to record a payment and review the new next due date.</p>
-          <p className="text-gray-600 mb-4">
-            Recording payment for <strong>{selectedClient.name}</strong>
-          </p>
-          
-          <form onSubmit={handleSubmitPayment}>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Payment Date
-              </label>
-              <input
-                type="date"
-                defaultValue={new Date().toISOString().split('T')[0]}
-                onChange={(e) => {
-                  const paidOn = e.target.value || new Date().toISOString().slice(0,10);
-                  const client = selectedClient;
-                  if (client) {
-                    const joinISO = client.joinDate || client.createdAt?.slice(0,10) || paidOn;
-                    const preview = nextDueAfterPayment({
-                      joinISO,
-                      lastDueISO: client.nextDue,
-                      paidOnISO: paidOn,
-                      cycleDays,
-                      graceDays,
-                      mode: cycleAnchorMode
-                    });
-                    setNextDuePreview(preview);
-                  }
-                }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Payment Amount (${monthlyFee} monthly fee)
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                value={paymentAmount}
-                onChange={(e) => setPaymentAmount(e.target.value)}
-                placeholder={defaultFee ? String(defaultFee) : ""}
-                className="payment-amount-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              {/* Monthly fee hint */}
-              <p className="mt-1 text-xs text-gray-500">
-                Monthly fee:&nbsp;
-                <span className="font-medium text-gray-900">
-                  {Number.isFinite(monthlyFee) && monthlyFee > 0 ? `$${monthlyFee.toFixed(2)}` : '—'}
-                </span>
-              </p>
-            </div>
-
-            {/* Payment Preview (non-blocking UX) */}
-            <div className="mt-2 rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-gray-600">Current next due</span>
-                <span className="font-medium text-gray-900">
-                  {selectedClient?.nextDue || '—'}
-                </span>
-              </div>
-              <div className="flex items-center justify-between mt-1">
-                <span className="text-gray-600">Months covered</span>
-                <span className="font-medium text-gray-900">
-                  {monthsCovered > 0 ? monthsCovered : '—'}
-                </span>
-              </div>
-              <div className="flex items-center justify-between mt-1">
-                <span className="text-gray-600">New next due (preview)</span>
-                <span className="font-semibold">
-                  {nextDuePreview || '—'}
-                </span>
-              </div>
-            </div>
-
-            {/* Next due preview display */}
-            {nextDuePreview && (
-              <div className="text-sm text-gray-500 mt-2">
-                Next due will be: <strong>{nextDuePreview}</strong>
-              </div>
-            )}
-
-            <div className="flex gap-3 mt-6">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsRecordingPayment(false);
-                  setSelectedClient(null);
-                  setPaymentAmount('');
-                }}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isPaymentInvalid}
-                className={`flex-1 rounded-lg px-4 py-2 font-semibold text-white ${isPaymentInvalid ? 'bg-gray-300 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700'}`}
-              >
-                Record Payment <LockBadge />
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    );
-  };
+    
+    await gymStorage.saveData('payments', rec);
+    signalChanged('payments');
+    setForm({ 
+      memberId: "", 
+      amount: "", 
+      paidOn: new Date().toISOString().slice(0,10) 
+    });
+    load();
+    alert('Payment recorded successfully!');
+  }
 
   return (
-    <div>
-      {/* Tab Navigation */}
-      <div className="bg-white border-b">
-        <div className="flex space-x-8 px-6">
-          <button
-            onClick={() => setActiveTab('dashboard')}
-            className={`py-3 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'dashboard'
-                ? 'border-red-500 text-red-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
-            }`}
+    <div className="p-4 space-y-4">
+      <h1 className="text-2xl font-semibold">Payments</h1>
+      
+      {/* Record Payment Form */}
+      <div className="border rounded-2xl p-4 space-y-3 bg-white">
+        <div className="font-medium">Record Payment</div>
+        <select 
+          className="border rounded px-3 py-2 w-full" 
+          value={form.memberId} 
+          onChange={e => setForm(f => ({ ...f, memberId: e.target.value }))}
+        >
+          <option value="">Select member…</option>
+          {members.filter(m => m.status !== 'Inactive').map(m => (
+            <option key={m.id} value={m.id}>
+              {m.name || m.email || m.phone}
+            </option>
+          ))}
+        </select>
+        <input 
+          className="border rounded px-3 py-2 w-full" 
+          type="number" 
+          min="0" 
+          step="0.01"
+          placeholder="Amount ($)" 
+          value={form.amount} 
+          onChange={e => setForm(f => ({ ...f, amount: e.target.value }))}
+        />
+        <input 
+          className="border rounded px-3 py-2 w-full" 
+          type="date" 
+          value={form.paidOn} 
+          onChange={e => setForm(f => ({ ...f, paidOn: e.target.value }))}
+        />
+        <div className="flex justify-end">
+          <button 
+            type="button" 
+            className="border rounded px-3 py-2 bg-green-500 text-white hover:bg-green-600" 
+            onClick={savePayment}
           >
-            Dashboard
-          </button>
-          <button
-            onClick={() => setActiveTab('paymentsHistory')}
-            className={`py-3 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'paymentsHistory'
-                ? 'border-red-500 text-red-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            Payments History
+            Save Payment
           </button>
         </div>
       </div>
 
-      {/* Tab Content */}
-      {activeTab === 'dashboard' && (
-        <div>
-          <h1>Payment Management Component</h1>
-          {/* Add your existing dashboard UI components here */}
-        </div>
-      )}
-      
-      {activeTab === 'paymentsHistory' && <PaymentsHistory />}
-      
-      {/* Payment Modal */}
-      <PaymentTracking />
+      {/* Recent Payments */}
+      <div className="border rounded-2xl p-4 bg-white">
+        <div className="font-medium mb-2">Recent Payments</div>
+        {payments.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            <div className="text-4xl mb-2">💰</div>
+            <div>No payments yet.</div>
+            <div className="text-sm">Record your first payment above.</div>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {payments.slice(0, 20).map(p => {
+              const m = members.find(x => String(x.id) === String(p.memberId));
+              return (
+                <div key={p.id} className="flex justify-between border rounded-xl px-3 py-2">
+                  <div>
+                    <div className="font-medium">
+                      {m?.name || m?.email || m?.phone || 'Unknown Member'}
+                    </div>
+                    <div className="text-xs text-gray-500">Payment on {p.paidOn}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-semibold text-green-600">
+                      ${Number(p.amount || 0).toFixed(2)}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
