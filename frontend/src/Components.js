@@ -400,28 +400,28 @@ const PaymentComponent = () => {
 
 // MembershipManagement Component with Active Index + Filter UI
 const MembershipManagement = () => {
-  const [plans, setPlans] = useState([]);
-  const [filter, setFilter] = useState('all');
+  const [memberships, setMemberships] = useState([]);
+  const [filter, setFilter] = useState('all'); // 'all' | 'active' | 'inactive'
   const [editing, setEditing] = useState(null);
   
-  const counts = useMemo(() => ({
-    all: plans.length,
-    active: plans.filter(p => !!p.active).length,
-    inactive: plans.filter(p => !p.active).length
-  }), [plans]);
+  const counts = {
+    all: memberships.length,
+    active: memberships.filter(p => !!p.active).length,
+    inactive: memberships.filter(p => !p.active).length
+  };
 
   useEffect(() => {
     (async () => {
-      await migratePlansFromSettingsIfNeeded();
-      setPlans(await listPlans());
+      await gymStorage.migratePlansFromSettingsIfNeeded?.();
+      setMemberships(await gymStorage.listPlans());
     })();
   }, []);
 
   useEffect(() => {
     (async () => {
-      if (filter === 'all') setPlans(await listPlans());
-      else if (filter === 'active') setPlans(await listPlans({ active: true }));
-      else setPlans(await listPlans({ active: false }));
+      if (filter === 'all')        setMemberships(await gymStorage.listPlans());
+      else if (filter === 'active') setMemberships(await gymStorage.listPlans({ active: true }));
+      else                          setMemberships(await gymStorage.listPlans({ active: false }));
     })();
   }, [filter]);
 
