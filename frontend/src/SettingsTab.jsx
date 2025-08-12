@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { loadSettings, setSetting } from "./settingsStore";
+import { loadSettings, setSetting, getSetting } from "./settingsStore";
 import { hasPin, setNewPin } from "./pinlock";
 
 function Row({ label, hint, control }){ return (
