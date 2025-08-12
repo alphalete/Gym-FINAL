@@ -77,7 +77,7 @@ export default function PlansTab(){
           <Field label="Plan Name"><input name="name" defaultValue={editing?.name||""} className="w-full rounded-xl border px-3 py-2" /></Field>
           <Field label="Price"><input name="price" type="number" step="1" defaultValue={editing?.price??""} className="w-full rounded-xl border px-3 py-2" /></Field>
           <Field label="Cycle (days)"><input name="cycleDays" type="number" defaultValue={editing?.cycleDays??30} className="w-full rounded-xl border px-3 py-2" /></Field>
-          <Field label="Active"><input name="active" type="checkbox" defaultChecked={!!editing?.active} /></Field>
+          <Field label="Active"><input name="active" type="checkbox" defaultChecked={editing?.active !== undefined ? !!editing.active : true} /></Field>
         </div>
         <Field label="Description">
           <textarea name="description" rows={3} defaultValue={editing?.description||""} className="w-full rounded-xl border px-3 py-2" />
