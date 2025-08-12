@@ -153,6 +153,17 @@ const PaymentComponent = () => {
       })();
     }, []);
 
+    // Auto-open payment modal if Dashboard requested it
+    useEffect(() => {
+      const pendingId = localStorage.getItem("pendingPaymentMemberId");
+      if (!pendingId || !clients?.length) return;
+      const m = clients.find(c => String(c.id) === String(pendingId));
+      if (m && typeof handleRecordPayment === "function") {
+        localStorage.removeItem("pendingPaymentMemberId");
+        handleRecordPayment(m);
+      }
+    }, [clients]);
+
     function addDays(dateISO, days) {
       const d = new Date(dateISO);
       d.setDate(d.getDate() + Number(days || 0));
