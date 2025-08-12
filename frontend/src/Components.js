@@ -645,6 +645,10 @@ const Dashboard = () => {
 
   return (
     <div className="p-4 space-y-4">
+      <div className="text-[11px] px-2 py-1 rounded-lg bg-yellow-100 text-yellow-800">
+        Dashboard debug • members: {members.length} • payments: {payments.length}
+      </div>
+      
       {/* --- Swipeable KPI cards (reuse your colorful cards inside each slot) --- */}
       <div className="lg:grid lg:grid-cols-4 lg:gap-3">
         <div
