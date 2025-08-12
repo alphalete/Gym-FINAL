@@ -554,11 +554,18 @@ const ClientManagement = () => {
       name: form.name, email: form.email, phone: form.phone,
       status: editing?.status || "Active",
       joinDate: editing?.joinDate || new Date().toISOString().slice(0,10),
-      // if creating new & plan exists, set an initial nextDue = today + cycle (optional)
-      nextDue: editing?.nextDue || (plan ? new Date(Date.now() + (Number(plan.cycleDays||30))*86400000).toISOString().slice(0,10) : editing?.nextDue),
+      // if creating new & plan exists, set an initial nextDue = today + cycle
+      nextDue: editing?.nextDue || (plan ? addDaysISO(new Date().toISOString().slice(0,10), Number(plan.cycleDays||30)) : undefined),
       lastPayment: editing?.lastPayment || null,
     };
-    await upsertMemberWithPlanSnapshot({ ...base, planId: form.planId || "" }, plan || undefined);
+    // Plan snapshot so cycleDays & fee exist even if the plan changes later
+    const snap = plan ? {
+      planId: plan.id,
+      planName: plan.name,
+      cycleDays: Number(plan.cycleDays || 30),
+      fee: Number(plan.price || 0),
+    } : {};
+    await gymStorage.saveMembers({ ...base, ...snap });
     setIsOpen(false); 
     setEditing(null); 
     signalChanged('members'); 
