@@ -7800,6 +7800,9 @@ function App() {
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [installPromptDismissed, setInstallPromptDismissed] = useState(false);
+  
+  // Tab-based navigation system
+  const [activeTab, setActiveTab] = useState('dashboard');
 
   useEffect(() => {
     // Force remove loading screen with stronger methods
@@ -7832,6 +7835,40 @@ function App() {
         });
     }
   }, []);
+
+  // Navigation fallbacks - global and event-based
+  useEffect(() => {
+    // Global navigation function
+    window.setActiveTab = (tab) => setActiveTab(String(tab).toLowerCase());
+    
+    // Event-based fallback navigation
+    const onNav = (e) => { 
+      const t = e?.detail; 
+      if (typeof t === 'string') setActiveTab(t.toLowerCase()); 
+    };
+    window.addEventListener('NAVIGATE', onNav);
+    
+    return () => { 
+      try { delete window.setActiveTab; } catch {} 
+      window.removeEventListener('NAVIGATE', onNav); 
+    };
+  }, []);
+
+  // URL hash ↔ state sync
+  useEffect(() => {
+    const apply = () => { 
+      const m = location.hash.match(/tab=([a-z]+)/i); 
+      if (m) setActiveTab(m[1].toLowerCase()); 
+    };
+    window.addEventListener('hashchange', apply);
+    apply();
+    return () => window.removeEventListener('hashchange', apply);
+  }, []);
+
+  useEffect(() => {
+    const desired = `#tab=${activeTab}`;
+    if (location.hash !== desired) history.replaceState(null, '', desired);
+  }, [activeTab]);
 
   // PWA install prompt logic - only after login
   useEffect(() => {
@@ -7876,22 +7913,26 @@ function App() {
     setInstallPromptDismissed(true);
   };
 
+  // Tab content renderer
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'home':
+      case 'dashboard':  return <Components.Dashboard />;
+      case 'clients':    return <Components.ClientManagement />;
+      case 'payments':   return <Components.PaymentTracking />;
+      case 'plans':      return <Components.MembershipManagement />;
+      case 'reports':    return <Components.Reports />;
+      case 'settings':   return <Components.Settings />;
+      default:           return <Components.Dashboard />;
+    }
+  };
+
   return (
     <Router>
       <div className="App">
         <Layout>
-          <Routes>
-            <Route path="/" element={<MobileDashboard />} />
-            <Route path="/dashboard" element={<MobileDashboard />} />
-            <Route path="/clients" element={<ClientManagement />} />
-            <Route path="/add-client" element={<AddClient />} />
-            <Route path="/email-center" element={<EmailCenter />} />
-            <Route path="/payments" element={<Payments />} />
-            <Route path="/reports" element={<Reports />} />
-            <Route path="/settings" element={<SettingsTab />} />
-            <Route path="/plans" element={<MembershipManagement />} />
-            <Route path="/reminders" element={<AutoReminders />} />
-          </Routes>
+          {/* Use tab-based routing instead of React Router for main content */}
+          {renderTabContent()}
         </Layout>
         
         {/* PWA Install Prompt - Only show when appropriate */}
