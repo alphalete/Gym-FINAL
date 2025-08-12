@@ -3,6 +3,7 @@ import { settingsStore } from "./settingsStore";
 import { requirePinIfEnabled } from "./pinlock";
 import { makeMoneyFormatter } from "./money";
 import LockBadge from "./LockBadge";
+import { listPlans, upsertPlan, deletePlan, migratePlansFromSettingsIfNeeded } from './storage';
 
 function Field({ label, children }){ return (
   <label className="block">
@@ -15,10 +16,27 @@ export default function PlansTab(){
   const [plans,setPlans]=React.useState([]);
   const [editing,setEditing]=React.useState(null); // plan object or null
   const [money,setMoney]=React.useState(()=> (n=>`TTD ${Number(n||0)}`));
+  const [filter, setFilter] = React.useState('all');
+  
+  const counts = React.useMemo(() => ({
+    all: plans.length,
+    active: plans.filter(p => !!p.active).length,
+    inactive: plans.filter(p => !p.active).length
+  }), [plans]);
+
   React.useEffect(()=>{ (async()=>{
-    setPlans(await settingsStore.listPlans());
+    await migratePlansFromSettingsIfNeeded();
+    setPlans(await listPlans());
     setMoney(await makeMoneyFormatter());
   })(); },[]);
+
+  React.useEffect(() => {
+    (async () => {
+      if (filter === 'all') setPlans(await listPlans());
+      else if (filter === 'active') setPlans(await listPlans({ active: true }));
+      else setPlans(await listPlans({ active: false }));
+    })();
+  }, [filter]);
 
   const savePlan = async (e)=>{
     e.preventDefault();
