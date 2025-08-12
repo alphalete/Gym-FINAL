@@ -324,6 +324,22 @@ const PaymentComponent = () => {
               <input
                 type="date"
                 defaultValue={new Date().toISOString().split('T')[0]}
+                onChange={(e) => {
+                  const paidOn = e.target.value || new Date().toISOString().slice(0,10);
+                  const client = selectedClient;
+                  if (client) {
+                    const joinISO = client.joinDate || client.createdAt?.slice(0,10) || paidOn;
+                    const preview = nextDueAfterPayment({
+                      joinISO,
+                      lastDueISO: client.nextDue,
+                      paidOnISO: paidOn,
+                      cycleDays,
+                      graceDays,
+                      mode: cycleAnchorMode
+                    });
+                    setNextDuePreview(preview);
+                  }
+                }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
