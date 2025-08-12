@@ -4884,6 +4884,9 @@ const AddClient = () => {
         return;
       }
       
+      // Dispatch data changed event for dashboard update
+      window.dispatchEvent(new Event('alphalete:data-changed'));
+      
       // Show appropriate success message based on sync status
       const syncMessage = clientResult.synced === false ? 
         `\n\n⚠️ Note: Data stored locally and will sync when backend connection is restored.` : '';
