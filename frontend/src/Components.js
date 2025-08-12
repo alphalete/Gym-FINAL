@@ -528,7 +528,7 @@ const MembershipManagement = () => {
         </div>
         
         <div className="divide-y">
-          {plans.map(p => (
+          {memberships.map(p => (
             <div key={p.id} className="p-4 flex items-start justify-between gap-3">
               <div>
                 <div className="font-medium text-gray-900">{p.name}</div>
@@ -538,13 +538,7 @@ const MembershipManagement = () => {
                   <input
                     type="checkbox"
                     checked={!!p.active}
-                    onChange={async () => {
-                      const updated = { ...p, active: !p.active };
-                      await upsertPlan(updated);
-                      if (filter === 'all') setPlans(await listPlans());
-                      else if (filter === 'active') setPlans(await listPlans({ active: true }));
-                      else setPlans(await listPlans({ active: false }));
-                    }}
+                    onChange={() => toggleActiveOptimistic(p)}
                   />
                   <span>{p.active ? "Active" : "Inactive"}</span>
                 </label>
@@ -555,7 +549,7 @@ const MembershipManagement = () => {
               </div>
             </div>
           ))}
-          {plans.length === 0 && <div className="p-4 text-sm text-gray-500">No plans yet. Create your first plan above.</div>}
+          {memberships.length === 0 && <div className="p-4 text-sm text-gray-500">No plans yet. Create your first plan above.</div>}
         </div>
       </div>
     </div>
