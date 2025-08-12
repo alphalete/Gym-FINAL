@@ -156,6 +156,70 @@ class GymStorage {
   async getAllAuditEvents() {
     return this.getData('audit');
   }
+
+  // Plans Store Methods
+  async listPlans(opts = {}) {
+    await this.init();
+    const { active } = opts;
+    return new Promise((resolve, reject) => {
+      const tx = this.db.transaction(['plans'], 'readonly');
+      const store = tx.objectStore('plans');
+
+      if (typeof active === 'boolean' && store.indexNames && store.indexNames.contains('active')) {
+        const idx = store.index('active');
+        const req = idx.openCursor(IDBKeyRange.only(active));
+        const out = [];
+        req.onsuccess = (e) => { const c = e.target.result; if (c) { out.push(c.value); c.continue(); } else resolve(out); };
+        req.onerror = () => reject(req.error);
+        return;
+      }
+
+      const out = [];
+      const req = store.openCursor();
+      req.onsuccess = (e) => { const c = e.target.result; if (c) { out.push(c.value); c.continue(); } else resolve(out); };
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async upsertPlan(plan) {
+    await this.init();
+    return new Promise((resolve, reject) => {
+      const tx = this.db.transaction(['plans'], 'readwrite');
+      tx.objectStore('plans').put(plan);
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  async deletePlan(id) {
+    await this.init();
+    return new Promise((resolve, reject) => {
+      const tx = this.db.transaction(['plans'], 'readwrite');
+      tx.objectStore('plans').delete(id);
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  async migratePlansFromSettingsIfNeeded() {
+    if (this.__plansMigrated) return;
+    this.__plansMigrated = true;
+    try {
+      const legacy = await this.getSetting('membershipPlans', null);
+      if (legacy && Array.isArray(legacy) && legacy.length) {
+        const existing = await this.listPlans();
+        const ids = new Set(existing.map(p => p.id));
+        for (const p of legacy) {
+          const id = p.id || crypto.randomUUID();
+          if (!ids.has(id)) await this.upsertPlan({ ...p, id });
+        }
+        await this.saveSetting('membershipPlans', []); // clear old blob
+        console.log('Plans migrated from settings → plans store');
+      }
+    } catch (e) {
+      console.warn('Plans migration skipped:', e);
+    }
+  }
 }
 
 const gymStorage = new GymStorage();
