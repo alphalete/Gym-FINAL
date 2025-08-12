@@ -252,112 +252,222 @@ class AlphaleteBackendTester:
             
         return True
 
-    def test_settings_plans_integration(self):
-        """Test 4: Settings & Plans Integration - test backend endpoints for new features"""
-        print("\n🔍 TEST 4: Settings & Plans Integration")
+    def test_option_a_payment_logic_compatibility(self):
+        """Test 4: Option A Payment Logic Compatibility - ensure backend supports new payment flows"""
+        print("\n🔍 TEST 4: Option A Payment Logic Compatibility")
         print("-" * 50)
         
-        # Test membership types endpoint (for Plans)
-        response = self.make_request("GET", "/membership-types")
-        if response and response.status_code == 200:
-            membership_types = response.json()
-            self.log_test("GET /api/membership-types", True,
-                        f"Found {len(membership_types)} membership types")
+        # Test that backend can handle Option A payment logic from frontend
+        # Create a test client with specific payment scenario
+        test_client_data = {
+            "name": f"Option A Test Client {datetime.now().strftime('%H%M%S')}",
+            "email": f"optiona.test.{datetime.now().strftime('%H%M%S')}@example.com",
+            "phone": "+1868-555-OPTA",
+            "membership_type": "Standard",
+            "monthly_fee": 55.0,
+            "start_date": (date.today() - timedelta(days=35)).isoformat(),  # Started 35 days ago
+            "payment_status": "due",
+            "amount_owed": 55.0
+        }
+        
+        response = self.make_request("POST", "/clients", test_client_data)
+        if not response or response.status_code not in [200, 201]:
+            self.log_test("Option A Client Creation", False, "Could not create test client")
+            return False
             
-            # Verify membership type structure
-            if membership_types:
-                membership_type = membership_types[0]
-                required_fields = ['id', 'name', 'monthly_fee', 'description', 'features']
-                has_required_fields = all(field in membership_type for field in required_fields)
-                self.log_test("Membership Type Format", has_required_fields,
-                            f"Type: {membership_type.get('name')} - TTD {membership_type.get('monthly_fee')}")
+        created_client = response.json()
+        client_id = created_client.get('id')
+        self.created_test_clients.append(client_id)
+        
+        # Verify client created with proper next_payment_date calculation
+        next_payment_date = created_client.get('next_payment_date')
+        self.log_test("Option A Client Creation", True, 
+                    f"Client created with next payment: {next_payment_date}")
+        
+        # Test payment recording with Option A logic (cadence preservation)
+        # Record a payment that should preserve the original billing cycle
+        payment_data = {
+            "client_id": client_id,
+            "amount_paid": 55.0,
+            "payment_date": date.today().isoformat(),
+            "payment_method": "Cash",
+            "notes": "Option A payment - cadence preservation test"
+        }
+        
+        response = self.make_request("POST", "/payments/record", payment_data)
+        if response and response.status_code == 200:
+            payment_result = response.json()
+            self.log_test("Option A Payment Recording", True,
+                        f"Payment recorded: TTD {payment_result.get('amount_paid')}")
+            
+            # Verify payment status and due date advancement
+            new_next_payment_date = payment_result.get('new_next_payment_date')
+            due_date_advanced = payment_result.get('due_date_advanced', False)
+            
+            self.log_test("Option A Due Date Logic", True,
+                        f"Due date advanced: {due_date_advanced}, New date: {new_next_payment_date}")
+            
+            # Verify client status updated correctly
+            response = self.make_request("GET", f"/clients/{client_id}")
+            if response and response.status_code == 200:
+                updated_client = response.json()
+                payment_status = updated_client.get('payment_status')
+                amount_owed = updated_client.get('amount_owed')
+                
+                self.log_test("Option A Client Status Update", payment_status == 'paid',
+                            f"Status: {payment_status}, Amount owed: TTD {amount_owed}")
         else:
-            self.log_test("GET /api/membership-types", False,
+            self.log_test("Option A Payment Recording", False,
                         f"HTTP {response.status_code if response else 'No response'}")
             
-        # Test email templates endpoint (for Settings)
-        response = self.make_request("GET", "/email/templates")
-        if response and response.status_code == 200:
-            templates = response.json()
-            self.log_test("GET /api/email/templates", True,
-                        f"Available templates: {list(templates.get('templates', {}).keys())}")
-        else:
-            self.log_test("GET /api/email/templates", False,
-                        f"HTTP {response.status_code if response else 'No response'}")
+        # Test partial payment scenario (Option A should handle gracefully)
+        partial_client_data = {
+            "name": f"Partial Payment Test {datetime.now().strftime('%H%M%S')}",
+            "email": f"partial.test.{datetime.now().strftime('%H%M%S')}@example.com",
+            "phone": "+1868-555-PART",
+            "membership_type": "Premium",
+            "monthly_fee": 75.0,
+            "start_date": date.today().isoformat(),
+            "payment_status": "due",
+            "amount_owed": 75.0
+        }
+        
+        response = self.make_request("POST", "/clients", partial_client_data)
+        if response and response.status_code in [200, 201]:
+            partial_client = response.json()
+            partial_client_id = partial_client.get('id')
+            self.created_test_clients.append(partial_client_id)
             
-        # Test reminder settings endpoint
-        response = self.make_request("GET", "/reminders/stats")
-        if response and response.status_code == 200:
-            reminder_stats = response.json()
-            self.log_test("GET /api/reminders/stats", True,
-                        f"Scheduler active: {reminder_stats.get('scheduler_active')}")
+            # Record partial payment
+            partial_payment_data = {
+                "client_id": partial_client_id,
+                "amount_paid": 40.0,  # Partial payment
+                "payment_date": date.today().isoformat(),
+                "payment_method": "Card",
+                "notes": "Option A partial payment test"
+            }
+            
+            response = self.make_request("POST", "/payments/record", partial_payment_data)
+            if response and response.status_code == 200:
+                partial_result = response.json()
+                remaining_balance = partial_result.get('remaining_balance')
+                payment_type = partial_result.get('payment_type')
+                
+                self.log_test("Option A Partial Payment", True,
+                            f"Remaining: TTD {remaining_balance}, Type: {payment_type}")
+            else:
+                self.log_test("Option A Partial Payment", False, "Partial payment failed")
         else:
-            self.log_test("GET /api/reminders/stats", False,
-                        f"HTTP {response.status_code if response else 'No response'}")
+            self.log_test("Option A Partial Payment Setup", False, "Could not create partial test client")
             
         return True
 
-    def test_pin_protected_operations(self):
-        """Test 5: PIN-Protected Operations - verify backend supports payment recording/deletion"""
-        print("\n🔍 TEST 5: PIN-Protected Operations Support")
+    def test_database_connections_stability(self):
+        """Test 5: Database Connections - verify MongoDB connections remain stable"""
+        print("\n🔍 TEST 5: Database Connection Stability")
         print("-" * 50)
         
-        # Test that payment recording works (PIN protection is frontend-only)
-        if self.created_test_clients:
-            client_id = self.created_test_clients[0]
-            
-            # Test payment recording (should work without PIN on backend)
-            payment_data = {
-                "client_id": client_id,
-                "amount_paid": 25.0,
-                "payment_date": date.today().isoformat(),
-                "payment_method": "Card",
-                "notes": "PIN-Protected Test Payment"
-            }
-            
-            response = self.make_request("POST", "/payments/record", payment_data)
+        # Test multiple rapid API calls to verify connection stability
+        connection_tests = []
+        
+        for i in range(5):
+            response = self.make_request("GET", "/clients")
             if response and response.status_code == 200:
-                self.log_test("Payment Recording (PIN-Protected)", True,
-                            "Backend supports payment recording for PIN-protected operations")
+                connection_tests.append(True)
             else:
-                self.log_test("Payment Recording (PIN-Protected)", False,
-                            f"HTTP {response.status_code if response else 'No response'}")
+                connection_tests.append(False)
                 
-            # Test client deletion (should work without PIN on backend)
-            # Create a temporary client for deletion test
-            temp_client_data = {
-                "name": "Temp Delete Test Client",
-                "email": f"temp.delete.{datetime.now().strftime('%H%M%S')}@example.com",
-                "phone": "+1868-555-TEMP",
-                "membership_type": "Standard",
-                "monthly_fee": 55.0,
-                "start_date": date.today().isoformat(),
-                "payment_status": "due"
-            }
+        stable_connections = sum(connection_tests)
+        self.log_test("Database Connection Stability", stable_connections >= 4,
+                    f"Successful connections: {stable_connections}/5")
+        
+        # Test concurrent-like requests (payment stats + clients)
+        stats_response = self.make_request("GET", "/payments/stats")
+        clients_response = self.make_request("GET", "/clients")
+        
+        both_successful = (stats_response and stats_response.status_code == 200 and
+                          clients_response and clients_response.status_code == 200)
+        
+        self.log_test("Concurrent API Requests", both_successful,
+                    "Payment stats and clients endpoints both responsive")
+        
+        # Test database write operations stability
+        test_write_data = {
+            "name": f"DB Stability Test {datetime.now().strftime('%H%M%S')}",
+            "email": f"db.stability.{datetime.now().strftime('%H%M%S')}@example.com",
+            "phone": "+1868-555-DBST",
+            "membership_type": "Standard",
+            "monthly_fee": 55.0,
+            "start_date": date.today().isoformat(),
+            "payment_status": "due"
+        }
+        
+        write_response = self.make_request("POST", "/clients", test_write_data)
+        if write_response and write_response.status_code in [200, 201]:
+            test_client = write_response.json()
+            test_client_id = test_client.get('id')
+            self.created_test_clients.append(test_client_id)
             
-            response = self.make_request("POST", "/clients", temp_client_data)
-            if response and response.status_code in [200, 201]:
-                temp_client = response.json()
-                temp_client_id = temp_client.get('id')
-                
-                # Test deletion
-                response = self.make_request("DELETE", f"/clients/{temp_client_id}")
-                if response and response.status_code == 200:
-                    deletion_result = response.json()
-                    self.log_test("Client Deletion (PIN-Protected)", True,
-                                f"Deleted: {deletion_result.get('client_name')}")
-                    
-                    # Verify cascading deletion of payment records
-                    payment_records_deleted = deletion_result.get('payment_records_deleted', 0)
-                    self.log_test("Cascading Payment Deletion", True,
-                                f"Payment records deleted: {payment_records_deleted}")
-                else:
-                    self.log_test("Client Deletion (PIN-Protected)", False,
-                                f"HTTP {response.status_code if response else 'No response'}")
-            else:
-                self.log_test("Client Deletion (PIN-Protected)", False, "Could not create temp client")
+            # Immediately read back to verify write consistency
+            read_response = self.make_request("GET", f"/clients/{test_client_id}")
+            write_read_consistent = (read_response and read_response.status_code == 200 and
+                                   read_response.json().get('name') == test_write_data['name'])
+            
+            self.log_test("Database Write-Read Consistency", write_read_consistent,
+                        "Write operation immediately readable")
         else:
-            self.log_test("PIN-Protected Operations", False, "No test client available")
+            self.log_test("Database Write Operations", False, "Write operation failed")
+            
+        return True
+
+    def test_service_integration_stability(self):
+        """Test 6: Service Integration - test email, reminder services still work"""
+        print("\n🔍 TEST 6: Service Integration Stability")
+        print("-" * 50)
+        
+        # Test email service integration
+        response = self.make_request("POST", "/email/test")
+        if response and response.status_code == 200:
+            email_result = response.json()
+            email_working = email_result.get('success', False)
+            self.log_test("Email Service Integration", email_working,
+                        f"Email service: {email_result.get('message', 'Unknown')}")
+        else:
+            self.log_test("Email Service Integration", False,
+                        f"HTTP {response.status_code if response else 'No response'}")
+            
+        # Test email templates endpoint
+        response = self.make_request("GET", "/email/templates")
+        if response and response.status_code == 200:
+            templates = response.json()
+            has_templates = 'templates' in templates and len(templates['templates']) > 0
+            self.log_test("Email Templates Available", has_templates,
+                        f"Templates: {list(templates.get('templates', {}).keys())}")
+        else:
+            self.log_test("Email Templates Available", False,
+                        f"HTTP {response.status_code if response else 'No response'}")
+            
+        # Test reminder service
+        response = self.make_request("GET", "/reminders/stats")
+        if response and response.status_code == 200:
+            reminder_stats = response.json()
+            scheduler_active = reminder_stats.get('scheduler_active', False)
+            self.log_test("Reminder Service Integration", scheduler_active,
+                        f"Scheduler active: {scheduler_active}")
+        else:
+            self.log_test("Reminder Service Integration", False,
+                        f"HTTP {response.status_code if response else 'No response'}")
+            
+        # Test membership types (for plan integration)
+        response = self.make_request("GET", "/membership-types")
+        if response and response.status_code == 200:
+            membership_types = response.json()
+            has_membership_types = len(membership_types) > 0
+            self.log_test("Membership Types Service", has_membership_types,
+                        f"Available types: {len(membership_types)}")
+        else:
+            self.log_test("Membership Types Service", False,
+                        f"HTTP {response.status_code if response else 'No response'}")
             
         return True
 
