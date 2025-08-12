@@ -212,7 +212,8 @@ const PaymentComponent = () => {
         lastDueISO: selectedClient.nextDue,
         paidOnISO: paidOn,
         cycleDays,
-        graceDays
+        graceDays,
+        mode: cycleAnchorMode
       });
 
       // Save payment record
