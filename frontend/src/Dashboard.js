@@ -254,60 +254,6 @@ const Dashboard = () => {
 </div>
 {/* === New actionable sections end === */}
 
-      {/* Priority alerts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-        <div className="bg-white rounded-2xl border p-4">
-          <div className="font-semibold mb-2">Due Today</div>
-          {dueToday.length === 0 ? (
-            <div className="text-sm text-gray-500">No members due today.</div>
-          ) : dueToday.map(m => (
-            <div key={m.id} className="flex items-center justify-between py-2 border-b last:border-0">
-              <div>
-                <div className="font-medium">{m.name}</div>
-                <div className="text-xs text-gray-500">{m.nextDue}</div>
-              </div>
-              <div className="flex gap-2">
-                <button className="text-sm rounded-lg border px-2 py-1" onClick={()=> goRecordPayment(m)}>Record</button>
-                <button className="text-sm rounded-lg border px-2 py-1" onClick={()=> sendReminder(m)}>Remind</button>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="bg-white rounded-2xl border p-4">
-          <div className="font-semibold mb-2">Overdue</div>
-          {overdue.length === 0 ? (
-            <div className="text-sm text-gray-500">No overdue members 🎉</div>
-          ) : overdue.map(m => (
-            <div key={m.id} className="flex items-center justify-between py-2 border-b last:border-0">
-              <div>
-                <div className="font-medium">{m.name}</div>
-                <div className="text-xs text-red-600">{m.nextDue}</div>
-              </div>
-              <div className="flex gap-2">
-                <button className="text-sm rounded-lg border px-2 py-1" onClick={()=> goRecordPayment(m)}>Record</button>
-                <button className="text-sm rounded-lg border px-2 py-1" onClick={()=> sendReminder(m)}>Remind</button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Trends + Plans snapshot */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-        <div className="bg-white rounded-2xl border p-4 lg:col-span-2">
-          <div className="flex items-center justify-between mb-2">
-            <div className="font-semibold">Collections (last 8 weeks)</div>
-            <button className="text-xs text-gray-500" onClick={()=> navigate('/reports')}>View Reports</button>
-          </div>
-          <div className="text-gray-400">{spark()}</div>
-        </div>
-
-        <div className="bg-white rounded-2xl border p-4">
-          <div className="font-semibold mb-2">Plans snapshot</div>
-          <PlansMini />
-        </div>
-      </div>
     </div>
   );
 };
