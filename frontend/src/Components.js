@@ -116,6 +116,15 @@ const PaymentComponent = () => {
     }
   }, [members]);
 
+  // When member changes, default amount from their plan snapshot
+  useEffect(() => {
+    if (!form.memberId) return;
+    const m = members.find(x => String(x.id) === String(form.memberId));
+    if (!m) return;
+    const defaultAmt = Number(m.fee || 0);
+    setForm(f => ({ ...f, amount: f.amount || (defaultAmt ? String(defaultAmt) : "") }));
+  }, [form.memberId, members]);
+
   async function savePayment() {
     if (!form.memberId || !form.amount) {
       alert('Please select a member and enter an amount.');
