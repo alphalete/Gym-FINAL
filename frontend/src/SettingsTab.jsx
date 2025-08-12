@@ -18,7 +18,13 @@ function Section({ title, children, defaultOpen=true }){ const [open,setOpen]=us
 
 export default function SettingsTab(){
   const [s,setS]=useState(null); const [pinSet,setPinSet]=useState(false);
-  useEffect(()=>{ loadSettings().then(setS); (async()=>setPinSet(await hasPin()))(); },[]);
+  useEffect(()=>{ 
+    (async () => {
+      const s = await loadSettings().catch(()=>({}));
+      setS(prev => ({ ...prev, ...s }));
+    })();
+    (async()=>setPinSet(await hasPin()))(); 
+  },[]);
   if(!s) return <div className="p-6 text-gray-500">Loading settings…</div>;
   const update=(k)=>(async v=>{ const val=(k.endsWith("Days")||k.endsWith("Minutes")||k==="billingCycleDays")?Math.max(0,Number(v||0)):v;
     await setSetting(k,val); setS(p=>({...p,[k]:val})); });
