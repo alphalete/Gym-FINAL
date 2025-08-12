@@ -423,11 +423,11 @@ const ClientManagement = () => {
   useEffect(() => {
     const onOpen = () => { 
       setEditing(null); 
-      setForm({ name:"", email:"", phone:"" }); 
+      setForm({ name:"", email:"", phone:"", planId:"" }); 
       setIsOpen(true); 
     };
     window.addEventListener("OPEN_ADD_MEMBER", onOpen);
-    const onChanged = () => load();
+    const onChanged = () => loadMembersAndPlans();
     window.addEventListener("DATA_CHANGED", onChanged);
     return () => { 
       window.removeEventListener("OPEN_ADD_MEMBER", onOpen); 
