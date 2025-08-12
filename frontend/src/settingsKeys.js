@@ -4,6 +4,7 @@ export const SETTINGS_DEFAULTS = {
   billingCycleDays: 30,
   dueSoonDays: 5,
   graceDays: 0,
+  cycleAnchorMode: "anchored",
   // Reminders
   reminderChannel: "whatsapp",
   reminderSendTime: "08:00",
