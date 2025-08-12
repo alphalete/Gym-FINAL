@@ -572,7 +572,7 @@ const Dashboard = () => {
   // Bridge to Payments → auto-open modal
   const goRecordPayment = (member) => {
     try { localStorage.setItem("pendingPaymentMemberId", member.id); } catch {}
-    window.setActiveTab?.("payments");
+    navigate('payments');
   };
 
   // Reminder (WhatsApp/email)
