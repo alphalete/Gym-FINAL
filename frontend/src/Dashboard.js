@@ -1,435 +1,273 @@
-import React, { useState, useEffect } from 'react';
-import { nextDueDateFromJoin, isOverdue } from './billing';
-import { getSetting } from "./settingsStore";
-import { buildReminder, waLink } from "./reminders";
+import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate } from 'react-router-dom';
+import gymStorage from "./storage";
 
 const Dashboard = () => {
-  const [clients, setClients] = useState([]);
-  const [stats, setStats] = useState({
-    activeMembers: 0,
-    overdueAccounts: 0,
-    dueSoon: 0,
-    totalRevenue: 0
-  });
-  const [loading, setLoading] = useState(true);
-  const [dueSoonDays, setDueSoonDays] = useState(5);
-  const [currencyCode, setCurrencyCode] = useState("TTD");
+  const navigate = useNavigate();
+  const [members, setMembers] = useState([]);
+  const [payments, setPayments] = useState([]);
+  const [settings, setSettings] = useState({ billingCycleDays: 30, graceDays: 0, dueSoonDays: 3 });
+  const [search, setSearch] = useState("");
+  const todayISO = new Date().toISOString().slice(0,10);
 
-  // Load settings
-  useEffect(() => { 
+  useEffect(() => {
     (async () => {
-      setDueSoonDays(Number(await getSetting("dueSoonDays") ?? 5));
-      setCurrencyCode((await getSetting("currencyCode")) || "TTD");
-    })(); 
+      const [m, p, s] = await Promise.all([
+        gymStorage.getAllMembers?.() ?? [],
+        gymStorage.getAllPayments?.() ?? [],
+        gymStorage.getSetting?.('gymSettings', {}) ?? {}
+      ]);
+      setMembers(Array.isArray(m) ? m : []);
+      setPayments(Array.isArray(p) ? p : []);
+      setSettings(prev => ({ ...prev, ...(s || {}) }));
+    })();
   }, []);
 
-  // Money formatting function
-  const formatMoney = React.useMemo(() => (amt) => {
-    try {
-      return new Intl.NumberFormat('en-TT', { 
-        style: 'currency', 
-        currency: currencyCode, 
-        maximumFractionDigits: 0 
-      }).format(amt || 0);
-    } catch {
-      return `${currencyCode} ${Number(amt || 0).toFixed(0)}`;
-    }
-  }, [currencyCode]);
+  const dueSoonDays = Number(settings.dueSoonDays ?? settings.reminderDays ?? 3) || 3;
 
-  // Get backend URL (same as existing system)
-  const getBackendUrl = () => {
-    return process.env.REACT_APP_BACKEND_URL || import.meta.env?.REACT_APP_BACKEND_URL || '';
+  const parseISO = (s) => s ? new Date(s) : null;
+  const isOverdue  = (iso) => !!iso && parseISO(iso) < new Date(todayISO);
+  const isDueToday = (iso) => iso === todayISO;
+  const isDueSoon  = (iso) => {
+    if (!iso) return false;
+    const d = parseISO(iso), t = new Date(todayISO);
+    const diff = Math.round((d - t) / 86400000);
+    return diff > 0 && diff <= dueSoonDays;
   };
 
-  // Get AST date (Atlantic Standard Time - same as existing system)
-  const getASTDate = () => {
-    const now = new Date();
-    const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
-    const astOffset = -4; // AST is UTC-4
-    return new Date(utcTime + (astOffset * 3600000));
-  };
+  const kpis = useMemo(() => {
+    const activeCount = members.filter(m => (m.status || "Active") === "Active").length;
+    const startOfMonth = new Date(todayISO.slice(0,7) + "-01");
+    const newMTD = members.filter(m => {
+      const c = parseISO(m.createdAt?.slice(0,10) || m.joinDate);
+      return c && c >= startOfMonth;
+    }).length;
+    const revenueMTD = payments
+      .filter(p => p.paidOn && p.paidOn.slice(0,7) === todayISO.slice(0,7))
+      .reduce((sum,p)=> sum + Number(p.amount||0), 0);
+    const overdueCount = members.filter(m => isOverdue(m.nextDue)).length;
+    return { activeCount, newMTD, revenueMTD, overdueCount };
+  }, [members, payments, todayISO]);
 
-  // Get client payment status (same logic as existing system)
-  const getClientPaymentStatus = (client) => {
-    // Check if client has actually paid (amount_owed should be 0 or very small)
-    if (client.amount_owed === 0 || client.amount_owed < 0.01) {
-      return 'paid';
-    }
-    
-    // If client owes money, check when their payment is due
-    if (!client.next_payment_date) return 'overdue'; // No due date but owes money = overdue
-    
-    const today = getASTDate();
-    today.setHours(0, 0, 0, 0);
-    const paymentDate = new Date(client.next_payment_date);
-    const daysDiff = Math.ceil((paymentDate - today) / (1000 * 60 * 60 * 24));
-    
-    if (daysDiff < 0) return 'overdue';    // Past due date
-    if (daysDiff <= dueSoonDays) return 'due-soon';  // Use configurable due-soon days
-    return 'due';                          // Due in the future
-  };
+  const dueToday = useMemo(() =>
+    members.filter(m => isDueToday(m.nextDue))
+           .sort((a,b)=> (a.name||"").localeCompare(b.name||""))
+           .slice(0,5), [members, todayISO]);
 
-  // Compute clients with billing info using the new billing logic
-  const clientsWithBilling = clients.map(client => {
-    const paymentStatus = getClientPaymentStatus(client);
-    const dueDate = client.next_payment_date;
-    const today = getASTDate();
-    const due = dueDate ? new Date(dueDate) : null;
-    const daysToDue = due ? Math.ceil((due - today) / (1000 * 60 * 60 * 24)) : null;
-    
-    let status = "Active";
-    if (paymentStatus === 'overdue') {
-      status = "Overdue";
-    } else if (paymentStatus === 'due-soon' || (daysToDue !== null && daysToDue >= 0 && daysToDue <= dueSoonDays)) {
-      status = "Due Soon";
-    } else if (paymentStatus === 'paid') {
-      status = "Paid";
-    }
-    
-    return {
-      ...client,
-      _dueDate: dueDate,
-      _status: status,
-      _daysToDue: daysToDue,
-      _paymentStatus: paymentStatus
-    };
-  });
+  const overdue = useMemo(() =>
+    members.filter(m => isOverdue(m.nextDue))
+           .sort((a,b)=> (new Date(a.nextDue) - new Date(b.nextDue)))
+           .slice(0,5), [members, todayISO]);
 
-  // Load data from API (same as existing system)
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        setLoading(true);
-        const backendUrl = getBackendUrl();
-        
-        if (!backendUrl) {
-          console.log('Dashboard: No backend URL configured');
-          setLoading(false);
-          return;
-        }
-        
-        // Get clients and payment stats in parallel
-        const [clientsResponse, paymentsResponse] = await Promise.all([
-          fetch(`${backendUrl}/api/clients`, {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' }
-          }),
-          fetch(`${backendUrl}/api/payments/stats`, {
-            method: 'GET', 
-            headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' }
-          })
-        ]);
-        
-        if (clientsResponse.ok && paymentsResponse.ok) {
-          const [clientsData, paymentStats] = await Promise.all([
-            clientsResponse.json(),
-            paymentsResponse.json()
-          ]);
-          
-          setClients(clientsData);
-          
-          const activeClients = clientsData.filter(c => c.status === 'Active');
-          const today = getASTDate();
-          today.setHours(0, 0, 0, 0);
-          
-          // Calculate statistics using same logic as existing system
-          const overdueCount = activeClients.filter(client => {
-            if (client.amount_owed === 0 || client.amount_owed < 0.01) {
-              return false; // Paid clients are not overdue
-            }
-            if (!client.next_payment_date) return true;
-            const paymentDate = new Date(client.next_payment_date);
-            return paymentDate < today;
-          }).length;
-          
-          const dueSoonCount = activeClients.filter(client => {
-            if (!client.next_payment_date) return false;
-            const paymentDate = new Date(client.next_payment_date);
-            const diffTime = paymentDate - today;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            return diffDays >= 0 && diffDays <= dueSoonDays;
-          }).length;
-
-          setStats({
-            activeMembers: activeClients.length,
-            overdueAccounts: overdueCount,
-            dueSoon: dueSoonCount,
-            totalRevenue: paymentStats.total_revenue || 0
-          });
-        }
-      } catch (error) {
-        console.error('Dashboard: Error fetching data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchStats();
-  }, [dueSoonDays]);
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "Overdue":
-        return "badge-danger";
-      case "Due Soon":
-        return "badge-warn";
-      case "Paid":
-        return "badge-success";
-      case "Active":
-        return "bg-blue-100 text-blue-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getDueDateColor = (daysToDue, status) => {
-    if (status === "Overdue") return "text-red-600 font-semibold";
-    if (daysToDue !== null && daysToDue <= dueSoonDays) return "text-orange-600 font-semibold";
-    return "text-gray-600";
-  };
-
-  const formatDueDate = (dateStr, daysToDue, status) => {
-    if (!dateStr) return "No due date";
-    const date = new Date(dateStr);
-    const formatted = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    
-    if (status === "Overdue") {
-      const overdueDays = Math.abs(daysToDue);
-      return `${formatted} (${overdueDays} days overdue)`;
-    } else if (daysToDue !== null && daysToDue <= dueSoonDays && daysToDue >= 0) {
-      return `${formatted} (${daysToDue} days)`;
-    }
-    return formatted;
-  };
-
-  const handleWhatsApp = async (client) => {
-    try {
-      const message = await buildReminder({ 
-        name: client.name, 
-        dueISO: client._dueDate, 
-        amount: client.amount_owed,
-        currencyFormatter: formatMoney
-      });
-      const phoneNumber = client.phone?.replace(/[^\d]/g, '') || '';
-      if (phoneNumber) {
-        const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-        window.open(url, '_blank');
-      } else {
-        alert('No phone number available for this client.');
-      }
-    } catch (error) {
-      console.error('Error building WhatsApp message:', error);
-      alert('Error creating message. Please try again.');
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-      </div>
+  const filteredMembers = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return members;
+    return members.filter(m =>
+      [m.name, m.email, m.phone].some(v => (v||"").toLowerCase().includes(q))
     );
-  }
+  }, [members, search]);
+
+  // Bridge to Payments tab → open "Record Payment" for member
+  const goRecordPayment = (member) => {
+    try { localStorage.setItem("pendingPaymentMemberId", member.id); } catch {}
+    navigate("/payments");
+  };
+
+  // Lightweight reminder (WA/email) without depending on PaymentTracking internals
+  const sendReminder = async (client) => {
+    try {
+      const s = await (gymStorage.getSetting?.('gymSettings', {}) ?? {});
+      const due = client?.nextDue || "soon";
+      const subject = `Membership due ${due}`;
+      const amountTxt = s?.membershipFeeDefault ? ` Amount: ${s.membershipFeeDefault}.` : '';
+      const body = `Hi ${client?.name || 'member'}, your membership is due on ${due}.${amountTxt}\n\nThank you!`;
+      const hasPhone = client?.phone && client.phone.replace(/\D/g, '').length >= 7;
+      if (hasPhone) { window.open(`https://wa.me/?text=${encodeURIComponent(body)}`, '_blank'); return; }
+      if (client?.email) {
+        window.location.href = `mailto:${encodeURIComponent(client.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        return;
+      }
+      alert('No phone or email on file.');
+    } catch {
+      alert('Could not open your email/WhatsApp app.');
+    }
+  };
+
+  // Tiny revenue sparkline (last 8 weeks)
+  const revenuePoints = useMemo(() => {
+    const byWeek = new Map();
+    const d = new Date(todayISO);
+    for (let i=0;i<56;i++){ // ensure 8 weeks of buckets exist (even if 0)
+      const cur = new Date(d.getTime() - i*86400000);
+      const year = cur.getFullYear();
+      const oneJan = new Date(year,0,1);
+      const week = Math.ceil((((cur - oneJan)/86400000) + oneJan.getDay()+1)/7);
+      byWeek.set(`${year}-${week}`, 0);
+    }
+    payments.forEach(p => {
+      if (!p.paidOn) return;
+      const dt = new Date(p.paidOn);
+      const year = dt.getFullYear();
+      const oneJan = new Date(year,0,1);
+      const week = Math.ceil((((dt - oneJan)/86400000) + oneJan.getDay()+1)/7);
+      const key = `${year}-${week}`;
+      if (byWeek.has(key)) byWeek.set(key, byWeek.get(key) + Number(p.amount||0));
+    });
+    return Array.from(byWeek.entries()).slice(-8).map(([,v])=>v);
+  }, [payments, todayISO]);
+  const maxRev = Math.max(1, ...revenuePoints);
+  const spark = (w=160, h=40) => {
+    const step = w / Math.max(1, revenuePoints.length-1);
+    const pts = revenuePoints.map((v,i)=>{
+      const x = i*step;
+      const y = h - (v/maxRev)*h;
+      return `${x},${y}`;
+    }).join(" ");
+    return (
+      <svg width={w} height={h} className="overflow-visible">
+        <polyline fill="none" stroke="currentColor" strokeWidth="2" points={pts} />
+      </svg>
+    );
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 lg:p-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
-          <p className="text-gray-600">Member management overview</p>
+    <div className="p-4 lg:p-6 space-y-6">
+      {/* Search & Quick Actions */}
+      <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+        <input
+          value={search}
+          onChange={(e)=>setSearch(e.target.value)}
+          placeholder="Search members by name, phone, email..."
+          className="rounded-xl border px-3 py-2 w-full sm:w-96"
+        />
+        <div className="flex gap-2">
+          <button className="rounded-xl px-3 py-2 border" onClick={()=> navigate('/add-client')}>+ Add Member</button>
+          <button className="rounded-xl px-3 py-2 border" onClick={()=> navigate('/payments')}>+ Add Payment</button>
+          <button
+            className="rounded-xl px-3 py-2 border"
+            onClick={()=> overdue.concat(dueToday).forEach(m=>sendReminder(m))}
+            title="Send reminders to Due Today + Overdue"
+          >
+            Send Reminders
+          </button>
         </div>
-
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
-                </svg>
-              </div>
-              <div className="ml-4">
-                <h3 className="text-sm font-medium text-gray-500">Total Members</h3>
-                <p className="text-2xl font-semibold text-gray-900">{stats.activeMembers}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className="p-2 bg-red-100 rounded-lg">
-                <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                </svg>
-              </div>
-              <div className="ml-4">
-                <h3 className="text-sm font-medium text-gray-500">Overdue</h3>
-                <p className="text-2xl font-semibold text-red-600">{stats.overdueAccounts}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className="p-2 bg-yellow-100 rounded-lg">
-                <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div className="ml-4">
-                <h3 className="text-sm font-medium text-gray-500">Due Soon</h3>
-                <p className="text-2xl font-semibold text-yellow-600">{stats.dueSoon}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                </svg>
-              </div>
-              <div className="ml-4">
-                <h3 className="text-sm font-medium text-gray-500">Total Revenue</h3>
-                <p className="text-2xl font-semibold text-brand-600">{formatMoney(stats.totalRevenue)}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Desktop Table View */}
-        <div className="hidden lg:block">
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">Members Overview</h2>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Member</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount Owed</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {clientsWithBilling.map((client) => (
-                    <tr key={client.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10">
-                            <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                              <span className="text-sm font-medium text-gray-700">
-                                {client.name ? client.name.split(' ').map(n => n[0]).join('').substring(0, 2) : '??'}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">{client.name}</div>
-                            <div className="text-sm text-gray-500">{client.email}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`badge ${getStatusColor(client._status)}`}>
-                          {client._status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className={`text-sm ${getDueDateColor(client._daysToDue, client._status)}`}>
-                          {formatDueDate(client._dueDate, client._daysToDue, client._status)}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {formatMoney(client.amount_owed)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                        <button
-                          onClick={() => handleWhatsApp(client)}
-                          className="btn btn-primary"
-                        >
-                          WhatsApp
-                        </button>
-                        <button className="btn btn-outline">
-                          Payment
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile Card View */}
-        <div className="lg:hidden">
-          <div className="space-y-4">
-            {clientsWithBilling.map((client) => (
-              <div key={client.id} className="bg-white rounded-lg shadow p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0 h-10 w-10">
-                      <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                        <span className="text-sm font-medium text-gray-700">
-                          {client.name ? client.name.split(' ').map(n => n[0]).join('').substring(0, 2) : '??'}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="ml-3">
-                      <div className="text-sm font-medium text-gray-900">{client.name}</div>
-                      <div className="text-xs text-gray-500">{client.email}</div>
-                    </div>
-                  </div>
-                  <span className={`badge ${getStatusColor(client._status)}`}>
-                    {client._status}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <p className="text-xs text-gray-500">Due Date</p>
-                    <p className={`text-sm ${getDueDateColor(client._daysToDue, client._status)}`}>
-                      {formatDueDate(client._dueDate, client._daysToDue, client._status)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">Amount Owed</p>
-                    <p className="text-sm font-medium text-gray-900">{formatMoney(client.amount_owed)}</p>
-                  </div>
-                </div>
-
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => handleWhatsApp(client)}
-                    className="flex-1 btn btn-primary"
-                  >
-                    WhatsApp
-                  </button>
-                  <button className="flex-1 btn btn-outline">
-                    Payment
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Empty State */}
-        {clientsWithBilling.length === 0 && (
-          <div className="text-center py-12">
-            <svg className="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
-            </svg>
-            <h3 className="text-lg font-medium text-gray-900 mb-1">No members found</h3>
-            <p className="text-gray-500">Get started by adding your first member.</p>
-          </div>
-        )}
       </div>
+
+      {/* KPI cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="bg-white rounded-2xl border p-4">
+          <div className="text-gray-500 text-sm">Active Members</div>
+          <div className="text-2xl font-semibold">{kpis.activeCount}</div>
+        </div>
+        <div className="bg-white rounded-2xl border p-4">
+          <div className="text-gray-500 text-sm">New Sign-ups (MTD)</div>
+          <div className="text-2xl font-semibold">{kpis.newMTD}</div>
+        </div>
+        <div className="bg-white rounded-2xl border p-4">
+          <div className="text-gray-500 text-sm">Revenue (MTD)</div>
+          <div className="text-2xl font-semibold">${kpis.revenueMTD.toFixed(2)}</div>
+        </div>
+        <div className="bg-white rounded-2xl border p-4">
+          <div className="text-gray-500 text-sm">Overdue Payments</div>
+          <div className="text-2xl font-semibold">{kpis.overdueCount}</div>
+        </div>
+      </div>
+
+      {/* Priority alerts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        <div className="bg-white rounded-2xl border p-4">
+          <div className="font-semibold mb-2">Due Today</div>
+          {dueToday.length === 0 ? (
+            <div className="text-sm text-gray-500">No members due today.</div>
+          ) : dueToday.map(m => (
+            <div key={m.id} className="flex items-center justify-between py-2 border-b last:border-0">
+              <div>
+                <div className="font-medium">{m.name}</div>
+                <div className="text-xs text-gray-500">{m.nextDue}</div>
+              </div>
+              <div className="flex gap-2">
+                <button className="text-sm rounded-lg border px-2 py-1" onClick={()=> goRecordPayment(m)}>Record</button>
+                <button className="text-sm rounded-lg border px-2 py-1" onClick={()=> sendReminder(m)}>Remind</button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="bg-white rounded-2xl border p-4">
+          <div className="font-semibold mb-2">Overdue</div>
+          {overdue.length === 0 ? (
+            <div className="text-sm text-gray-500">No overdue members 🎉</div>
+          ) : overdue.map(m => (
+            <div key={m.id} className="flex items-center justify-between py-2 border-b last:border-0">
+              <div>
+                <div className="font-medium">{m.name}</div>
+                <div className="text-xs text-red-600">{m.nextDue}</div>
+              </div>
+              <div className="flex gap-2">
+                <button className="text-sm rounded-lg border px-2 py-1" onClick={()=> goRecordPayment(m)}>Record</button>
+                <button className="text-sm rounded-lg border px-2 py-1" onClick={()=> sendReminder(m)}>Remind</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Trends + Plans snapshot */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+        <div className="bg-white rounded-2xl border p-4 lg:col-span-2">
+          <div className="flex items-center justify-between mb-2">
+            <div className="font-semibold">Collections (last 8 weeks)</div>
+            <button className="text-xs text-gray-500" onClick={()=> navigate('/reports')}>View Reports</button>
+          </div>
+          <div className="text-gray-400">{spark()}</div>
+        </div>
+
+        <div className="bg-white rounded-2xl border p-4">
+          <div className="font-semibold mb-2">Plans snapshot</div>
+          <PlansMini />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const PlansMini = () => {
+  const navigate = useNavigate();
+  const [plans, setPlans] = useState([]);
+  const [members, setMembers] = useState([]);
+
+  useEffect(() => {
+    (async () => {
+      const p = (await gymStorage.listPlans?.()) || [];
+      setPlans(Array.isArray(p)? p : []);
+      const m = (await gymStorage.getAllMembers?.()) || [];
+      setMembers(Array.isArray(m)? m : []);
+    })();
+  }, []);
+
+  const counts = useMemo(() => {
+    const map = new Map(plans.map(p => [p.id, { ...p, count: 0 }]));
+    members.forEach(m => {
+      const pid = m.planId || m.plan?.id;
+      if (pid && map.has(pid)) map.get(pid).count++;
+    });
+    return Array.from(map.values()).sort((a,b)=> b.count - a.count).slice(0,3);
+  }, [plans, members]);
+
+  if (!counts.length) return <div className="text-sm text-gray-500">No plans yet.</div>;
+
+  return (
+    <div className="space-y-2">
+      {counts.map(p => (
+        <div key={p.id} className="flex items-center justify-between rounded-xl border px-3 py-2">
+          <div>
+            <div className="font-medium">{p.name}</div>
+            <div className="text-xs text-gray-500">${Number(p.price||0).toFixed(2)} • {p.cycleDays || 30}d</div>
+          </div>
+          <div className="text-sm font-medium">{p.count}</div>
+          <button className="text-xs rounded-lg border px-2 py-1" onClick={()=> navigate('/plans')}>View</button>
+        </div>
+      ))}
     </div>
   );
 };
