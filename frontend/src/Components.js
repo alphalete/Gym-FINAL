@@ -566,20 +566,27 @@ const PaymentComponent = () => {
 const Dashboard = () => {
   const [clients, setClients] = useState([]);
   const [payments, setPayments] = useState([]);
+  const [loading, setLoading] = useState(false);
   const todayISO = new Date().toISOString().slice(0,10);
 
   // Simple data loading without complex dependencies
   async function loadDashboard() {
     try {
+      setLoading(true);
+      console.log('[Dashboard] Starting data load...');
+      
       const m = await (gymStorage.getAllMembers?.() ?? []);
       const p = await (gymStorage.getAllPayments?.() ?? []);
       setClients(Array.isArray(m) ? m : []);
       setPayments(Array.isArray(p) ? p : []);
+      
       console.log('[Dashboard] loaded', { clients: m?.length || 0, payments: p?.length || 0 });
     } catch(e) {
       console.error('[Dashboard] load error', e);
       setClients([]);
       setPayments([]);
+    } finally {
+      setLoading(false); // Always ensure loading stops
     }
   }
   
@@ -600,6 +607,11 @@ const Dashboard = () => {
       window.removeEventListener('hashchange', onHash);
     };
   }, []);
+
+  // Show minimal loading indicator
+  if (loading) {
+    return <div className="p-4 text-sm text-gray-500">Loading…</div>;
+  }
 
   // Simple KPIs
   const activeCount = clients.filter(m => (m.status || "Active") === "Active").length;
