@@ -308,15 +308,28 @@ const Dashboard = () => {
 
   // Simple KPIs
   const activeCount = clients.filter(m => (m.status || "Active") === "Active").length;
-  const overdueCount = clients.filter(m => {
+  
+  const todayStr = todayISO;
+  const dueToday = clients.filter(m => {
+    if (m.status !== "Active") return false;
+    return m.nextDue === todayStr;
+  });
+  
+  const overdue = clients.filter(m => {
+    if (m.status !== "Active") return false;
     const due = m.nextDue;
     if (!due) return false;
     return new Date(due) < new Date(todayISO);
-  }).length;
+  });
 
   const revenueMTD = payments
     .filter(p => p.paidOn && p.paidOn.slice(0,7) === todayISO.slice(0,7))
     .reduce((sum,p)=> sum + Number(p.amount||0), 0);
+
+  function goRecordPayment(m) {
+    localStorage.setItem("pendingPaymentMemberId", String(m.id));
+    navigate('payments');
+  }
 
   return (
     <div className="p-4 space-y-4">
