@@ -418,7 +418,7 @@ const ClientManagement = () => {
     setPlans((ps || []).filter(p=>!p._deleted).sort((a,b)=>(a.name||"").localeCompare(b.name||"")));
   }
   
-  useEffect(() => { load(); }, []);
+  useEffect(() => { loadMembersAndPlans(); }, []);
   
   useEffect(() => {
     const onOpen = () => { 
