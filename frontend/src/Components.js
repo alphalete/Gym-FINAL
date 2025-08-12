@@ -173,7 +173,10 @@ const PaymentComponent = () => {
 
     useEffect(() => {
       (async () => {
-        const s = await gymStorage.getSetting('gymSettings', {}) || {};
+        const s = 
+          (await (gymStorage.getSetting?.('gymSettings', {}) )) ??
+          (await (getSettingNamed?.('gymSettings', {}) )) ??
+          {};
         setCycleDays(Number(s.billingCycleDays ?? 30) || 30);
         setGraceDays(Number(s.graceDays ?? 0) || 0);
         setCycleAnchorMode(s.cycleAnchorMode || "anchored");
