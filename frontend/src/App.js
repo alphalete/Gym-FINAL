@@ -4672,6 +4672,28 @@ const AddClient = () => {
     }
   };
 
+  const fetchMembershipPlans = async () => {
+    try {
+      // Load active membership plans from IndexedDB
+      const activePlans = await listPlans({ active: true });
+      console.log(`✅ AddMember: Loaded ${activePlans.length} active membership plans from IndexedDB`);
+      setMembershipPlans(activePlans || []);
+      
+      // If we have plans and no backend types loaded, use plans as default
+      if (activePlans && activePlans.length > 0 && membershipTypes.length === 0) {
+        const defaultPlan = activePlans[0];
+        setFormData(prev => ({
+          ...prev,
+          membership_type: defaultPlan.name,
+          monthly_fee: defaultPlan.price,
+          billing_interval_days: defaultPlan.cycleDays || 30
+        }));
+      }
+    } catch (error) {
+      console.error('AddMember: Error loading membership plans:', error);
+    }
+  };
+
   const handleSubmit = async (e) => {
     console.log('🔍 DEBUG: handleSubmit called');
     e.preventDefault();
