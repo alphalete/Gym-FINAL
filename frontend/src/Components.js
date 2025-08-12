@@ -437,21 +437,35 @@ const MembershipManagement = () => {
       active: fd.get("active") === "on"
     };
     if (!plan.name) { alert("Plan name is required."); return; }
-    await upsertPlan(plan);
-    if (filter === 'all') setPlans(await listPlans());
-    else if (filter === 'active') setPlans(await listPlans({ active: true }));
-    else setPlans(await listPlans({ active: false }));
+    await gymStorage.upsertPlan(plan);
+    if (filter === 'all')        setMemberships(await gymStorage.listPlans());
+    else if (filter === 'active') setMemberships(await gymStorage.listPlans({ active: true }));
+    else                          setMemberships(await gymStorage.listPlans({ active: false }));
     setEditing(null);
     e.currentTarget.reset();
   };
 
   const onDelete = async (id) => {
     if (!(await requirePinIfEnabled("delete this plan"))) return;
-    await deletePlan(id);
-    if (filter === 'all') setPlans(await listPlans());
-    else if (filter === 'active') setPlans(await listPlans({ active: true }));
-    else setPlans(await listPlans({ active: false }));
+    await gymStorage.deletePlan(id);
+    if (filter === 'all')        setMemberships(await gymStorage.listPlans());
+    else if (filter === 'active') setMemberships(await gymStorage.listPlans({ active: true }));
+    else                          setMemberships(await gymStorage.listPlans({ active: false }));
   };
+
+  // Optimistic Toggle (instant)
+  async function toggleActiveOptimistic(plan) {
+    const updated = { ...plan, active: !plan.active };
+    const snapshot = memberships;
+    setMemberships(prev => {
+      if (filter === 'all') return prev.map(p => p.id === plan.id ? updated : p);
+      if (filter === 'active' && plan.active === true) return prev.filter(p => p.id !== plan.id);
+      if (filter === 'inactive' && plan.active === false) return prev.filter(p => p.id !== plan.id);
+      return prev.map(p => p.id === plan.id ? updated : p);
+    });
+    try { await gymStorage.upsertPlan(updated); }
+    catch (e) { console.error(e); setMemberships(snapshot); alert('Could not update plan.'); }
+  }
 
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">
