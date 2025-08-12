@@ -7592,7 +7592,7 @@ function App() {
             <Route path="/payments" element={<Payments />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/settings" element={<SettingsTab />} />
-            <Route path="/plans" element={<PlansTab />} />
+            <Route path="/plans" element={<MembershipManagement />} />
             <Route path="/reminders" element={<AutoReminders />} />
           </Routes>
         </Layout>
