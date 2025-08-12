@@ -1,16 +1,24 @@
 #!/usr/bin/env python3
 """
-Alphalete Club PWA Backend Comprehensive Testing Script
-Testing the backend readiness for Settings and Plans navigation with PIN-protected actions
+Alphalete Club PWA Backend Stability Testing Script
+Testing backend stability after implementing Option A payment logic enforcement across the app
 
 Test Coverage:
-1. Core API Health - verify all backend services are running
-2. Client Management - test CRUD operations on /api/clients
-3. Payment Operations - test payment recording, statistics, history APIs
-4. Settings & Plans Integration - test backend endpoints for new features
-5. PIN-Protected Operations - verify backend supports payment recording/deletion
-6. Data Integrity - ensure CRUD operations maintain consistency
-7. Response Format - verify API responses are properly formatted
+1. Core API Health - verify all backend services remain operational
+2. Client Management - test CRUD operations still work after frontend changes
+3. Payment Operations - verify payment recording, statistics APIs remain functional
+4. Option A Payment Logic Compatibility - ensure backend supports new payment flows
+5. Database Connections - verify MongoDB connections remain stable
+6. Service Integration - test email, reminder services still work
+7. Data Integrity - ensure consistent data handling after frontend changes
+8. Response Format - verify API responses remain properly formatted
+
+Frontend Changes Tested:
+- addDaysISO() and computeNextDueOptionA() helper functions
+- PaymentTracking savePayment() using Option A logic
+- ClientManagement save() with plan snapshots
+- Centralized Option A date calculation helpers
+- Consistent cadence-preserving payment logic
 """
 
 import requests
