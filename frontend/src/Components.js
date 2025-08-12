@@ -928,5 +928,5 @@ const MembershipManagement = () => {
   );
 };
 
-export { MembershipManagement };
+export { MembershipManagement, Dashboard };
 export default PaymentComponent;
