@@ -4947,7 +4947,7 @@ const AddClient = () => {
                   {/* Render backend membership types as fallback */}
                   {membershipTypes.length > 0 && (
                     <>
-                      {membershipPlans.length > 0 && <optgroup label="Standard Plans">}
+                      {membershipPlans.length > 0 && <optgroup label="Standard Plans" />}
                       {membershipTypes.map(type => (
                         <option key={type.id || type.name} value={type.name}>
                           {type.name} - TTD {type.monthly_fee}/month
