@@ -565,8 +565,6 @@ const Dashboard = () => {
       window.removeEventListener('hashchange', onHash);
     };
   }, []);
-    };
-  }, []);
 
   // track swipe position (mobile)
   React.useEffect(() => {
