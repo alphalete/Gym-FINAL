@@ -6,7 +6,7 @@ import json
 from typing import Dict, Any
 
 class SpecificStandardTester:
-    def __init__(self, base_url="https://46206bdc-27f0-428b-bb53-27c7a4990807.preview.emergentagent.com"):
+    def __init__(self, base_url="https://gym-billing-app.preview.emergentagent.com"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
 

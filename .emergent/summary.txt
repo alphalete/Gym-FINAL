@@ -110,7 +110,7 @@ base_url=https://demobackend.emergentagent.com
 code_server_password=2c8cce9c
 integration_proxy_url=https://integrations.emergentagent.com
 monitor_polling_interval=1
-preview_endpoint=https://46206bdc-27f0-428b-bb53-27c7a4990807.preview.emergentagent.com
+preview_endpoint=https://gym-billing-app.preview.emergentagent.com
 run_id=46206bdc-27f0-428b-bb53-27c7a4990807, , ,  functions for persistent storage.
 -   **frontend/src/reminders.js**: Handles WhatsApp reminder message construction.
     -   **Changes**: Updated to fetch  and  from  and uses  and  for dynamic message generation.

@@ -28,7 +28,7 @@ import time
 import uuid
 
 # Get backend URL from environment
-BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://46206bdc-27f0-428b-bb53-27c7a4990807.preview.emergentagent.com')
+BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://gym-billing-app.preview.emergentagent.com')
 if not BACKEND_URL.endswith('/api'):
     BACKEND_URL = f"{BACKEND_URL}/api"
 
