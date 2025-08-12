@@ -708,7 +708,7 @@ const Dashboard = () => {
       </div>
 
       {/* Quick Actions */}
-      <div className="relative z-10 flex flex-col sm:flex-row gap-2">
+      <div className="relative z-10 pointer-events-auto flex flex-col sm:flex-row gap-2">
         <button type="button" className="rounded-xl border px-3 py-2" onClick={()=> navigate('payments')}>+ Add Payment</button>
         <button type="button" className="rounded-xl border px-3 py-2" onClick={()=> navigate('clients')}>+ Add Member</button>
         <button type="button" className="rounded-xl border px-3 py-2" onClick={()=> overdue.concat(dueToday).forEach(m=>sendReminder(m))}>Send Reminders</button>
