@@ -25,33 +25,11 @@
 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
 /* KPI dot styles */
-.kpi-dot { 
-  background-color: #cbd5e0; 
-  border: 2px solid #a0aec0;
-  transition: all 0.2s ease;
-}
-.kpi-dot:hover {
-  background-color: #a0aec0;
-  transform: scale(1.1);
-}
-.kpi-dot-active { 
-  background-color: #3182ce; 
-  border: 2px solid #2c5282;
-  box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.3);
-}
+.kpi-dot { background-color: rgba(0,0,0,0.25); }
+.kpi-dot-active { background-color: rgba(0,0,0,0.7); }
 @media (prefers-color-scheme: dark) {
-  .kpi-dot { 
-    background-color: #4a5568; 
-    border: 2px solid #718096;
-  }
-  .kpi-dot:hover {
-    background-color: #718096;
-  }
-  .kpi-dot-active { 
-    background-color: #63b3ed; 
-    border: 2px solid #4299e1;
-    box-shadow: 0 0 0 2px rgba(99, 179, 237, 0.3);
-  }
+  .kpi-dot { background-color: rgba(255,255,255,0.3); }
+  .kpi-dot-active { background-color: rgba(255,255,255,0.9); }
 }
 
 body {
