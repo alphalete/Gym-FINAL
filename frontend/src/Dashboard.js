@@ -16,8 +16,9 @@ const Dashboard = () => {
   
   const todayISO = new Date().toISOString().slice(0,10);
 
-  useEffect(() => {
-    (async () => {
+  // Load dashboard data function
+  const loadDashboardData = async () => {
+    try {
       const [m, p, s] = await Promise.all([
         gymStorage.getAllMembers?.() ?? [],
         gymStorage.getAllPayments?.() ?? [],
@@ -26,7 +27,28 @@ const Dashboard = () => {
       setMembers(Array.isArray(m) ? m : []);
       setPayments(Array.isArray(p) ? p : []);
       setSettings(prev => ({ ...prev, ...(s || {}) }));
-    })();
+    } catch (error) {
+      console.error('Dashboard: Error loading data:', error);
+    }
+  };
+
+  // Load data on mount
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
+
+  // Listen for data changes event
+  useEffect(() => {
+    const handleDataChanged = () => {
+      console.log('Dashboard: Data changed event received, refreshing...');
+      loadDashboardData();
+    };
+
+    window.addEventListener('alphalete:data-changed', handleDataChanged);
+
+    return () => {
+      window.removeEventListener('alphalete:data-changed', handleDataChanged);
+    };
   }, []);
 
   // Recompute page on scroll (mobile only)
