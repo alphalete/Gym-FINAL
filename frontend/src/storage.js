@@ -338,11 +338,11 @@ export async function deletePlan(id) {
 
 // Settings Helper Functions
 export async function getSetting(key, defaultValue = null) {
-  return gymStorage.getSetting(key, defaultValue);
+  return gymStorage.getSetting?.(key, defaultValue) ?? defaultValue;
 }
 
 export async function saveSetting(key, value) {
-  return gymStorage.saveSetting(key, value);
+  return gymStorage.saveSetting?.(key, value);
 }
 
 // Migration Function
