@@ -3334,12 +3334,12 @@ const Dashboard = () => {
   
   useEffect(() => {
     // direct global
-    window.setActiveTab = (tab) => setActiveTab(tab);
+    window.setActiveTab = (tab) => setActiveTab(String(tab).toLowerCase());
 
     // event-based fallback for places that dispatch an event
     const onNav = (e) => {
       const tab = e?.detail;
-      if (typeof tab === 'string') setActiveTab(tab);
+      if (typeof tab === 'string') setActiveTab(tab.toLowerCase());
     };
     window.addEventListener('NAVIGATE', onNav);
 
@@ -3348,6 +3348,25 @@ const Dashboard = () => {
       window.removeEventListener('NAVIGATE', onNav);
     };
   }, []);
+
+  // Hash → state (so #tab=payments selects the tab even if globals fail)
+  useEffect(() => {
+    const applyFromHash = () => {
+      const m = location.hash.match(/tab=([a-z]+)/i);
+      if (m) setActiveTab(m[1].toLowerCase());
+    };
+    window.addEventListener('hashchange', applyFromHash);
+    applyFromHash();
+    return () => window.removeEventListener('hashchange', applyFromHash);
+  }, []);
+
+  // State → hash (so programmatic nav updates the URL)
+  useEffect(() => {
+    const desired = `#tab=${activeTab}`;
+    if (location.hash !== desired) {
+      history.replaceState(null, '', desired);
+    }
+  }, [activeTab]);
   const [memberInfoModal, setMemberInfoModal] = useState({ isOpen: false, client: null }); // Add member info modal state
   const [clients, setClients] = useState([]);
   const [currentFilter, setCurrentFilter] = useState('all');
