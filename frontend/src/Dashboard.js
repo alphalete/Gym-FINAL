@@ -230,6 +230,22 @@ const Dashboard = () => {
         </div>
       </div>
 
+{/* KPI dots — mobile only */}
+<div className="flex items-center justify-center gap-2 py-1 lg:hidden">
+  {Array.from({ length: kpiCount }).map((_, i) => (
+    <button
+      key={i}
+      type="button"
+      aria-label={`Go to KPI ${i + 1}`}
+      onClick={() => snapToKpi(i)}
+      className={[
+        "kpi-dot h-2 w-2 rounded-full transition-transform",
+        i === kpiPage ? "scale-125 kpi-dot-active" : "opacity-60"
+      ].join(" ")}
+    />
+  ))}
+</div>
+
 {/* === New actionable sections start === */}
 <div className="mt-4 space-y-6">
 
