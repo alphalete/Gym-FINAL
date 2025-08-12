@@ -89,7 +89,26 @@ export default function PlansTab(){
       </form>
 
       <div className="bg-white rounded-2xl border shadow-soft">
-        <div className="px-4 py-3 border-b text-sm font-semibold text-gray-900">All Plans</div>
+        {/* Filter Toolbar */}
+        <div className="px-4 py-3 border-b">
+          <div className="flex items-center justify-between gap-3">
+            <div className="text-sm text-gray-600">
+              <span className="mr-3">All: {counts.all}</span>
+              <span className="mr-3">Active: {counts.active}</span>
+              <span>Inactive: {counts.inactive}</span>
+            </div>
+            <select 
+              className="rounded-xl border px-3 py-2 text-sm" 
+              value={filter} 
+              onChange={e => setFilter(e.target.value)}
+            >
+              <option value="all">All</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+        </div>
+        
         <div className="divide-y">
           {plans.map(p=>(
             <div key={p.id} className="p-4 flex items-start justify-between gap-3">
