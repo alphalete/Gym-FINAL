@@ -231,7 +231,7 @@ const Dashboard = () => {
       </div>
 
 {/* KPI dots — mobile only */}
-<div className="flex items-center justify-center gap-2 py-1 md:hidden">
+<div className="flex items-center justify-center gap-2 py-2 md:hidden">
   {Array.from({ length: kpiCount }).map((_, i) => (
     <button
       key={i}
@@ -239,7 +239,7 @@ const Dashboard = () => {
       aria-label={`Go to KPI ${i + 1}`}
       onClick={() => snapToKpi(i)}
       className={[
-        "kpi-dot h-2 w-2 rounded-full transition-transform",
+        "kpi-dot h-3 w-3 rounded-full transition-transform",
         i === kpiPage ? "scale-125 kpi-dot-active" : "opacity-60"
       ].join(" ")}
     />
