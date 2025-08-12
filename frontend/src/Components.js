@@ -904,6 +904,17 @@ const Settings = () => (
   </div>
 );
 
+// Explicit component exports
+export {
+  Dashboard,
+  ClientManagement,
+  PaymentTracking,
+  MembershipManagement,
+  Reports,
+  Settings
+};
+
+// Default export object for App.js
 const Components = {
   Dashboard,
   PaymentTracking: PaymentComponent,
@@ -913,5 +924,4 @@ const Components = {
   Settings
 };
 
-export { MembershipManagement, Dashboard };
 export default Components;
