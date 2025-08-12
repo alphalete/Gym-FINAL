@@ -17,3 +17,34 @@ export function currentCycleWindow(joinISO, ref=new Date(), cycleDays=30){
   const end=new Date(start.getTime()+cycleDays*ms-ms);
   return {start,end};
 }
+
+export function addDaysISO(iso, days){
+  const d = new Date(iso); d.setDate(d.getDate() + Number(days||0));
+  return d.toISOString().slice(0,10);
+}
+
+export function nextDueAfterPayment({
+  joinISO, lastDueISO, paidOnISO, cycleDays, graceDays=0
+}){
+  const msDay = 86400000;
+  const paid = new Date(paidOnISO);
+
+  // Determine anchor
+  let anchor = lastDueISO ? new Date(lastDueISO) : new Date(joinISO);
+  if (!lastDueISO && joinISO) {
+    anchor = new Date(new Date(joinISO).getTime() + (cycleDays - 1) * msDay);
+  }
+
+  // Within grace → just roll forward one cycle
+  const graceLimit = new Date(anchor.getTime() + graceDays * msDay);
+  if (paid <= graceLimit) {
+    return addDaysISO(anchor.toISOString().slice(0,10), cycleDays);
+  }
+
+  // Roll forward until after payment date
+  let next = new Date(anchor);
+  while (next <= paid) {
+    next = new Date(next.getTime() + cycleDays * msDay);
+  }
+  return next.toISOString().slice(0,10);
+}
