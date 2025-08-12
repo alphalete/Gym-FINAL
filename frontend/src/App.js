@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import LocalStorageManager from './LocalStorageManager';
 import NewDashboard from './Dashboard';
-import { Dashboard as MobileDashboard } from './Components';
+import Components, { Dashboard as MobileDashboard } from './Components';
 import SettingsTab from './SettingsTab';
 import PlansTab from './PlansTab';
 import { MembershipManagement } from './Components';
