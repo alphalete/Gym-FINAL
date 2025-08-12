@@ -9,11 +9,16 @@ import { requirePinIfEnabled } from './pinlock';
 
 // Navigation helper function
 function navigate(tab) {
+  const t = String(tab).toLowerCase();
+  // Update hash first (works even if globals aren't ready):
+  try { location.hash = `#tab=${t}`; } catch {}
   if (typeof window.setActiveTab === 'function') {
-    window.setActiveTab(tab);
+    window.setActiveTab(t);
   } else {
-    window.dispatchEvent(new CustomEvent('NAVIGATE', { detail: tab }));
+    window.dispatchEvent(new CustomEvent('NAVIGATE', { detail: t }));
   }
+  // TEMP debug so you see taps working; remove later:
+  try { console.log('[NAV]', t); alert(`Navigating to: ${t}`); } catch {}
 }
 
 /* === Payment Preview Helper (added) === */
