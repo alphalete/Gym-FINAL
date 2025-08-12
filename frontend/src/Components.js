@@ -551,13 +551,22 @@ const Dashboard = () => {
   useEffect(() => {
     const onVisible = () => { if (!document.hidden) loadDashboardData(); };
     const onChanged = () => loadDashboardData();
+    const onAlphaleteChanged = () => {
+      console.log('MobileDashboard: alphalete:data-changed event received, refreshing...');
+      loadDashboardData();
+    };
+    
     document.addEventListener('visibilitychange', onVisible);
     window.addEventListener('DATA_CHANGED', onChanged);
+    window.addEventListener('alphalete:data-changed', onAlphaleteChanged);
+    
     const onHash = () => { if (location.hash.includes('tab=dashboard') || location.hash.includes('tab=home')) loadDashboardData(); };
     window.addEventListener('hashchange', onHash);
+    
     return () => {
       document.removeEventListener('visibilitychange', onVisible);
       window.removeEventListener('DATA_CHANGED', onChanged);
+      window.removeEventListener('alphalete:data-changed', onAlphaleteChanged);
       window.removeEventListener('hashchange', onHash);
     };
   }, []);
