@@ -963,5 +963,14 @@ const MembershipManagement = () => {
   );
 };
 
+const Components = {
+  Dashboard,
+  PaymentTracking: PaymentComponent,
+  ClientManagement: PaymentComponent, // You might need separate components
+  MembershipManagement,
+  Reports: PaymentComponent, // Placeholder - you might need separate components
+  Settings: PaymentComponent // Placeholder - you might need separate components
+};
+
 export { MembershipManagement, Dashboard };
-export default PaymentComponent;
+export default Components;
