@@ -118,52 +118,53 @@ const PaymentComponent = () => {
     e.preventDefault();
     if (!selectedClient) return;
 
-    // default to monthly fee if input empty
-    const monthlyFee = Number(selectedClient.amount || 0);
-    const paid = Number((paymentAmount || '').trim() || monthlyFee);
+    const form = e.currentTarget;
+    const paymentDateInput = form.querySelector('input[type="date"]');
+    const paidOn = paymentDateInput?.value || new Date().toISOString().split('T')[0];
 
-    // cover at least 1 "month" = 30 days
-    const monthsCovered = Math.max(1, Math.floor(paid / (monthlyFee || 1)));
+    const amountNum = Number(paymentAmount || 0);
+    if (Number.isNaN(amountNum) || amountNum <= 0) {
+      alert("Enter a valid amount.");
+      return;
+    }
 
-    const todayISO = toISODate();
+    const joinISO = selectedClient.joinDate || selectedClient.createdAt?.slice(0,10) || paidOn;
+    const nextDueISO = nextDueAfterPayment({
+      joinISO,
+      lastDueISO: selectedClient.nextDue,
+      paidOnISO: paidOn,
+      cycleDays,
+      graceDays
+    });
 
-    const updatedClients = await Promise.all(
-      clients.map(async (c) => {
-        if (c.id !== selectedClient.id) return c;
+    // Save payment record
+    const payment = {
+      id: crypto.randomUUID(),
+      memberId: selectedClient.id,
+      amount: amountNum,
+      paidOn,
+      recordedAt: new Date().toISOString(),
+      note: "Recorded via PaymentTracking"
+    };
+    await gymStorage.saveData('payments', payment);
 
-        // Advance FROM the existing nextDue, not from today
-        const nextDueISO = advanceNextDueByCycles(c.nextDue || todayISO, monthsCovered);
+    // Update member record
+    const updatedMember = {
+      ...selectedClient,
+      lastPayment: paidOn,
+      nextDue: nextDueISO,
+      status: 'Active',
+      overdue: 0
+    };
+    await gymStorage.saveData('members', updatedMember);
 
-        const updated = recomputeStatus({
-          ...c,
-          lastPayment: todayISO,
-          nextDue: nextDueISO
-        });
+    // Update UI state
+    setClients(prev => prev.map(c => c.id === updatedMember.id ? updatedMember : c));
 
-        // Persist member update
-        await gymStorage.saveMembers(updated);
-
-        // Save a payment record (history) - basic validation
-        if (paid > 0 && monthsCovered > 0) {
-          const paymentRecord = {
-            id: Date.now().toString(),
-            clientId: c.id,
-            date: todayISO,
-            amount: paid,
-            monthsCovered,
-            method: 'cash'
-          };
-          await gymStorage.savePayment(paymentRecord);
-        }
-
-        return updated;
-      })
-    );
-
-    setClients(updatedClients);
     setIsRecordingPayment(false);
     setSelectedClient(null);
     setPaymentAmount('');
+    setNextDuePreview('');
   };
 
   useEffect(() => {
