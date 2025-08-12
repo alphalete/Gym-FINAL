@@ -7,6 +7,7 @@ import PlansTab from './PlansTab';
 import { MembershipManagement } from './Components';
 import { requirePinIfEnabled } from './pinlock';
 import LockBadge from './LockBadge';
+import { listPlans } from './storage'; // Import for membership plans integration
 import './App.css';
 
 const localDB = new LocalStorageManager();
