@@ -29,6 +29,10 @@ class GymStorage {
             const s = db.createObjectStore('settings', { keyPath: 'name' });
             s.createIndex('name', 'name', { unique: true });
           }
+          if (!db.objectStoreNames.contains('plans')) {
+            const s = db.createObjectStore('plans', { keyPath: 'id' });
+            s.createIndex('id', 'id', { unique: true });
+          }
         };
         request.onsuccess = () => { this.db = request.result; this.idbOk = true; resolve(true); };
         request.onerror = () => { console.error('[storage] IDB open failed', request.error); this.idbOk = false; resolve(false); };
