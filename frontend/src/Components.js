@@ -125,6 +125,8 @@ const PaymentComponent = () => {
     setForm(f => ({ ...f, amount: f.amount || (defaultAmt ? String(defaultAmt) : "") }));
   }, [form.memberId, members]);
 
+  function addDays(iso, days){ const d = new Date(iso); d.setDate(d.getDate()+Number(days||0)); return d.toISOString().slice(0,10); }
+
   async function savePayment() {
     if (!form.memberId || !form.amount) {
       alert('Please select a member and enter an amount.');
@@ -132,16 +134,38 @@ const PaymentComponent = () => {
     }
     
     const id = crypto.randomUUID?.() || String(Date.now());
+    const paidOn = form.paidOn || new Date().toISOString().slice(0,10);
     const amount = Number(form.amount || 0);
+    
+    // Save the payment row
     const rec = { 
       id, 
       memberId: String(form.memberId || ""), 
       amount, 
-      paidOn: form.paidOn || new Date().toISOString().slice(0,10) 
+      paidOn
     };
     
     await gymStorage.saveData('payments', rec);
-    signalChanged('payments');
+
+    // Update the member's lastPayment and nextDue based on snapshot cycleDays
+    const m = members.find(x => String(x.id)===String(form.memberId));
+    if (m) {
+      const cycle = Number(m.cycleDays || 30);
+      let nextDue;
+      if (m.nextDue) {
+        // Option A: even if paid late, next due = previous nextDue + cycle
+        nextDue = addDays(m.nextDue, cycle);
+      } else {
+        // first time: from paid date
+        nextDue = addDays(paidOn, cycle);
+      }
+      const updated = { ...m, lastPayment: paidOn, nextDue, overdue: 0 };
+      await gymStorage.saveMembers(updated);
+    }
+    
+    // Signal and refresh
+    try { window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail:'payments' })); } catch {}
+    try { window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail:'members' })); } catch {}
     setForm({ 
       memberId: "", 
       amount: "", 
