@@ -725,8 +725,8 @@ const Dashboard = () => {
               <div className="text-xs text-red-600">{m.nextDue}</div>
             </div>
             <div className="flex gap-2">
-              <button className="text-sm rounded-lg border px-2 py-1" onClick={()=> goRecordPayment(m)}>Record</button>
-              <button className="text-sm rounded-lg border px-2 py-1" onClick={()=> sendReminder(m)}>Remind</button>
+              <button type="button" className="text-sm rounded-lg border px-2 py-1" onClick={()=> goRecordPayment(m)}>Record</button>
+              <button type="button" className="text-sm rounded-lg border px-2 py-1" onClick={()=> sendReminder(m)}>Remind</button>
             </div>
           </div>
         ))}
