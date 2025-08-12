@@ -17,12 +17,12 @@
 ## user_problem_statement: TASK: Scrub corrupted tokens, replace App.js with a clean file, and harden storage.
 
 ## backend:
-  - task: "Backend stability after cleanup"
+  - task: "Backend stability after comprehensive plan-to-member integration"
     implemented: true
     working: true
     file: "/app/backend/server.py"
     stuck_count: 0
-    priority: "medium"
+    priority: "high"
     needs_retesting: false
     status_history:
         - working: true
@@ -34,6 +34,9 @@
         - working: true
         - agent: "testing"
         - comment: "VERIFIED: Backend stability after settings store refactoring and Plans functionality decoupling confirmed with 100% success rate (28/28 tests passed). All API endpoints working correctly: GET /api/clients (31 clients), GET /api/payments/stats (TTD 2500.0 revenue), POST /api/payments/record functional, membership types (16 types), email templates available. No regressions from frontend refactoring - IndexedDB plans store, simplified settingsStore, component decoupling have NOT affected backend. Database connections stable, services running without errors, CRUD operations function properly. Backend fully supports refactored frontend architecture."
+        - working: true
+        - agent: "testing"
+        - comment: "VERIFIED: Backend stability after comprehensive plan-to-member integration with payment logic confirmed with 100% success rate (28/28 tests passed). All existing API endpoints working correctly after frontend changes to Components.js and storage.js. No regressions detected from: plan selection in member creation/editing with plan snapshots, plan-aware payment logic (Option A - keep same cadence even if late), Email/WhatsApp/Share reminder actions on Dashboard, enhanced ClientManagement with plan dropdown, PaymentTracking with automatic amount defaults, helper functions for plan handling in storage.js. Backend services remain stable: API status (v1.0.0), health check responding, all endpoints available (/clients, /payments, /reminders). Database connections working perfectly: MongoDB stable, 31 clients, TTD 2500.0 revenue, 16 membership types. Service architecture intact: backend at 0.0.0.0:8001 mapped to external URL, CORS working, all services running (backend, frontend, mongodb, code-server). CONCLUSION: Backend is COMPLETELY STABLE and FULLY FUNCTIONAL after comprehensive frontend plan integration updates."
 
 ## frontend:
   - task: "Remove DevInspector component from Components.js"
