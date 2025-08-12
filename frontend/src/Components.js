@@ -647,7 +647,10 @@ const Dashboard = () => {
   // Reminder (WhatsApp/email)
   const sendReminder = async (client) => {
     try {
-      const s = await (gymStorage.getSetting?.('gymSettings', {}) ?? {});
+      const s = 
+        (await (gymStorage.getSetting?.('gymSettings', {}) )) ??
+        (await (getSettingNamed?.('gymSettings', {}) )) ??
+        {};
       const due = client?.nextDue || "soon";
       const subject = `Membership due ${due}`;
       const amountTxt = s?.membershipFeeDefault ? ` Amount: ${s.membershipFeeDefault}.` : '';
