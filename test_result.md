@@ -31,6 +31,9 @@
         - working: true
         - agent: "testing"
         - comment: "VERIFIED: Backend stability after storage.js getSetting/saveSetting fix confirmed with 100% success rate (28/28 tests passed). All core API endpoints working correctly, backend services stable, database connections functional, no regressions detected from frontend storage improvements."
+        - working: true
+        - agent: "testing"
+        - comment: "VERIFIED: Backend stability after settings store refactoring and Plans functionality decoupling confirmed with 100% success rate (28/28 tests passed). All API endpoints working correctly: GET /api/clients (31 clients), GET /api/payments/stats (TTD 2500.0 revenue), POST /api/payments/record functional, membership types (16 types), email templates available. No regressions from frontend refactoring - IndexedDB plans store, simplified settingsStore, component decoupling have NOT affected backend. Database connections stable, services running without errors, CRUD operations function properly. Backend fully supports refactored frontend architecture."
 
 ## frontend:
   - task: "Remove DevInspector component from Components.js"
