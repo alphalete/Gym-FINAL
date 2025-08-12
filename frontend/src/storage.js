@@ -3,7 +3,7 @@ import { currentCycleWindow } from "./billing";
 class GymStorage {
   constructor() {
     this.dbName = 'GymDB';
-    this.version = 3; // Bumped version for plans store
+    this.version = 4; // Bumped version for settings store
     this.db = null;
   }
 
