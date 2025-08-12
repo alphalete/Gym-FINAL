@@ -3,8 +3,6 @@ import Components from './Components';
 import gymStorage from './storage';
 import './App.css';
 
-const localDB = new LocalStorageManager();
-
 // PWA Install Prompt Component
 const InstallPrompt = ({ showPrompt, onInstall, onDismiss }) => {
   if (!showPrompt) return null;
