@@ -350,4 +350,27 @@ export async function getAllData(storeName) {
   });
 }
 
+// Generic getter with simplified name
+export async function getAll(storeName) {
+  if (typeof gymStorage?.init === 'function') await gymStorage.init();
+  return new Promise((resolve) => {
+    try {
+      const tx = gymStorage.db.transaction([storeName], 'readonly');
+      const store = tx.objectStore(storeName);
+      const out = [];
+      const req = store.openCursor();
+      req.onsuccess = (e) => { const c = e.target.result; if (c) { out.push(c.value); c.continue(); } else resolve(out); };
+      req.onerror = () => resolve([]);
+    } catch (_e) { resolve([]); }
+  });
+}
+
+// Signal data changes to refresh dashboard
+export function signalDataChanged(what='') {
+  try {
+    localStorage.setItem('dataChangedAt', String(Date.now()));
+    window.dispatchEvent?.(new CustomEvent('DATA_CHANGED', { detail: what }));
+  } catch {}
+}
+
 export default gymStorage;
