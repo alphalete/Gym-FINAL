@@ -156,22 +156,103 @@ const Dashboard = () => {
       {/* KPI cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <div className="bg-white rounded-2xl border p-4">
-          <div className="text-gray-500 text-sm">Active Members</div>
+          <div className="text-gray-500 text-sm">ACTIVE MEMBERS</div>
           <div className="text-2xl font-semibold">{kpis.activeCount}</div>
         </div>
         <div className="bg-white rounded-2xl border p-4">
-          <div className="text-gray-500 text-sm">New Sign-ups (MTD)</div>
-          <div className="text-2xl font-semibold">{kpis.newMTD}</div>
+          <div className="text-gray-500 text-sm">PAYMENTS DUE TODAY</div>
+          <div className="text-2xl font-semibold">{dueToday.length}</div>
         </div>
         <div className="bg-white rounded-2xl border p-4">
-          <div className="text-gray-500 text-sm">Revenue (MTD)</div>
-          <div className="text-2xl font-semibold">${kpis.revenueMTD.toFixed(2)}</div>
-        </div>
-        <div className="bg-white rounded-2xl border p-4">
-          <div className="text-gray-500 text-sm">Overdue Payments</div>
+          <div className="text-gray-500 text-sm">OVERDUE ACCOUNTS</div>
           <div className="text-2xl font-semibold">{kpis.overdueCount}</div>
         </div>
+        <div className="bg-white rounded-2xl border p-4">
+          <div className="text-gray-500 text-sm">TOTAL AMOUNT OWED</div>
+          <div className="text-2xl font-semibold">${members.filter(m => isOverdue(m.nextDue) || isDueToday(m.nextDue)).reduce((sum,m)=> sum + Number(m.monthlyFee||m.amount||0), 0).toFixed(2)}</div>
+        </div>
       </div>
+
+{/* === New actionable sections start === */}
+<div className="mt-4 space-y-6">
+
+  {/* Quick Actions */}
+  <div className="flex flex-col sm:flex-row gap-2">
+    <button
+      className="rounded-xl border px-3 py-2"
+      onClick={()=> navigate('/payments')}
+    >
+      + Add Payment
+    </button>
+    <button
+      className="rounded-xl border px-3 py-2"
+      onClick={()=> navigate('/add-client')}
+    >
+      + Add Member
+    </button>
+    <button
+      className="rounded-xl border px-3 py-2"
+      onClick={()=> overdue.concat(dueToday).forEach(m=>sendReminder(m))}
+      title="Send reminders to Due Today + Overdue"
+    >
+      Send Reminders
+    </button>
+  </div>
+
+  {/* Due Today list */}
+  <div className="bg-white rounded-2xl border p-4">
+    <div className="font-semibold mb-2">Due Today</div>
+    {dueToday.length === 0 ? (
+      <div className="text-sm text-gray-500">No members due today.</div>
+    ) : dueToday.map(m => (
+      <div key={m.id} className="flex items-center justify-between py-2 border-b last:border-0">
+        <div>
+          <div className="font-medium">{m.name}</div>
+          <div className="text-xs text-gray-500">{m.nextDue}</div>
+        </div>
+        <div className="flex gap-2">
+          <button className="text-sm rounded-lg border px-2 py-1" onClick={()=> goRecordPayment(m)}>Record</button>
+          <button className="text-sm rounded-lg border px-2 py-1" onClick={()=> sendReminder(m)}>Remind</button>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  {/* Overdue list */}
+  <div className="bg-white rounded-2xl border p-4">
+    <div className="font-semibold mb-2">Overdue</div>
+    {overdue.length === 0 ? (
+      <div className="text-sm text-gray-500">No overdue members 🎉</div>
+    ) : overdue.map(m => (
+      <div key={m.id} className="flex items-center justify-between py-2 border-b last:border-0">
+        <div>
+          <div className="font-medium">{m.name}</div>
+          <div className="text-xs text-red-600">{m.nextDue}</div>
+        </div>
+        <div className="flex gap-2">
+          <button className="text-sm rounded-lg border px-2 py-1" onClick={()=> goRecordPayment(m)}>Record</button>
+          <button className="text-sm rounded-lg border px-2 py-1" onClick={()=> sendReminder(m)}>Remind</button>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  {/* Plans snapshot + Trends */}
+  <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+    <div className="bg-white rounded-2xl border p-4 lg:col-span-2">
+      <div className="flex items-center justify-between mb-2">
+        <div className="font-semibold">Collections (last 8 weeks)</div>
+        <button className="text-xs text-gray-500" onClick={()=> navigate('/reports')}>View Reports</button>
+      </div>
+      <div className="text-gray-400">{spark()}</div>
+    </div>
+    <div className="bg-white rounded-2xl border p-4">
+      <div className="font-semibold mb-2">Plans snapshot</div>
+      <PlansMini />
+    </div>
+  </div>
+</div>
+{/* === New actionable sections end === */}
 
       {/* Priority alerts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
