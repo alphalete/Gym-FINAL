@@ -3333,8 +3333,21 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
   
   useEffect(() => {
-    window.setActiveTab = setActiveTab;   // allow Dashboard to change tabs
-  }, [setActiveTab]);
+    // direct global
+    window.setActiveTab = (tab) => setActiveTab(tab);
+
+    // event-based fallback for places that dispatch an event
+    const onNav = (e) => {
+      const tab = e?.detail;
+      if (typeof tab === 'string') setActiveTab(tab);
+    };
+    window.addEventListener('NAVIGATE', onNav);
+
+    return () => {
+      try { delete window.setActiveTab; } catch {}
+      window.removeEventListener('NAVIGATE', onNav);
+    };
+  }, []);
   const [memberInfoModal, setMemberInfoModal] = useState({ isOpen: false, client: null }); // Add member info modal state
   const [clients, setClients] = useState([]);
   const [currentFilter, setCurrentFilter] = useState('all');
