@@ -4691,6 +4691,25 @@ const AddClient = () => {
       }
     } catch (error) {
       console.error('AddMember: Error loading membership plans:', error);
+      
+      // Fallback: Try to load all plans without filtering by active status
+      try {
+        const allPlans = await listPlans();
+        console.log(`✅ AddMember: Loaded ${allPlans.length} membership plans (all) from IndexedDB as fallback`);
+        setMembershipPlans(allPlans || []);
+        
+        if (allPlans && allPlans.length > 0 && membershipTypes.length === 0) {
+          const defaultPlan = allPlans[0];
+          setFormData(prev => ({
+            ...prev,
+            membership_type: defaultPlan.name,
+            monthly_fee: defaultPlan.price,
+            billing_interval_days: defaultPlan.cycleDays || 30
+          }));
+        }
+      } catch (fallbackError) {
+        console.error('AddMember: Fallback plan loading also failed:', fallbackError);
+      }
     }
   };
 
