@@ -8,6 +8,12 @@ const Dashboard = () => {
   const [payments, setPayments] = useState([]);
   const [settings, setSettings] = useState({ billingCycleDays: 30, graceDays: 0, dueSoonDays: 3 });
   const [search, setSearch] = useState("");
+  
+  // KPI scroll tracking state
+  const kpiScrollerRef = React.useRef(null);
+  const [kpiPage, setKpiPage] = React.useState(0);
+  const kpiCount = 4; // we have 4 colorful KPI cards
+  
   const todayISO = new Date().toISOString().slice(0,10);
 
   useEffect(() => {
