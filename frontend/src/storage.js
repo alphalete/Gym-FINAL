@@ -66,7 +66,13 @@ class GymStorage {
     }
     
     return new Promise((resolve, reject) => {
-      transaction.oncomplete = () => resolve(data);
+      transaction.oncomplete = () => {
+        resolve(data);
+        // Emit data changed signal after successful save
+        try { 
+          window.dispatchEvent?.(new CustomEvent('DATA_CHANGED', { detail: storeName })); 
+        } catch {}
+      };
       transaction.onerror = () => reject(transaction.error);
     });
   }
