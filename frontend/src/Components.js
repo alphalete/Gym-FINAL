@@ -640,7 +640,7 @@ const Dashboard = () => {
           ref={kpiScrollerRef}
           role="region"
           aria-label="Key performance indicators"
-          className="flex lg:block gap-3 overflow-x-auto lg:overflow-visible snap-x snap-mandatory px-1 -mx-1 pb-2 hide-scrollbar"
+          className="relative z-0 flex lg:block gap-3 overflow-x-auto lg:overflow-visible snap-x snap-mandatory px-1 -mx-1 pb-2 hide-scrollbar"
         >
           <div className="min-w-[72%] sm:min-w-[320px] snap-start">
             {/* Card 1 content → Active Members */}
