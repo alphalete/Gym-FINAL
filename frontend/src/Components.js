@@ -148,7 +148,10 @@ const PaymentComponent = () => {
   
   useEffect(() => {
     (async () => {
-      const s = await gymStorage.getSetting('gymSettings', {}) || {};
+      const s = 
+        (await (gymStorage.getSetting?.('gymSettings', {}) )) ??
+        (await (getSettingNamed?.('gymSettings', {}) )) ??
+        {};
       if (s?.membershipFeeDefault) setDefaultFee(Number(s.membershipFeeDefault) || 0);
       setDueSoonDays(Number(s?.reminderDays ?? 3));
     })();
