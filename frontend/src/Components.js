@@ -1074,13 +1074,35 @@ const MembershipManagement = () => {
   );
 };
 
+// Placeholder components for missing functionality
+const ClientManagement = () => (
+  <div className="p-4">
+    <h2 className="text-xl font-bold mb-4">Client Management</h2>
+    <p className="text-gray-600">Client management functionality will be implemented here.</p>
+  </div>
+);
+
+const Reports = () => (
+  <div className="p-4">
+    <h2 className="text-xl font-bold mb-4">Reports</h2>
+    <p className="text-gray-600">Reports functionality will be implemented here.</p>
+  </div>
+);
+
+const Settings = () => (
+  <div className="p-4">
+    <h2 className="text-xl font-bold mb-4">Settings</h2>
+    <p className="text-gray-600">Settings functionality will be implemented here.</p>
+  </div>
+);
+
 const Components = {
   Dashboard,
   PaymentTracking: PaymentComponent,
-  ClientManagement: PaymentComponent, // You might need separate components
+  ClientManagement,
   MembershipManagement,
-  Reports: PaymentComponent, // Placeholder - you might need separate components
-  Settings: PaymentComponent // Placeholder - you might need separate components
+  Reports,
+  Settings
 };
 
 export { MembershipManagement, Dashboard };
