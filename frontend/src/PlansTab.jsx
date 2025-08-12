@@ -136,7 +136,7 @@ export default function PlansTab(){
                 <button className="btn" onClick={()=>onDelete(p.id)}>Delete <LockBadge className="ml-0" /></button>
               </div>
             </div>
-          ))}}
+          ))}
           {plans.length===0 && <div className="p-4 text-sm text-gray-500">No plans yet. Create your first plan above.</div>}
         </div>
       </div>
