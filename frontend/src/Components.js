@@ -251,6 +251,7 @@ const PaymentComponent = () => {
         note: "Recorded via PaymentTracking"
       };
       await gymStorage.saveData('payments', payment);
+      signalDataChanged('payment');
 
       // Update member record
       const updatedMember = {
