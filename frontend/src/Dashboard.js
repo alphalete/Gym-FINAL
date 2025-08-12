@@ -260,39 +260,34 @@ const Dashboard = () => {
 
 const PlansMini = () => {
   const navigate = useNavigate();
-  const [plans, setPlans] = useState([]);
   const [members, setMembers] = useState([]);
 
   useEffect(() => {
     (async () => {
-      const p = (await gymStorage.listPlans?.()) || [];
-      setPlans(Array.isArray(p)? p : []);
       const m = (await gymStorage.getAllMembers?.()) || [];
       setMembers(Array.isArray(m)? m : []);
     })();
   }, []);
 
-  const counts = useMemo(() => {
-    const map = new Map(plans.map(p => [p.id, { ...p, count: 0 }]));
-    members.forEach(m => {
-      const pid = m.planId || m.plan?.id;
-      if (pid && map.has(pid)) map.get(pid).count++;
+  const plans = useMemo(() => {
+    const planCounts = {};
+    members.forEach(m => { 
+      const planName = m.membershipType || m.plan || 'Standard';
+      planCounts[planName] = (planCounts[planName] || 0) + 1; 
     });
-    return Array.from(map.values()).sort((a,b)=> b.count - a.count).slice(0,3);
-  }, [plans, members]);
+    return planCounts;
+  }, [members]);
 
-  if (!counts.length) return <div className="text-sm text-gray-500">No plans yet.</div>;
+  if (Object.keys(plans).length === 0) {
+    return <div className="text-sm text-gray-500">No plans yet.</div>;
+  }
 
   return (
-    <div className="space-y-2">
-      {counts.map(p => (
-        <div key={p.id} className="flex items-center justify-between rounded-xl border px-3 py-2">
-          <div>
-            <div className="font-medium">{p.name}</div>
-            <div className="text-xs text-gray-500">${Number(p.price||0).toFixed(2)} • {p.cycleDays || 30}d</div>
-          </div>
-          <div className="text-sm font-medium">{p.count}</div>
-          <button className="text-xs rounded-lg border px-2 py-1" onClick={()=> navigate('/plans')}>View</button>
+    <div className="space-y-1">
+      {Object.entries(plans).map(([name, count]) => (
+        <div key={name} className="flex justify-between text-sm">
+          <span>{name}</span>
+          <span>{count}</span>
         </div>
       ))}
     </div>
