@@ -1,15 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
-import LocalStorageManager from './LocalStorageManager';
-import NewDashboard from './Dashboard';
-import Components, { Dashboard as MobileDashboard } from './Components';
-import SettingsTab from './SettingsTab';
-import PlansTab from './PlansTab';
-import { MembershipManagement } from './Components';
-import { requirePinIfEnabled } from './pinlock';
-import LockBadge from './LockBadge';
-import { listPlans } from './storage'; // Import for membership plans integration
-import gymStorage from './storage'; // Import for debug verification
+import React, { useState, useEffect } from 'react';
+import Components from './Components';
+import gymStorage from './storage';
 import './App.css';
 
 const localDB = new LocalStorageManager();
