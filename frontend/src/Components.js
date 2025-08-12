@@ -688,10 +688,10 @@ const Dashboard = () => {
       </div>
 
       {/* Quick Actions */}
-      <div className="flex flex-col sm:flex-row gap-2">
-        <button className="rounded-xl border px-3 py-2" onClick={()=> window.setActiveTab?.('payments')}>+ Add Payment</button>
-        <button className="rounded-xl border px-3 py-2" onClick={()=> window.setActiveTab?.('clients')}>+ Add Member</button>
-        <button className="rounded-xl border px-3 py-2" onClick={()=> overdue.concat(dueToday).forEach(m=>sendReminder(m))}>Send Reminders</button>
+      <div className="relative z-10 flex flex-col sm:flex-row gap-2">
+        <button type="button" className="rounded-xl border px-3 py-2" onClick={()=> navigate('payments')}>+ Add Payment</button>
+        <button type="button" className="rounded-xl border px-3 py-2" onClick={()=> navigate('clients')}>+ Add Member</button>
+        <button type="button" className="rounded-xl border px-3 py-2" onClick={()=> overdue.concat(dueToday).forEach(m=>sendReminder(m))}>Send Reminders</button>
       </div>
 
       {/* Due Today */}
