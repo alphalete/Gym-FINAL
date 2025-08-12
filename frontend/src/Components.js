@@ -118,6 +118,7 @@ const PaymentComponent = () => {
       }
       
       await gymStorage.saveMembers(normalized);
+      signalDataChanged('member');
       await loadClientsFromPhone();
 
       setNewClient({ name: '', email: '', phone: '', membershipType: 'Monthly', amount: 59 });
