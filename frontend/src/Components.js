@@ -502,28 +502,53 @@ const Dashboard = () => {
 
   const todayISO = new Date().toISOString().slice(0,10);
 
+  async function loadDashboardData() {
+    try {
+      // Prefer dedicated helpers, fall back to generic getters
+      const m1 = (await gymStorage.getAllMembers?.()) ?? [];
+      const m2 = await getAllStore('members');
+      const m3 = await getAllStore('clients'); // legacy/alt store name
+      // Merge by id (prefer objects with more fields)
+      const byId = new Map();
+      [...m1, ...m2, ...m3].forEach(x => {
+        if (!x) return;
+        const id = String(x.id || x.memberId || x._id || x.phone || x.email || Math.random());
+        const prev = byId.get(id) || {};
+        byId.set(id, { ...prev, ...x, id });
+      });
+      const allMembers = Array.from(byId.values());
+
+      const p1 = (await gymStorage.getAllPayments?.()) ?? [];
+      const p2 = await getAllStore('payments');
+      const allPayments = [...p1, ...p2];
+
+      const s = (await gymStorage.getSetting?.('gymSettings', {})) ?? {};
+
+      setMembers(allMembers);
+      setPayments(allPayments);
+      setSettings(s);
+      console.log('[Dashboard] loaded', { members: allMembers.length, payments: allPayments.length });
+    } catch (e) {
+      console.error('[Dashboard] load error', e);
+      setMembers([]); setPayments([]);
+    }
+  }
+
+  useEffect(() => { loadDashboardData(); }, []);
+
+  // Refresh when the page becomes visible again (mobile switch-back) or when we signal data changes
   useEffect(() => {
-    (async () => {
-      try {
-        // Try dedicated helpers, then generic store readers as fallback
-        const m =
-          (await gymStorage.getAllMembers?.()) ??
-          (await gymStorage.getAllData?.('members')) ?? [];
-        const p =
-          (await gymStorage.getAllPayments?.()) ??
-          (await gymStorage.getAllData?.('payments')) ?? [];
-        const s = (await gymStorage.getSetting?.('gymSettings', {})) ?? {};
-
-        console.log('[Dashboard] loaded', { members: m.length, payments: p.length, settings: s });
-
-        setMembers(Array.isArray(m) ? m : []);
-        setPayments(Array.isArray(p) ? p : []);
-        setSettings(prev => ({ ...prev, ...(s || {}) }));
-      } catch (e) {
-        console.error('[Dashboard] load error', e);
-        setMembers([]); setPayments([]);
-      }
-    })();
+    const onVisible = () => { if (!document.hidden) loadDashboardData(); };
+    const onChanged = () => loadDashboardData();
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('DATA_CHANGED', onChanged);
+    const onHash = () => { if (location.hash.includes('tab=dashboard') || location.hash.includes('tab=home')) loadDashboardData(); };
+    window.addEventListener('hashchange', onHash);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('DATA_CHANGED', onChanged);
+      window.removeEventListener('hashchange', onHash);
+    };
   }, []);
 
   // track swipe position (mobile)
