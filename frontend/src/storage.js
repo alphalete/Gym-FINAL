@@ -167,4 +167,26 @@ const gymStorage = new GymStorage();
 export async function getAll(storeName){ return gymStorage.getAll(storeName); }
 export async function getSetting(name, fallback){ return gymStorage.getSetting(name, fallback); }
 export async function saveSetting(name, value){ return gymStorage.saveSetting(name, value); }
+
+export async function getPlanById(id){
+  try {
+    const all = await gymStorage.getAll?.('plans');
+    return (all || []).find(p => String(p.id) === String(id)) || null;
+  } catch { return null; }
+}
+
+export async function upsertMemberWithPlanSnapshot(member, plan){
+  // plan snapshot stored on member so prices/cycle survive plan edits
+  const snap = plan ? {
+    planId: plan.id,
+    planName: plan.name,
+    cycleDays: Number(plan.cycleDays || 30),
+    fee: Number(plan.price || 0),
+  } : {};
+  const rec = { ...member, ...snap };
+  await gymStorage.saveMembers(rec);
+  try { window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail:'members' })); } catch {}
+  return rec;
+}
+
 export default gymStorage;
