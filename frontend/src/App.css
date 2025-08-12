@@ -962,6 +962,24 @@ input:focus, textarea:focus, select:focus {
   letter-spacing: 0.5px !important;
 }
 
+/* Form Field Help */
+.form-field-help {
+  display: flex !important;
+  align-items: center !important;
+  margin-top: 6px !important;
+  padding: 8px 12px !important;
+  background-color: #f7fafc !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  color: #4a5568 !important;
+  border-left: 3px solid #3182ce !important;
+}
+
+.form-help-icon {
+  margin-right: 6px !important;
+  font-size: 14px !important;
+}
+
 /* Input Fields with Icons */
 .form-input-container {
   position: relative !important;
