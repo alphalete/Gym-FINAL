@@ -546,6 +546,10 @@ const ClientManagement = () => {
               value={form.phone} 
               onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
             />
+            <select className="border rounded px-3 py-2 w-full" value={form.planId} onChange={e=>setForm(f=>({ ...f, planId:e.target.value }))}>
+              <option value="">No plan</option>
+              {plans.map(p => <option key={p.id} value={p.id}>{p.name} — ${Number(p.price||0).toFixed(2)} / {p.cycleDays||30}d</option>)}
+            </select>
             <div className="flex justify-end gap-2 pt-2">
               <button 
                 type="button" 
