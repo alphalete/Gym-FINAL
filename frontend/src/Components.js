@@ -691,6 +691,18 @@ const ClientManagement = () => {
   );
 };
 
+// --- Reports ---
+const Reports = () => (
+  <div className="p-4">
+    <h1 className="text-2xl font-semibold mb-4">Reports</h1>
+    <div className="text-center py-8 text-gray-500">
+      <div className="text-4xl mb-2">📊</div>
+      <div>Reports Coming Soon</div>
+      <div className="text-sm">Revenue and member analytics will be available here.</div>
+    </div>
+  </div>
+);
+
 // --- Settings ---
 const Settings = () => {
   const [s, setS] = useState({ 
@@ -790,6 +802,154 @@ const Settings = () => {
           <div>Grace Period: {s.graceDays || 0} days</div>
         </div>
       </div>
+    </div>
+  );
+};
+
+// --- Plans (MembershipManagement) ---
+const MembershipManagement = () => {
+  const [plans, setPlans] = useState([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [form, setForm] = useState({ id: "", name: "", price: 0, cycleDays: 30 });
+
+  async function load() {
+    const list = await (getAllStore?.('plans') ?? []);
+    setPlans(list.sort((a,b) => (a.name||"").localeCompare(b.name||"")));
+  }
+  
+  useEffect(() => { load(); }, []);
+  
+  useEffect(() => { 
+    const onC = () => load(); 
+    window.addEventListener('DATA_CHANGED', onC); 
+    return () => window.removeEventListener('DATA_CHANGED', onC); 
+  }, []);
+
+  async function save() {
+    const id = form.id || (crypto.randomUUID?.() || String(Date.now()));
+    const rec = { 
+      ...form, 
+      id, 
+      price: Number(form.price || 0), 
+      cycleDays: Number(form.cycleDays || 30) 
+    };
+    await gymStorage.saveData('plans', rec);
+    setIsOpen(false); 
+    setForm({ id: "", name: "", price: 0, cycleDays: 30 }); 
+    signalChanged('plans'); 
+    load();
+  }
+  
+  async function edit(p) { 
+    setForm(p); 
+    setIsOpen(true); 
+  }
+  
+  async function remove(p) { 
+    await gymStorage.saveData('plans', { ...p, _deleted: true }); 
+    signalChanged('plans'); 
+    load(); 
+  }
+
+  return (
+    <div className="p-4 space-y-4">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">Membership Plans</h1>
+        <button 
+          type="button" 
+          className="border rounded px-3 py-2 bg-green-500 text-white hover:bg-green-600" 
+          onClick={() => { 
+            setForm({ id: "", name: "", price: 0, cycleDays: 30 }); 
+            setIsOpen(true); 
+          }}
+        >
+          + New Plan
+        </button>
+      </div>
+      
+      {plans.length === 0 ? (
+        <div className="text-center py-8 text-gray-500">
+          <div className="text-4xl mb-2">📋</div>
+          <div>No plans yet.</div>
+          <div className="text-sm">Create your first membership plan above.</div>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {plans.filter(p => !p._deleted).map(p => (
+            <div key={p.id} className="flex items-center justify-between border rounded-xl px-3 py-2 bg-white">
+              <div>
+                <div className="font-medium">{p.name}</div>
+                <div className="text-xs text-gray-500">
+                  ${Number(p.price || 0).toFixed(2)} • {p.cycleDays || 30} days
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button 
+                  type="button" 
+                  className="text-xs border rounded px-2 py-1 hover:bg-gray-50" 
+                  onClick={() => edit(p)}
+                >
+                  Edit
+                </button>
+                <button 
+                  type="button" 
+                  className="text-xs border rounded px-2 py-1 text-red-600 hover:bg-red-50" 
+                  onClick={() => remove(p)}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {isOpen && (
+        <div className="fixed inset-0 bg-black/20 z-[999] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-4 w-full max-w-md space-y-3">
+            <div className="text-lg font-semibold">{form.id ? "Edit Plan" : "New Plan"}</div>
+            <input 
+              className="border rounded px-3 py-2 w-full" 
+              placeholder="Plan name (e.g., Monthly Membership)" 
+              value={form.name} 
+              onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+            />
+            <input 
+              className="border rounded px-3 py-2 w-full" 
+              type="number" 
+              min="0"
+              step="0.01"
+              placeholder="Price ($)" 
+              value={form.price} 
+              onChange={e => setForm(f => ({ ...f, price: e.target.value }))}
+            />
+            <input 
+              className="border rounded px-3 py-2 w-full" 
+              type="number" 
+              min="1"
+              placeholder="Cycle days" 
+              value={form.cycleDays} 
+              onChange={e => setForm(f => ({ ...f, cycleDays: e.target.value }))}
+            />
+            <div className="flex justify-end gap-2 pt-2">
+              <button 
+                type="button" 
+                className="border rounded px-3 py-2 hover:bg-gray-50" 
+                onClick={() => setIsOpen(false)}
+              >
+                Cancel
+              </button>
+              <button 
+                type="button" 
+                className="border rounded px-3 py-2 bg-green-500 text-white hover:bg-green-600" 
+                onClick={save}
+              >
+                {form.id ? "Save Changes" : "Create Plan"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
