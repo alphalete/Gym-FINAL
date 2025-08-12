@@ -7752,7 +7752,7 @@ const Settings = () => {
 export default function App() {
   const [activeTab, setActiveTab] = useState("dashboard");
 
-  // Ensure DB is ready (and won't crash if init is missing)
+  // Ensure DB is ready and remove loading screen
   useEffect(() => {
     (async () => {
       try { 
@@ -7760,6 +7760,22 @@ export default function App() {
         console.log("[App] storage init ok"); 
       } catch (e) { 
         console.warn("[App] storage init skipped/failed", e); 
+      }
+      
+      // Remove loading screen
+      const loadingScreen = document.getElementById('loading-screen');
+      if (loadingScreen) {
+        console.log('[App] Removing loading screen...');
+        loadingScreen.style.setProperty('opacity', '0', 'important');
+        loadingScreen.style.setProperty('pointer-events', 'none', 'important');
+        loadingScreen.style.setProperty('z-index', '-1', 'important');
+        
+        setTimeout(() => {
+          console.log('[App] Completely removing loading screen from DOM');
+          loadingScreen.remove();
+        }, 300);
+      } else {
+        console.log('[App] Loading screen element not found');
       }
     })();
   }, []);
