@@ -325,4 +325,29 @@ export async function migratePlansFromSettingsIfNeeded() {
   }
 }
 
+// Generic helper to get all data from a store
+export async function getAllData(storeName) {
+  await gymStorage.init?.();
+  return new Promise((resolve, reject) => {
+    try {
+      const tx = gymStorage.db.transaction([storeName], 'readonly');
+      const store = tx.objectStore(storeName);
+      const out = [];
+      const req = store.openCursor();
+      req.onsuccess = (e) => { 
+        const c = e.target.result; 
+        if (c) { 
+          out.push(c.value); 
+          c.continue(); 
+        } else { 
+          resolve(out); 
+        } 
+      };
+      req.onerror = () => reject(req.error);
+    } catch (e) { 
+      resolve([]); 
+    }
+  });
+}
+
 export default gymStorage;
