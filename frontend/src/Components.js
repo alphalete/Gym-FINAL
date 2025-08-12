@@ -843,13 +843,177 @@ const MembershipManagement = () => {
   );
 };
 
-// Placeholder components for missing functionality
-const ClientManagement = () => (
-  <div className="p-4">
-    <h2 className="text-xl font-bold mb-4">Client Management</h2>
-    <p className="text-gray-600">Client management functionality will be implemented here.</p>
-  </div>
-);
+// --- Members (ClientManagement) ---
+const ClientManagement = () => {
+  const [members, setMembers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [form, setForm] = useState({ name:"", email:"", phone:"" });
+
+  async function load() {
+    setLoading(true);
+    try {
+      const m1 = await (gymStorage.getAllMembers?.() ?? []);
+      const m2 = await (getAllStore?.('members') ?? []);
+      const byId = new Map();
+      [...m1, ...m2].forEach(x => { 
+        if (!x) return; 
+        const id = String(x.id || x.memberId || x.email || x.phone || Date.now()); 
+        byId.set(id, { ...x, id }); 
+      });
+      setMembers(Array.from(byId.values()).sort((a,b)=> (a.name||"").localeCompare(b.name||"")));
+    } finally { 
+      setLoading(false); 
+    }
+  }
+  
+  useEffect(() => { load(); }, []);
+  
+  useEffect(() => {
+    const onOpen = () => { 
+      setEditing(null); 
+      setForm({ name:"", email:"", phone:"" }); 
+      setIsOpen(true); 
+    };
+    window.addEventListener("OPEN_ADD_MEMBER", onOpen);
+    const onChanged = () => load();
+    window.addEventListener("DATA_CHANGED", onChanged);
+    return () => { 
+      window.removeEventListener("OPEN_ADD_MEMBER", onOpen); 
+      window.removeEventListener("DATA_CHANGED", onChanged); 
+    };
+  }, []);
+
+  async function save() {
+    const id = editing?.id || (crypto.randomUUID?.() || String(Date.now()));
+    const rec = { 
+      id, 
+      ...form, 
+      status: editing?.status || "Active", 
+      joinDate: editing?.joinDate || new Date().toISOString().slice(0,10) 
+    };
+    await gymStorage.saveMembers(rec);
+    setIsOpen(false); 
+    setEditing(null); 
+    signalChanged('members'); 
+    load();
+  }
+  
+  async function del(m) {
+    // soft delete: set status Inactive for simplicity
+    await gymStorage.saveMembers({ ...m, status: "Inactive" });
+    signalChanged('members'); 
+    load();
+  }
+
+  return (
+    <div className="p-4 space-y-4">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">Members</h1>
+        <button 
+          type="button" 
+          className="border rounded px-3 py-2 bg-blue-500 text-white hover:bg-blue-600" 
+          onClick={() => { 
+            setEditing(null); 
+            setForm({ name:"", email:"", phone:"" }); 
+            setIsOpen(true); 
+          }}
+        >
+          + Add Member
+        </button>
+      </div>
+
+      {loading ? (
+        <div className="text-sm text-gray-500">Loading…</div>
+      ) : members.length === 0 ? (
+        <div className="text-center py-8 text-gray-500">
+          <div className="text-4xl mb-2">👥</div>
+          <div>No members yet.</div>
+          <div className="text-sm">Click "Add Member" to get started.</div>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {members.filter(m => m.status !== 'Inactive').map(m => (
+            <div key={m.id} className="flex items-center justify-between border rounded-xl px-3 py-2 bg-white">
+              <div>
+                <div className="font-medium">{m.name || "(no name)"}</div>
+                <div className="text-xs text-gray-500">
+                  {m.email || "—"} • {m.phone || "—"} • {m.status || "Active"}
+                  {m.joinDate && ` • Joined ${m.joinDate}`}
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button 
+                  type="button" 
+                  className="text-xs border rounded px-2 py-1 hover:bg-gray-50" 
+                  onClick={() => { 
+                    setEditing(m); 
+                    setForm({ name:m.name||"", email:m.email||"", phone:m.phone||"" }); 
+                    setIsOpen(true); 
+                  }}
+                >
+                  Edit
+                </button>
+                <button 
+                  type="button" 
+                  className="text-xs border rounded px-2 py-1 text-red-600 hover:bg-red-50" 
+                  onClick={() => del(m)}
+                >
+                  Deactivate
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {isOpen && (
+        <div className="fixed inset-0 bg-black/20 z-[999] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-4 w-full max-w-md space-y-3">
+            <div className="text-lg font-semibold">{editing ? "Edit Member" : "Add Member"}</div>
+            <input 
+              className="border rounded px-3 py-2 w-full" 
+              placeholder="Full Name" 
+              value={form.name} 
+              onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+            />
+            <input 
+              className="border rounded px-3 py-2 w-full" 
+              type="email"
+              placeholder="Email Address" 
+              value={form.email} 
+              onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+            />
+            <input 
+              className="border rounded px-3 py-2 w-full" 
+              type="tel"
+              placeholder="Phone Number" 
+              value={form.phone} 
+              onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+            />
+            <div className="flex justify-end gap-2 pt-2">
+              <button 
+                type="button" 
+                className="border rounded px-3 py-2 hover:bg-gray-50" 
+                onClick={() => setIsOpen(false)}
+              >
+                Cancel
+              </button>
+              <button 
+                type="button" 
+                className="border rounded px-3 py-2 bg-blue-500 text-white hover:bg-blue-600" 
+                onClick={save}
+              >
+                {editing ? "Save Changes" : "Add Member"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const Reports = () => (
   <div className="p-4">
