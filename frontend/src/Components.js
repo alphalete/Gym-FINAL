@@ -95,6 +95,7 @@ const PaymentComponent = () => {
   const saveClientToPhone = async (client) => {
     try {
       await gymStorage.saveMembers(client);
+      signalDataChanged('member');
       await loadClientsFromPhone(); // refreshed with recomputed status
     } catch (error) {
       console.error('Error saving client to phone:', error);
