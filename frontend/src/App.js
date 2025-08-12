@@ -11,13 +11,6 @@ import './App.css';
 
 const localDB = new LocalStorageManager();
 
-// Navigation helper for Dashboard to navigate to other routes
-useEffect(() => {
-  window.navigateToRoute = (route) => {
-    window.location.href = route;
-  };
-}, []);
-
 // Cache Issue Detection Banner
 const CacheIssueBanner = ({ onClearCache }) => {
   const [showBanner, setShowBanner] = useState(false);
