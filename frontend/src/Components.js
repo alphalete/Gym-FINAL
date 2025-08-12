@@ -437,17 +437,21 @@ const ClientManagement = () => {
 
   async function save() {
     const id = editing?.id || (crypto.randomUUID?.() || String(Date.now()));
-    const rec = { 
-      id, 
-      ...form, 
-      status: editing?.status || "Active", 
-      joinDate: editing?.joinDate || new Date().toISOString().slice(0,10) 
+    const plan = form.planId ? plans.find(p=>String(p.id)===String(form.planId)) : null;
+    const base = {
+      id,
+      name: form.name, email: form.email, phone: form.phone,
+      status: editing?.status || "Active",
+      joinDate: editing?.joinDate || new Date().toISOString().slice(0,10),
+      // if creating new & plan exists, set an initial nextDue = today + cycle (optional)
+      nextDue: editing?.nextDue || (plan ? new Date(Date.now() + (Number(plan.cycleDays||30))*86400000).toISOString().slice(0,10) : editing?.nextDue),
+      lastPayment: editing?.lastPayment || null,
     };
-    await gymStorage.saveMembers(rec);
+    await upsertMemberWithPlanSnapshot({ ...base, planId: form.planId || "" }, plan || undefined);
     setIsOpen(false); 
     setEditing(null); 
     signalChanged('members'); 
-    load();
+    loadMembersAndPlans();
   }
   
   async function del(m) {
