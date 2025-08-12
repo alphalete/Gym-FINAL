@@ -4933,28 +4933,24 @@ const AddClient = () => {
                 >
                   {/* Render IndexedDB plans first (active plans) */}
                   {membershipPlans.length > 0 && (
-                    <>
-                      <optgroup label="Custom Plans">
-                        {membershipPlans.map(plan => (
-                          <option key={plan.id} value={plan.name}>
-                            {plan.name} - TTD {plan.price}/{plan.cycleDays || 30} days
-                          </option>
-                        ))}
-                      </optgroup>
-                    </>
+                    <optgroup label="Custom Plans">
+                      {membershipPlans.map(plan => (
+                        <option key={plan.id} value={plan.name}>
+                          {plan.name} - TTD {plan.price}/{plan.cycleDays || 30} days
+                        </option>
+                      ))}
+                    </optgroup>
                   )}
                   
                   {/* Render backend membership types as fallback */}
                   {membershipTypes.length > 0 && (
-                    <>
-                      {membershipPlans.length > 0 && <optgroup label="Standard Plans" />}
+                    <optgroup label="Standard Plans">
                       {membershipTypes.map(type => (
                         <option key={type.id || type.name} value={type.name}>
                           {type.name} - TTD {type.monthly_fee}/month
                         </option>
                       ))}
-                      {membershipPlans.length > 0 && </optgroup>}
-                    </>
+                    </optgroup>
                   )}
                   
                   {/* If no plans available, show placeholder */}
