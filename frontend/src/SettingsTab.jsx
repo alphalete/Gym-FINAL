@@ -31,6 +31,10 @@ export default function SettingsTab(){
       <Row label="Billing Cycle Length (days)" control={<input type="number" className="w-40 rounded-xl border px-3 py-2" value={s.billingCycleDays} onChange={e=>update("billingCycleDays")(e.target.value)} />} />
       <Row label="Due Soon Window (days)" control={<input type="number" className="w-40 rounded-xl border px-3 py-2" value={s.dueSoonDays} onChange={e=>update("dueSoonDays")(e.target.value)} />} />
       <Row label="Grace Period (days)" control={<input type="number" className="w-40 rounded-xl border px-3 py-2" value={s.graceDays} onChange={e=>update("graceDays")(e.target.value)} />} />
+      <Row label="Cycle Anchor Mode" hint="How billing cycles are calculated" control={<select className="rounded-xl border px-3 py-2" value={s.cycleAnchorMode || "anchored"} onChange={e=>update("cycleAnchorMode")(e.target.value)}>
+        <option value="anchored">Anchored (recommended)</option>
+        <option value="fromPayment">From payment date</option>
+      </select>} />
     </Section>
 
     <Section title="Reminders">
