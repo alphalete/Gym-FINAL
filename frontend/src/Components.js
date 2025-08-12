@@ -114,59 +114,6 @@ const PaymentComponent = () => {
     }
   };
 
-  const handleSubmitPayment = async (e) => {
-    e.preventDefault();
-    if (!selectedClient) return;
-
-    const form = e.currentTarget;
-    const paymentDateInput = form.querySelector('input[type="date"]');
-    const paidOn = paymentDateInput?.value || new Date().toISOString().split('T')[0];
-
-    const amountNum = Number(paymentAmount || 0);
-    if (Number.isNaN(amountNum) || amountNum <= 0) {
-      alert("Enter a valid amount.");
-      return;
-    }
-
-    const joinISO = selectedClient.joinDate || selectedClient.createdAt?.slice(0,10) || paidOn;
-    const nextDueISO = nextDueAfterPayment({
-      joinISO,
-      lastDueISO: selectedClient.nextDue,
-      paidOnISO: paidOn,
-      cycleDays,
-      graceDays
-    });
-
-    // Save payment record
-    const payment = {
-      id: crypto.randomUUID(),
-      memberId: selectedClient.id,
-      amount: amountNum,
-      paidOn,
-      recordedAt: new Date().toISOString(),
-      note: "Recorded via PaymentTracking"
-    };
-    await gymStorage.saveData('payments', payment);
-
-    // Update member record
-    const updatedMember = {
-      ...selectedClient,
-      lastPayment: paidOn,
-      nextDue: nextDueISO,
-      status: 'Active',
-      overdue: 0
-    };
-    await gymStorage.saveData('members', updatedMember);
-
-    // Update UI state
-    setClients(prev => prev.map(c => c.id === updatedMember.id ? updatedMember : c));
-
-    setIsRecordingPayment(false);
-    setSelectedClient(null);
-    setPaymentAmount('');
-    setNextDuePreview('');
-  };
-
   useEffect(() => {
     loadDashboardData();
   }, []);
