@@ -4903,23 +4903,80 @@ const AddClient = () => {
                 <select
                   value={formData.membership_type}
                   onChange={(e) => {
-                    const selectedType = membershipTypes.find(type => type.name === e.target.value);
-                    setFormData(prev => ({
-                      ...prev,
-                      membership_type: e.target.value,
-                      monthly_fee: selectedType ? selectedType.monthly_fee : prev.monthly_fee
-                    }));
+                    const selectedValue = e.target.value;
+                    
+                    // First, try to find in IndexedDB plans
+                    const selectedPlan = membershipPlans.find(plan => plan.name === selectedValue);
+                    if (selectedPlan) {
+                      setFormData(prev => ({
+                        ...prev,
+                        membership_type: selectedValue,
+                        monthly_fee: selectedPlan.price,
+                        billing_interval_days: selectedPlan.cycleDays || 30
+                      }));
+                      return;
+                    }
+                    
+                    // Fallback to backend membership types
+                    const selectedType = membershipTypes.find(type => type.name === selectedValue);
+                    if (selectedType) {
+                      setFormData(prev => ({
+                        ...prev,
+                        membership_type: selectedValue,
+                        monthly_fee: selectedType.monthly_fee,
+                        billing_interval_days: 30 // Default for backend types
+                      }));
+                    }
                   }}
                   className="modern-form-select"
                   required
                 >
-                  {membershipTypes.map(type => (
-                    <option key={type.id || type.name} value={type.name}>
-                      {type.name} - TTD {type.monthly_fee}/month
-                    </option>
-                  ))}
+                  {/* Render IndexedDB plans first (active plans) */}
+                  {membershipPlans.length > 0 && (
+                    <>
+                      <optgroup label="Custom Plans">
+                        {membershipPlans.map(plan => (
+                          <option key={plan.id} value={plan.name}>
+                            {plan.name} - TTD {plan.price}/{plan.cycleDays || 30} days
+                          </option>
+                        ))}
+                      </optgroup>
+                    </>
+                  )}
+                  
+                  {/* Render backend membership types as fallback */}
+                  {membershipTypes.length > 0 && (
+                    <>
+                      {membershipPlans.length > 0 && <optgroup label="Standard Plans">}
+                      {membershipTypes.map(type => (
+                        <option key={type.id || type.name} value={type.name}>
+                          {type.name} - TTD {type.monthly_fee}/month
+                        </option>
+                      ))}
+                      {membershipPlans.length > 0 && </optgroup>}
+                    </>
+                  )}
+                  
+                  {/* If no plans available, show placeholder */}
+                  {membershipPlans.length === 0 && membershipTypes.length === 0 && (
+                    <option value="">Loading plans...</option>
+                  )}
                 </select>
               </div>
+              
+              {/* Show plan details if available */}
+              {(() => {
+                const selectedPlan = membershipPlans.find(plan => plan.name === formData.membership_type);
+                if (selectedPlan && selectedPlan.description) {
+                  return (
+                    <div className="form-field-help">
+                      <span className="form-help-icon">ℹ️</span>
+                      {selectedPlan.description}
+                    </div>
+                  );
+                }
+                return null;
+              })()}
             </div>
 
             {/* Payment Amount */}
