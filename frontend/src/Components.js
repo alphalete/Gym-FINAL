@@ -619,7 +619,7 @@ const Dashboard = () => {
                          .slice(0,5);
 
   // Search (keeps your existing list behavior below cards)
-  const filteredMembers = members.filter(m => {
+  const filteredMembers = clients.filter(m => {
     const q = search.trim().toLowerCase();
     if (!q) return true;
     return [m.name, m.email, m.phone].some(v => (v||"").toLowerCase().includes(q));
