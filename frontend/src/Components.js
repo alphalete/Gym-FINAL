@@ -747,7 +747,9 @@ const Dashboard = () => {
 
   return (
     <div className="p-4 space-y-4">
-      <div className="text-[11px] px-2 py-1 rounded-lg bg-yellow-100 text-yellow-800">
+      <DevInspector />
+      
+      <div className="text-[11px] px-2 py-1 rounded bg-yellow-100 text-yellow-800 mb-2">
         Dashboard debug • members: {members.length} • payments: {payments.length}
       </div>
       
