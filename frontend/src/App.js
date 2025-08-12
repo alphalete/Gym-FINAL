@@ -4170,6 +4170,9 @@ const ClientManagement = () => {
         console.log('✅ Payment recorded - refreshing data...');
         await fetchClients(true); // Force refresh to get updated payment date
         
+        // Dispatch data changed event for dashboard update
+        window.dispatchEvent(new Event('alphalete:data-changed'));
+        
         // Force reload to update all dashboard statistics and revenue
         setTimeout(() => {
           window.location.reload();
