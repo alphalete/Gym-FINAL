@@ -1,159 +1,72 @@
 <analysis>
-The AI engineer's work on the Alphalete Club PWA began with critical frontend-backend connectivity debugging, specifically resolving  and service worker issues that caused internet connection errors. This led to a rebuild of the member edit functionality, ensuring consistent UI and robust validation. Subsequently, the focus shifted to refining the application's core logic and user experience. This involved implementing a strict 30-day billing cycle anchored to join dates, complete removal of the PWA service worker to stabilize the Create React App environment, and stringent backend CORS restrictions for security. A major UI overhaul introduced a responsive dashboard with real-time data, summary cards, and color-coding, followed by comprehensive branding with custom Tailwind colors and global UI components. Most recently, a sophisticated settings panel was developed, featuring IndexedDB persistence, a PIN lock for sensitive actions (payments, deletions), and CRUD functionality for membership plans. The ongoing task involves integrating these new settings and plan features into the existing sidebar and adding visual lock badges to protected actions, streamlining the application's functionality and security.
+The AI engineer's journey on the Alphalete Club PWA demonstrates a methodical approach to feature development and bug resolution. Initially, the focus was on core functional enhancements like refining the Add/Edit Member form with membership plan integration and upgrading the Dashboard UI. Key technical challenges involved perfecting IndexedDB queries for robust data handling and ensuring seamless UI updates. The engineer iteratively refined the Dashboard to be mobile-friendly with swipeable KPI cards and dot indicators, demonstrating a strong grasp of responsive design and front-end state management.
+
+Subsequently, the emphasis shifted to ensuring data reliability, consistent navigation across the PWA via URL hash synchronization, and improving developer experience. The engineer implemented robust data loading mechanisms, centralizing  events for real-time updates and addressing z-index and button reliability issues. The final stages involved integrating and refining a temporary Dev Inspector, enhancing on-device debugging capabilities, and ensuring the database initializes reliably at startup. The trajectory highlights a disciplined approach to testing, debugging, and user feedback, culminating in a stable, feature-rich application ready for further expansion.
 </analysis>
 
 <product_requirements>
-The Alphalete Club PWA is a gym management application designed for client and payment handling, emphasizing a mobile-first, robust, and potentially offline-capable experience. Key functionalities include comprehensive client management (add, edit, view), accurate payment processing with invoicing, owed amount display, automated billing cycles, and reliable dashboard statistics (revenue, owed, active members). Initial requirements emphasized offline data sync via a local-first architecture (IndexedDB), standalone mode, no address bar, maskable icons, and WhatsApp reminders.
-So far, the application has achieved stable API connectivity by fixing 404 errors and URL override issues. Member edit functionality has been rebuilt with toast notifications. Membership plan management and duplicate type handling are enhanced. Overdue calculations are corrected, and a strict 30-day billing cycle is implemented with payment preview, Zod validation, and a payment history view (with CSV export) backed by an upgraded IndexedDB schema with auditing. The latest updates include a responsive dashboard UI, a comprehensive settings panel with PIN lock, and Membership Plan CRUD, integrated into the app's navigation and protected by PIN.
+The Alphalete Club PWA aims to be a mobile-first gym management application, handling client and payment operations. Key features include client CRUD, precise payment processing, automated 30-day billing with grace periods and anchor modes, and WhatsApp reminders. The application was designed for local-first data persistence via IndexedDB, standalone mode, and a robust offline experience.
+
+Current implementations include stable API connectivity, improved member editing, and comprehensive membership plan management. Payment overdue calculations are corrected, and billing cycles are strict 30-day, with payment preview. A payment history with CSV export is supported by an upgraded IndexedDB schema. Recently added features are a responsive dashboard, a settings panel with PIN lock, and Membership Plan CRUD. The system now features configurable default fees, due-soon thresholds, and flexible billing cycle modes, all integrated into the UI and persistent through IndexedDB. The application is now focused on ensuring real-time data consistency and reliable navigation.
 </product_requirements>
 
 <key_technical_concepts>
--   **FastAPI**: Backend API development.
--   **React**: Frontend UI development.
--   **MongoDB**: NoSQL database for backend.
--   **IndexedDB**: Frontend local storage for offline capabilities, with an upgraded schema (v6).
--   **Tailwind CSS**: Utility-first CSS for styling and responsive design.
--   **Zod**: Frontend schema validation.
--   **SHA-256 Hashing**: For secure PIN storage.
--   **Service Workers**: Previously used for PWA caching, now removed for stability.
--   **CORS Middleware**: Backend security for origin restriction.
+-   **FastAPI**: Backend for API services.
+-   **React**: Frontend UI framework.
+-   **IndexedDB**: Frontend local storage (v6/v7) for persistence.
+-   **Tailwind CSS**: Utility-first styling for responsive design.
+-   **Zod**: Used for frontend data validation (later removed from  to fix import issues).
+-   **SHA-256**: For secure PIN storage.
+-   **Service Workers**: Originally used for PWA, later removed for stability.
+-   **CORS Middleware**: Backend security configuration.
+-   **URL Hash Navigation**: Frontend routing and state synchronization using .
 </key_technical_concepts>
 
 <code_architecture>
-The application follows a standard full-stack architecture with a FastAPI backend and a React frontend.
+The application uses a full-stack architecture with a FastAPI backend and a React frontend.
 
 
 
--   **backend/server.py**: Core FastAPI application.
-    -   **Changes**:  was strictly configured to  (, ).
--   **frontend/src/App.js**: Main React component and routing.
-    -   **Changes**: Service worker registration was removed. New routes , , and  were added. PIN protection logic () was integrated into  and  functions. The desktop sidebar  array was updated to include Settings and Plans links.
--   **frontend/src/Components.js**: Centralized components and business logic.
-    -   **Changes**:  modal received accessibility improvements (ARIA attributes, ESC key, focus management). Updated to use  for dashboard counts and display.  component was imported and added to Record Payment buttons within its scope.
--   **frontend/public/sw.js (DELETED)**: Service worker.
-    -   **Changes**: This file was explicitly deleted, and related registration code in  was removed to disable PWA functionality and improve stability.
--   **frontend/.env**: Stores frontend environment variables.
-    -   **Changes**:  confirmed.  (if present) was instructed to be cleaned of error-hiding flags, but it didn't exist in the environment.
--   **frontend/package.json**: Manages dependencies.
-    -   **Changes**: Dependencies were updated and pinned to React 18.3.1, react-dom 18.3.1, react-router-dom 6.26.2, axios 1.7.2, and react-scripts 5.0.1 for stability.  was previously added.
--   **frontend/src/billing.js (NEW)**: Provides date and billing cycle calculation utilities.
-    -   **Changes**: Created to encapsulate , , ,  for consistent 30-day billing logic anchored to .
--   **frontend/src/Dashboard.js (NEW)**: Responsive UI for the gym dashboard.
-    -   **Changes**: Created to display summary cards (Total, Overdue, Due Soon, Revenue), client tables (desktop) and cards (mobile) with status color-coding, due date highlighting, and WhatsApp action buttons. Integrates  for dynamic  and currency formatting.
--   **frontend/src/settingsKeys.js (NEW)**: Single source of truth for all configurable settings.
-    -   **Changes**: Defines  for billing, reminders, display, currency, data, and access, including  and .
--   **frontend/src/settingsStore.js (NEW)**: Manages IndexedDB for settings and membership plans.
-    -   **Changes**: Created with IndexedDB schema version 6. It includes object stores for  and , and provides , BASH=/bin/bash
-BASHOPTS=checkwinsize:cmdhist:complete_fullquote:extquote:force_fignore:globasciiranges:globskipdots:hostcomplete:interactive_comments:patsub_replacement:progcomp:promptvars:sourcepath
-BASH_ALIASES=()
-BASH_ARGC=()
-BASH_ARGV=()
-BASH_CMDS=()
-BASH_EXECUTION_STRING=$'mkdir -p /app/.emergent && echo "<analysis>\nThe AI engineer\'s work on the Alphalete Club PWA began with critical frontend-backend connectivity debugging, specifically resolving `REACT_APP_BACKEND_URL` and service worker issues that caused "internet connection" errors. This led to a rebuild of the member edit functionality, ensuring consistent UI and robust validation. Subsequently, the focus shifted to refining the application\'s core logic and user experience. This involved implementing a strict 30-day billing cycle anchored to join dates, complete removal of the PWA service worker to stabilize the Create React App environment, and stringent backend CORS restrictions for security. A major UI overhaul introduced a responsive dashboard with real-time data, summary cards, and color-coding, followed by comprehensive branding with custom Tailwind colors and global UI components. Most recently, a sophisticated settings panel was developed, featuring IndexedDB persistence, a PIN lock for sensitive actions (payments, deletions), and CRUD functionality for membership plans. The ongoing task involves integrating these new settings and plan features into the existing sidebar and adding visual lock badges to protected actions, streamlining the application\'s functionality and security.\n</analysis>\n\n<product_requirements>\nThe Alphalete Club PWA is a gym management application designed for client and payment handling, emphasizing a mobile-first, robust, and potentially offline-capable experience. Key functionalities include comprehensive client management (add, edit, view), accurate payment processing with invoicing, owed amount display, automated billing cycles, and reliable dashboard statistics (revenue, owed, active members). Initial requirements emphasized offline data sync via a "local-first architecture" (IndexedDB), standalone mode, no address bar, maskable icons, and WhatsApp reminders.\nSo far, the application has achieved stable API connectivity by fixing 404 errors and URL override issues. Member edit functionality has been rebuilt with toast notifications. Membership plan management and duplicate type handling are enhanced. Overdue calculations are corrected, and a strict 30-day billing cycle is implemented with payment preview, Zod validation, and a payment history view (with CSV export) backed by an upgraded IndexedDB schema with auditing. The latest updates include a responsive dashboard UI, a comprehensive settings panel with PIN lock, and Membership Plan CRUD, integrated into the app\'s navigation and protected by PIN.\n</product_requirements>\n\n<key_technical_concepts>\n-   **FastAPI**: Backend API development.\n-   **React**: Frontend UI development.\n-   **MongoDB**: NoSQL database for backend.\n-   **IndexedDB**: Frontend local storage for offline capabilities, with an upgraded schema (v6).\n-   **Tailwind CSS**: Utility-first CSS for styling and responsive design.\n-   **Zod**: Frontend schema validation.\n-   **SHA-256 Hashing**: For secure PIN storage.\n-   **Service Workers**: Previously used for PWA caching, now removed for stability.\n-   **CORS Middleware**: Backend security for origin restriction.\n</key_technical_concepts>\n\n<code_architecture>\nThe application follows a standard full-stack architecture with a FastAPI backend and a React frontend.\n\n```\n/app/\n├── backend/\n│   ├── requirements.txt\n│   ├── server.py\n│   ├── .env\n│   ├── email_service.py\n│   └── reminder_scheduler.py\n├── frontend/\n│   ├── package.json\n│   ├── tailwind.config.js\n│   ├── postcss.config.js\n│   ├── .env\n│   ├── public/\n│   │   ├── index.html\n│   │   ├── manifest.json\n│   │   ├── sw.js (DELETED)\n│   │   ├── icon-192x192.png\n│   │   ├── icon-512x512.png\n│   │   ├── debug.html\n│   │   ├── favicon.ico\n│   │   ├── icon-72x72.png\n│   │   ├── icon-96x96.png\n│   │   ├── icon-128x128.png\n│   │   ├── icon-144x144.png\n│   │   ├── icon-152x152.png\n│   │   ├── icon-192x192-maskable.png\n│   │   ├── icon-384x384.png\n│   │   ├── icon-512x512-maskable.png\n│   │   └── .well-known/\n│   │       └── web-app-manifest.json\n│   ├── src/\n│       ├── index.js\n│       ├── App.js\n│       ├── App.css\n│       ├── LocalStorageManager.js\n│       ├── Components.js\n│       ├── storage.js\n│       ├── hooks/\n│       │   └── usePayments.js\n│       ├── components/\n│       │   └── payments/\n│       │       └── PaymentsHistory.jsx\n│       ├── utils/\n│       │   ├── date.js\n│       │   └── validation.js\n│       ├── billing.js (NEW)\n│       ├── Dashboard.js (NEW)\n│       ├── settings.js (DELETED - replaced by settingsStore.js)\n│       ├── SettingsPanel.js (DELETED - replaced by SettingsTab.jsx)\n│       ├── reminders.js\n│       ├── settingsKeys.js (NEW)\n│       ├── settingsStore.js (NEW)\n│       ├── pinlock.js (NEW)\n│       ├── SettingsTab.jsx (NEW)\n│       ├── useSetting.js (NEW)\n│       ├── LockBadge.jsx (NEW)\n│       ├── money.js (NEW)\n│       └── PlansTab.jsx (NEW)\n├── tests/\n├── scripts/\n├── README.md\n├── yarn.lock\n├── create_wolf_icons.py\n├── standalone-concept/\n├── local-first-concept/\n├── create_pwa_icons.py\n├── PWA_ICONS_IMPLEMENTATION.md\n├── ANDROID_STATUS_BAR_FIX.md\n├── OFFLINE_PWA_FIX.md\n├── STANDALONE_MODE_FIX.md\n├── FINAL_ADDRESS_BAR_SOLUTION.md\n├── URL_CLEANUP_VERIFICATION.md\n├── URL_OVERRIDE_BUG_COMPREHENSIVE_FIX.md\n└── assetlinks.json\n```\n\n-   **backend/server.py**: Core FastAPI application.\n    -   **Changes**: `CORSMiddleware` was strictly configured to `ALLOWED_ORIGINS` (`localhost:3000`, `alphalete-club.emergent.host`).\n-   **frontend/src/App.js**: Main React component and routing.\n    -   **Changes**: Service worker registration was removed. New routes `/dashboard`, `/settings`, and `/plans` were added. PIN protection logic (`requirePinIfEnabled`) was integrated into `recordQuickPayment` and `deleteClient` functions. The desktop sidebar `navItems` array was updated to include "Settings" and "Plans" links.\n-   **frontend/src/Components.js**: Centralized components and business logic.\n    -   **Changes**: `PaymentTracking` modal received accessibility improvements (ARIA attributes, ESC key, focus management). Updated to use `clientsWithBilling` for dashboard counts and display. `LockBadge` component was imported and added to "Record Payment" buttons within its scope.\n-   **frontend/public/sw.js (DELETED)**: Service worker.\n    -   **Changes**: This file was explicitly deleted, and related registration code in `index.js` was removed to disable PWA functionality and improve stability.\n-   **frontend/.env**: Stores frontend environment variables.\n    -   **Changes**: `REACT_APP_BACKEND_URL` confirmed. `.env.local` (if present) was instructed to be cleaned of error-hiding flags, but it didn\'t exist in the environment.\n-   **frontend/package.json**: Manages dependencies.\n    -   **Changes**: Dependencies were updated and pinned to React 18.3.1, react-dom 18.3.1, react-router-dom 6.26.2, axios 1.7.2, and react-scripts 5.0.1 for stability. `zod` was previously added.\n-   **frontend/src/billing.js (NEW)**: Provides date and billing cycle calculation utilities.\n    -   **Changes**: Created to encapsulate `parseISO`, `nextDueDateFromJoin`, `isOverdue`, `currentCycleWindow` for consistent 30-day billing logic anchored to `joinDate`.\n-   **frontend/src/Dashboard.js (NEW)**: Responsive UI for the gym dashboard.\n    -   **Changes**: Created to display summary cards (Total, Overdue, Due Soon, Revenue), client tables (desktop) and cards (mobile) with status color-coding, due date highlighting, and WhatsApp action buttons. Integrates `settingsStore` for dynamic `dueSoonDays` and currency formatting.\n-   **frontend/src/settingsKeys.js (NEW)**: Single source of truth for all configurable settings.\n    -   **Changes**: Defines `SETTINGS_DEFAULTS` for billing, reminders, display, currency, data, and access, including `paymentsPinEnabled` and `pinHash`.\n-   **frontend/src/settingsStore.js (NEW)**: Manages IndexedDB for settings and membership plans.\n    -   **Changes**: Created with IndexedDB schema version 6. It includes object stores for `settings` and `plans`, and provides `getAll`, `set`, `listPlans`, `upsertPlan`, `deletePlan` functions for persistent storage.\n-   **frontend/src/reminders.js**: Handles WhatsApp reminder message construction.\n    -   **Changes**: Updated to fetch `reminderTemplate` and `dateFormat` from `settingsStore` and uses `formatDateISO` and `currencyFormatter` for dynamic message generation.\n-   **frontend/src/pinlock.js (NEW)**: Core logic for PIN-based security.\n    -   **Changes**: Implements `sha256Hex` for secure PIN hashing, `isPinEnabled`, `hasPin`, `setNewPin`, `verifyPin`, `promptPin` (modal UI), and `requirePinIfEnabled` to guard sensitive actions.\n-   **frontend/src/SettingsTab.jsx (NEW)**: Comprehensive settings UI.\n    -   **Changes**: Replaces the simpler `SettingsPanel.js`. Provides sections for Billing, Reminders, Display, Currency & Locale, and Data & Access, allowing instant saving to IndexedDB. Includes UI for setting/changing PIN.\n-   **frontend/src/useSetting.js (NEW)**: Custom React hook for reading settings reactively.\n    -   **Changes**: Created to simplify reading individual settings from `settingsStore` and providing reactive updates.\n-   **frontend/src/LockBadge.jsx (NEW)**: Renders a lock icon based on PIN status.\n    -   **Changes**: Created to display a "🔒" badge next to sensitive buttons when `paymentsPinEnabled` is true.\n-   **frontend/src/money.js (NEW)**: Provides currency formatting utility.\n    -   **Changes**: Created to dynamically create a `makeMoneyFormatter` function based on `currencyCode` from settings.\n-   **frontend/src/PlansTab.jsx (NEW)**: UI for Membership Plans CRUD.\n    -   **Changes**: Created to enable creating, editing, and deleting membership plans, with delete actions protected by the PIN lock. Plans are stored in IndexedDB via `settingsStore`.\n\n</code_architecture>\n\n<pending_tasks>\n-   Integrate "Plans" and "Settings" links into the main application\'s sidebar navigation (if not fully completed yet, based on the last message\'s context).\n-   Ensure PIN lock badges (`LockBadge` component) are correctly applied to all "Record Payment" and "Delete Member/Plan" buttons throughout the application.\n-   (Optional) Integrate membership plans into the Add/Edit Member form, allowing prefilling of amount and billing cycle days based on selected plans.\n</pending_tasks>\n\n<current_work>\nImmediately before this summary request, the previous AI engineer was working on a consolidated set of tasks to enhance the application\'s core functionality and security. The current focus is on implementing a comprehensive settings panel, robust PIN lock for sensitive actions, and CRUD operations for membership plans.\n\nSpecifically, the engineer has:\n1.  **Updated frontend dependencies**: Pinned React 18, React Router DOM 6, and other libraries in `package.json`.\n2.  **Cleaned up environment**: Confirmed no `.env.local` error-hiding flags and no service worker file (`sw.js`) or registration code in `index.js`.\n3.  **Refactored settings**: Created `settingsKeys.js` for default settings, and significantly enhanced `settingsStore.js` to handle persistent storage of settings and new membership plans in IndexedDB (schema version 6).\n4.  **Updated billing logic**: Ensured `billing.js` functions are consistent.\n5.  **Enhanced reminders**: Updated `reminders.js` to use a configurable template and date/currency formatting from settings.\n6.  **Implemented PIN lock core**: Created `pinlock.js` with SHA-256 hashing, PIN prompt UI, and functions to enable/verify PIN.\n7.  **Created utility components**: Developed `useSetting.js` (a React hook for reactive settings access), `LockBadge.jsx` (a visual indicator for PIN-protected actions), and `money.js` (a currency formatter).\n8.  **Developed new UI tabs**: Created `SettingsTab.jsx` (a full-featured, collapsible settings panel with instant saving) and `PlansTab.jsx` (a UI for creating, editing, and deleting membership plans, with delete operations requiring PIN confirmation).\n9.  **Updated routing**: Integrated the new `/settings` and `/plans` routes into `App.js`.\n10. **Integrated PIN guards**: Applied `requirePinIfEnabled` to the `recordQuickPayment` and `deleteClient` functions in `App.js`.\n\nThe latest action recorded was successfully adding the routing for `PlansTab.jsx` in `App.js`. The engineer is progressing through a consolidated task list, ensuring all new features are seamlessly integrated and existing functionality remains intact.\n\n</current_work>\n\n<optional_next_step>\nThe next step is to add the "Plans" and "Settings" links to the main application\'s sidebar navigation in `App.js` and apply `LockBadge` to all sensitive buttons as specified in the consolidated task list from message 440 (specifically step 12 and onwards).\n</optional_next_step>" > /app/.emergent/summary.txt'
-BASH_LINENO=()
-BASH_LOADABLES_PATH=/usr/local/lib/bash:/usr/lib/bash:/opt/local/lib/bash:/usr/pkg/lib/bash:/opt/pkg/lib/bash:.
-BASH_SOURCE=()
-BASH_VERSINFO=([0]="5" [1]="2" [2]="15" [3]="1" [4]="release" [5]="aarch64-unknown-linux-gnu")
-BASH_VERSION='5.2.15(1)-release'
-DEBIAN_FRONTEND=noninteractive
-DIRSTACK=()
-ENABLE_RELOAD=true
-EUID=0
-GPG_KEY=A035C8C19219BA821ECEA86B64E628F8D684696D
-GROUPS=()
-HOME=/root
-HOSTNAME=agent-env-46206bdc-27f0-428b-bb53-27c7a4990807
-HOSTTYPE=aarch64
-IFS=$' \t\n'
-KUBERNETES_PORT=tcp://34.118.224.1:443
-KUBERNETES_PORT_443_TCP=tcp://34.118.224.1:443
-KUBERNETES_PORT_443_TCP_ADDR=34.118.224.1
-KUBERNETES_PORT_443_TCP_PORT=443
-KUBERNETES_PORT_443_TCP_PROTO=tcp
-KUBERNETES_SERVICE_HOST=34.118.224.1
-KUBERNETES_SERVICE_PORT=443
-KUBERNETES_SERVICE_PORT_HTTPS=443
-LANG=C.UTF-8
-MACHTYPE=aarch64-unknown-linux-gnu
-NEXT_TELEMETRY_DISABLED=1
-NODE_VERSION=20
-OPTERR=1
-OPTIND=1
-OSTYPE=linux-gnu
-PATH=/root/.venv/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-PIPESTATUS=([0]="0")
-PIP_NO_INPUT=1
-PLAYWRIGHT_BROWSERS_PATH=/pw-browsers
-PPID=0
-PREVIEW_PROXY_SERVICE_PORT=tcp://34.118.225.58:80
-PREVIEW_PROXY_SERVICE_PORT_80_TCP=tcp://34.118.225.58:80
-PREVIEW_PROXY_SERVICE_PORT_80_TCP_ADDR=34.118.225.58
-PREVIEW_PROXY_SERVICE_PORT_80_TCP_PORT=80
-PREVIEW_PROXY_SERVICE_PORT_80_TCP_PROTO=tcp
-PREVIEW_PROXY_SERVICE_SERVICE_HOST=34.118.225.58
-PREVIEW_PROXY_SERVICE_SERVICE_PORT=80
-PREVIEW_PROXY_SERVICE_SERVICE_PORT_HTTP=80
-PS4='+ '
-PWD=/app
-PYTHONUNBUFFERED=1
-PYTHON_SHA256=8fb5f9fbc7609fa822cb31549884575db7fd9657cbffb89510b5d7975963a83a
-PYTHON_VERSION=3.11.13
-SHELL=/bin/bash
-SHELLOPTS=braceexpand:hashall:interactive-comments
-SHLVL=1
-STRIPE_API_KEY=sk_test_emergent
-TERM=dumb
-UID=0
-VIRTUAL_ENV=/root/.venv
-_=/app/.emergent
-base_url=https://demobackend.emergentagent.com
-code_server_password=2c8cce9c
-integration_proxy_url=https://integrations.emergentagent.com
-monitor_polling_interval=1
-preview_endpoint=https://gym-billing-app.preview.emergentagent.com
-run_id=46206bdc-27f0-428b-bb53-27c7a4990807, , ,  functions for persistent storage.
--   **frontend/src/reminders.js**: Handles WhatsApp reminder message construction.
-    -   **Changes**: Updated to fetch  and  from  and uses  and  for dynamic message generation.
--   **frontend/src/pinlock.js (NEW)**: Core logic for PIN-based security.
-    -   **Changes**: Implements  for secure PIN hashing, , , , ,  (modal UI), and  to guard sensitive actions.
--   **frontend/src/SettingsTab.jsx (NEW)**: Comprehensive settings UI.
-    -   **Changes**: Replaces the simpler . Provides sections for Billing, Reminders, Display, Currency & Locale, and Data & Access, allowing instant saving to IndexedDB. Includes UI for setting/changing PIN.
--   **frontend/src/useSetting.js (NEW)**: Custom React hook for reading settings reactively.
-    -   **Changes**: Created to simplify reading individual settings from  and providing reactive updates.
--   **frontend/src/LockBadge.jsx (NEW)**: Renders a lock icon based on PIN status.
-    -   **Changes**: Created to display a 🔒 badge next to sensitive buttons when  is true.
--   **frontend/src/money.js (NEW)**: Provides currency formatting utility.
-    -   **Changes**: Created to dynamically create a  function based on  from settings.
--   **frontend/src/PlansTab.jsx (NEW)**: UI for Membership Plans CRUD.
-    -   **Changes**: Created to enable creating, editing, and deleting membership plans, with delete actions protected by the PIN lock. Plans are stored in IndexedDB via .
-
+-   **backend/server.py**: The FastAPI backend entry point, configured with strict CORS rules to allow requests from specific origins ( and ).
+-   **frontend/src/App.js**: Main React component. It handles global state, including  for navigation, and contains  hooks for global navigation exposure (e.g., ) and URL hash synchronization. It defines the main application routes using React Router and renders different components (, , , etc.) based on the active tab or route. It also manages  for local data access.
+-   **frontend/src/Components.js**: This file now centralizes several key React components.
+    *   **PaymentTracking**: Manages payment submission, prefilling amounts based on plans, and integrates PIN protection. It includes an  to auto-open the payment modal if a pending member ID is stored in .
+    *   **MembershipManagement**: Manages membership plans with CRUD operations.
+    *   **Dashboard**: This is the upgraded, mobile-friendly component. It displays KPIs, actionable lists (Due Today, Overdue), trends, and a plans snapshot. It was significantly refactored to include swipeable KPI cards with dot indicators, robust data loading from multiple IndexedDB stores, and ensures all its buttons use a unified  helper function. It now includes a temporary debug banner.
+    *   A global  helper function is defined at the top to ensure consistent navigation via URL hash, global , or custom events.
+    *   **DevInspector (NEW)**: A temporary debugging component, triggered by a floating Debug button. It allows real-time inspection of IndexedDB data (member/payment counts, sample member data), seeding of test data, and direct navigation testing.
+-   **frontend/src/storage.js**: Manages IndexedDB interactions. It contains  for specific data operations (e.g., , , , ). It was enhanced with a generic  function to read data from any store and a  function to dispatch events and update  for real-time data refresh signals. It includes logic for plan migrations and data persistence.
+-   **frontend/public/sw.js (DELETED)**: The service worker file was explicitly removed to enhance application stability.
+-   **frontend/.env**: Stores  for API calls.
+-   **frontend/src/index.js**: Entry point for the React application. It includes a temporary  unregistration block to ensure fresh code deployments on mobile devices by busting the cache.
+-   **frontend/src/index.css**: Global stylesheet (uses Tailwind CSS). It was updated to include utilities like  for the swipeable KPI cards and styling for the KPI dot indicators (, ).
+-   **frontend/src/billing.js**: Provides utilities for precise billing logic, including  and , now supporting  and  from settings.
+-   **frontend/src/settingsKeys.js**: Defines  for all configurable settings.
+-   **frontend/src/settingsStore.js**: Manages IndexedDB persistence for settings.
+-   **frontend/src/pinlock.js**: Implements PIN-based security.
+-   **frontend/src/SettingsTab.jsx**: UI for comprehensive settings.
+-   **frontend/src/utils/validation.js**: Contains simpler validation helpers;  dependencies were removed to prevent import issues.
 </code_architecture>
 
 <pending_tasks>
--   Integrate Plans and Settings links into the main application's sidebar navigation (if not fully completed yet, based on the last message's context).
--   Ensure PIN lock badges ( component) are correctly applied to all Record Payment and Delete Member/Plan buttons throughout the application.
--   (Optional) Integrate membership plans into the Add/Edit Member form, allowing prefilling of amount and billing cycle days based on selected plans.
+- The task to Integrate membership plans into the Add/Edit Member form, allowing prefilling of amount and billing cycle days based on selected plans was explicitly completed by the previous engineer.
+- There are no other pending tasks explicitly mentioned that were not addressed within the provided trajectory.
 </pending_tasks>
 
 <current_work>
-Immediately before this summary request, the previous AI engineer was working on a consolidated set of tasks to enhance the application's core functionality and security. The current focus is on implementing a comprehensive settings panel, robust PIN lock for sensitive actions, and CRUD operations for membership plans.
+Immediately before this summary request, the previous AI engineer successfully implemented and verified the integration of a temporary **Dev Inspector** component and a visible Debug button. The goal was to provide on-device debugging capabilities to verify storage contents and navigation behavior, while also ensuring the IndexedDB initializes reliably on app startup.
 
-Specifically, the engineer has:
-1.  **Updated frontend dependencies**: Pinned React 18, React Router DOM 6, and other libraries in .
-2.  **Cleaned up environment**: Confirmed no  error-hiding flags and no service worker file () or registration code in .
-3.  **Refactored settings**: Created  for default settings, and significantly enhanced  to handle persistent storage of settings and new membership plans in IndexedDB (schema version 6).
-4.  **Updated billing logic**: Ensured  functions are consistent.
-5.  **Enhanced reminders**: Updated  to use a configurable template and date/currency formatting from settings.
-6.  **Implemented PIN lock core**: Created  with SHA-256 hashing, PIN prompt UI, and functions to enable/verify PIN.
-7.  **Created utility components**: Developed  (a React hook for reactive settings access),  (a visual indicator for PIN-protected actions), and  (a currency formatter).
-8.  **Developed new UI tabs**: Created  (a full-featured, collapsible settings panel with instant saving) and  (a UI for creating, editing, and deleting membership plans, with delete operations requiring PIN confirmation).
-9.  **Updated routing**: Integrated the new  and  routes into .
-10. **Integrated PIN guards**: Applied  to the  and  functions in .
-
-The latest action recorded was successfully adding the routing for  in . The engineer is progressing through a consolidated task list, ensuring all new features are seamlessly integrated and existing functionality remains intact.
-
+Specifically, the engineer:
+1.  **Modified **:
+    *   Replaced the long-press activation of  with a fixed, floating Debug button (). This button directly toggles the Dev Inspector's visibility.
+    *   Updated the  function within  to use  for generating more robust unique member IDs, instead of .
+    *   Ensured that all Dashboard buttons (including quick actions, due/overdue lists, and PlansMini buttons) use the  helper function and have  for reliable clicks and navigation.
+2.  **Modified **:
+    *   Added a  hook to explicitly call  at the application's mount time (). This guarantees that IndexedDB is initialized and ready before other components attempt to access it.
+    *   Verified the existing global and event-based navigation fallbacks, along with hash synchronization logic, ensuring consistent and reliable routing across the application.
+3.  **Verified Functionality**: The engineer confirmed with a screenshot that the floating Debug button is visible and the Dev Inspector is ready for use, validating the latest changes to the debugging tools and underlying app stability. The task was marked as successfully completed.
 </current_work>
 
 <optional_next_step>
-The next step is to add the Plans and Settings links to the main application's sidebar navigation in  and apply  to all sensitive buttons as specified in the consolidated task list from message 440 (specifically step 12 and onwards).
+Remove the temporary  component, the floating Debug button, and the temporary  unregistration from .
 </optional_next_step>
