@@ -545,7 +545,10 @@ const Dashboard = () => {
       const p2 = await (gymStorage.getAll?.('payments') ?? []);
       setPayments([...(p1||[]), ...(p2||[])]);
 
-      const s = await (gymStorage.getSetting?.('gymSettings', {}) ?? {});
+      const s = 
+        (await (gymStorage.getSetting?.('gymSettings', {}) )) ??
+        (await (getSettingNamed?.('gymSettings', {}) )) ??
+        {};
       setSettings(prev => ({ ...prev, ...(s || {}) }));
       
       console.log('[Dashboard] loaded', { clients: byId.size, payments: [...(p1||[]), ...(p2||[])].length });
