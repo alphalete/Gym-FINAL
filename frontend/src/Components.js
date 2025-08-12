@@ -6,6 +6,14 @@ import { nextDueDateFromJoin, isOverdue, nextDueAfterPayment } from "./billing";
 import LockBadge from "./LockBadge";
 import { requirePinIfEnabled } from './pinlock';
 
+// Helper function for data change signals
+function signalDataChanged(what = '') {
+  try {
+    localStorage.setItem('dataChangedAt', String(Date.now()));
+    window.dispatchEvent?.(new CustomEvent('DATA_CHANGED', { detail: what }));
+  } catch {}
+}
+
 // Navigation helper function
 function navTo(tab){
   const t = String(tab).toLowerCase();
