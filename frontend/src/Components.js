@@ -499,14 +499,25 @@ const Dashboard = () => {
 
   useEffect(() => {
     (async () => {
-      const [m, p, s] = await Promise.all([
-        gymStorage.getAllMembers?.() ?? [],
-        gymStorage.getAllPayments?.() ?? [],
-        gymStorage.getSetting?.('gymSettings', {}) ?? {}
-      ]);
-      setMembers(Array.isArray(m) ? m : []);
-      setPayments(Array.isArray(p) ? p : []);
-      setSettings(prev => ({ ...prev, ...(s || {}) }));
+      try {
+        // Try dedicated helpers, then generic store readers as fallback
+        const m =
+          (await gymStorage.getAllMembers?.()) ??
+          (await gymStorage.getAllData?.('members')) ?? [];
+        const p =
+          (await gymStorage.getAllPayments?.()) ??
+          (await gymStorage.getAllData?.('payments')) ?? [];
+        const s = (await gymStorage.getSetting?.('gymSettings', {})) ?? {};
+
+        console.log('[Dashboard] loaded', { members: m.length, payments: p.length, settings: s });
+
+        setMembers(Array.isArray(m) ? m : []);
+        setPayments(Array.isArray(p) ? p : []);
+        setSettings(prev => ({ ...prev, ...(s || {}) }));
+      } catch (e) {
+        console.error('[Dashboard] load error', e);
+        setMembers([]); setPayments([]);
+      }
     })();
   }, []);
 
