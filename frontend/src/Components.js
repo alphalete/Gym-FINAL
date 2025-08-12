@@ -7,6 +7,15 @@ import LockBadge from "./LockBadge";
 import { listPlans, upsertPlan, deletePlan, migratePlansFromSettingsIfNeeded } from './storage';
 import { requirePinIfEnabled } from './pinlock';
 
+// Navigation helper function
+function navigate(tab) {
+  if (typeof window.setActiveTab === 'function') {
+    window.setActiveTab(tab);
+  } else {
+    window.dispatchEvent(new CustomEvent('NAVIGATE', { detail: tab }));
+  }
+}
+
 /* === Payment Preview Helper (added) === */
 function computeNextDuePreview(currentNextDueISO, monthsCovered) {
   return advanceNextDueByCycles(currentNextDueISO, monthsCovered);
