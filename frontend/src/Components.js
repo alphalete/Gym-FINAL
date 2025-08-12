@@ -691,19 +691,108 @@ const ClientManagement = () => {
   );
 };
 
-const Reports = () => (
-  <div className="p-4">
-    <h2 className="text-xl font-bold mb-4">Reports</h2>
-    <p className="text-gray-600">Reports functionality will be implemented here.</p>
-  </div>
-);
-
-const Settings = () => (
-  <div className="p-4">
-    <h2 className="text-xl font-bold mb-4">Settings</h2>
-    <p className="text-gray-600">Settings functionality will be implemented here.</p>
-  </div>
-);
+// --- Settings ---
+const Settings = () => {
+  const [s, setS] = useState({ 
+    membershipFeeDefault: 0, 
+    billingCycleDays: 30, 
+    dueSoonDays: 3, 
+    graceDays: 0 
+  });
+  
+  useEffect(() => {
+    (async () => {
+      const v = (await (gymStorage.getSetting?.('gymSettings', {}) )) ?? 
+                (await (getSettingNamed?.('gymSettings', {}) )) ?? {};
+      setS(prev => ({ ...prev, ...v }));
+    })();
+  }, []);
+  
+  async function save() {
+    await (gymStorage.saveSetting?.('gymSettings', s) ?? saveSettingNamed('gymSettings', s));
+    signalChanged('settings');
+    alert('Settings saved successfully!');
+  }
+  
+  return (
+    <div className="p-4 space-y-4">
+      <h1 className="text-2xl font-semibold">Settings</h1>
+      
+      <div className="space-y-4 bg-white border rounded-2xl p-4">
+        <div className="font-medium">Membership Settings</div>
+        
+        <label className="block">
+          <span className="text-sm font-medium text-gray-700">Default Membership Fee ($)</span>
+          <input 
+            className="mt-1 border rounded px-3 py-2 w-full" 
+            type="number" 
+            min="0"
+            step="0.01"
+            value={s.membershipFeeDefault} 
+            onChange={e => setS(v => ({ ...v, membershipFeeDefault: Number(e.target.value || 0) }))}
+          />
+          <span className="text-xs text-gray-500">Default amount when recording payments</span>
+        </label>
+        
+        <label className="block">
+          <span className="text-sm font-medium text-gray-700">Billing Cycle (days)</span>
+          <input 
+            className="mt-1 border rounded px-3 py-2 w-full" 
+            type="number" 
+            min="1"
+            value={s.billingCycleDays} 
+            onChange={e => setS(v => ({ ...v, billingCycleDays: Number(e.target.value || 30) }))}
+          />
+          <span className="text-xs text-gray-500">How often members are billed</span>
+        </label>
+        
+        <label className="block">
+          <span className="text-sm font-medium text-gray-700">Due Soon Threshold (days)</span>
+          <input 
+            className="mt-1 border rounded px-3 py-2 w-full" 
+            type="number" 
+            min="0"
+            value={s.dueSoonDays} 
+            onChange={e => setS(v => ({ ...v, dueSoonDays: Number(e.target.value || 3) }))}
+          />
+          <span className="text-xs text-gray-500">Show "due soon" when payment is due within this many days</span>
+        </label>
+        
+        <label className="block">
+          <span className="text-sm font-medium text-gray-700">Grace Period (days)</span>
+          <input 
+            className="mt-1 border rounded px-3 py-2 w-full" 
+            type="number" 
+            min="0"
+            value={s.graceDays} 
+            onChange={e => setS(v => ({ ...v, graceDays: Number(e.target.value || 0) }))}
+          />
+          <span className="text-xs text-gray-500">Additional days before marking as overdue</span>
+        </label>
+        
+        <div className="pt-2">
+          <button 
+            type="button" 
+            className="border rounded px-4 py-2 bg-blue-500 text-white hover:bg-blue-600" 
+            onClick={save}
+          >
+            Save Settings
+          </button>
+        </div>
+      </div>
+      
+      <div className="bg-gray-50 border rounded-2xl p-4">
+        <div className="font-medium mb-2">Current Configuration</div>
+        <div className="space-y-1 text-sm text-gray-600">
+          <div>Default Fee: ${s.membershipFeeDefault?.toFixed(2) || '0.00'}</div>
+          <div>Billing Cycle: {s.billingCycleDays || 30} days</div>
+          <div>Due Soon Warning: {s.dueSoonDays || 3} days</div>
+          <div>Grace Period: {s.graceDays || 0} days</div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // Alias for backward compatibility
 const PaymentTracking = PaymentComponent;
