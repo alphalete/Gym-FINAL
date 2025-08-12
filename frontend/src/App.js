@@ -7787,6 +7787,10 @@ const Settings = () => {
 };
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(true); // Assume logged in for now
+  const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+
   useEffect(() => {
     // Force remove loading screen with stronger methods
     const loadingScreen = document.getElementById('loading-screen');
@@ -7806,7 +7810,56 @@ function App() {
     } else {
       console.log('Loading screen element not found');
     }
+
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then((registration) => {
+          console.log('SW: Registration successful', registration);
+        })
+        .catch((error) => {
+          console.log('SW: Registration failed', error);
+        });
+    }
   }, []);
+
+  // PWA install prompt logic - only after login
+  useEffect(() => {
+    if (!isLoggedIn) return;
+
+    const handleBeforeInstallPrompt = (e) => {
+      console.log('PWA: beforeinstallprompt event fired');
+      e.preventDefault();
+      setDeferredPrompt(e);
+      
+      // Show install prompt with delay
+      setTimeout(() => {
+        setShowInstallPrompt(true);
+      }, 600);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, [isLoggedIn]);
+
+  const handleInstallApp = async () => {
+    if (!deferredPrompt) return;
+
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log('PWA: User choice outcome:', outcome);
+    
+    setDeferredPrompt(null);
+    setShowInstallPrompt(false);
+  };
+
+  const handleDismissInstall = () => {
+    setShowInstallPrompt(false);
+    setDeferredPrompt(null);
+  };
 
   return (
     <Router>
@@ -7825,6 +7878,13 @@ function App() {
             <Route path="/reminders" element={<AutoReminders />} />
           </Routes>
         </Layout>
+        
+        {/* PWA Install Prompt */}
+        <InstallPrompt
+          showPrompt={showInstallPrompt}
+          onInstall={handleInstallApp}
+          onDismiss={handleDismissInstall}
+        />
       </div>
     </Router>
   );
