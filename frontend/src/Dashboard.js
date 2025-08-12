@@ -231,7 +231,7 @@ const Dashboard = () => {
       </div>
 
 {/* KPI dots — mobile only */}
-<div className="flex items-center justify-center gap-2 py-1 lg:hidden">
+<div className="flex items-center justify-center gap-2 py-1 md:hidden">
   {Array.from({ length: kpiCount }).map((_, i) => (
     <button
       key={i}
