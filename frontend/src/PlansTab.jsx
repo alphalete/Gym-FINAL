@@ -68,6 +68,43 @@ export default function PlansTab(){
     else setPlans(await listPlans({ active: false }));
   };
 
+  // Optimistic Toggle Helper
+  async function toggleActiveOptimistic(plan) {
+    // Build the updated plan
+    const updated = { ...plan, active: !plan.active };
+
+    // Capture a snapshot for rollback
+    const snapshot = plans;
+
+    // Optimistically update local state FIRST
+    setPlans(prev => {
+      // If on "all", just update the item in place
+      if (filter === 'all') {
+        return prev.map(p => (p.id === plan.id ? updated : p));
+      }
+      // If on "active" and we turned it OFF → remove from current view
+      if (filter === 'active' && plan.active === true) {
+        return prev.filter(p => p.id !== plan.id);
+      }
+      // If on "inactive" and we turned it ON → remove from current view
+      if (filter === 'inactive' && plan.active === false) {
+        return prev.filter(p => p.id !== plan.id);
+      }
+      // Otherwise update in place
+      return prev.map(p => (p.id === plan.id ? updated : p));
+    });
+
+    try {
+      // Persist to DB (no refetch)
+      await upsertPlan(updated);
+    } catch (e) {
+      console.error('Failed to update plan active state:', e);
+      // Roll back on error
+      setPlans(snapshot);
+      alert('Could not update plan. Please try again.');
+    }
+  }
+
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">
       <h1 className="text-2xl font-semibold text-gray-900">Membership Plans</h1>
