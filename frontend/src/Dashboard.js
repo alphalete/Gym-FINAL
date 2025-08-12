@@ -153,23 +153,51 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* KPI cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="bg-white rounded-2xl border p-4">
-          <div className="text-gray-500 text-sm">ACTIVE MEMBERS</div>
-          <div className="text-2xl font-semibold">{kpis.activeCount}</div>
-        </div>
-        <div className="bg-white rounded-2xl border p-4">
-          <div className="text-gray-500 text-sm">PAYMENTS DUE TODAY</div>
-          <div className="text-2xl font-semibold">{dueToday.length}</div>
-        </div>
-        <div className="bg-white rounded-2xl border p-4">
-          <div className="text-gray-500 text-sm">OVERDUE ACCOUNTS</div>
-          <div className="text-2xl font-semibold">{kpis.overdueCount}</div>
-        </div>
-        <div className="bg-white rounded-2xl border p-4">
-          <div className="text-gray-500 text-sm">TOTAL AMOUNT OWED</div>
-          <div className="text-2xl font-semibold">${members.filter(m => isOverdue(m.nextDue) || isDueToday(m.nextDue)).reduce((sum,m)=> sum + Number(m.monthlyFee||m.amount||0), 0).toFixed(2)}</div>
+      {/* KPI cards — swipeable on mobile, grid on lg+ */}
+      <div className="relative">
+        {/* Optional scroll cues (fade edges on mobile) */}
+        <div className="pointer-events-none absolute left-0 top-0 h-full w-6 bg-gradient-to-r from-white to-transparent lg:hidden z-10" />
+        <div className="pointer-events-none absolute right-0 top-0 h-full w-6 bg-gradient-to-l from-white to-transparent lg:hidden z-10" />
+        
+        <div className="lg:grid lg:grid-cols-4 lg:gap-3">
+          {/* Mobile: horizontal scroll with snap */}
+          <div 
+            role="region" 
+            aria-label="Key performance indicators"
+            className="flex lg:block gap-3 overflow-x-auto lg:overflow-visible snap-x snap-mandatory px-1 -mx-1 pb-2 hide-scrollbar"
+          >
+            <div className="min-w-[72%] sm:min-w-[320px] snap-start">
+              <div className="bg-white rounded-2xl border p-4">
+                <h3 className="sr-only">Active Members</h3>
+                <div className="text-gray-500 text-sm">ACTIVE MEMBERS</div>
+                <div className="text-2xl font-semibold">{kpis.activeCount}</div>
+              </div>
+            </div>
+
+            <div className="min-w-[72%] sm:min-w-[320px] snap-start">
+              <div className="bg-white rounded-2xl border p-4">
+                <h3 className="sr-only">Payments Due Today</h3>
+                <div className="text-gray-500 text-sm">PAYMENTS DUE TODAY</div>
+                <div className="text-2xl font-semibold">{dueToday.length}</div>
+              </div>
+            </div>
+
+            <div className="min-w-[72%] sm:min-w-[320px] snap-start">
+              <div className="bg-white rounded-2xl border p-4">
+                <h3 className="sr-only">Overdue Accounts</h3>
+                <div className="text-gray-500 text-sm">OVERDUE ACCOUNTS</div>
+                <div className="text-2xl font-semibold">{kpis.overdueCount}</div>
+              </div>
+            </div>
+
+            <div className="min-w-[72%] sm:min-w-[320px] snap-start">
+              <div className="bg-white rounded-2xl border p-4">
+                <h3 className="sr-only">Total Amount Owed</h3>
+                <div className="text-gray-500 text-sm">TOTAL AMOUNT OWED</div>
+                <div className="text-2xl font-semibold">${members.filter(m => isOverdue(m.nextDue) || isDueToday(m.nextDue)).reduce((sum,m)=> sum + Number(m.monthlyFee||m.amount||0), 0).toFixed(2)}</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
