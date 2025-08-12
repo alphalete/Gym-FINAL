@@ -389,10 +389,11 @@ const PlansMini = () => {
 // --- Members (ClientManagement) ---
 const ClientManagement = () => {
   const [members, setMembers] = useState([]);
+  const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState({ name:"", email:"", phone:"" });
+  const [form, setForm] = useState({ name:"", email:"", phone:"", planId:"" });
 
   async function load() {
     setLoading(true);
@@ -409,6 +410,12 @@ const ClientManagement = () => {
     } finally { 
       setLoading(false); 
     }
+  }
+
+  async function loadMembersAndPlans(){
+    await load(); // existing members loader
+    const ps = await (getAllStore?.('plans') ?? []);
+    setPlans((ps || []).filter(p=>!p._deleted).sort((a,b)=>(a.name||"").localeCompare(b.name||"")));
   }
   
   useEffect(() => { load(); }, []);
