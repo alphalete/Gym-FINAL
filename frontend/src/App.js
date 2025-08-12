@@ -7799,6 +7799,7 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(true); // Assume logged in for now
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [installPromptDismissed, setInstallPromptDismissed] = useState(false);
 
   useEffect(() => {
     // Force remove loading screen with stronger methods
@@ -7834,7 +7835,7 @@ function App() {
 
   // PWA install prompt logic - only after login
   useEffect(() => {
-    if (!isLoggedIn) return;
+    if (!isLoggedIn || installPromptDismissed) return;
 
     const handleBeforeInstallPrompt = (e) => {
       console.log('PWA: beforeinstallprompt event fired');
@@ -7843,7 +7844,9 @@ function App() {
       
       // Show install prompt with delay
       setTimeout(() => {
-        setShowInstallPrompt(true);
+        if (!installPromptDismissed) {
+          setShowInstallPrompt(true);
+        }
       }, 600);
     };
 
@@ -7852,7 +7855,7 @@ function App() {
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     };
-  }, [isLoggedIn]);
+  }, [isLoggedIn, installPromptDismissed]);
 
   const handleInstallApp = async () => {
     if (!deferredPrompt) return;
@@ -7863,11 +7866,14 @@ function App() {
     
     setDeferredPrompt(null);
     setShowInstallPrompt(false);
+    setInstallPromptDismissed(true);
   };
 
   const handleDismissInstall = () => {
+    console.log('PWA: Install prompt dismissed by user');
     setShowInstallPrompt(false);
     setDeferredPrompt(null);
+    setInstallPromptDismissed(true);
   };
 
   return (
@@ -7888,12 +7894,14 @@ function App() {
           </Routes>
         </Layout>
         
-        {/* PWA Install Prompt */}
-        <InstallPrompt
-          showPrompt={showInstallPrompt}
-          onInstall={handleInstallApp}
-          onDismiss={handleDismissInstall}
-        />
+        {/* PWA Install Prompt - Only show when appropriate */}
+        {showInstallPrompt && deferredPrompt && (
+          <InstallPrompt
+            showPrompt={showInstallPrompt}
+            onInstall={handleInstallApp}
+            onDismiss={handleDismissInstall}
+          />
+        )}
       </div>
     </Router>
   );
