@@ -190,6 +190,25 @@ const PaymentComponent = () => {
 
   // PaymentTracking component with modal
   const PaymentTracking = () => {
+    // Settings-based state
+    const [cycleDays, setCycleDays] = useState(30);
+    const [graceDays, setGraceDays] = useState(0);
+    const [nextDuePreview, setNextDuePreview] = useState("");
+
+    useEffect(() => {
+      (async () => {
+        const s = await gymStorage.getSetting('gymSettings', {}) || {};
+        setCycleDays(Number(s.billingCycleDays ?? 30) || 30);
+        setGraceDays(Number(s.graceDays ?? 0) || 0);
+      })();
+    }, []);
+
+    function addDays(dateISO, days) {
+      const d = new Date(dateISO);
+      d.setDate(d.getDate() + Number(days || 0));
+      return d.toISOString().split('T')[0];
+    }
+
     // --- Payment preview computed values ---
     const monthlyFee = Number(selectedClient?.amount || 0);
     const paid = Number((paymentAmount || '').toString().trim() || (monthlyFee || 0));
