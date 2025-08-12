@@ -14,7 +14,7 @@
 # Main and testing agents must follow this exact format to maintain testing data. 
 # The testing data must be entered in yaml format Below is the data structure:
 # 
-## user_problem_statement: Remove temporary DevInspector component, floating "Debug" button, and temporary serviceWorker unregistration from index.js to clean up the codebase after debugging phase.
+## user_problem_statement: TASK: Scrub corrupted tokens, replace App.js with a clean file, and harden storage.
 
 ## backend:
   - task: "Backend stability after cleanup"
