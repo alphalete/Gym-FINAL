@@ -232,6 +232,41 @@ class GymStorage {
       console.warn('Plans migration skipped:', e);
     }
   }
+
+  // Settings Methods
+  async getSetting(name, fallback = {}) {
+    await this.init?.();
+    return new Promise((resolve) => {
+      try {
+        const tx = this.db.transaction(['settings'], 'readonly');
+        const store = tx.objectStore('settings');
+        const req = store.get(name);
+        req.onsuccess = () => {
+          const rec = req.result;
+          resolve(rec && Object.prototype.hasOwnProperty.call(rec,'value') ? rec.value : (rec ?? fallback));
+        };
+        req.onerror = () => resolve(fallback);
+      } catch (_e) {
+        resolve(fallback);
+      }
+    });
+  }
+
+  async saveSetting(name, value) {
+    await this.init?.();
+    return new Promise((resolve, reject) => {
+      try {
+        const tx = this.db.transaction(['settings'], 'readwrite');
+        const store = tx.objectStore('settings');
+        const rec = { name, value };
+        const req = store.put(rec);
+        req.onsuccess = () => resolve(true);
+        req.onerror = () => reject(req.error);
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
 }
 
 const gymStorage = new GymStorage();
