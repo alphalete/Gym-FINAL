@@ -352,10 +352,17 @@ const PaymentComponent = () => {
               <div className="flex items-center justify-between mt-1">
                 <span className="text-gray-600">New next due (preview)</span>
                 <span className="font-semibold">
-                  {previewNextDue || '—'}
+                  {nextDuePreview || '—'}
                 </span>
               </div>
             </div>
+
+            {/* Next due preview display */}
+            {nextDuePreview && (
+              <div className="text-sm text-gray-500 mt-2">
+                Next due will be: <strong>{nextDuePreview}</strong>
+              </div>
+            )}
 
             <div className="flex gap-3 mt-6">
               <button
