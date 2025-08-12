@@ -4991,6 +4991,32 @@ const AddClient = () => {
                   required
                 />
               </div>
+              <div className="form-field-help">
+                <span className="form-help-icon">💡</span>
+                Amount prefilled from selected plan (editable)
+              </div>
+            </div>
+
+            {/* Billing Cycle Days */}
+            <div className="form-field-group">
+              <label className="form-field-label">Billing Cycle (Days) *</label>
+              <div className="form-input-container">
+                <span className="form-input-icon">🔄</span>
+                <input
+                  type="number"
+                  value={formData.billing_interval_days}
+                  onChange={(e) => setFormData(prev => ({ ...prev, billing_interval_days: parseInt(e.target.value) || 30 }))}
+                  className="modern-form-input"
+                  placeholder="Days"
+                  min="1"
+                  max="365"
+                  required
+                />
+              </div>
+              <div className="form-field-help">
+                <span className="form-help-icon">📅</span>
+                Payment frequency: every {formData.billing_interval_days} days
+              </div>
             </div>
 
             {/* Start Date */}
