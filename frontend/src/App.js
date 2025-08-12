@@ -7806,6 +7806,10 @@ function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
 
   useEffect(() => {
+    // Debug verification for storage methods
+    console.log('[storage] has getSetting:', typeof gymStorage.getSetting);
+    console.log('[storage] has saveSetting:', typeof gymStorage.saveSetting);
+    
     // Force remove loading screen with stronger methods
     const loadingScreen = document.getElementById('loading-screen');
     if (loadingScreen) {
