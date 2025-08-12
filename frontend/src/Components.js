@@ -470,7 +470,7 @@ const ClientManagement = () => {
           className="border rounded px-3 py-2 bg-blue-500 text-white hover:bg-blue-600" 
           onClick={() => { 
             setEditing(null); 
-            setForm({ name:"", email:"", phone:"" }); 
+            setForm({ name:"", email:"", phone:"", planId:"" }); 
             setIsOpen(true); 
           }}
         >
