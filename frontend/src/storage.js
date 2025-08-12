@@ -31,6 +31,12 @@ class GymStorage {
         ensureStore('statusChecks', { keyPath: 'id' });
         ensureStore('audit', { keyPath: 'id' });
         
+        // Create settings store if missing
+        if (!db.objectStoreNames.contains('settings')) {
+          const s = db.createObjectStore('settings', { keyPath: 'name' });
+          s.createIndex('name', 'name', { unique: true });
+        }
+        
         // Create or update plans store with active index
         let plansStore;
         if (!db.objectStoreNames.contains('plans')) {
