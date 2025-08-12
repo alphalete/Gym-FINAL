@@ -387,6 +387,61 @@ const Dashboard = () => {
           <p className="text-gray-500 text-sm">No recent activity</p>
         )}
       </div>
+
+      {/* Due Today */}
+      {dueToday.length > 0 && (
+        <div className="bg-white rounded-xl border p-4">
+          <h3 className="font-semibold mb-2 text-blue-600">Due Today ({dueToday.length})</h3>
+          <div className="space-y-2">
+            {dueToday.map(m => (
+              <div key={m.id} className="flex items-center justify-between border rounded-xl px-3 py-2">
+                <div>
+                  <div className="font-medium">{m.name || "(no name)"}</div>
+                  <div className="text-xs text-gray-500">{m.planName ? `${m.planName} • $${Number(m.fee||0).toFixed(2)}` : "No plan"}</div>
+                </div>
+                <div className="flex gap-2">
+                  <button type="button" className="text-xs border rounded px-2 py-1" onClick={()=>goRecordPayment(m)}>Record</button>
+                  <button type="button" className="text-xs border rounded px-2 py-1"
+                    onClick={()=> openWhatsApp(buildReminder(m), m.phone)}>WhatsApp</button>
+                  <button type="button" className="text-xs border rounded px-2 py-1"
+                    onClick={()=> openEmail("Payment Reminder", buildReminder(m), m.email)}>Email</button>
+                  <button type="button" className="text-xs border rounded px-2 py-1"
+                    onClick={()=> shareFallback(buildReminder(m))}>Share</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Overdue */}
+      {overdue.length > 0 && (
+        <div className="bg-white rounded-xl border p-4">
+          <h3 className="font-semibold mb-2 text-red-600">Overdue ({overdue.length})</h3>
+          <div className="space-y-2">
+            {overdue.map(m => (
+              <div key={m.id} className="flex items-center justify-between border rounded-xl px-3 py-2">
+                <div>
+                  <div className="font-medium">{m.name || "(no name)"}</div>
+                  <div className="text-xs text-gray-500">
+                    {m.planName ? `${m.planName} • $${Number(m.fee||0).toFixed(2)}` : "No plan"}
+                    {m.nextDue && ` • Due: ${m.nextDue}`}
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button type="button" className="text-xs border rounded px-2 py-1" onClick={()=>goRecordPayment(m)}>Record</button>
+                  <button type="button" className="text-xs border rounded px-2 py-1"
+                    onClick={()=> openWhatsApp(buildReminder(m), m.phone)}>WhatsApp</button>
+                  <button type="button" className="text-xs border rounded px-2 py-1"
+                    onClick={()=> openEmail("Payment Reminder", buildReminder(m), m.email)}>Email</button>
+                  <button type="button" className="text-xs border rounded px-2 py-1"
+                    onClick={()=> shareFallback(buildReminder(m))}>Share</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
