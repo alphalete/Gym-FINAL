@@ -29,6 +29,28 @@ const Dashboard = () => {
     })();
   }, []);
 
+  // Recompute page on scroll (mobile only)
+  React.useEffect(() => {
+    const el = kpiScrollerRef.current;
+    if (!el) return;
+    const onScroll = () => {
+      const w = el.getBoundingClientRect().width || el.clientWidth || 1;
+      const page = Math.round(el.scrollLeft / Math.max(1, w * 0.72)); // matches min-w 72%
+      setKpiPage(Math.max(0, Math.min(kpiCount - 1, page)));
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => el.removeEventListener('scroll', onScroll);
+  }, [kpiCount]);
+
+  // Snap to a page when a dot is tapped
+  function snapToKpi(idx) {
+    const el = kpiScrollerRef.current;
+    if (!el) return;
+    const w = el.getBoundingClientRect().width || el.clientWidth || 1;
+    const itemWidth = Math.max(1, w * 0.72); // same as min-w-[72%]
+    el.scrollTo({ left: itemWidth * idx, behavior: 'smooth' });
+  }
+
   const dueSoonDays = Number(settings.dueSoonDays ?? settings.reminderDays ?? 3) || 3;
 
   const parseISO = (s) => s ? new Date(s) : null;
