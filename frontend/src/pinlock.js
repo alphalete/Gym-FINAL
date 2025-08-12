@@ -2,8 +2,9 @@ import { getSetting, setSetting } from "./settingsStore";
 async function sha256Hex(str){ const enc=new TextEncoder().encode(str); const h=await crypto.subtle.digest("SHA-256",enc);
   return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,"0")).join(""); }
 export async function isPinEnabled(){ return !!(await getSetting("paymentsPinEnabled")); }
-export async function hasPin(){ const h=await getSetting("pinHash"); return typeof h==="string" && h.length>0; }
-export async function setNewPin(pin){ const hash=await sha256Hex(String(pin||"").trim()); await setSetting("pinHash",hash); }
+export function hasPin(){ try { return !!localStorage.getItem('__PIN__'); } catch { return false; } }
+export async function setNewPin(pin){ try { localStorage.setItem('__PIN__', String(pin||'')); return true; } catch { return false; } }
+export function requirePinIfEnabled(){ return true; } // placeholder hook used by components
 export async function verifyPin(pin){ const saved=await getSetting("pinHash"); if(!saved) return false; const hash=await sha256Hex(String(pin||"").trim()); return saved===hash; }
 export function promptPin({title="Enter PIN",subtitle="Confirm your PIN to proceed."}={}){
   return new Promise(resolve=>{
