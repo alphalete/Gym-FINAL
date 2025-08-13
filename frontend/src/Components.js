@@ -20,7 +20,7 @@ import {
   getInitials
 } from './utils/common';
 
-// Hook to load members from storage - prevents mockClients issues
+// Hook to load members from storage
 function useMembersFromStorage() {
   const [members, setMembers] = useState([]);
   useEffect(() => {
