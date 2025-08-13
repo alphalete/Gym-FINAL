@@ -86,7 +86,7 @@ export default function App(){
   return (
     <ErrorBoundary>
       <HashRouter>
-        <div className="min-h-screen bg-soft flex">
+        <div className="min-h-screen bg-slate-50 flex">
           <C.Sidebar />
           <main className="flex-1 min-w-0 pb-20 md:pb-4 md:ml-16">
             <Routes>
