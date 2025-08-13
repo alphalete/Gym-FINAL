@@ -47,6 +47,29 @@ function App() {
     const initializeApp = async () => {
       try {
         console.log('[App] Initializing storage...');
+        
+        // Force dismiss loading screen immediately
+        const forceHideLoading = () => {
+          try {
+            const loadingScreen = document.getElementById('loading-screen');
+            if (loadingScreen) {
+              loadingScreen.style.display = 'none';
+              loadingScreen.style.visibility = 'hidden';
+              loadingScreen.style.opacity = '0';
+              loadingScreen.style.zIndex = '-9999';
+              console.log('[App] 🚀 Loading screen force dismissed');
+            }
+            if (typeof window.dismissLoadingScreen === 'function') {
+              window.dismissLoadingScreen();
+            }
+          } catch (e) {
+            console.warn('[App] Loading screen dismissal error:', e);
+          }
+        };
+        
+        // Immediate dismissal
+        forceHideLoading();
+        
         await gymStorage.init();
         await gymStorage.persistHint();
         
@@ -60,27 +83,29 @@ function App() {
         console.log('[App] Storage initialized successfully');
         setIsInitialized(true);
         
-        // Ensure loading screen is hidden when app is ready
-        setTimeout(() => {
-          const loadingScreen = document.getElementById('loading-screen');
-          if (loadingScreen) {
-            loadingScreen.style.display = 'none';
-            console.log('[App] ✅ Loading screen dismissed - App fully ready');
-          }
-        }, 100);
+        // Final dismissal attempts
+        setTimeout(forceHideLoading, 100);
+        setTimeout(forceHideLoading, 500);
+        setTimeout(forceHideLoading, 1000);
         
       } catch (error) {
         console.error('[App] Failed to initialize storage:', error);
         setIsInitialized(true); // Continue even if storage fails
         
-        // Hide loading screen even on error
-        setTimeout(() => {
-          const loadingScreen = document.getElementById('loading-screen');
-          if (loadingScreen) {
-            loadingScreen.style.display = 'none';
-            console.log('[App] Loading screen dismissed (with error)');
+        // Ensure loading screen is hidden even on error
+        const forceHideOnError = () => {
+          try {
+            const loadingScreen = document.getElementById('loading-screen');
+            if (loadingScreen) {
+              loadingScreen.style.display = 'none';
+              loadingScreen.remove();
+            }
+          } catch (e) {
+            console.warn('Error hiding loading screen:', e);
           }
-        }, 100);
+        };
+        
+        setTimeout(forceHideOnError, 100);
       }
     };
 
