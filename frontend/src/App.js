@@ -59,9 +59,28 @@ function App() {
         
         console.log('[App] Storage initialized successfully');
         setIsInitialized(true);
+        
+        // Ensure loading screen is hidden when app is ready
+        setTimeout(() => {
+          const loadingScreen = document.getElementById('loading-screen');
+          if (loadingScreen) {
+            loadingScreen.style.display = 'none';
+            console.log('[App] ✅ Loading screen dismissed - App fully ready');
+          }
+        }, 100);
+        
       } catch (error) {
         console.error('[App] Failed to initialize storage:', error);
         setIsInitialized(true); // Continue even if storage fails
+        
+        // Hide loading screen even on error
+        setTimeout(() => {
+          const loadingScreen = document.getElementById('loading-screen');
+          if (loadingScreen) {
+            loadingScreen.style.display = 'none';
+            console.log('[App] Loading screen dismissed (with error)');
+          }
+        }, 100);
       }
     };
 
