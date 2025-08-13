@@ -1227,16 +1227,53 @@ const ClientManagement = () => {
 };
 
 // --- Reports ---
-const Reports = () => (
-  <div className="p-4">
-    <h1 className="text-2xl font-semibold mb-4">Reports</h1>
-    <div className="text-center py-8 text-gray-500">
-      <div className="text-4xl mb-2">📊</div>
-      <div>Reports Coming Soon</div>
-      <div className="text-sm">Revenue and member analytics will be available here.</div>
+const Reports = () => {
+  const membersR = useMembersFromStorage();
+  const [payments, setPayments] = useState([]);
+  
+  useEffect(() => {
+    (async () => {
+      try {
+        const paymentsList = await (gymStorage?.getAllPayments?.() ?? storageNamed.getAllPayments?.() ?? []);
+        setPayments(paymentsList);
+      } catch (e) {
+        console.error("[Reports] Failed to load payments:", e);
+        setPayments([]);
+      }
+    })();
+  }, []);
+  
+  const totalRevenue = payments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+  const activeMembers = membersR.filter(m => m.payment_status !== 'cancelled').length;
+  const totalMembers = membersR.length;
+  
+  return (
+    <div className="p-4">
+      <h1 className="text-2xl font-semibold mb-4">Reports</h1>
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="bg-white border rounded-2xl p-4">
+          <div className="text-2xl font-bold text-primary">{totalMembers}</div>
+          <div className="text-sm text-gray-600">Total Members</div>
+        </div>
+        <div className="bg-white border rounded-2xl p-4">
+          <div className="text-2xl font-bold text-success">{activeMembers}</div>
+          <div className="text-sm text-gray-600">Active Members</div>
+        </div>
+        <div className="bg-white border rounded-2xl p-4">
+          <div className="text-2xl font-bold text-primary">{formatCurrency(totalRevenue)}</div>
+          <div className="text-sm text-gray-600">Total Revenue</div>
+        </div>
+      </div>
+      
+      <div className="text-center py-8 text-gray-500">
+        <div className="text-4xl mb-2">📊</div>
+        <div>Detailed Reports Coming Soon</div>
+        <div className="text-sm">Advanced analytics and reporting features will be available here.</div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // --- Settings ---
 const Settings = () => {
