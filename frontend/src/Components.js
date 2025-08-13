@@ -172,7 +172,7 @@ const PaymentComponent = () => {
   );
 
   // Get active clients for payment recording
-  const activeClients = clients.filter(c => c.status === 'Active' || !c.status);
+  const activeClients = membersPT.filter(c => c.status === 'Active' || !c.status);
 
   // Calculate stats
   const todayISO = new Date().toISOString().slice(0, 10);
