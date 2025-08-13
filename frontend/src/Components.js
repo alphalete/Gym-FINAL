@@ -68,20 +68,6 @@ function signalChanged(what='') {
 }
 // ---------- /Utilities ----------
 
-// Navigation helper function (enhanced version)
-function navigate(tab) {
-  const t = String(tab).toLowerCase();
-  // Update hash first (works even if globals aren't ready):
-  try { location.hash = `#tab=${t}`; } catch {}
-  if (typeof window.setActiveTab === 'function') {
-    window.setActiveTab(t);
-  } else {
-    window.dispatchEvent(new CustomEvent('NAVIGATE', { detail: t }));
-  }
-  // Navigation logging
-  try { console.log('[NAV]', t); } catch {}
-}
-
 /* === Preview Helper (added) === */
 function computeNextDuePreview(currentNextDueISO, monthsCovered) {
   return advanceNextDueByCycles(currentNextDueISO, monthsCovered);
