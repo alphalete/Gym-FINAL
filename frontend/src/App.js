@@ -81,7 +81,7 @@ export default function App(){
               <Routes>
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/dashboard" element={<C.Dashboard />} />
-                <Route path="/members" element={<ClientOr(C.ClientManagement) />} />
+                <Route path="/members" element={<C.ClientManagement />} />
                 <Route path="/payments" element={<C.PaymentTracking />} />
                 <Route path="/plans" element={<C.MembershipManagement />} />
                 <Route path="/reports" element={<C.Reports />} />
