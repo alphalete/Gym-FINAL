@@ -631,68 +631,54 @@ const Dashboard = () => {
 
         {/* Alerts Section */}
         {alerts.length > 0 && (
-          <div className="mb-6 sm:mb-8">
-            <div className="card">
-              <div className="card-header">
-                <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center">
+          <div className="mb-6">
+            <div className="bg-card rounded-xl shadow-sm">
+              <div className="p-4 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
                   <span className="text-warning mr-2">⚠️</span>
                   Payment Alerts ({alerts.length})
                 </h3>
               </div>
-              <div className="card-body">
+              <div className="p-4">
                 <div className="space-y-3">
                   {alerts.map(member => {
                     const status = getPaymentStatus(member);
                     const isOverdue = overdue.includes(member);
                     
                     return (
-                      <div key={member.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors space-y-3 sm:space-y-0">
-                        <div className="flex items-center space-x-3 sm:space-x-4">
+                      <div key={member.id} className="bg-card rounded-xl shadow-sm px-3 py-2 md:p-3 flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer">
+                        <div className="flex items-center space-x-3">
                           {/* Avatar */}
-                          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary rounded-full flex items-center justify-center text-white font-medium text-sm">
+                          <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600">
                             {getInitials(member.name)}
                           </div>
                           
                           {/* Member Info */}
-                          <div className="flex-1">
-                            <div className="font-medium text-gray-900 text-sm sm:text-base">{member.name || "(No name)"}</div>
-                            <div className="text-xs sm:text-sm text-gray-500 flex flex-col sm:flex-row sm:items-center sm:space-x-2">
-                              <span>{member.planName ? `${member.planName} • ${formatCurrency(member.fee)}` : "No plan"}</span>
-                              <span className="hidden sm:inline">•</span>
-                              <span className={isOverdue ? 'text-danger font-medium' : 'text-warning font-medium'}>
+                          <div>
+                            <div className="font-medium text-gray-900">{member.name || "(No name)"}</div>
+                            <div className="text-sm text-gray-500">
+                              {member.planName ? `${member.planName} • ${formatCurrency(member.fee)}` : "No plan"} • 
+                              <span className={isOverdue ? 'text-danger font-medium ml-1' : 'text-warning font-medium ml-1'}>
                                 Due: {formatDate(member.nextDue, false)}
                               </span>
                             </div>
                           </div>
-                          
-                          {/* Status Badge */}
-                          <span className={`badge ${status.class} text-xs`}>
-                            {status.label}
-                          </span>
                         </div>
                         
-                        {/* Action Buttons */}
-                        <div className="flex flex-wrap gap-2">
+                        {/* Status Badge and Actions */}
+                        <div className="flex items-center space-x-2">
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                            isOverdue ? 'bg-danger/10 text-danger' : 'bg-warning/10 text-warning'
+                          }`}>
+                            {status.label}
+                          </span>
                           <button 
                             type="button" 
-                            className="btn btn-sm btn-primary flex-1 sm:flex-none" 
+                            className="p-2 rounded-lg hover:bg-soft transition-colors" 
                             onClick={() => goRecordPayment(member)}
+                            aria-label="Record payment"
                           >
-                            Record Payment
-                          </button>
-                          <button 
-                            type="button" 
-                            className="btn btn-sm btn-outline flex-1 sm:flex-none" 
-                            onClick={() => openWhatsApp(buildReminder(member), member.phone)}
-                          >
-                            WhatsApp
-                          </button>
-                          <button 
-                            type="button" 
-                            className="btn btn-sm btn-outline flex-1 sm:flex-none" 
-                            onClick={() => openEmail("Payment Reminder", buildReminder(member), member.email)}
-                          >
-                            Email
+                            <span className="text-lg">💳</span>
                           </button>
                         </div>
                       </div>
