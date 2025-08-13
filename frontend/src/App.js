@@ -1,182 +1,102 @@
-// frontend/src/App.js — GoGym4U Theme Integration
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import "./App.css";
+import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import Components from "./Components";
 import gymStorage from "./storage";
-import { Navigation } from "./components/Navigation";
-import "./App.css";
+import ErrorBoundary from "./ErrorBoundary";
 
-// Error Boundary
-function ErrorBoundary({ children }) {
-  const [err, setErr] = useState(null);
+const Fallback = () => (
+  <div className="min-h-screen flex items-center justify-center">
+    <div className="animate-pulse text-gray-600">Loading…</div>
+  </div>
+);
+
+// Be defensive: Components default-exports an object of subcomponents
+const safe = (C, name) => (C && C[name]) || (() => <div className="p-4">Missing component: {name}</div>);
+
+export default function App(){
+  const [ready, setReady] = useState(false);
+  const [authed, setAuthed] = useState(true); // if you gate by login, wire true/false accordingly
   
+  const C = useMemo(() => ({
+    Sidebar: safe(Components, "Sidebar"),
+    Dashboard: safe(Components, "Dashboard"),
+    ClientManagement: safe(Components, "ClientManagement"),
+    PaymentTracking: safe(Components, "PaymentTracking"),
+    MembershipManagement: safe(Components, "MembershipManagement"),
+    Reports: safe(Components, "Reports"),
+    Settings: safe(Components, "Settings"),
+    LoginForm: safe(Components, "LoginForm"),
+    InstallPrompt: safe(Components, "InstallPrompt"),
+  }), [Components]);
+
   useEffect(() => {
-    const handleError = (event) => {
-      setErr(event.error);
-    };
-    
-    window.addEventListener('error', handleError);
-    return () => window.removeEventListener('error', handleError);
-  }, []);
-  
-  if (err) {
-    return (
-      <div className="p-4 text-sm">
-        <div className="font-semibold mb-2">Something went wrong.</div>
-        <pre className="text-xs whitespace-pre-wrap bg-gray-100 p-2 rounded">{String(err?.stack || err)}</pre>
-        <button 
-          type="button" 
-          className="mt-2 btn btn-outline" 
-          onClick={() => location.reload()}
-        >
-          Reload
-        </button>
-      </div>
-    );
-  }
-  
-  return children;
-}
-
-// Main App Component with GoGym4U Navigation
-function App() {
-  const [currentTab, setCurrentTab] = useState('dashboard');
-  const [isInitialized, setIsInitialized] = useState(false);
-
-  // Initialize storage and set up app
-  useEffect(() => {
-    const initializeApp = async () => {
+    let cancelled = false;
+    (async () => {
       try {
-        console.log('[App] Initializing storage...');
-        
-        // Force dismiss loading screen immediately
-        const forceHideLoading = () => {
-          try {
+        console.log("[App] Initializing storage...");
+        // Init IndexedDB (with fallback in storage.js)
+        await gymStorage.init?.();
+        await gymStorage.persistHint?.();
+        console.log("[App] Storage initialized successfully");
+      } catch (e) {
+        console.warn("[App] storage init failed (continuing):", e);
+      } finally {
+        if (!cancelled) {
+          setReady(true);
+          // Dismiss HTML loading screen now that React is ready
+          setTimeout(() => {
             const loadingScreen = document.getElementById('loading-screen');
             if (loadingScreen) {
               loadingScreen.style.display = 'none';
-              loadingScreen.style.visibility = 'hidden';
-              loadingScreen.style.opacity = '0';
-              loadingScreen.style.zIndex = '-9999';
-              console.log('[App] 🚀 Loading screen force dismissed');
+              console.log("[App] HTML loading screen dismissed");
             }
-            if (typeof window.dismissLoadingScreen === 'function') {
-              window.dismissLoadingScreen();
-            }
-          } catch (e) {
-            console.warn('[App] Loading screen dismissal error:', e);
-          }
-        };
-        
-        // Immediate dismissal
-        forceHideLoading();
-        
-        await gymStorage.init();
-        await gymStorage.persistHint();
-        
-        // Run self-test to ensure storage works
-        try {
-          await gymStorage.__storageSelfTest?.();
-        } catch (testError) {
-          console.warn('[App] Storage self-test failed:', testError);
+          }, 100);
         }
-        
-        console.log('[App] Storage initialized successfully');
-        setIsInitialized(true);
-        
-        // Final dismissal attempts
-        setTimeout(forceHideLoading, 100);
-        setTimeout(forceHideLoading, 500);
-        setTimeout(forceHideLoading, 1000);
-        
-      } catch (error) {
-        console.error('[App] Failed to initialize storage:', error);
-        setIsInitialized(true); // Continue even if storage fails
-        
-        // Ensure loading screen is hidden even on error
-        const forceHideOnError = () => {
-          try {
-            const loadingScreen = document.getElementById('loading-screen');
-            if (loadingScreen) {
-              loadingScreen.style.display = 'none';
-              loadingScreen.remove();
-            }
-          } catch (e) {
-            console.warn('Error hiding loading screen:', e);
-          }
-        };
-        
-        setTimeout(forceHideOnError, 100);
       }
-    };
-
-    initializeApp();
+    })();
+    
+    // (Optional) During dev, avoid stale SW keeping old broken bundles
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.getRegistrations?.().then(rs => {
+        rs.forEach(r => {
+          if (process.env.NODE_ENV !== "production") r.unregister();
+        });
+      }).catch(()=>{});
+    }
+    return () => { cancelled = true; };
   }, []);
 
-  // Handle navigation
-  useEffect(() => {
-    // Get initial tab from hash
-    const hash = window.location.hash;
-    if (hash.includes('tab=')) {
-      const tab = hash.split('tab=')[1];
-      setCurrentTab(tab);
-    }
-
-    // Listen for navigation events
-    const handleNavigate = (event) => {
-      const tab = event.detail;
-      setCurrentTab(tab);
-      window.location.hash = `#tab=${tab}`;
-    };
-
-    window.addEventListener('NAVIGATE', handleNavigate);
-    return () => window.removeEventListener('NAVIGATE', handleNavigate);
-  }, []);
-
-  // Render loading state while initializing
-  if (!isInitialized) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <div className="text-gray-600">Initializing GoGym4U...</div>
-        </div>
-      </div>
-    );
-  }
-
-  // Map tab names to components
-  const renderCurrentComponent = () => {
-    switch (currentTab) {
-      case 'dashboard':
-      case 'home':
-        return <Components.Dashboard />;
-      case 'clients':
-      case 'members':
-        return <Components.ClientManagement />;
-      case 'payments':
-        return <Components.PaymentTracking />;
-      case 'plans':
-        return <Components.MembershipManagement />;
-      case 'settings':
-        return <Components.Settings />;
-      case 'reports':
-        return <Components.Reports />;
-      default:
-        return <Components.Dashboard />;
-    }
-  };
+  if (!ready) return <Fallback />;
 
   return (
     <ErrorBoundary>
-      <div className="App">
-        <Navigation>
-          <div className="min-h-screen bg-gray-50">
-            {renderCurrentComponent()}
+      <HashRouter>
+        {!authed ? (
+          <C.LoginForm onLogin={() => setAuthed(true)} />
+        ) : (
+          <div className="min-h-screen bg-gray-50 flex">
+            <C.Sidebar />
+            <main className="flex-1 min-w-0">
+              <Routes>
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/dashboard" element={<C.Dashboard />} />
+                <Route path="/members" element={<ClientOr(C.ClientManagement) />} />
+                <Route path="/payments" element={<C.PaymentTracking />} />
+                <Route path="/plans" element={<C.MembershipManagement />} />
+                <Route path="/reports" element={<C.Reports />} />
+                <Route path="/settings" element={<C.Settings />} />
+                <Route path="*" element={<div className="p-4">Not found</div>} />
+              </Routes>
+            </main>
           </div>
-        </Navigation>
-      </div>
+        )}
+      </HashRouter>
     </ErrorBoundary>
   );
 }
 
-export default App;
+function ClientOr(Component){
+  // little wrapper in case list needs suspense later
+  return <Component />;
+}
