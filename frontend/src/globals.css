@@ -95,11 +95,11 @@
 /* Input Components */
 @layer components {
   .input {
-    @apply block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm;
+    @apply block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-600 focus:ring-primary-600 sm:text-sm;
   }
   
   .input-error {
-    @apply border-danger-300 focus:border-danger focus:ring-danger;
+    @apply border-red-300 focus:border-red-500 focus:ring-red-500;
   }
   
   .input-group {
