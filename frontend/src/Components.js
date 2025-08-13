@@ -551,6 +551,7 @@ const ClientManagement = () => {
   const [isAddingClient, setIsAddingClient] = useState(false);
   const [editingClient, setEditingClient] = useState(null);
   const [form, setForm] = useState({ name:"", email:"", phone:"", planId:"" });
+  const [searchTerm, setSearchTerm] = useState("");
 
   async function loadMembersAndPlans(){
     try {
@@ -611,116 +612,334 @@ const ClientManagement = () => {
     loadMembersAndPlans();
   }
 
+  // Filter clients based on search term
+  const filteredClients = clients.filter(client => 
+    !searchTerm || 
+    (client.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (client.email || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (client.phone || "").includes(searchTerm) ||
+    (client.planName || "").toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // GoGym4U loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <div className="text-gray-600">Loading Members...</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-4 space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Members</h1>
-        <button 
-          type="button" 
-          className="border rounded px-3 py-2 bg-blue-500 text-white hover:bg-blue-600" 
-          onClick={() => { 
-            setEditingClient(null); 
-            setForm({ name:"", email:"", phone:"", planId:"" }); 
-            setIsAddingClient(true); 
-          }}
-        >
-          + Add Member
-        </button>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header Section */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="px-6 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="page-title text-primary">Members</h1>
+              <p className="page-subtitle">Manage gym memberships and member information</p>
+            </div>
+            <button 
+              type="button" 
+              className="btn btn-primary"
+              onClick={() => { 
+                setEditingClient(null); 
+                setForm({ name:"", email:"", phone:"", planId:"" }); 
+                setIsAddingClient(true); 
+              }}
+            >
+              + Add Member
+            </button>
+          </div>
+        </div>
       </div>
 
-      {loading ? (
-        <div className="text-center py-8">Loading...</div>
-      ) : (
-        <div className="space-y-2">
-          {clients.map(c => (
-            <div key={c.id} className="flex items-center justify-between border rounded-xl px-3 py-2">
-              <div>
-                <div className="font-medium">{c.name || "(no name)"}</div>
-                <div className="text-xs text-gray-500">
-                  {c.email || "—"} • {c.phone || "—"} • {c.status || "Active"}
-                  {c.joinDate && ` • Joined ${c.joinDate}`}
+      <div className="px-6 py-6">
+        {/* Search and Stats */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
+          {/* Search Bar */}
+          <div className="lg:col-span-2">
+            <div className="relative">
+              <div className="input-group">
+                <div className="input-group-text">
+                  <span>🔍</span>
                 </div>
-                {c.planName
-                  ? <div className="text-xs text-gray-500">{c.planName} • ${Number(c.fee||0).toFixed(2)} / {c.cycleDays||30}d</div>
-                  : <div className="text-xs text-gray-400">No plan</div>}
-                {c.nextDue && <div className="text-xs">Next due: {c.nextDue}</div>}
-              </div>
-              <div className="flex gap-2">
-                <button 
-                  type="button" 
-                  className="text-xs border rounded px-2 py-1 hover:bg-gray-50" 
-                  onClick={() => { 
-                    setEditingClient(c); 
-                    setForm({ name:c.name||"", email:c.email||"", phone:c.phone||"", planId: c.planId || "" }); 
-                    setIsAddingClient(true); 
-                  }}
-                >
-                  Edit
-                </button>
-                <button 
-                  type="button" 
-                  className="text-xs border rounded px-2 py-1" 
-                  onClick={() => toggleStatus(c)}
-                >
-                  {c.status === "Active" ? "Deactivate" : "Activate"}
-                </button>
+                <input
+                  type="text"
+                  className="input pl-10"
+                  placeholder="Search members by name, email, phone, or plan..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
               </div>
             </div>
-          ))}
-        </div>
-      )}
+          </div>
 
-      {isAddingClient && (
-        <div className="fixed inset-0 bg-black/20 z-[999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-4 w-full max-w-md space-y-3">
-            <div className="text-lg font-semibold">{editingClient ? "Edit Member" : "Add Member"}</div>
-            <form onSubmit={(e)=>e.preventDefault()}>
-              <input 
-                className="border rounded px-3 py-2 w-full mb-3" 
-                placeholder="Full Name" 
-                value={form.name} 
-                onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-              />
-              <input 
-                className="border rounded px-3 py-2 w-full mb-3" 
-                type="email"
-                placeholder="Email Address" 
-                value={form.email} 
-                onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-              />
-              <input 
-                className="border rounded px-3 py-2 w-full mb-3" 
-                type="tel"
-                placeholder="Phone Number" 
-                value={form.phone} 
-                onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
-              />
-              <select className="border rounded px-3 py-2 w-full mb-3" value={form.planId}
-                onChange={e=>setForm(f=>({ ...f, planId:e.target.value }))}>
-                <option value="">No plan</option>
-                {plans.map(p => (
-                  <option key={p.id} value={p.id}>
-                    {p.name} — ${Number(p.price||0).toFixed(2)} / {p.cycleDays||30}d
-                  </option>
-                ))}
-              </select>
-              <div className="flex justify-end gap-2 pt-2">
-                <button 
-                  type="button" 
-                  className="border rounded px-3 py-2 hover:bg-gray-50" 
-                  onClick={() => setIsAddingClient(false)}
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="button" 
-                  className="border rounded px-3 py-2 bg-blue-500 text-white hover:bg-blue-600" 
-                  onClick={save}
-                >
-                  {editingClient ? "Save Changes" : "Add Member"}
-                </button>
+          {/* Quick Stats */}
+          <div className="lg:col-span-2">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="stat-card bg-primary text-white text-center">
+                <div className="stat-value">{clients.filter(c => c.status === 'Active').length}</div>
+                <div className="stat-label text-primary-100">Active</div>
               </div>
-            </form>
+              <div className="stat-card bg-gray-600 text-white text-center">
+                <div className="stat-value">{clients.length}</div>
+                <div className="stat-label text-gray-100">Total</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Members List */}
+        <div className="card">
+          <div className="card-header">
+            <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+              <span className="text-primary mr-2">👥</span>
+              Members ({filteredClients.length})
+            </h3>
+          </div>
+          <div className="card-body">
+            {filteredClients.length > 0 ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+                {filteredClients.map(client => {
+                  const status = getPaymentStatus(client);
+                  
+                  return (
+                    <div key={client.id} className="card hover:shadow-md transition-shadow duration-200">
+                      <div className="card-body">
+                        {/* Member Header */}
+                        <div className="flex items-center space-x-3 mb-4">
+                          {/* Avatar */}
+                          <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white font-medium text-lg">
+                            {getInitials(client.name)}
+                          </div>
+                          
+                          {/* Basic Info */}
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-gray-900 truncate">{client.name || "(No name)"}</div>
+                            <div className="text-sm text-gray-500 flex items-center space-x-1">
+                              <span className={`badge ${status.class}`}>{status.label}</span>
+                              <span className={`badge ${client.status === 'Active' ? 'badge-success' : 'badge-gray'}`}>
+                                {client.status || 'Active'}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Contact Info */}
+                        <div className="space-y-2 mb-4">
+                          <div className="flex items-center text-sm text-gray-600">
+                            <span className="w-5">📧</span>
+                            <span className="truncate">{client.email || "No email"}</span>
+                          </div>
+                          <div className="flex items-center text-sm text-gray-600">
+                            <span className="w-5">📱</span>
+                            <span>{client.phone || "No phone"}</span>
+                          </div>
+                          <div className="flex items-center text-sm text-gray-600">
+                            <span className="w-5">📅</span>
+                            <span>Joined {formatDate(client.joinDate)}</span>
+                          </div>
+                        </div>
+
+                        {/* Plan Info */}
+                        {client.planName ? (
+                          <div className="bg-gray-50 rounded-lg p-3 mb-4">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <div className="font-medium text-gray-900">{client.planName}</div>
+                                <div className="text-sm text-gray-600">{formatCurrency(client.fee)} / {client.cycleDays || 30} days</div>
+                              </div>
+                              <span className="badge badge-info">Plan</span>
+                            </div>
+                            {client.nextDue && (
+                              <div className="text-sm text-gray-600 mt-2">
+                                Next due: {formatDate(client.nextDue, false)}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="bg-gray-50 rounded-lg p-3 mb-4 text-center text-gray-500">
+                            <div className="text-2xl mb-1">📋</div>
+                            <div className="text-sm">No plan assigned</div>
+                          </div>
+                        )}
+
+                        {/* Action Buttons */}
+                        <div className="flex space-x-2">
+                          <button 
+                            type="button" 
+                            className="btn btn-sm btn-outline flex-1"
+                            onClick={() => { 
+                              setEditingClient(client); 
+                              setForm({ 
+                                name: client.name||"", 
+                                email: client.email||"", 
+                                phone: client.phone||"", 
+                                planId: client.planId || "" 
+                              }); 
+                              setIsAddingClient(true); 
+                            }}
+                          >
+                            Edit
+                          </button>
+                          <button 
+                            type="button" 
+                            className={`btn btn-sm flex-1 ${client.status === "Active" ? 'btn-warning' : 'btn-success'}`}
+                            onClick={() => toggleStatus(client)}
+                          >
+                            {client.status === "Active" ? "Deactivate" : "Activate"}
+                          </button>
+                        </div>
+
+                        {/* Quick Action Buttons for Active Members */}
+                        {client.status === 'Active' && (
+                          <div className="flex space-x-2 mt-2">
+                            <button 
+                              type="button" 
+                              className="btn btn-sm btn-primary flex-1"
+                              onClick={() => {
+                                localStorage.setItem("pendingPaymentMemberId", String(client.id));
+                                navigate('payments');
+                              }}
+                            >
+                              Record Payment
+                            </button>
+                            <button 
+                              type="button" 
+                              className="btn btn-sm btn-outline"
+                              onClick={() => openWhatsApp(buildReminder(client), client.phone)}
+                            >
+                              WhatsApp
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                {clients.length === 0 ? (
+                  <>
+                    <div className="text-6xl mb-4">👥</div>
+                    <div className="text-xl font-medium text-gray-900 mb-2">No Members Yet</div>
+                    <div className="text-gray-500 mb-6">Add your first gym member to get started</div>
+                    <button 
+                      type="button" 
+                      className="btn btn-primary"
+                      onClick={() => { 
+                        setEditingClient(null); 
+                        setForm({ name:"", email:"", phone:"", planId:"" }); 
+                        setIsAddingClient(true); 
+                      }}
+                    >
+                      + Add First Member
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-4xl mb-4">🔍</div>
+                    <div className="text-xl font-medium text-gray-900 mb-2">No Results Found</div>
+                    <div className="text-gray-500">Try adjusting your search terms</div>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Add/Edit Member Modal */}
+      {isAddingClient && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-header">
+              <h2 className="modal-title">
+                {editingClient ? "Edit Member" : "Add New Member"}
+              </h2>
+            </div>
+            
+            <div className="modal-body">
+              <form onSubmit={(e)=>e.preventDefault()} className="space-y-4">
+                <div className="form-group">
+                  <label className="form-label">Full Name *</label>
+                  <input 
+                    className="input" 
+                    placeholder="Enter member's full name" 
+                    value={form.name} 
+                    onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="form-group">
+                    <label className="form-label">Email Address</label>
+                    <input 
+                      className="input" 
+                      type="email"
+                      placeholder="member@example.com" 
+                      value={form.email} 
+                      onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Phone Number</label>
+                    <input 
+                      className="input" 
+                      type="tel"
+                      placeholder="(xxx) xxx-xxxx" 
+                      value={form.phone} 
+                      onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+                    />
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Membership Plan</label>
+                  <select 
+                    className="input" 
+                    value={form.planId}
+                    onChange={e=>setForm(f=>({ ...f, planId:e.target.value }))}
+                  >
+                    <option value="">Select a plan (optional)</option>
+                    {plans.map(p => (
+                      <option key={p.id} value={p.id}>
+                        {p.name} — {formatCurrency(p.price)} / {p.cycleDays||30} days
+                      </option>
+                    ))}
+                  </select>
+                  <div className="form-help">
+                    Choose a membership plan to automatically set billing schedule
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <div className="modal-footer">
+              <button 
+                type="button" 
+                className="btn btn-outline" 
+                onClick={() => setIsAddingClient(false)}
+              >
+                Cancel
+              </button>
+              <button 
+                type="button" 
+                className="btn btn-primary" 
+                onClick={save}
+                disabled={!form.name?.trim()}
+              >
+                {editingClient ? "Save Changes" : "Add Member"}
+              </button>
+            </div>
           </div>
         </div>
       )}
