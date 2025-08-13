@@ -219,20 +219,29 @@ const Dashboard = () => {
     };
   }, []);
 
-  // Show minimal loading indicator
+  // Show GoGym4U loading indicator
   if (loading) {
-    return <div className="p-4 text-sm text-gray-500">Loading…</div>;
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <div className="text-gray-600">Loading Dashboard...</div>
+        </div>
+      </div>
+    );
   }
 
-  // Simple KPIs
+  // Calculate KPIs with GoGym4U logic
   const activeCount = clients.filter(m => (m.status || "Active") === "Active").length;
+  const totalCount = clients.length;
   
-  const todayStr = todayISO;
+  // Due today calculation
   const dueToday = clients.filter(m => {
     if (m.status !== "Active") return false;
-    return m.nextDue === todayStr;
+    return m.nextDue === todayISO;
   });
   
+  // Overdue calculation
   const overdue = clients.filter(m => {
     if (m.status !== "Active") return false;
     const due = m.nextDue;
@@ -240,6 +249,19 @@ const Dashboard = () => {
     return new Date(due) < new Date(todayISO);
   });
 
+  // Due soon (next 3 days)
+  const dueSoon = clients.filter(m => {
+    if (m.status !== "Active" || overdue.includes(m) || dueToday.includes(m)) return false;
+    const due = m.nextDue;
+    if (!due) return false;
+    const dueDate = new Date(due);
+    const today = new Date(todayISO);
+    const diffTime = dueDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 0 && diffDays <= 3;
+  });
+
+  // Revenue calculation (MTD)
   const revenueMTD = payments
     .filter(p => p.paidOn && p.paidOn.slice(0,7) === todayISO.slice(0,7))
     .reduce((sum,p)=> sum + Number(p.amount||0), 0);
@@ -249,125 +271,233 @@ const Dashboard = () => {
     navigate('payments');
   }
 
+  // Get alerts (due today + overdue)
+  const alerts = [...dueToday, ...overdue].slice(0, 5); // Show max 5 alerts
+
   return (
-    <div className="p-4 space-y-4">
-      <h1 className="text-2xl font-bold">Dashboard</h1>
-      
-      {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border p-4">
-          <div className="text-2xl font-bold text-green-600">{activeCount}</div>
-          <div className="text-sm text-gray-600">Active Members</div>
-        </div>
-        
-        <div className="bg-white rounded-xl border p-4">
-          <div className="text-2xl font-bold text-blue-600">{dueToday.length}</div>
-          <div className="text-sm text-gray-600">Due Today</div>
-        </div>
-        
-        <div className="bg-white rounded-xl border p-4">
-          <div className="text-2xl font-bold text-red-600">{overdue.length}</div>
-          <div className="text-sm text-gray-600">Overdue</div>
-        </div>
-        
-        <div className="bg-white rounded-xl border p-4">
-          <div className="text-2xl font-bold text-purple-600">${revenueMTD.toFixed(2)}</div>
-          <div className="text-sm text-gray-600">Revenue (MTD)</div>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="flex flex-wrap gap-2">
-        <button type="button" className="rounded-xl bg-blue-500 text-white px-4 py-2" onClick={()=> navigate('payments')}>
-          + Add Payment
-        </button>
-        <button type="button" className="rounded-xl bg-green-500 text-white px-4 py-2" onClick={()=> navigate('clients')}>
-          + Add Member
-        </button>
-        <button type="button" className="rounded-xl border px-4 py-2">
-          Send Reminders
-        </button>
-      </div>
-
-      {/* Dev Inspector */}
-      <button type="button" className="fixed bottom-20 right-4 z-[9998] border rounded px-2 py-1 text-xs bg-white"
-        onClick={async()=>{
-          const m = (await gymStorage.getAll('members')).filter(x=>x.id!=='__selftest__');
-          const p = await gymStorage.getAll('payments');
-          alert(`Members: ${m.length}\nPayments: ${p.length}`);
-        }}>Debug</button>
-
-      {/* Recent Activity */}
-      <div className="bg-white rounded-xl border p-4">
-        <h3 className="font-semibold mb-2">Recent Activity</h3>
-        {payments.length > 0 ? (
-          <div className="space-y-2">
-            {payments.slice(-5).reverse().map(p => (
-              <div key={p.id} className="flex justify-between text-sm">
-                <span>Payment: ${p.amount}</span>
-                <span className="text-gray-500">{p.paidOn}</span>
-              </div>
-            ))}
+    <div className="min-h-screen bg-gray-50">
+      {/* Header Section */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="px-6 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="page-title text-primary">Dashboard</h1>
+              <p className="page-subtitle">Welcome back! Here's what's happening at your gym today.</p>
+            </div>
+            <div className="flex space-x-3">
+              <button 
+                type="button" 
+                className="btn btn-primary"
+                onClick={() => navigate('payments')}
+              >
+                + Record Payment
+              </button>
+              <button 
+                type="button" 
+                className="btn btn-secondary"
+                onClick={() => navigate('clients')}
+              >
+                + Add Member
+              </button>
+            </div>
           </div>
-        ) : (
-          <p className="text-gray-500 text-sm">No recent activity</p>
+        </div>
+      </div>
+
+      <div className="px-6 py-6">
+        {/* KPI Cards Grid - GoGym4U Style */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+          {/* Active Members */}
+          <div className="stat-card bg-primary text-white">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="stat-value">{activeCount}</div>
+                <div className="stat-label text-primary-100">Active Members</div>
+              </div>
+              <div className="text-primary-200 text-3xl">👥</div>
+            </div>
+          </div>
+
+          {/* Due Soon */}
+          <div className="stat-card bg-warning text-white">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="stat-value">{dueSoon.length}</div>
+                <div className="stat-label text-warning-100">Due Soon (3 days)</div>
+              </div>
+              <div className="text-warning-200 text-3xl">⏰</div>
+            </div>
+          </div>
+
+          {/* Overdue */}
+          <div className="stat-card bg-danger text-white">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="stat-value">{overdue.length}</div>
+                <div className="stat-label text-danger-100">Overdue</div>
+              </div>
+              <div className="text-danger-200 text-3xl">⚠️</div>
+            </div>
+          </div>
+
+          {/* Revenue */}
+          <div className="stat-card bg-success text-white">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="stat-value">{formatCurrency(revenueMTD)}</div>
+                <div className="stat-label text-success-100">Revenue (MTD)</div>
+              </div>
+              <div className="text-success-200 text-3xl">💰</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Alerts Section */}
+        {alerts.length > 0 && (
+          <div className="mb-8">
+            <div className="card">
+              <div className="card-header">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                  <span className="text-warning mr-2">⚠️</span>
+                  Payment Alerts ({alerts.length})
+                </h3>
+              </div>
+              <div className="card-body">
+                <div className="space-y-3">
+                  {alerts.map(member => {
+                    const status = getPaymentStatus(member);
+                    const isOverdue = overdue.includes(member);
+                    
+                    return (
+                      <div key={member.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div className="flex items-center space-x-4">
+                          {/* Avatar */}
+                          <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-medium">
+                            {getInitials(member.name)}
+                          </div>
+                          
+                          {/* Member Info */}
+                          <div>
+                            <div className="font-medium text-gray-900">{member.name || "(No name)"}</div>
+                            <div className="text-sm text-gray-500 flex items-center space-x-2">
+                              <span>{member.planName ? `${member.planName} • ${formatCurrency(member.fee)}` : "No plan"}</span>
+                              <span>•</span>
+                              <span className={isOverdue ? 'text-danger font-medium' : 'text-warning font-medium'}>
+                                Due: {formatDate(member.nextDue, false)}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          {/* Status Badge */}
+                          <span className={`badge ${status.class}`}>
+                            {status.label}
+                          </span>
+                        </div>
+                        
+                        {/* Action Buttons */}
+                        <div className="flex space-x-2">
+                          <button 
+                            type="button" 
+                            className="btn btn-sm btn-primary" 
+                            onClick={() => goRecordPayment(member)}
+                          >
+                            Record Payment
+                          </button>
+                          <button 
+                            type="button" 
+                            className="btn btn-sm btn-outline" 
+                            onClick={() => openWhatsApp(buildReminder(member), member.phone)}
+                          >
+                            WhatsApp
+                          </button>
+                          <button 
+                            type="button" 
+                            className="btn btn-sm btn-outline" 
+                            onClick={() => openEmail("Payment Reminder", buildReminder(member), member.email)}
+                          >
+                            Email
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
         )}
+
+        {/* Recent Activity */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Recent Payments */}
+          <div className="card">
+            <div className="card-header">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                <span className="text-primary mr-2">💳</span>
+                Recent Payments
+              </h3>
+            </div>
+            <div className="card-body">
+              {payments.length > 0 ? (
+                <div className="space-y-3">
+                  {payments.slice(-5).reverse().map(payment => (
+                    <div key={payment.id} className="flex items-center justify-between p-3 border border-gray-100 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-success-100 rounded-full flex items-center justify-center">
+                          <span className="text-success text-sm">💰</span>
+                        </div>
+                        <div>
+                          <div className="font-medium text-gray-900">{formatCurrency(payment.amount)}</div>
+                          <div className="text-sm text-gray-500">{formatDate(payment.paidOn)}</div>
+                        </div>
+                      </div>
+                      <span className="badge badge-success">Paid</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <div className="text-4xl mb-2">💳</div>
+                  <div>No payments yet</div>
+                  <div className="text-sm">Recent payments will appear here</div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Quick Stats */}
+          <div className="card">
+            <div className="card-header">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                <span className="text-info mr-2">📊</span>
+                Quick Stats
+              </h3>
+            </div>
+            <div className="card-body">
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Total Members</span>
+                  <span className="font-semibold">{totalCount}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Active Rate</span>
+                  <span className="font-semibold">{totalCount > 0 ? Math.round((activeCount / totalCount) * 100) : 0}%</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">This Month Revenue</span>
+                  <span className="font-semibold text-success">{formatCurrency(revenueMTD)}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Avg. Payment</span>
+                  <span className="font-semibold">
+                    {payments.length > 0 ? formatCurrency(payments.reduce((sum, p) => sum + Number(p.amount || 0), 0) / payments.length) : formatCurrency(0)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-
-      {/* Due Today */}
-      {dueToday.length > 0 && (
-        <div className="bg-white rounded-xl border p-4">
-          <h3 className="font-semibold mb-2 text-blue-600">Due Today ({dueToday.length})</h3>
-          <div className="space-y-2">
-            {dueToday.map(m => (
-              <div key={m.id} className="flex items-center justify-between border rounded-xl px-3 py-2">
-                <div>
-                  <div className="font-medium">{m.name || "(no name)"}</div>
-                  <div className="text-xs text-gray-500">{m.planName ? `${m.planName} • $${Number(m.fee||0).toFixed(2)}` : "No plan"}</div>
-                </div>
-                <div className="flex gap-2">
-                  <button type="button" className="text-xs border rounded px-2 py-1" onClick={()=>goRecordPayment(m)}>Record</button>
-                  <button type="button" className="text-xs border rounded px-2 py-1"
-                    onClick={()=> openWhatsApp(buildReminder(m), m.phone)}>WhatsApp</button>
-                  <button type="button" className="text-xs border rounded px-2 py-1"
-                    onClick={()=> openEmail("Payment Reminder", buildReminder(m), m.email)}>Email</button>
-                  <button type="button" className="text-xs border rounded px-2 py-1"
-                    onClick={()=> shareFallback(buildReminder(m))}>Share</button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Overdue */}
-      {overdue.length > 0 && (
-        <div className="bg-white rounded-xl border p-4">
-          <h3 className="font-semibold mb-2 text-red-600">Overdue ({overdue.length})</h3>
-          <div className="space-y-2">
-            {overdue.map(m => (
-              <div key={m.id} className="flex items-center justify-between border rounded-xl px-3 py-2">
-                <div>
-                  <div className="font-medium">{m.name || "(no name)"}</div>
-                  <div className="text-xs text-gray-500">
-                    {m.planName ? `${m.planName} • $${Number(m.fee||0).toFixed(2)}` : "No plan"}
-                    {m.nextDue && ` • Due: ${m.nextDue}`}
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <button type="button" className="text-xs border rounded px-2 py-1" onClick={()=>goRecordPayment(m)}>Record</button>
-                  <button type="button" className="text-xs border rounded px-2 py-1"
-                    onClick={()=> openWhatsApp(buildReminder(m), m.phone)}>WhatsApp</button>
-                  <button type="button" className="text-xs border rounded px-2 py-1"
-                    onClick={()=> openEmail("Payment Reminder", buildReminder(m), m.email)}>Email</button>
-                  <button type="button" className="text-xs border rounded px-2 py-1"
-                    onClick={()=> shareFallback(buildReminder(m))}>Share</button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 };
