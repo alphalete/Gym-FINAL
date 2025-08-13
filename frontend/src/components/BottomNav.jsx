@@ -25,8 +25,8 @@ const BottomNav = () => {
             onClick={() => navigate(item.path)}
             className={`flex flex-col items-center justify-center text-xs flex-1 h-16 transition-colors duration-200 ${
               isActive(item.path) 
-                ? 'text-primary' 
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'text-primary-600 font-semibold' 
+                : 'text-slate-500 hover:text-slate-700'
             }`}
           >
             <span className="text-xl mb-1">{item.icon}</span>
