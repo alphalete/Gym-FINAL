@@ -1425,7 +1425,7 @@ const MembershipManagement = () => {
   const getPlansWithMemberCount = () => {
     return plans.map(plan => ({
       ...plan,
-      memberCount: allMembers.filter(member => member.planId === plan.id).length
+      memberCount: allClientsMM.filter(member => member.planId === plan.id).length
     }));
   };
 
