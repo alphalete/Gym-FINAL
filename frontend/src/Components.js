@@ -552,26 +552,26 @@ const Dashboard = () => {
   const alerts = [...dueToday, ...overdue].slice(0, 5); // Show max 5 alerts
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-soft">
       {/* Header Section */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="px-4 sm:px-6 py-4 sm:py-6">
+      <div className="bg-card shadow-sm border-b">
+        <div className="container px-4 sm:px-6 py-4 sm:py-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-primary">Dashboard</h1>
-              <p className="text-sm sm:text-base text-gray-600 mt-1">Welcome back! Here's what's happening at your gym today.</p>
+              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-gray-900">Dashboard</h1>
+              <p className="text-sm md:text-base text-gray-500 leading-6">Welcome back! Here's what's happening at your gym today.</p>
             </div>
             <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
               <button 
                 type="button" 
-                className="btn btn-primary w-full sm:w-auto"
+                className="btn btn-primary w-full md:w-auto"
                 onClick={() => navigate('payments')}
               >
                 + Record Payment
               </button>
               <button 
                 type="button" 
-                className="btn btn-secondary w-full sm:w-auto"
+                className="btn btn-secondary w-full md:w-auto"
                 onClick={() => navigate('clients')}
               >
                 + Add Member
@@ -581,42 +581,50 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="px-4 sm:px-6 py-4 sm:py-6">
-        {/* KPI Cards Grid - Fixed for Mobile */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
+      <div className="container px-4 sm:px-6 py-4 sm:py-6">
+        {/* KPI Cards Grid - Polished GoGym4U Style */}
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4 mb-6">
           {/* Active Members */}
-          <div className="stat-card bg-primary text-white">
-            <div className="flex flex-col items-center text-center p-3 sm:p-4">
-              <div className="text-2xl sm:text-3xl mb-1">👥</div>
-              <div className="text-lg sm:text-2xl font-bold">{activeCount}</div>
-              <div className="text-xs sm:text-sm text-primary-100">Active Members</div>
+          <div className="bg-card rounded-xl shadow-sm p-3 md:p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full flex items-center justify-center bg-primary/10 text-primary">
+              <span className="text-xl">👥</span>
+            </div>
+            <div>
+              <div className="text-xl md:text-2xl font-bold text-gray-900">{activeCount}</div>
+              <div className="text-[11px] md:text-xs uppercase tracking-wide text-gray-500">Active</div>
             </div>
           </div>
 
           {/* Due Soon */}
-          <div className="stat-card bg-warning text-white">
-            <div className="flex flex-col items-center text-center p-3 sm:p-4">
-              <div className="text-2xl sm:text-3xl mb-1">⏰</div>
-              <div className="text-lg sm:text-2xl font-bold">{dueSoon.length}</div>
-              <div className="text-xs sm:text-sm text-warning-100">Due Soon</div>
+          <div className="bg-card rounded-xl shadow-sm p-3 md:p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full flex items-center justify-center bg-warning/10 text-warning">
+              <span className="text-xl">⏰</span>
+            </div>
+            <div>
+              <div className="text-xl md:text-2xl font-bold text-gray-900">{dueSoon.length}</div>
+              <div className="text-[11px] md:text-xs uppercase tracking-wide text-gray-500">Due Soon</div>
             </div>
           </div>
 
           {/* Overdue */}
-          <div className="stat-card bg-danger text-white">
-            <div className="flex flex-col items-center text-center p-3 sm:p-4">
-              <div className="text-2xl sm:text-3xl mb-1">⚠️</div>
-              <div className="text-lg sm:text-2xl font-bold">{overdue.length}</div>
-              <div className="text-xs sm:text-sm text-danger-100">Overdue</div>
+          <div className="bg-card rounded-xl shadow-sm p-3 md:p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full flex items-center justify-center bg-danger/10 text-danger">
+              <span className="text-xl">⚠️</span>
+            </div>
+            <div>
+              <div className="text-xl md:text-2xl font-bold text-gray-900">{overdue.length}</div>
+              <div className="text-[11px] md:text-xs uppercase tracking-wide text-gray-500">Overdue</div>
             </div>
           </div>
 
           {/* Revenue */}
-          <div className="stat-card bg-success text-white">
-            <div className="flex flex-col items-center text-center p-3 sm:p-4">
-              <div className="text-2xl sm:text-3xl mb-1">💰</div>
-              <div className="text-lg sm:text-2xl font-bold">{formatCurrency(revenueMTD)}</div>
-              <div className="text-xs sm:text-sm text-success-100">Revenue</div>
+          <div className="bg-card rounded-xl shadow-sm p-3 md:p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full flex items-center justify-center bg-success/10 text-success">
+              <span className="text-xl">💰</span>
+            </div>
+            <div>
+              <div className="text-xl md:text-2xl font-bold text-gray-900">{formatCurrency(revenueMTD)}</div>
+              <div className="text-[11px] md:text-xs uppercase tracking-wide text-gray-500">Revenue</div>
             </div>
           </div>
         </div>
