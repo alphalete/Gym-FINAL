@@ -6,24 +6,15 @@ import { nextDueDateFromJoin, isOverdue, nextDueAfterPayment } from "./billing";
 import LockBadge from "./LockBadge";
 import { requirePinIfEnabled } from './pinlock';
 
-// ---------- Utilities (single source of truth) ----------
+/* Utilities */
 function navigate(tab) {
   const t = String(tab).toLowerCase();
   try { location.hash = `#tab=${t}`; } catch {}
   if (typeof window.setActiveTab === 'function') window.setActiveTab(t);
   else window.dispatchEvent(new CustomEvent('NAVIGATE', { detail: t }));
 }
-
-function addDaysISO(iso, days){
-  const d = new Date(iso); d.setDate(d.getDate() + Number(days||0));
-  return d.toISOString().slice(0,10);
-}
-
-/**
- * Option A: keep billing cadence.
- * If prevNextDue exists, roll forward by whole cycles until nextDue > paidOn.
- * If none, start from paidOn + cycleDays.
- */
+function addDaysISO(iso, days){ const d=new Date(iso); d.setDate(d.getDate()+Number(days||0)); return d.toISOString().slice(0,10); }
+/* Option A: keep cadence; roll forward by whole cycles until nextDue > paidOn */
 function computeNextDueOptionA(prevNextDueISO, paidOnISO, cycleDays){
   const cycle = Number(cycleDays || 30);
   const paid = new Date(paidOnISO);
@@ -32,25 +23,22 @@ function computeNextDueOptionA(prevNextDueISO, paidOnISO, cycleDays){
   while (nextDue <= paid) nextDue.setDate(nextDue.getDate() + cycle);
   return nextDue.toISOString().slice(0,10);
 }
-
 function openWhatsApp(text, phone){
-  const msg = encodeURIComponent(text);
+  const msg = encodeURIComponent(text || "");
   const pn  = phone ? encodeURIComponent(String(phone)) : "";
   const url = pn ? `https://wa.me/${pn}?text=${msg}` : `https://wa.me/?text=${msg}`;
   window.open(url, "_blank");
 }
 function openEmail(subject, body, to){
-  const s = encodeURIComponent(subject||"");
-  const b = encodeURIComponent(body||"");
-  const t = to ? encodeURIComponent(to) : "";
+  const s=encodeURIComponent(subject||""); const b=encodeURIComponent(body||""); const t=to?encodeURIComponent(to):"";
   window.location.href = `mailto:${t}?subject=${s}&body=${b}`;
 }
-function shareFallback(text){ if (navigator.share) { try { navigator.share({ text }); } catch {} } else { alert(text); } }
 function buildReminder(m){
   const due = m.nextDue || "your due date";
   const amt = m.fee != null ? `$${Number(m.fee).toFixed(2)}` : "your fee";
   return `Hi ${m.name||''}, this is a reminder from Alphalete Club. ${amt} is due on ${due}.`;
 }
+/* /Utilities */
 
 // Helper function for data change signals
 function signalDataChanged(what = '') {
@@ -66,7 +54,6 @@ function signalChanged(what='') {
     window.dispatchEvent?.(new CustomEvent('DATA_CHANGED', { detail: what })); 
   } catch {} 
 }
-// ---------- /Utilities ----------
 
 /* === Preview Helper (added) === */
 function computeNextDuePreview(currentNextDueISO, monthsCovered) {
