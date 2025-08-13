@@ -1776,7 +1776,7 @@ const Sidebar = () => {
           <button
             type="button"
             onClick={() => setIsExpanded(!isExpanded)}
-            className="p-2 rounded-lg hover:bg-soft transition-colors"
+            className="p-2 rounded-lg hover:bg-slate-50 transition-colors"
             aria-label="Toggle sidebar"
           >
             <span className="text-lg">☰</span>
