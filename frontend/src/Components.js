@@ -63,173 +63,115 @@ function computeNextDuePreview(currentNextDueISO, monthsCovered) {
 
 // --- Payments (PaymentTracking) ---
 const PaymentComponent = () => {
-  const [members, setMembers] = useState([]);
-  const [payments, setPayments] = useState([]);
-  const [form, setForm] = useState({ 
-    memberId: "", 
-    amount: "", 
-    paidOn: new Date().toISOString().slice(0,10) 
-  });
+  const [clients, setClients] = useState([]);
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [isRecordingPayment, setIsRecordingPayment] = useState(false);
+  const [paymentAmount, setPaymentAmount] = useState('');
+  const [paidOnDate, setPaidOnDate] = useState(new Date().toISOString().slice(0,10));
 
-  async function load() {
-    const m1 = await (gymStorage.getAllMembers?.() ?? []);
-    const m2 = await (getAllStore?.('members') ?? []);
-    const byId = new Map(); 
-    [...m1, ...m2].forEach(x => { 
-      if (!x) return; 
-      const id = String(x.id || x.memberId || x.email || x.phone || Date.now()); 
-      byId.set(id, { ...x, id }); 
-    });
-    setMembers(Array.from(byId.values()).sort((a,b) => (a.name||"").localeCompare(b.name||"")));
+  useEffect(()=>{ (async()=>{ setClients(await gymStorage.getAllMembers()||[]); })(); },[]);
 
-    const p1 = await (gymStorage.getAllPayments?.() ?? []);
-    const p2 = await (getAllStore?.('payments') ?? []);
-    setPayments([...(p1||[]), ...(p2||[])]
-      .sort((a,b) => (new Date(b.paidOn||0) - new Date(a.paidOn||0))));
-  }
-  
-  useEffect(() => { load(); }, []);
-  
-  useEffect(() => { 
-    const onChanged = () => load(); 
-    window.addEventListener('DATA_CHANGED', onChanged); 
-    return () => window.removeEventListener('DATA_CHANGED', onChanged); 
-  }, []);
-
-  // Auto-open for Dashboard "Record" jump
+  // When selecting client, default amount from snapshot
   useEffect(() => {
-    const pendingId = localStorage.getItem("pendingPaymentMemberId");
-    if (pendingId && members.length) {
-      setForm(f => ({ ...f, memberId: String(pendingId) }));
-      localStorage.removeItem("pendingPaymentMemberId");
-    }
-  }, [members]);
-
-  // When member changes, default amount from their plan snapshot
-  useEffect(() => {
-    if (!form.memberId) return;
-    const m = members.find(x => String(x.id) === String(form.memberId));
+    if (!selectedClient) return;
+    const m = clients.find(x => String(x.id)===String(selectedClient.id));
     if (!m) return;
-    const defaultAmt = Number(m.fee || 0);
-    setForm(f => ({ ...f, amount: f.amount || (defaultAmt ? String(defaultAmt) : "") }));
-  }, [form.memberId, members]);
+    if (!paymentAmount && m.fee != null) setPaymentAmount(String(m.fee));
+  }, [selectedClient, clients]);
 
-  async function savePayment() {
-    if (!form.memberId || !form.amount) {
-      alert('Please select a member and enter an amount.');
-      return;
-    }
-    
-    const id = crypto.randomUUID?.() || String(Date.now());
-    const paidOn = form.paidOn || new Date().toISOString().slice(0,10);
-    const amount = Number(form.amount || 0);
-    
-    // 1) Save the payment row
-    const rec = { 
-      id, 
-      memberId: String(form.memberId || ""), 
-      amount, 
-      paidOn
-    };
-    
-    await gymStorage.saveData('payments', rec);
+  async function handlePaymentSubmit(){
+    if (!selectedClient) return;
+    const m = clients.find(x => String(x.id)===String(selectedClient.id));
+    const amountNum = Number(paymentAmount||0);
+    const paidOn = paidOnDate || new Date().toISOString().slice(0,10);
+    const payRec = { id: crypto.randomUUID?.()||String(Date.now()), memberId: String(m.id), amount: amountNum, paidOn };
+    await gymStorage.savePayment(payRec);
 
-    // 2) Pull the member + snapshot fields (cycleDays) and compute Option A nextDue
-    const m = members.find(x => String(x.id) === String(form.memberId));
-    if (m) {
-      const nextDue = computeNextDueOptionA(m.nextDue, paidOn, m.cycleDays || 30);
-      const updated = { ...m, lastPayment: paidOn, nextDue, overdue: 0 };
-      await gymStorage.saveMembers(updated);
-    }
-    
-    // 3) Notify & reset
-    try { window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail:'payments' })); } catch {}
-    try { window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail:'members' })); } catch {}
-    setForm({ 
-      memberId: "", 
-      amount: "", 
-      paidOn: new Date().toISOString().slice(0,10) 
-    });
-    load();
-    alert('Payment recorded successfully!');
+    const nextDue = computeNextDueOptionA(m.nextDue, paidOn, m.cycleDays || 30);
+    const updated = { ...m, lastPayment: paidOn, nextDue, status: 'Active', overdue: 0 };
+    await gymStorage.saveMembers(updated);
+
+    try { window.dispatchEvent(new CustomEvent('DATA_CHANGED',{detail:'payments'})); } catch {}
+    try { window.dispatchEvent(new CustomEvent('DATA_CHANGED',{detail:'members'})); } catch {}
+    setIsRecordingPayment(false); setSelectedClient(null); setPaymentAmount('');
+    setPaidOnDate(new Date().toISOString().slice(0,10));
+    setClients(await gymStorage.getAllMembers()||[]);
   }
 
   return (
     <div className="p-4 space-y-4">
-      <h1 className="text-2xl font-semibold">Payments</h1>
-      
-      {/* Record Payment Form */}
-      <div className="border rounded-2xl p-4 space-y-3 bg-white">
-        <div className="font-medium">Record Payment</div>
-        <select 
-          className="border rounded px-3 py-2 w-full" 
-          value={form.memberId} 
-          onChange={e => setForm(f => ({ ...f, memberId: e.target.value }))}
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">Payment Tracking</h1>
+        <button 
+          type="button" 
+          className="border rounded px-3 py-2 bg-green-500 text-white hover:bg-green-600" 
+          onClick={() => setIsRecordingPayment(true)}
         >
-          <option value="">Select member…</option>
-          {members.filter(m => m.status !== 'Inactive').map(m => (
-            <option key={m.id} value={m.id}>
-              {m.name || m.email || m.phone}
-            </option>
-          ))}
-        </select>
-        <input 
-          className="border rounded px-3 py-2 w-full" 
-          type="number" 
-          min="0" 
-          step="0.01"
-          placeholder="Amount ($)" 
-          value={form.amount} 
-          onChange={e => setForm(f => ({ ...f, amount: e.target.value }))}
-        />
-        <input 
-          className="border rounded px-3 py-2 w-full" 
-          type="date" 
-          value={form.paidOn} 
-          onChange={e => setForm(f => ({ ...f, paidOn: e.target.value }))}
-        />
-        <div className="flex justify-end">
-          <button 
-            type="button" 
-            className="border rounded px-3 py-2 bg-green-500 text-white hover:bg-green-600" 
-            onClick={savePayment}
-          >
-            Save Payment
-          </button>
-        </div>
+          Record Payment
+        </button>
       </div>
 
-      {/* Recent Payments */}
-      <div className="border rounded-2xl p-4 bg-white">
-        <div className="font-medium mb-2">Recent Payments</div>
-        {payments.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <div className="text-4xl mb-2">💰</div>
-            <div>No payments yet.</div>
-            <div className="text-sm">Record your first payment above.</div>
+      {isRecordingPayment && (
+        <div className="fixed inset-0 bg-black/20 z-[999] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-4 w-full max-w-md space-y-3">
+            <div className="text-lg font-semibold">Record Payment</div>
+            <select 
+              className="border rounded px-3 py-2 w-full"
+              value={selectedClient?.id || ''}
+              onChange={e => {
+                const client = clients.find(c => c.id === e.target.value);
+                setSelectedClient(client || null);
+              }}
+            >
+              <option value="">Select Member</option>
+              {clients.map(c => (
+                <option key={c.id} value={c.id}>
+                  {c.name} - {c.planName || 'No Plan'} - ${c.fee || 0}
+                </option>
+              ))}
+            </select>
+            <input 
+              type="number" 
+              step="0.01"
+              className="border rounded px-3 py-2 w-full"
+              placeholder="Payment Amount"
+              value={paymentAmount}
+              onChange={e => setPaymentAmount(e.target.value)}
+            />
+            <input 
+              type="date"
+              className="border rounded px-3 py-2 w-full"
+              value={paidOnDate}
+              onChange={e => setPaidOnDate(e.target.value)}
+            />
+            <div className="flex justify-end gap-2 pt-2">
+              <button 
+                type="button" 
+                className="border rounded px-3 py-2 hover:bg-gray-50" 
+                onClick={() => {
+                  setIsRecordingPayment(false);
+                  setSelectedClient(null);
+                  setPaymentAmount('');
+                }}
+              >
+                Cancel
+              </button>
+              <button 
+                type="button" 
+                className="border rounded px-3 py-2 bg-green-500 text-white hover:bg-green-600" 
+                onClick={handlePaymentSubmit}
+              >
+                Record Payment
+              </button>
+            </div>
           </div>
-        ) : (
-          <div className="space-y-2">
-            {payments.slice(0, 20).map(p => {
-              const m = members.find(x => String(x.id) === String(p.memberId));
-              return (
-                <div key={p.id} className="flex justify-between border rounded-xl px-3 py-2">
-                  <div>
-                    <div className="font-medium">
-                      {m?.name || m?.email || m?.phone || 'Unknown Member'}
-                    </div>
-                    <div className="text-xs text-gray-500">Payment on {p.paidOn}</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-semibold text-green-600">
-                      ${Number(p.amount || 0).toFixed(2)}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+        </div>
+      )}
+
+      <div className="space-y-2">
+        <h2 className="text-lg font-semibold">Recent Payments</h2>
+        {/* Payment history would go here */}
+        <div className="text-sm text-gray-500">Payment history will display here</div>
       </div>
     </div>
   );
