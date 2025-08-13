@@ -68,11 +68,6 @@ function signalChanged(what='') {
 }
 // ---------- /Utilities ----------
 
-function addDaysISO(iso, days){
-  const d = new Date(iso); d.setDate(d.getDate() + Number(days||0));
-  return d.toISOString().slice(0,10);
-}
-
 // Option A: keep cadence; roll nextDue forward by whole cycles until it's AFTER paidOn
 function computeNextDueOptionA(prevNextDueISO, paidOnISO, cycleDays){
   const cycle = Number(cycleDays || 30);
