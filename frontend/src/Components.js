@@ -1706,8 +1706,9 @@ const MembershipManagement = () => {
 
                 {/* Preview */}
                 {form.price > 0 && form.cycleDays > 0 && (
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <div className="text-sm font-medium text-gray-700 mb-1">Preview:</div>
+                  <div className="card">
+                    <div className="card-body">
+                      <div className="text-sm font-medium text-gray-700 mb-1">Preview:</div>
                     <div className="text-sm text-gray-600">
                       Members pay {formatCurrency(form.price)} every {form.cycleDays} days
                       {form.cycleDays !== 30 && (
