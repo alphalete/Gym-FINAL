@@ -7757,10 +7757,10 @@ export default function App() {
     (async () => {
       try { 
         await gymStorage.init(); 
-        await __storageSelfTest();
-        console.log("[App] storage init + selftest ok"); 
+        await gymStorage.persistHint();
+        console.log("[App] storage init + persist hint ok"); 
       } catch (e) { 
-        console.warn("[App] storage init/selftest failed", e); 
+        console.warn("[App] storage init failed", e); 
       }
       
       // Remove loading screen
