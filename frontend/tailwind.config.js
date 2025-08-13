@@ -8,18 +8,30 @@ module.exports = {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#2563EB', // GoGym4U blue
-          'dark': '#1D4ED8',   // primary-dark
-          50: '#EBF2FF',
-          100: '#DBE7FF',
-          200: '#BAD0FF',
-          300: '#8DB5FF',
-          400: '#5A91FF',
-          500: '#2563EB',
-          600: '#1D4ED8',
-          700: '#1E40AF',
-          800: '#1E3A8A',
-          900: '#1E3A8A',
+          DEFAULT: '#4F46E5', // GoGym blue-purple
+          50: '#EEF2FF',
+          100: '#E0E7FF',
+          200: '#C7D2FE',
+          300: '#A5B4FC',
+          400: '#818CF8',
+          500: '#4F46E5',
+          600: '#4338CA',
+          700: '#3730A3',
+          800: '#312E81',
+          900: '#1E1B4B',
+        },
+        primary2: {
+          DEFAULT: '#6366F1',
+          50: '#EEF2FF',
+          100: '#E0E7FF',
+          200: '#C7D2FE',
+          300: '#A5B4FC',
+          400: '#818CF8',
+          500: '#6366F1',
+          600: '#4F46E5',
+          700: '#4338CA',
+          800: '#3730A3',
+          900: '#312E81',
         },
         success: {
           DEFAULT: '#16A34A',
@@ -60,6 +72,8 @@ module.exports = {
           800: '#7F1D1D',
           900: '#7F1D1D',
         },
+        card: '#FFFFFF',
+        soft: '#F8FAFC',
         info: {
           DEFAULT: '#0EA5E9',
           50: '#F0F9FF',
@@ -87,7 +101,15 @@ module.exports = {
         },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+        sans: ['Inter', 'system-ui', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+      },
+      container: {
+        center: true,
+        padding: { 
+          DEFAULT: '1rem', 
+          md: '1.25rem', 
+          lg: '2rem' 
+        },
       },
       boxShadow: {
         'soft': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
