@@ -95,8 +95,3 @@ export default function App(){
     </ErrorBoundary>
   );
 }
-
-function ClientOr(Component){
-  // little wrapper in case list needs suspense later
-  return <Component />;
-}
