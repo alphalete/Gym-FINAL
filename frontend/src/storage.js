@@ -145,6 +145,10 @@ export async function getAll(storeName){ return gymStorage.getAll(storeName); }
 export async function getSetting(name,fallback){ return gymStorage.getSetting(name,fallback); }
 export async function saveSetting(name,value){ return gymStorage.saveSetting(name,value); }
 
+export async function saveClients(c){ return gymStorage.saveClients(c); }
+export async function saveClientToPhone(c){ return gymStorage.saveClientToPhone(c); }
+export async function getAllClients(){ return gymStorage.getAllClients(); }
+
 ////////////////////////////////////////////////////////////////////////////////
 // Self-test: try a write/read once per load (no-op if works)
 ////////////////////////////////////////////////////////////////////////////////
