@@ -61,90 +61,372 @@ function computeNextDuePreview(currentNextDueISO, monthsCovered) {
 // --- Payments (PaymentTracking) ---
 const PaymentComponent = () => {
   const [clients, setClients] = useState([]);
+  const [payments, setPayments] = useState([]);
   const [selectedClient, setSelectedClient] = useState(null);
   const [isRecordingPayment, setIsRecordingPayment] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState('');
   const [paidOnDate, setPaidOnDate] = useState(new Date().toISOString().slice(0,10));
+  const [searchTerm, setSearchTerm] = useState("");
 
-  useEffect(()=>{ (async()=>{ setClients(await gymStorage.getAllMembers()||[]); })(); },[]);
+  useEffect(() => {
+    (async () => {
+      const members = await gymStorage.getAllMembers() || [];
+      const paymentsList = await gymStorage.getAllPayments() || [];
+      setClients(members);  
+      setPayments(paymentsList);
+
+      // Check for pending payment member (from dashboard navigation)
+      const pendingId = localStorage.getItem("pendingPaymentMemberId");
+      if (pendingId) {
+        const member = members.find(m => String(m.id) === String(pendingId));
+        if (member) {
+          setSelectedClient(member);
+          setIsRecordingPayment(true);
+        }
+        localStorage.removeItem("pendingPaymentMemberId");
+      }
+    })();
+  }, []);
 
   // When selecting client, default amount from snapshot
   useEffect(() => {
     if (!selectedClient) return;
-    const m = clients.find(x => String(x.id)===String(selectedClient.id));
+    const m = clients.find(x => String(x.id) === String(selectedClient.id));
     if (!m) return;
     if (!paymentAmount && m.fee != null) setPaymentAmount(String(m.fee));
   }, [selectedClient, clients]);
 
-  async function handlePaymentSubmit(){
-    if (!selectedClient) return;
-    const m = clients.find(x => String(x.id)===String(selectedClient.id));
-    const amountNum = Number(paymentAmount||0);
-    const paidOn = paidOnDate || new Date().toISOString().slice(0,10);
-    const payRec = { id: crypto.randomUUID?.()||String(Date.now()), memberId: String(m.id), amount: amountNum, paidOn };
+  async function handlePaymentSubmit() {
+    if (!selectedClient || !paymentAmount) return;
+    
+    const m = clients.find(x => String(x.id) === String(selectedClient.id));
+    const amountNum = Number(paymentAmount || 0);
+    const paidOn = paidOnDate || new Date().toISOString().slice(0, 10);
+    
+    // Create payment record
+    const payRec = { 
+      id: crypto.randomUUID?.() || String(Date.now()), 
+      memberId: String(m.id), 
+      memberName: m.name || 'Unknown',
+      amount: amountNum, 
+      paidOn,
+      planName: m.planName || 'No Plan',
+      createdAt: new Date().toISOString()
+    };
+    
     await gymStorage.savePayment(payRec);
 
+    // Update member with Option A logic
     const nextDue = computeNextDueOptionA(m.nextDue, paidOn, m.cycleDays || 30);
-    const updated = { ...m, lastPayment: paidOn, nextDue, status: 'Active', overdue: 0 };
+    const updated = { 
+      ...m, 
+      lastPayment: paidOn, 
+      nextDue, 
+      status: 'Active', 
+      overdue: 0 
+    };
     await gymStorage.saveMembers(updated);
 
-    try { window.dispatchEvent(new CustomEvent('DATA_CHANGED',{detail:'payments'})); } catch {}
-    try { window.dispatchEvent(new CustomEvent('DATA_CHANGED',{detail:'members'})); } catch {}
-    setIsRecordingPayment(false); setSelectedClient(null); setPaymentAmount('');
-    setPaidOnDate(new Date().toISOString().slice(0,10));
-    setClients(await gymStorage.getAllMembers()||[]);
+    // Notify data changed
+    try { 
+      window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'payments' })); 
+      window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'members' })); 
+    } catch {}
+
+    // Reset form
+    setIsRecordingPayment(false); 
+    setSelectedClient(null); 
+    setPaymentAmount('');
+    setPaidOnDate(new Date().toISOString().slice(0, 10));
+    
+    // Reload data
+    const members = await gymStorage.getAllMembers() || [];
+    const paymentsList = await gymStorage.getAllPayments() || [];
+    setClients(members);
+    setPayments(paymentsList);
   }
 
+  // Filter payments for search
+  const filteredPayments = payments.filter(payment =>
+    !searchTerm || 
+    (payment.memberName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (payment.planName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+    formatCurrency(payment.amount).includes(searchTerm) ||
+    formatDate(payment.paidOn).toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Get active clients for payment recording
+  const activeClients = clients.filter(c => c.status === 'Active' || !c.status);
+
+  // Calculate stats
+  const todayISO = new Date().toISOString().slice(0, 10);
+  const thisMonth = todayISO.slice(0, 7);
+  const monthlyRevenue = payments
+    .filter(p => p.paidOn && p.paidOn.slice(0, 7) === thisMonth)
+    .reduce((sum, p) => sum + Number(p.amount || 0), 0);
+
+  const todayPayments = payments.filter(p => p.paidOn === todayISO);
+  const totalRevenue = payments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+
   return (
-    <div className="p-4 space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Payment Tracking</h1>
-        <button 
-          type="button" 
-          className="border rounded px-3 py-2 bg-green-500 text-white hover:bg-green-600" 
-          onClick={() => setIsRecordingPayment(true)}
-        >
-          Record Payment
-        </button>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header Section */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="px-6 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="page-title text-primary">Payment Tracking</h1>
+              <p className="page-subtitle">Record payments and track gym revenue</p>
+            </div>
+            <button 
+              type="button" 
+              className="btn btn-primary"
+              onClick={() => setIsRecordingPayment(true)}
+            >
+              + Record Payment
+            </button>
+          </div>
+        </div>
       </div>
 
+      <div className="px-6 py-6">
+        {/* KPI Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+          <div className="stat-card bg-success text-white">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="stat-value">{formatCurrency(monthlyRevenue)}</div>
+                <div className="stat-label text-success-100">This Month</div>
+              </div>
+              <div className="text-success-200 text-3xl">💰</div>
+            </div>
+          </div>
+
+          <div className="stat-card bg-primary text-white">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="stat-value">{todayPayments.length}</div>
+                <div className="stat-label text-primary-100">Today</div>
+              </div>
+              <div className="text-primary-200 text-3xl">📅</div>
+            </div>
+          </div>
+
+          <div className="stat-card bg-info text-white">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="stat-value">{payments.length}</div>
+                <div className="stat-label text-info-100">Total Payments</div>
+              </div>
+              <div className="text-info-200 text-3xl">📊</div>
+            </div>
+          </div>
+
+          <div className="stat-card bg-warning text-white">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="stat-value">{formatCurrency(totalRevenue)}</div>
+                <div className="stat-label text-warning-100">All Time</div>
+              </div>
+              <div className="text-warning-200 text-3xl">💎</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Search and Payments History */}
+        <div className="card">
+          <div className="card-header">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                <span className="text-primary mr-2">💳</span>
+                Payment History ({filteredPayments.length})
+              </h3>
+              
+              {/* Search Bar */}
+              <div className="w-80">
+                <div className="input-group">
+                  <div className="input-group-text">
+                    <span>🔍</span>
+                  </div>
+                  <input
+                    type="text"
+                    className="input pl-10"
+                    placeholder="Search payments..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="card-body">
+            {filteredPayments.length > 0 ? (
+              <div className="space-y-3">
+                {filteredPayments
+                  .sort((a, b) => new Date(b.paidOn || 0) - new Date(a.paidOn || 0))
+                  .map(payment => (
+                    <div key={payment.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                      {/* Payment Info */}
+                      <div className="flex items-center space-x-4">
+                        {/* Amount Badge */}
+                        <div className="w-12 h-12 bg-success-100 rounded-full flex items-center justify-center">
+                          <span className="text-success-600 font-bold text-sm">💰</span>
+                        </div>
+                        
+                        {/* Details */}
+                        <div>
+                          <div className="font-medium text-gray-900">
+                            {payment.memberName || 'Unknown Member'}
+                          </div>
+                          <div className="text-sm text-gray-500 flex items-center space-x-2">
+                            <span>{payment.planName || 'No Plan'}</span>
+                            <span>•</span>
+                            <span>{formatDate(payment.paidOn)}</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Amount and Status */}
+                      <div className="text-right">
+                        <div className="text-lg font-semibold text-success-600">
+                          {formatCurrency(payment.amount)}
+                        </div>
+                        <span className="badge badge-success">Paid</span>
+                      </div>
+                    </div>
+                  ))
+                }
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                {payments.length === 0 ? (
+                  <>
+                    <div className="text-6xl mb-4">💳</div>
+                    <div className="text-xl font-medium text-gray-900 mb-2">No Payments Yet</div>
+                    <div className="text-gray-500 mb-6">Record your first payment to start tracking revenue</div>
+                    <button 
+                      type="button" 
+                      className="btn btn-primary"
+                      onClick={() => setIsRecordingPayment(true)}
+                    >
+                      + Record First Payment
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-4xl mb-4">🔍</div>
+                    <div className="text-xl font-medium text-gray-900 mb-2">No Payments Match Your Search</div>
+                    <div className="text-gray-500">Try adjusting your search terms</div>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Record Payment Modal */}
       {isRecordingPayment && (
-        <div className="fixed inset-0 bg-black/20 z-[999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-4 w-full max-w-md space-y-3">
-            <div className="text-lg font-semibold">Record Payment</div>
-            <select 
-              className="border rounded px-3 py-2 w-full"
-              value={selectedClient?.id || ''}
-              onChange={e => {
-                const client = clients.find(c => c.id === e.target.value);
-                setSelectedClient(client || null);
-              }}
-            >
-              <option value="">Select Member</option>
-              {clients.map(c => (
-                <option key={c.id} value={c.id}>
-                  {c.name} - {c.planName || 'No Plan'} - ${c.fee || 0}
-                </option>
-              ))}
-            </select>
-            <input 
-              type="number" 
-              step="0.01"
-              className="border rounded px-3 py-2 w-full"
-              placeholder="Payment Amount"
-              value={paymentAmount}
-              onChange={e => setPaymentAmount(e.target.value)}
-            />
-            <input 
-              type="date"
-              className="border rounded px-3 py-2 w-full"
-              value={paidOnDate}
-              onChange={e => setPaidOnDate(e.target.value)}
-            />
-            <div className="flex justify-end gap-2 pt-2">
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-header">
+              <h2 className="modal-title">Record Payment</h2>
+            </div>
+            
+            <div className="modal-body">
+              <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
+                <div className="form-group">
+                  <label className="form-label">Select Member *</label>
+                  <select 
+                    className="input"
+                    value={selectedClient?.id || ''}
+                    onChange={e => {
+                      const client = clients.find(c => c.id === e.target.value);
+                      setSelectedClient(client || null);
+                    }}
+                    required
+                  >
+                    <option value="">Choose a member...</option>
+                    {activeClients.map(c => (
+                      <option key={c.id} value={c.id}>
+                        {c.name} - {c.planName || 'No Plan'} - {formatCurrency(c.fee || 0)}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="form-help">Only active members are shown</div>
+                </div>
+
+                {selectedClient && (
+                  <div className="bg-primary-50 rounded-lg p-4">
+                    <div className="text-sm font-medium text-primary-800 mb-2">Member Details:</div>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div>
+                        <span className="text-primary-600">Plan:</span> {selectedClient.planName || 'None'}
+                      </div>
+                      <div>
+                        <span className="text-primary-600">Current Due:</span> {formatDate(selectedClient.nextDue) || 'Not set'}
+                      </div>
+                      <div>
+                        <span className="text-primary-600">Regular Fee:</span> {formatCurrency(selectedClient.fee || 0)}
+                      </div>
+                      <div>
+                        <span className="text-primary-600">Cycle:</span> {selectedClient.cycleDays || 30} days
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="form-group">
+                    <label className="form-label">Payment Amount *</label>
+                    <div className="input-group">
+                      <div className="input-group-text">TT$</div>
+                      <input 
+                        type="number" 
+                        step="0.01"
+                        min="0"
+                        className="input pl-12"
+                        placeholder="0.00"
+                        value={paymentAmount}
+                        onChange={e => setPaymentAmount(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Payment Date *</label>
+                    <input 
+                      type="date"
+                      className="input"
+                      value={paidOnDate}
+                      onChange={e => setPaidOnDate(e.target.value)}
+                      max={new Date().toISOString().slice(0, 10)}
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Payment Preview */}
+                {selectedClient && paymentAmount && (
+                  <div className="bg-success-50 rounded-lg p-4">
+                    <div className="text-sm font-medium text-success-800 mb-2">Payment Preview:</div>
+                    <div className="text-sm text-success-700">
+                      After this payment, {selectedClient.name}'s next due date will be:{' '}
+                      <span className="font-medium">
+                        {formatDate(computeNextDueOptionA(selectedClient.nextDue, paidOnDate, selectedClient.cycleDays || 30))}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </form>
+            </div>
+
+            <div className="modal-footer">
               <button 
                 type="button" 
-                className="border rounded px-3 py-2 hover:bg-gray-50" 
+                className="btn btn-outline" 
                 onClick={() => {
                   setIsRecordingPayment(false);
                   setSelectedClient(null);
@@ -155,8 +437,9 @@ const PaymentComponent = () => {
               </button>
               <button 
                 type="button" 
-                className="border rounded px-3 py-2 bg-green-500 text-white hover:bg-green-600" 
+                className="btn btn-primary" 
                 onClick={handlePaymentSubmit}
+                disabled={!selectedClient || !paymentAmount}
               >
                 Record Payment
               </button>
@@ -164,12 +447,6 @@ const PaymentComponent = () => {
           </div>
         </div>
       )}
-
-      <div className="space-y-2">
-        <h2 className="text-lg font-semibold">Recent Payments</h2>
-        {/* Payment history would go here */}
-        <div className="text-sm text-gray-500">Payment history will display here</div>
-      </div>
     </div>
   );
 };
