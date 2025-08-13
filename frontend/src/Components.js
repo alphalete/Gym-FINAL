@@ -691,68 +691,68 @@ const Dashboard = () => {
         )}
 
         {/* Recent Activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Recent Payments */}
-          <div className="card">
-            <div className="card-header">
-              <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center">
+          <div className="bg-card rounded-xl shadow-sm">
+            <div className="p-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
                 <span className="text-primary mr-2">💳</span>
                 Recent Payments
               </h3>
             </div>
-            <div className="card-body">
+            <div className="p-4">
               {payments.length > 0 ? (
                 <div className="space-y-3">
                   {payments.slice(-5).reverse().map(payment => (
                     <div key={payment.id} className="flex items-center justify-between p-3 border border-gray-100 rounded-lg">
                       <div className="flex items-center space-x-3">
-                        <div className="w-6 h-6 sm:w-8 sm:h-8 bg-success-100 rounded-full flex items-center justify-center">
-                          <span className="text-success text-xs sm:text-sm">💰</span>
+                        <div className="w-8 h-8 bg-success/10 rounded-full flex items-center justify-center">
+                          <span className="text-success text-sm">💰</span>
                         </div>
                         <div>
-                          <div className="font-medium text-gray-900 text-sm sm:text-base">{formatCurrency(payment.amount)}</div>
-                          <div className="text-xs sm:text-sm text-gray-500">{formatDate(payment.paidOn)}</div>
+                          <div className="font-medium text-gray-900">{formatCurrency(payment.amount)}</div>
+                          <div className="text-sm text-gray-500">{formatDate(payment.paidOn)}</div>
                         </div>
                       </div>
-                      <span className="badge badge-success text-xs">Paid</span>
+                      <span className="badge badge-success">Paid</span>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-6 sm:py-8 text-gray-500">
-                  <div className="text-3xl sm:text-4xl mb-2">💳</div>
-                  <div className="text-sm sm:text-base">No payments yet</div>
-                  <div className="text-xs sm:text-sm">Recent payments will appear here</div>
+                <div className="text-center py-8 text-gray-500">
+                  <div className="text-4xl mb-2">💳</div>
+                  <div>No payments yet</div>
+                  <div className="text-sm">Recent payments will appear here</div>
                 </div>
               )}
             </div>
           </div>
 
           {/* Quick Stats */}
-          <div className="card">
-            <div className="card-header">
-              <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center">
+          <div className="bg-card rounded-xl shadow-sm">
+            <div className="p-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
                 <span className="text-info mr-2">📊</span>
                 Quick Stats
               </h3>
             </div>
-            <div className="card-body">
-              <div className="space-y-3 sm:space-y-4">
+            <div className="p-4">
+              <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-sm sm:text-base">Total Members</span>
-                  <span className="font-semibold text-sm sm:text-base">{totalCount}</span>
+                  <span className="text-gray-600">Total Members</span>
+                  <span className="font-semibold">{totalCount}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-sm sm:text-base">Active Rate</span>
-                  <span className="font-semibold text-sm sm:text-base">{totalCount > 0 ? Math.round((activeCount / totalCount) * 100) : 0}%</span>
+                  <span className="text-gray-600">Active Rate</span>
+                  <span className="font-semibold">{totalCount > 0 ? Math.round((activeCount / totalCount) * 100) : 0}%</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-sm sm:text-base">This Month Revenue</span>
-                  <span className="font-semibold text-success text-sm sm:text-base">{formatCurrency(revenueMTD)}</span>
+                  <span className="text-gray-600">This Month Revenue</span>
+                  <span className="font-semibold text-success">{formatCurrency(revenueMTD)}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-sm sm:text-base">Avg. Payment</span>
-                  <span className="font-semibold text-sm sm:text-base">
+                  <span className="text-gray-600">Avg. Payment</span>
+                  <span className="font-semibold">
                     {payments.length > 0 ? formatCurrency(payments.reduce((sum, p) => sum + Number(p.amount || 0), 0) / payments.length) : formatCurrency(0)}
                   </span>
                 </div>
