@@ -568,7 +568,7 @@ const Dashboard = () => {
   const alerts = [...dueToday, ...overdue].slice(0, 5); // Show max 5 alerts
 
   return (
-    <div className="min-h-screen bg-soft">
+    <div className="min-h-screen bg-slate-50">
       {/* Header Section */}
       <div className="bg-card shadow-sm border-b">
         <div className="container px-4 sm:px-6 py-4 sm:py-6">
