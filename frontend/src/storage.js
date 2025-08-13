@@ -1,10 +1,4 @@
-/* storage.js — robust storage:
-   - IndexedDB primary (gym-db v3), automatic localStorage fallback
-   - Stores: members(id), payments(id, memberId idx), settings(name), plans(id)
-   - Unified helpers: init, saveData, getAll, getAllMembers, getAllPayments,
-     saveMembers, getSetting, saveSetting
-*/
-
+/* storage.js */
 class GymStorage {
   constructor(){ this.db=null; this.idbOk=null; }
 
@@ -12,8 +6,8 @@ class GymStorage {
     if (this.idbOk !== null) return this.idbOk;
     if (!('indexedDB' in window)) { this.idbOk=false; return false; }
     return new Promise((resolve) => {
-      try {
-        const req = indexedDB.open('gym-db', 3);
+      try{
+        const req = indexedDB.open('gym-db', 4);
         req.onupgradeneeded = (e)=>{
           const db = e.target.result;
           if (!db.objectStoreNames.contains('members')) {
@@ -34,10 +28,19 @@ class GymStorage {
             s.createIndex('id','id',{unique:true});
           }
         };
-        req.onsuccess = () => { this.db=req.result; this.idbOk=true; console.log('[storage] IDB ok'); resolve(true); };
+        req.onsuccess = () => { this.db=req.result; this.idbOk=true; resolve(true); };
         req.onerror   = () => { console.warn('[storage] IDB open failed', req.error); this.idbOk=false; resolve(false); };
-      } catch (e) { console.warn('[storage] IDB init error', e); this.idbOk=false; resolve(false); }
+      }catch(e){ console.warn('[storage] init err', e); this.idbOk=false; resolve(false); }
     });
+  }
+
+  async persistHint(){
+    try{
+      if (navigator.storage?.persist) {
+        const granted = await navigator.storage.persist();
+        console.log('[storage] persist granted:', granted);
+      }
+    }catch(e){}
   }
 
   // ---------- generic ops ----------
@@ -47,22 +50,22 @@ class GymStorage {
 
     if (await this.init()){
       return new Promise((resolve,reject)=>{
-        try {
+        try{
           const tx = this.db.transaction([storeName],'readwrite');
           tx.objectStore(storeName).put(rec);
-          tx.oncomplete = () => { try{window.dispatchEvent(new CustomEvent('DATA_CHANGED',{detail:storeName}))}catch{} resolve(true); };
+          tx.oncomplete = () => { try{window.dispatchEvent(new CustomEvent('DATA_CHANGED',{detail:storeName}))}catch{} resolve(rec); };
           tx.onerror    = () => reject(tx.error);
-        } catch (e) { reject(e); }
+        }catch(e){ reject(e); }
       });
     }
-    // fallback: localStorage
+    // fallback
     const key = `__${storeName}__`;
     const list = JSON.parse(localStorage.getItem(key) || '[]');
     const idx = list.findIndex(x => String(x.id)===String(rec.id));
     if (idx>=0) list[idx]=rec; else list.push(rec);
     localStorage.setItem(key, JSON.stringify(list));
     try{window.dispatchEvent(new CustomEvent('DATA_CHANGED',{detail:storeName}))}catch{}
-    return true;
+    return rec;
   }
 
   async getAll(storeName){
@@ -76,34 +79,15 @@ class GymStorage {
         }catch(_e){ resolve([]); }
       });
     }
-    // fallback
     return JSON.parse(localStorage.getItem(`__${storeName}__`) || '[]');
   }
 
+  // ---------- domain helpers ----------
   async getAllMembers(){ return this.getAll('members'); }
+  async saveMembers(m){ const list = Array.isArray(m) ? m : [m]; await Promise.all(list.map(x=>this.saveData('members', x))); return true; }
+
+  async savePayment(p){ return this.saveData('payments', p); }
   async getAllPayments(){ return this.getAll('payments'); }
-
-  async saveMembers(members){
-    const list = Array.isArray(members) ? members : [members];
-    await Promise.all(list.map(m => this.saveData('members', m)));
-  }
-
-  // --- Back-compat: some code still calls legacy client helpers/store ---
-  async saveClients(clients){
-    const list = Array.isArray(clients) ? clients : [clients];
-    await Promise.all(list.map(c => this.saveData('members', c))); // alias to 'members'
-  }
-  async saveClientToPhone(client){
-    return this.saveData('members', client); // alias
-  }
-
-  async getAllClients(){
-    // if you had a separate 'clients' store once, read it;
-    // otherwise just return members so UI paths still work.
-    const maybe = await this.getAll('clients');
-    const mems  = await this.getAll('members');
-    return (Array.isArray(maybe) && maybe.length ? maybe : mems);
-  }
 
   async getSetting(name, fallback={}){
     if (await this.init()){
@@ -116,11 +100,9 @@ class GymStorage {
         }catch(_e){ resolve(fallback); }
       });
     }
-    // fallback
     const raw = localStorage.getItem(`__settings__${name}`);
     return raw ? JSON.parse(raw) : fallback;
   }
-
   async saveSetting(name, value){
     if (await this.init()){
       return new Promise((resolve,reject)=>{
@@ -132,47 +114,14 @@ class GymStorage {
         }catch(e){ reject(e); }
       });
     }
-    // fallback
     localStorage.setItem(`__settings__${name}`, JSON.stringify(value));
     try{window.dispatchEvent(new CustomEvent('DATA_CHANGED',{detail:'settings'}))}catch{}
     return true;
   }
-}
 
+  async getPlans(){ return this.getAll('plans'); }
+  async savePlan(plan){ return this.saveData('plans', plan); }
+}
 const gymStorage = new GymStorage();
 export default gymStorage;
-export async function getAll(storeName){ return gymStorage.getAll(storeName); }
-export async function getSetting(name,fallback){ return gymStorage.getSetting(name,fallback); }
-export async function saveSetting(name,value){ return gymStorage.saveSetting(name,value); }
-
-export async function saveClients(c){ return gymStorage.saveClients(c); }
-export async function saveClientToPhone(c){ return gymStorage.saveClientToPhone(c); }
-export async function getAllClients(){ return gymStorage.getAllClients(); }
-
-////////////////////////////////////////////////////////////////////////////////
-// Self-test: try a write/read once per load (no-op if works)
-////////////////////////////////////////////////////////////////////////////////
-export async function __storageSelfTest(){
-  const id='__selftest__';
-  try{
-    await gymStorage.saveData('members', { id, name:'Self Test' });
-    const all = await gymStorage.getAll('members');
-    const ok = !!all.find(x=>x.id===id);
-    // cleanup
-    if (await gymStorage.init()){
-      await new Promise((resolve)=> {
-        try{
-          const tx = gymStorage.db.transaction(['members'],'readwrite');
-          tx.objectStore('members').delete(id);
-          tx.oncomplete = resolve; tx.onerror = resolve;
-        }catch(_e){ resolve(); }
-      });
-    } else {
-      const key='__members__';
-      const list = JSON.parse(localStorage.getItem(key)||'[]').filter(x=>x.id!==id);
-      localStorage.setItem(key, JSON.stringify(list));
-    }
-    console.log('[storage] selftest', ok ? 'PASS' : 'FAIL');
-    return ok;
-  }catch(e){ console.warn('[storage] selftest error', e); return false; }
-}
+export async function getAll(store){ return gymStorage.getAll(store); }
