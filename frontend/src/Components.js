@@ -1793,8 +1793,8 @@ const Sidebar = () => {
                 href={`#${item.path}`}
                 className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer ${
                   isActive(item.path)
-                    ? 'bg-indigo-50 text-primary font-medium'
-                    : 'text-gray-600 hover:bg-soft hover:text-primary'
+                    ? 'text-primary-600 font-semibold border-r-2 border-primary-600'
+                    : 'text-slate-500 hover:text-slate-700'
                 }`}
               >
                 <span className="w-5 h-5 shrink-0 text-xl flex items-center justify-center">{item.icon}</span>
