@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
+import "./styles/tokens.css";   // make sure this import exists
 import App from "./App";
 
 // Unregister any existing service workers to avoid stale cache
