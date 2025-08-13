@@ -253,6 +253,53 @@
             <div class="spinner"></div>
         </div>
         
+        <script>
+          // Robust loading screen dismissal with multiple fallbacks
+          let loadingDismissed = false;
+          
+          function dismissLoadingScreen() {
+            if (loadingDismissed) return;
+            
+            const loadingScreen = document.getElementById('loading-screen');
+            if (loadingScreen && loadingScreen.style.display !== 'none') {
+              loadingScreen.style.display = 'none';
+              loadingDismissed = true;
+              console.log('🚀 Loading screen dismissed successfully');
+            }
+          }
+          
+          // Method 1: Dismiss when DOM is ready
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+              setTimeout(dismissLoadingScreen, 1000);
+            });
+          } else {
+            setTimeout(dismissLoadingScreen, 1000);
+          }
+          
+          // Method 2: Dismiss when window loads
+          window.addEventListener('load', function() {
+            setTimeout(dismissLoadingScreen, 1500);
+          });
+          
+          // Method 3: Force dismiss after reasonable timeout
+          setTimeout(function() {
+            dismissLoadingScreen();
+          }, 5000);
+          
+          // Method 4: Dismiss when React root appears
+          const checkForReactRoot = setInterval(function() {
+            const root = document.getElementById('root');
+            if (root && root.children.length > 0) {
+              setTimeout(dismissLoadingScreen, 500);
+              clearInterval(checkForReactRoot);
+            }
+          }, 500);
+          
+          // Method 5: Global function for manual dismissal
+          window.dismissLoadingScreen = dismissLoadingScreen;
+        </script>
+        
         <div id="root"></div>
         
         <!-- Install PWA prompt -->
