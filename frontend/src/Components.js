@@ -1246,13 +1246,26 @@ const Settings = () => {
     dueSoonDays: 3, 
     graceDays: 0 
   });
+  const [loading, setLoading] = useState(true);
+  const [storageStats, setStorageStats] = useState(null);
   
-  useEffect(() => {
+  useEffect(() => { 
     (async () => {
-      const v = (await (gymStorage.getSetting?.('gymSettings', {}) )) ?? 
-                (await (getSettingNamed?.('gymSettings', {}) )) ?? {};
-      setS(prev => ({ ...prev, ...v }));
-    })();
+      try {
+        // Sequential loading to avoid double IndexedDB calls
+        const saved = await (gymStorage?.getSetting?.('gymSettings', s) ?? 
+                             getSettingNamed?.('gymSettings', s) ?? s);
+        setS(saved);
+        
+        // Optionally get storage stats if available
+        const stats = await gymStorage?.getStorageStats?.();
+        if (stats) setStorageStats(stats);
+      } catch (e) { 
+        console.error("Settings load error", e); 
+      } finally { 
+        setLoading(false); 
+      }
+    })(); 
   }, []);
   
   async function save() {
