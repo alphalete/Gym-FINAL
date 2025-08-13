@@ -623,10 +623,10 @@ const Dashboard = () => {
 
         {/* Alerts Section */}
         {alerts.length > 0 && (
-          <div className="mb-8">
+          <div className="mb-6 sm:mb-8">
             <div className="card">
               <div className="card-header">
-                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center">
                   <span className="text-warning mr-2">⚠️</span>
                   Payment Alerts ({alerts.length})
                 </h3>
@@ -638,19 +638,19 @@ const Dashboard = () => {
                     const isOverdue = overdue.includes(member);
                     
                     return (
-                      <div key={member.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                        <div className="flex items-center space-x-4">
+                      <div key={member.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors space-y-3 sm:space-y-0">
+                        <div className="flex items-center space-x-3 sm:space-x-4">
                           {/* Avatar */}
-                          <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-medium">
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary rounded-full flex items-center justify-center text-white font-medium text-sm">
                             {getInitials(member.name)}
                           </div>
                           
                           {/* Member Info */}
-                          <div>
-                            <div className="font-medium text-gray-900">{member.name || "(No name)"}</div>
-                            <div className="text-sm text-gray-500 flex items-center space-x-2">
+                          <div className="flex-1">
+                            <div className="font-medium text-gray-900 text-sm sm:text-base">{member.name || "(No name)"}</div>
+                            <div className="text-xs sm:text-sm text-gray-500 flex flex-col sm:flex-row sm:items-center sm:space-x-2">
                               <span>{member.planName ? `${member.planName} • ${formatCurrency(member.fee)}` : "No plan"}</span>
-                              <span>•</span>
+                              <span className="hidden sm:inline">•</span>
                               <span className={isOverdue ? 'text-danger font-medium' : 'text-warning font-medium'}>
                                 Due: {formatDate(member.nextDue, false)}
                               </span>
@@ -658,30 +658,30 @@ const Dashboard = () => {
                           </div>
                           
                           {/* Status Badge */}
-                          <span className={`badge ${status.class}`}>
+                          <span className={`badge ${status.class} text-xs`}>
                             {status.label}
                           </span>
                         </div>
                         
                         {/* Action Buttons */}
-                        <div className="flex space-x-2">
+                        <div className="flex flex-wrap gap-2">
                           <button 
                             type="button" 
-                            className="btn btn-sm btn-primary" 
+                            className="btn btn-sm btn-primary flex-1 sm:flex-none" 
                             onClick={() => goRecordPayment(member)}
                           >
                             Record Payment
                           </button>
                           <button 
                             type="button" 
-                            className="btn btn-sm btn-outline" 
+                            className="btn btn-sm btn-outline flex-1 sm:flex-none" 
                             onClick={() => openWhatsApp(buildReminder(member), member.phone)}
                           >
                             WhatsApp
                           </button>
                           <button 
                             type="button" 
-                            className="btn btn-sm btn-outline" 
+                            className="btn btn-sm btn-outline flex-1 sm:flex-none" 
                             onClick={() => openEmail("Payment Reminder", buildReminder(member), member.email)}
                           >
                             Email
@@ -697,11 +697,11 @@ const Dashboard = () => {
         )}
 
         {/* Recent Activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {/* Recent Payments */}
           <div className="card">
             <div className="card-header">
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center">
                 <span className="text-primary mr-2">💳</span>
                 Recent Payments
               </h3>
@@ -712,23 +712,23 @@ const Dashboard = () => {
                   {payments.slice(-5).reverse().map(payment => (
                     <div key={payment.id} className="flex items-center justify-between p-3 border border-gray-100 rounded-lg">
                       <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-success-100 rounded-full flex items-center justify-center">
-                          <span className="text-success text-sm">💰</span>
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 bg-success-100 rounded-full flex items-center justify-center">
+                          <span className="text-success text-xs sm:text-sm">💰</span>
                         </div>
                         <div>
-                          <div className="font-medium text-gray-900">{formatCurrency(payment.amount)}</div>
-                          <div className="text-sm text-gray-500">{formatDate(payment.paidOn)}</div>
+                          <div className="font-medium text-gray-900 text-sm sm:text-base">{formatCurrency(payment.amount)}</div>
+                          <div className="text-xs sm:text-sm text-gray-500">{formatDate(payment.paidOn)}</div>
                         </div>
                       </div>
-                      <span className="badge badge-success">Paid</span>
+                      <span className="badge badge-success text-xs">Paid</span>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <div className="text-4xl mb-2">💳</div>
-                  <div>No payments yet</div>
-                  <div className="text-sm">Recent payments will appear here</div>
+                <div className="text-center py-6 sm:py-8 text-gray-500">
+                  <div className="text-3xl sm:text-4xl mb-2">💳</div>
+                  <div className="text-sm sm:text-base">No payments yet</div>
+                  <div className="text-xs sm:text-sm">Recent payments will appear here</div>
                 </div>
               )}
             </div>
@@ -737,28 +737,28 @@ const Dashboard = () => {
           {/* Quick Stats */}
           <div className="card">
             <div className="card-header">
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center">
                 <span className="text-info mr-2">📊</span>
                 Quick Stats
               </h3>
             </div>
             <div className="card-body">
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Total Members</span>
-                  <span className="font-semibold">{totalCount}</span>
+                  <span className="text-gray-600 text-sm sm:text-base">Total Members</span>
+                  <span className="font-semibold text-sm sm:text-base">{totalCount}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Active Rate</span>
-                  <span className="font-semibold">{totalCount > 0 ? Math.round((activeCount / totalCount) * 100) : 0}%</span>
+                  <span className="text-gray-600 text-sm sm:text-base">Active Rate</span>
+                  <span className="font-semibold text-sm sm:text-base">{totalCount > 0 ? Math.round((activeCount / totalCount) * 100) : 0}%</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">This Month Revenue</span>
-                  <span className="font-semibold text-success">{formatCurrency(revenueMTD)}</span>
+                  <span className="text-gray-600 text-sm sm:text-base">This Month Revenue</span>
+                  <span className="font-semibold text-success text-sm sm:text-base">{formatCurrency(revenueMTD)}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Avg. Payment</span>
-                  <span className="font-semibold">
+                  <span className="text-gray-600 text-sm sm:text-base">Avg. Payment</span>
+                  <span className="font-semibold text-sm sm:text-base">
                     {payments.length > 0 ? formatCurrency(payments.reduce((sum, p) => sum + Number(p.amount || 0), 0) / payments.length) : formatCurrency(0)}
                   </span>
                 </div>
