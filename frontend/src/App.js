@@ -7756,10 +7756,11 @@ export default function App() {
   useEffect(() => {
     (async () => {
       try { 
-        await (gymStorage.init?.()); 
-        console.log("[App] storage init ok"); 
+        await gymStorage.init(); 
+        await __storageSelfTest();
+        console.log("[App] storage init + selftest ok"); 
       } catch (e) { 
-        console.warn("[App] storage init skipped/failed", e); 
+        console.warn("[App] storage init/selftest failed", e); 
       }
       
       // Remove loading screen
