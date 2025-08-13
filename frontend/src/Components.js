@@ -1727,6 +1727,138 @@ const MembershipManagement = () => {
   );
 };
 
+// Sidebar Component for Router-based navigation
+const Sidebar = () => {
+  return (
+    <nav className="w-64 bg-white shadow-lg h-screen flex flex-col">
+      {/* Header */}
+      <div className="p-6 border-b border-gray-200">
+        <h1 className="text-xl font-bold text-primary">GoGym4U</h1>
+        <p className="text-xs text-gray-500 mt-1">Gym Management</p>
+      </div>
+
+      {/* Navigation Items */}
+      <div className="flex-1 py-6">
+        <ul className="space-y-2 px-3">
+          {[
+            { path: '/dashboard', icon: '📊', label: 'Dashboard' },
+            { path: '/members', icon: '👥', label: 'Members' },
+            { path: '/plans', icon: '📋', label: 'Plans' },
+            { path: '/payments', icon: '💳', label: 'Payments' },
+            { path: '/reports', icon: '📈', label: 'Reports' },
+            { path: '/settings', icon: '⚙️', label: 'Settings' }
+          ].map(item => (
+            <li key={item.path}>
+              <a
+                href={`#${item.path}`}
+                className={`nav-sidebar-item ${window.location.hash === `#${item.path}` ? 'active' : ''}`}
+              >
+                <span className="text-xl mr-3">{item.icon}</span>
+                <span className="font-medium">{item.label}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Footer */}
+      <div className="p-6 border-t border-gray-200">
+        <div className="text-xs text-gray-500 text-center">
+          GoGym4U v2.0
+        </div>
+      </div>
+    </nav>
+  );
+};
+
+// Simple Login Form Component
+const LoginForm = ({ onLogin }) => {
+  const [credentials, setCredentials] = useState({ username: '', password: '' });
+  
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Simple validation - in real app, authenticate with backend
+    if (credentials.username && credentials.password) {
+      onLogin();
+    } else {
+      alert('Please enter username and password');
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            GoGym4U Login
+          </h2>
+        </div>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div>
+            <input
+              type="text"
+              required
+              className="input"
+              placeholder="Username"
+              value={credentials.username}
+              onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
+            />
+          </div>
+          <div>
+            <input
+              type="password"
+              required
+              className="input"
+              placeholder="Password"
+              value={credentials.password}
+              onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
+            />
+          </div>
+          <div>
+            <button type="submit" className="btn btn-primary w-full">
+              Sign In
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// Install Prompt Component  
+const InstallPrompt = () => {
+  const [showPrompt, setShowPrompt] = useState(false);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setShowPrompt(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+  }, []);
+
+  if (!showPrompt) return null;
+
+  return (
+    <div className="fixed bottom-4 left-4 right-4 bg-primary text-white p-4 rounded-lg shadow-lg z-50">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="font-medium">Install GoGym4U</p>
+          <p className="text-sm text-primary-100">Add to home screen for quick access</p>
+        </div>
+        <button
+          onClick={() => setShowPrompt(false)}
+          className="btn btn-outline text-white border-white ml-4"
+        >
+          Install
+        </button>
+      </div>
+    </div>
+  );
+};
+
 // Alias for backward compatibility
 const PaymentTracking = PaymentComponent;
 
@@ -1737,7 +1869,10 @@ export {
   PaymentTracking,
   MembershipManagement,
   Reports,
-  Settings
+  Settings,
+  Sidebar,
+  LoginForm,
+  InstallPrompt
 };
 
 // Default export object for App.js
@@ -1747,7 +1882,10 @@ const Components = {
   ClientManagement,
   MembershipManagement,
   Reports,
-  Settings
+  Settings,
+  Sidebar,
+  LoginForm,
+  InstallPrompt
 };
 
 export default Components;
