@@ -38,6 +38,21 @@ function buildReminder(m){
   const amt = m.fee != null ? `$${Number(m.fee).toFixed(2)}` : "your fee";
   return `Hi ${m.name||''}, this is a reminder from Alphalete Club. ${amt} is due on ${due}.`;
 }
+function shareFallback(text){
+  if (navigator.share) {
+    navigator.share({ text }).catch(console.error);
+  } else {
+    navigator.clipboard?.writeText(text).then(() => alert('Copied to clipboard!')).catch(() => {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      alert('Copied to clipboard!');
+    });
+  }
+}
 /* /Utilities */
 
 // Helper function for data change signals
