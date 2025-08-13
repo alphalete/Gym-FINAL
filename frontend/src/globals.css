@@ -168,11 +168,11 @@
 /* Floating Action Button */
 @layer components {
   .fab {
-    @apply fixed bottom-20 right-4 w-14 h-14 bg-primary text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center text-xl z-40;
+    @apply fixed bottom-20 right-4 w-14 h-14 bg-primary-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center text-xl z-40;
   }
   
   .fab:hover {
-    @apply bg-primary-dark transform scale-105;
+    @apply bg-primary-700 transform scale-105;
   }
 }
 
