@@ -1341,11 +1341,12 @@ const Settings = () => {
       <div className="card">
         <div className="card-body">
           <div className="font-medium mb-2">Current Configuration</div>
-        <div className="space-y-1 text-sm text-gray-600">
-          <div>Default Fee: ${s.membershipFeeDefault?.toFixed(2) || '0.00'}</div>
-          <div>Billing Cycle: {s.billingCycleDays || 30} days</div>
-          <div>Due Soon Warning: {s.dueSoonDays || 3} days</div>
-          <div>Grace Period: {s.graceDays || 0} days</div>
+          <div className="space-y-1 text-sm text-gray-600">
+            <div>Default Fee: ${s.membershipFeeDefault?.toFixed(2) || '0.00'}</div>
+            <div>Billing Cycle: {s.billingCycleDays || 30} days</div>
+            <div>Due Soon Warning: {s.dueSoonDays || 3} days</div>
+            <div>Grace Period: {s.graceDays || 0} days</div>
+          </div>
         </div>
       </div>
     </div>
