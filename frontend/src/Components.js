@@ -68,16 +68,6 @@ function signalChanged(what='') {
 }
 // ---------- /Utilities ----------
 
-// Option A: keep cadence; roll nextDue forward by whole cycles until it's AFTER paidOn
-function computeNextDueOptionA(prevNextDueISO, paidOnISO, cycleDays){
-  const cycle = Number(cycleDays || 30);
-  const paid = new Date(paidOnISO);
-  if (!prevNextDueISO) return addDaysISO(paidOnISO, cycle);
-  let nextDue = new Date(prevNextDueISO);
-  while (nextDue <= paid) nextDue.setDate(nextDue.getDate() + cycle);
-  return nextDue.toISOString().slice(0,10);
-}
-
 function openWhatsApp(text, phone){
   const msg = encodeURIComponent(text);
   const pn  = phone ? encodeURIComponent(String(phone)) : "";
