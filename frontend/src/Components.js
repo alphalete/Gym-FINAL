@@ -366,7 +366,7 @@ const Dashboard = () => {
       {/* Dev Inspector */}
       <button type="button" className="fixed bottom-20 right-4 z-[9998] border rounded px-2 py-1 text-xs bg-white"
         onClick={async()=>{
-          const m = await gymStorage.getAll('members');
+          const m = (await gymStorage.getAll('members')).filter(x=>x.id!=='__selftest__');
           const p = await gymStorage.getAll('payments');
           alert(`Members: ${m.length}\nPayments: ${p.length}`);
         }}>Debug</button>
