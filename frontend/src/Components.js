@@ -1709,13 +1709,14 @@ const MembershipManagement = () => {
                   <div className="card">
                     <div className="card-body">
                       <div className="text-sm font-medium text-gray-700 mb-1">Preview:</div>
-                    <div className="text-sm text-gray-600">
-                      Members pay {formatCurrency(form.price)} every {form.cycleDays} days
-                      {form.cycleDays !== 30 && (
-                        <span className="text-gray-500">
-                          {' '}(≈ {formatCurrency((Number(form.price) / Number(form.cycleDays)) * 30)} monthly)
-                        </span>
-                      )}
+                      <div className="text-sm text-gray-600">
+                        Members pay {formatCurrency(form.price)} every {form.cycleDays} days
+                        {form.cycleDays !== 30 && (
+                          <span className="text-gray-500">
+                            {' '}(≈ {formatCurrency((Number(form.price) / Number(form.cycleDays)) * 30)} monthly)
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}
