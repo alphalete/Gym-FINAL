@@ -29,7 +29,7 @@
   }
   
   .btn-primary {
-    @apply btn bg-primary text-white hover:bg-primary-600 focus:ring-primary;
+    @apply btn bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-600;
   }
   
   .btn-secondary {
@@ -37,19 +37,19 @@
   }
   
   .btn-success {
-    @apply btn bg-success text-white hover:bg-success-600 focus:ring-success;
+    @apply btn bg-success-500 text-white hover:bg-success-600 focus:ring-success-500;
   }
   
   .btn-warning {
-    @apply btn bg-warning text-white hover:bg-warning-600 focus:ring-warning;
+    @apply btn bg-warning-500 text-white hover:bg-warning-600 focus:ring-warning-500;
   }
   
   .btn-danger {
-    @apply btn bg-danger text-white hover:bg-danger-600 focus:ring-danger;
+    @apply btn bg-danger-500 text-white hover:bg-danger-600 focus:ring-danger-500;
   }
   
   .btn-outline {
-    @apply btn border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-primary;
+    @apply btn border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-primary-600;
   }
   
   .btn-sm {
