@@ -1490,7 +1490,7 @@ const MembershipManagement = () => {
                 <div className="stat-label text-success-100">Total Plans</div>
               </div>
               <div className="stat-card bg-primary text-white text-center">
-                <div className="stat-value">{allMembers.filter(m => m.planId).length}</div>
+                <div className="stat-value">{allClientsMM.filter(m => m.planId).length}</div>
                 <div className="stat-label text-primary-100">Enrolled</div>
               </div>
             </div>
