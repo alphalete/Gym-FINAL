@@ -358,7 +358,7 @@ const PaymentComponent = () => {
                     className="input"
                     value={selectedClient?.id || ''}
                     onChange={e => {
-                      const client = clients.find(c => c.id === e.target.value);
+                      const client = membersPT.find(c => c.id === e.target.value);
                       setSelectedClient(client || null);
                     }}
                     required
