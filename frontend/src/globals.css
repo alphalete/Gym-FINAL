@@ -161,7 +161,7 @@
   }
   
   .nav-sidebar-item.active {
-    @apply bg-primary-50 text-primary border-r-2 border-primary;
+    @apply bg-primary-50 text-primary-600 border-r-2 border-primary-600;
   }
 }
 
