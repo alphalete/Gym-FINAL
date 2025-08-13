@@ -555,23 +555,23 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gray-50">
       {/* Header Section */}
       <div className="bg-white shadow-sm border-b">
-        <div className="px-6 py-6">
-          <div className="flex items-center justify-between">
+        <div className="px-4 sm:px-6 py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
             <div>
-              <h1 className="page-title text-primary">Dashboard</h1>
-              <p className="page-subtitle">Welcome back! Here's what's happening at your gym today.</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-primary">Dashboard</h1>
+              <p className="text-sm sm:text-base text-gray-600 mt-1">Welcome back! Here's what's happening at your gym today.</p>
             </div>
-            <div className="flex space-x-3">
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
               <button 
                 type="button" 
-                className="btn btn-primary"
+                className="btn btn-primary w-full sm:w-auto"
                 onClick={() => navigate('payments')}
               >
                 + Record Payment
               </button>
               <button 
                 type="button" 
-                className="btn btn-secondary"
+                className="btn btn-secondary w-full sm:w-auto"
                 onClick={() => navigate('clients')}
               >
                 + Add Member
@@ -581,50 +581,42 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="px-6 py-6">
-        {/* KPI Cards Grid - GoGym4U Style */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+      <div className="px-4 sm:px-6 py-4 sm:py-6">
+        {/* KPI Cards Grid - Fixed for Mobile */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
           {/* Active Members */}
           <div className="stat-card bg-primary text-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="stat-value">{activeCount}</div>
-                <div className="stat-label text-primary-100">Active Members</div>
-              </div>
-              <div className="text-primary-200 text-3xl">👥</div>
+            <div className="flex flex-col items-center text-center p-3 sm:p-4">
+              <div className="text-2xl sm:text-3xl mb-1">👥</div>
+              <div className="text-lg sm:text-2xl font-bold">{activeCount}</div>
+              <div className="text-xs sm:text-sm text-primary-100">Active Members</div>
             </div>
           </div>
 
           {/* Due Soon */}
           <div className="stat-card bg-warning text-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="stat-value">{dueSoon.length}</div>
-                <div className="stat-label text-warning-100">Due Soon (3 days)</div>
-              </div>
-              <div className="text-warning-200 text-3xl">⏰</div>
+            <div className="flex flex-col items-center text-center p-3 sm:p-4">
+              <div className="text-2xl sm:text-3xl mb-1">⏰</div>
+              <div className="text-lg sm:text-2xl font-bold">{dueSoon.length}</div>
+              <div className="text-xs sm:text-sm text-warning-100">Due Soon</div>
             </div>
           </div>
 
           {/* Overdue */}
           <div className="stat-card bg-danger text-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="stat-value">{overdue.length}</div>
-                <div className="stat-label text-danger-100">Overdue</div>
-              </div>
-              <div className="text-danger-200 text-3xl">⚠️</div>
+            <div className="flex flex-col items-center text-center p-3 sm:p-4">
+              <div className="text-2xl sm:text-3xl mb-1">⚠️</div>
+              <div className="text-lg sm:text-2xl font-bold">{overdue.length}</div>
+              <div className="text-xs sm:text-sm text-danger-100">Overdue</div>
             </div>
           </div>
 
           {/* Revenue */}
           <div className="stat-card bg-success text-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="stat-value">{formatCurrency(revenueMTD)}</div>
-                <div className="stat-label text-success-100">Revenue (MTD)</div>
-              </div>
-              <div className="text-success-200 text-3xl">💰</div>
+            <div className="flex flex-col items-center text-center p-3 sm:p-4">
+              <div className="text-2xl sm:text-3xl mb-1">💰</div>
+              <div className="text-lg sm:text-2xl font-bold">{formatCurrency(revenueMTD)}</div>
+              <div className="text-xs sm:text-sm text-success-100">Revenue</div>
             </div>
           </div>
         </div>
