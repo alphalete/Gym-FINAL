@@ -1,0 +1,253 @@
+/* GoGym4U Global Styles */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* Card Components */
+@layer components {
+  .card {
+    @apply bg-white rounded-lg shadow-card hover:shadow-card-hover transition-shadow duration-200;
+  }
+  
+  .card-header {
+    @apply px-6 py-4 border-b border-gray-200;
+  }
+  
+  .card-body {
+    @apply px-6 py-4;
+  }
+  
+  .card-footer {
+    @apply px-6 py-4 border-t border-gray-200 bg-gray-50;
+  }
+}
+
+/* Button Components */
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-md font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
+  .btn-primary {
+    @apply btn bg-primary text-white hover:bg-primary-dark focus:ring-primary;
+  }
+  
+  .btn-secondary {
+    @apply btn bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-300;
+  }
+  
+  .btn-success {
+    @apply btn bg-success text-white hover:bg-success-600 focus:ring-success;
+  }
+  
+  .btn-warning {
+    @apply btn bg-warning text-white hover:bg-warning-600 focus:ring-warning;
+  }
+  
+  .btn-danger {
+    @apply btn bg-danger text-white hover:bg-danger-600 focus:ring-danger;
+  }
+  
+  .btn-outline {
+    @apply btn border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-primary;
+  }
+  
+  .btn-sm {
+    @apply px-3 py-1.5 text-sm;
+  }
+  
+  .btn-lg {
+    @apply px-6 py-3 text-lg;
+  }
+  
+  .btn-icon {
+    @apply p-2 rounded-full;
+  }
+}
+
+/* Badge Components */
+@layer components {
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  
+  .badge-success {
+    @apply badge bg-success-100 text-success-800;
+  }
+  
+  .badge-warning {
+    @apply badge bg-warning-100 text-warning-800;
+  }
+  
+  .badge-danger {
+    @apply badge bg-danger-100 text-danger-800;
+  }
+  
+  .badge-info {
+    @apply badge bg-info-100 text-info-800;
+  }
+  
+  .badge-gray {
+    @apply badge bg-gray-100 text-gray-800;
+  }
+}
+
+/* Input Components */
+@layer components {
+  .input {
+    @apply block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm;
+  }
+  
+  .input-error {
+    @apply border-danger-300 focus:border-danger focus:ring-danger;
+  }
+  
+  .input-group {
+    @apply relative;
+  }
+  
+  .input-group-text {
+    @apply absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500 sm:text-sm;
+  }
+  
+  .input-group input {
+    @apply pl-10;
+  }
+}
+
+/* Form Components */
+@layer components {
+  .form-group {
+    @apply space-y-1;
+  }
+  
+  .form-label {
+    @apply block text-sm font-medium text-gray-700;
+  }
+  
+  .form-error {
+    @apply text-sm text-danger-600;
+  }
+  
+  .form-help {
+    @apply text-sm text-gray-500;
+  }
+}
+
+/* Navigation Components */
+@layer components {
+  .nav-bottom {
+    @apply fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50;
+  }
+  
+  .nav-bottom-item {
+    @apply flex-1 flex flex-col items-center py-2 px-1 text-xs;
+  }
+  
+  .nav-bottom-item.active {
+    @apply text-primary;
+  }
+  
+  .nav-bottom-item:not(.active) {
+    @apply text-gray-500 hover:text-gray-700;
+  }
+  
+  .nav-sidebar {
+    @apply fixed left-0 top-0 h-full bg-white border-r border-gray-200 z-40 transition-all duration-300;
+  }
+  
+  .nav-sidebar-item {
+    @apply flex items-center px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-100;
+  }
+  
+  .nav-sidebar-item.active {
+    @apply bg-primary-50 text-primary border-r-2 border-primary;
+  }
+}
+
+/* Floating Action Button */
+@layer components {
+  .fab {
+    @apply fixed bottom-20 right-4 w-14 h-14 bg-primary text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center text-xl z-40;
+  }
+  
+  .fab:hover {
+    @apply bg-primary-dark transform scale-105;
+  }
+}
+
+/* Modal Components */
+@layer components {
+  .modal-overlay {
+    @apply fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4;
+  }
+  
+  .modal {
+    @apply bg-white rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto animate-slide-up;
+  }
+  
+  .modal-header {
+    @apply px-6 py-4 border-b border-gray-200;
+  }
+  
+  .modal-title {
+    @apply text-lg font-semibold text-gray-900;
+  }
+  
+  .modal-body {
+    @apply px-6 py-4;
+  }
+  
+  .modal-footer {
+    @apply px-6 py-4 border-t border-gray-200 flex justify-end space-x-3;
+  }
+}
+
+/* Utility Classes */
+@layer utilities {
+  .content-padding {
+    @apply pb-16 sm:pb-4 md:ml-16 lg:ml-64;
+  }
+  
+  .page-header {
+    @apply mb-6;
+  }
+  
+  .page-title {
+    @apply text-2xl font-bold text-gray-900;
+  }
+  
+  .page-subtitle {
+    @apply text-gray-600 mt-1;
+  }
+  
+  .stat-card {
+    @apply card p-6 text-center;
+  }
+  
+  .stat-value {
+    @apply text-3xl font-bold mb-2;
+  }
+  
+  .stat-label {
+    @apply text-sm text-gray-600 font-medium;
+  }
+}
+
+/* Mobile-first responsive design */
+@media (max-width: 640px) {
+  .card {
+    @apply rounded-lg;
+  }
+  
+  .modal {
+    @apply mx-4 my-8;
+  }
+}
+
+/* Dark mode support (future enhancement) */
+@media (prefers-color-scheme: dark) {
+  .card {
+    @apply bg-gray-800 text-white;
+  }
+}
