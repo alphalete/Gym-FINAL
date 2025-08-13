@@ -1344,7 +1344,7 @@ const Settings = () => {
 // --- Plans (MembershipManagement) ---
 const MembershipManagement = () => {
   const [plans, setPlans] = useState([]);
-  const [allMembers, setAllMembers] = useState([]);
+  const allClientsMM = useMembersFromStorage(); // Use hook instead of state
   const [isOpen, setIsOpen] = useState(false);
   const [form, setForm] = useState({ id: "", name: "", price: 0, cycleDays: 30, description: "" });
   const [searchTerm, setSearchTerm] = useState("");
@@ -1353,13 +1353,9 @@ const MembershipManagement = () => {
     try {
       const list = await (getAllStore?.('plans') ?? []);
       setPlans(list.filter(p => !p._deleted).sort((a,b) => (a.name||"").localeCompare(b.name||"")));
-      
-      const members = await (gymStorage.getAllMembers?.() ?? []);
-      setAllMembers(Array.isArray(members) ? members : []);
     } catch (e) {
       console.error('Plans load error:', e);
       setPlans([]);
-      setAllMembers([]);
     }
   }
   
