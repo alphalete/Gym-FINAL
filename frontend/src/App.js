@@ -1,7 +1,7 @@
 // frontend/src/App.js — clean reboot
 import React, { useEffect, useState } from "react";
 import Components from "./Components";
-import gymStorage from "./storage";
+import gymStorage, { __storageSelfTest } from "./storage";
 import "./index.css";
 
 // Error Boundary
