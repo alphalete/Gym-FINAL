@@ -1,31 +1,54 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./src/**/*.{js,jsx,ts,tsx}"],
+  content: [
+    "./src/**/*.{js,jsx,ts,tsx}",
+    "./public/index.html",
+  ],
   theme: {
     extend: {
       colors: {
-        brand: {
-          50:  "#ecfdf5",
-          100: "#d1fae5",
-          500: "#10b981",
-          600: "#059669",
-          700: "#047857"
+        primary: {
+          DEFAULT: '#2563EB',
+          50: '#EBF2FF',
+          100: '#DBE7FF',
+          200: '#BAD0FF',
+          300: '#8DB5FF',
+          400: '#5A91FF',
+          500: '#2563EB',
+          600: '#1D4ED8',
+          700: '#1E40AF',
+          800: '#1E3A8A',
+          900: '#1E3A8A',
         },
-        accent: {
-          50:  "#f5f3ff",
-          100: "#ede9fe",
-          500: "#7c3aed",
-          600: "#6d28d9",
-          700: "#5b21b6"
-        }
+        success: {
+          DEFAULT: '#16A34A',
+          50: '#F0FDF4',
+          500: '#16A34A',
+          600: '#15803D',
+        },
+        warning: {
+          DEFAULT: '#F59E0B',
+          50: '#FFFBEB',
+          500: '#F59E0B',
+          600: '#D97706',
+        },
+        danger: {
+          DEFAULT: '#DC2626',
+          50: '#FEF2F2',
+          500: '#DC2626',
+          600: '#B91C1C',
+        },
       },
-      borderRadius: {
-        '2xl': '1rem'
+      fontFamily: {
+        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
       },
       boxShadow: {
-        'soft': '0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.10)'
-      }
-    }
+        'soft': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+        'soft-md': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+      },
+    },
   },
-  plugins: []
-};
+  plugins: [
+    require('@tailwindcss/forms'),
+  ],
+}
