@@ -153,11 +153,25 @@ export async function getAllClients(){ return gymStorage.getAllClients(); }
 // Self-test: try a write/read once per load (no-op if works)
 ////////////////////////////////////////////////////////////////////////////////
 export async function __storageSelfTest(){
+  const id='__selftest__';
   try{
-    const id = '__selftest__';
     await gymStorage.saveData('members', { id, name:'Self Test' });
     const all = await gymStorage.getAll('members');
     const ok = !!all.find(x=>x.id===id);
+    // cleanup
+    if (await gymStorage.init()){
+      await new Promise((resolve)=> {
+        try{
+          const tx = gymStorage.db.transaction(['members'],'readwrite');
+          tx.objectStore('members').delete(id);
+          tx.oncomplete = resolve; tx.onerror = resolve;
+        }catch(_e){ resolve(); }
+      });
+    } else {
+      const key='__members__';
+      const list = JSON.parse(localStorage.getItem(key)||'[]').filter(x=>x.id!==id);
+      localStorage.setItem(key, JSON.stringify(list));
+    }
     console.log('[storage] selftest', ok ? 'PASS' : 'FAIL');
     return ok;
   }catch(e){ console.warn('[storage] selftest error', e); return false; }
