@@ -6,29 +6,7 @@ import { nextDueDateFromJoin, isOverdue, nextDueAfterPayment } from "./billing";
 import LockBadge from "./LockBadge";
 import { requirePinIfEnabled } from './pinlock';
 
-// Helper function for data change signals
-function signalDataChanged(what = '') {
-  try {
-    localStorage.setItem('dataChangedAt', String(Date.now()));
-    window.dispatchEvent?.(new CustomEvent('DATA_CHANGED', { detail: what }));
-  } catch {}
-}
-
-// Simplified signal function
-function signalChanged(what='') { 
-  try { 
-    window.dispatchEvent?.(new CustomEvent('DATA_CHANGED', { detail: what })); 
-  } catch {} 
-}
-
-// Navigation helper function
-function navTo(tab){
-  const t = String(tab).toLowerCase();
-  try { location.hash = `#tab=${t}`; } catch {}
-  if (typeof window.setActiveTab === 'function') window.setActiveTab(t);
-  else window.dispatchEvent(new CustomEvent('NAVIGATE', { detail: t }));
-}
-
+// ---------- Utilities (single source of truth) ----------
 function navigate(tab) {
   const t = String(tab).toLowerCase();
   try { location.hash = `#tab=${t}`; } catch {}
@@ -41,7 +19,11 @@ function addDaysISO(iso, days){
   return d.toISOString().slice(0,10);
 }
 
-// Option A: keep cadence; roll nextDue forward by whole cycles until it's AFTER paidOn
+/**
+ * Option A: keep billing cadence.
+ * If prevNextDue exists, roll forward by whole cycles until nextDue > paidOn.
+ * If none, start from paidOn + cycleDays.
+ */
 function computeNextDueOptionA(prevNextDueISO, paidOnISO, cycleDays){
   const cycle = Number(cycleDays || 30);
   const paid = new Date(paidOnISO);
@@ -64,12 +46,27 @@ function openEmail(subject, body, to){
   window.location.href = `mailto:${t}?subject=${s}&body=${b}`;
 }
 function shareFallback(text){ if (navigator.share) { try { navigator.share({ text }); } catch {} } else { alert(text); } }
-
 function buildReminder(m){
   const due = m.nextDue || "your due date";
   const amt = m.fee != null ? `$${Number(m.fee).toFixed(2)}` : "your fee";
   return `Hi ${m.name||''}, this is a reminder from Alphalete Club. ${amt} is due on ${due}.`;
 }
+
+// Helper function for data change signals
+function signalDataChanged(what = '') {
+  try {
+    localStorage.setItem('dataChangedAt', String(Date.now()));
+    window.dispatchEvent?.(new CustomEvent('DATA_CHANGED', { detail: what }));
+  } catch {}
+}
+
+// Simplified signal function
+function signalChanged(what='') { 
+  try { 
+    window.dispatchEvent?.(new CustomEvent('DATA_CHANGED', { detail: what })); 
+  } catch {} 
+}
+// ---------- /Utilities ----------
 
 function addDaysISO(iso, days){
   const d = new Date(iso); d.setDate(d.getDate() + Number(days||0));
