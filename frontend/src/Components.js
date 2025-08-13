@@ -1729,32 +1729,60 @@ const MembershipManagement = () => {
 
 // Sidebar Component for Router-based navigation
 const Sidebar = () => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  const navItems = [
+    { path: '/dashboard', icon: '📊', label: 'Dashboard' },
+    { path: '/members', icon: '👥', label: 'Members' },
+    { path: '/plans', icon: '📋', label: 'Plans' },
+    { path: '/payments', icon: '💳', label: 'Payments' },
+    { path: '/reports', icon: '📈', label: 'Reports' },
+    { path: '/settings', icon: '⚙️', label: 'Settings' }
+  ];
+
+  const isActive = (path) => window.location.hash === `#${path}`;
+
   return (
-    <nav className="w-64 bg-white shadow-lg h-screen flex flex-col">
+    <nav className={`hidden md:block fixed left-0 top-0 h-full bg-white shadow-lg z-40 transition-all duration-300 group ${
+      isExpanded ? 'w-56' : 'w-16 hover:w-56'
+    }`}>
       {/* Header */}
-      <div className="p-6 border-b border-gray-200">
-        <h1 className="text-xl font-bold text-primary">GoGym4U</h1>
-        <p className="text-xs text-gray-500 mt-1">Gym Management</p>
+      <div className="p-4 border-b border-gray-200">
+        <div className="flex items-center justify-between">
+          <div className={`transition-opacity duration-300 ${isExpanded ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+            <h1 className="text-lg font-bold text-primary whitespace-nowrap">GoGym4U</h1>
+            <p className="text-xs text-gray-500 whitespace-nowrap">Gym Management</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="p-2 rounded-lg hover:bg-soft transition-colors"
+            aria-label="Toggle sidebar"
+          >
+            <span className="text-lg">☰</span>
+          </button>
+        </div>
       </div>
 
       {/* Navigation Items */}
-      <div className="flex-1 py-6">
+      <div className="flex-1 py-6 overflow-hidden">
         <ul className="space-y-2 px-3">
-          {[
-            { path: '/dashboard', icon: '📊', label: 'Dashboard' },
-            { path: '/members', icon: '👥', label: 'Members' },
-            { path: '/plans', icon: '📋', label: 'Plans' },
-            { path: '/payments', icon: '💳', label: 'Payments' },
-            { path: '/reports', icon: '📈', label: 'Reports' },
-            { path: '/settings', icon: '⚙️', label: 'Settings' }
-          ].map(item => (
+          {navItems.map((item) => (
             <li key={item.path}>
               <a
                 href={`#${item.path}`}
-                className={`nav-sidebar-item ${window.location.hash === `#${item.path}` ? 'active' : ''}`}
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer ${
+                  isActive(item.path)
+                    ? 'bg-indigo-50 text-primary font-medium'
+                    : 'text-gray-600 hover:bg-soft hover:text-primary'
+                }`}
               >
-                <span className="text-xl mr-3">{item.icon}</span>
-                <span className="font-medium">{item.label}</span>
+                <span className="w-5 h-5 shrink-0 text-xl flex items-center justify-center">{item.icon}</span>
+                <span className={`whitespace-nowrap transition-opacity duration-300 ${
+                  isExpanded ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                }`}>
+                  {item.label}
+                </span>
               </a>
             </li>
           ))}
@@ -1762,9 +1790,11 @@ const Sidebar = () => {
       </div>
 
       {/* Footer */}
-      <div className="p-6 border-t border-gray-200">
-        <div className="text-xs text-gray-500 text-center">
-          GoGym4U v2.0
+      <div className="p-4 border-t border-gray-200">
+        <div className={`text-xs text-gray-500 text-center transition-opacity duration-300 ${
+          isExpanded ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+        }`}>
+          <div className="whitespace-nowrap">GoGym4U v2.0</div>
         </div>
       </div>
     </nav>
