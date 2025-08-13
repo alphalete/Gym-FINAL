@@ -1338,8 +1338,9 @@ const Settings = () => {
         </div>
       </div>
       
-      <div className="bg-gray-50 border rounded-2xl p-4">
-        <div className="font-medium mb-2">Current Configuration</div>
+      <div className="card">
+        <div className="card-body">
+          <div className="font-medium mb-2">Current Configuration</div>
         <div className="space-y-1 text-sm text-gray-600">
           <div>Default Fee: ${s.membershipFeeDefault?.toFixed(2) || '0.00'}</div>
           <div>Billing Cycle: {s.billingCycleDays || 30} days</div>
