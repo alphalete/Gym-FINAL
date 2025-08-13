@@ -88,6 +88,23 @@ class GymStorage {
     await Promise.all(list.map(m => this.saveData('members', m)));
   }
 
+  // --- Back-compat: some code still calls legacy client helpers/store ---
+  async saveClients(clients){
+    const list = Array.isArray(clients) ? clients : [clients];
+    await Promise.all(list.map(c => this.saveData('members', c))); // alias to 'members'
+  }
+  async saveClientToPhone(client){
+    return this.saveData('members', client); // alias
+  }
+
+  async getAllClients(){
+    // if you had a separate 'clients' store once, read it;
+    // otherwise just return members so UI paths still work.
+    const maybe = await this.getAll('clients');
+    const mems  = await this.getAll('members');
+    return (Array.isArray(maybe) && maybe.length ? maybe : mems);
+  }
+
   async getSetting(name, fallback={}){
     if (await this.init()){
       return new Promise((resolve)=>{
