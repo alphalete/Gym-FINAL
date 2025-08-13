@@ -4,6 +4,7 @@ import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import Components from "./Components";
 import gymStorage from "./storage";
 import ErrorBoundary from "./ErrorBoundary";
+import BottomNav from "./components/BottomNav";
 
 const Fallback = () => (
   <div className="min-h-screen flex items-center justify-center">
@@ -75,9 +76,9 @@ export default function App(){
         {!authed ? (
           <C.LoginForm onLogin={() => setAuthed(true)} />
         ) : (
-          <div className="min-h-screen bg-gray-50 flex">
+          <div className="min-h-screen bg-soft flex">
             <C.Sidebar />
-            <main className="flex-1 min-w-0">
+            <main className="flex-1 min-w-0 pb-20 md:pb-4 md:ml-16">
               <Routes>
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/dashboard" element={<C.Dashboard />} />
@@ -89,6 +90,7 @@ export default function App(){
                 <Route path="*" element={<div className="p-4">Not found</div>} />
               </Routes>
             </main>
+            <BottomNav />
           </div>
         )}
       </HashRouter>
