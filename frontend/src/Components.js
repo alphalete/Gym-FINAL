@@ -536,30 +536,40 @@ const ClientManagement = () => {
     };
   }, []);
 
-  async function save() {
-    const id = editing?.id || (crypto.randomUUID?.() || String(Date.now()));
-    const plan = form.planId ? plans.find(p=>String(p.id)===String(form.planId)) : null;
-    const base = {
-      id,
-      name: form.name, email: form.email, phone: form.phone,
-      status: editing?.status || "Active",
-      joinDate: editing?.joinDate || new Date().toISOString().slice(0,10),
-      // if creating new & plan exists, set an initial nextDue = today + cycle
-      nextDue: editing?.nextDue || (plan ? addDaysISO(new Date().toISOString().slice(0,10), Number(plan.cycleDays||30)) : undefined),
-      lastPayment: editing?.lastPayment || null,
-    };
-    // Plan snapshot so cycleDays & fee exist even if the plan changes later
-    const snap = plan ? {
-      planId: plan.id,
-      planName: plan.name,
-      cycleDays: Number(plan.cycleDays || 30),
-      fee: Number(plan.price || 0),
-    } : {};
-    await gymStorage.saveMembers({ ...base, ...snap });
-    setIsOpen(false); 
-    setEditing(null); 
-    signalChanged('members'); 
-    loadMembersAndPlans();
+  async function save(){
+    try {
+      const id = editing?.id || (crypto.randomUUID?.() || String(Date.now()));
+      const plan = form.planId ? plans.find(p=>String(p.id)===String(form.planId)) : null;
+      const base = {
+        id,
+        name: form.name?.trim() || '',
+        email: form.email?.trim() || '',
+        phone: form.phone?.trim() || '',
+        status: editing?.status || 'Active',
+        joinDate: editing?.joinDate || new Date().toISOString().slice(0,10),
+        lastPayment: editing?.lastPayment || null,
+        nextDue: editing?.nextDue || (plan ? addDaysISO(new Date().toISOString().slice(0,10), Number(plan.cycleDays||30)) : undefined),
+      };
+      const snap = plan ? {
+        planId: plan.id,
+        planName: plan.name,
+        cycleDays: Number(plan.cycleDays || 30),
+        fee: Number(plan.price || 0),
+      } : {};
+      const rec = { ...base, ...snap };
+
+      // WRITE through the new API (covers both new & legacy paths)
+      await gymStorage.saveMembers(rec);
+
+      // notify and refresh
+      try { window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail:'members' })); } catch {}
+      setIsOpen(false); 
+      setEditing(null);
+      await loadMembersAndPlans?.();
+    } catch (e) {
+      console.error('[ClientManagement.save] failed', e);
+      alert('Save failed. See console for details.');
+    }
   }
   
   async function del(m) {
