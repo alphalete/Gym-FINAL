@@ -14,7 +14,7 @@
 # Main and testing agents must follow this exact format to maintain testing data. 
 # The testing data must be entered in yaml format Below is the data structure:
 # 
-## user_problem_statement: TASK: Scrub corrupted tokens, replace App.js with a clean file, and harden storage.
+## user_problem_statement: TASK: Upgrade React + FastAPI + MongoDB PWA (Tailwind) gym app to match the visual style and UX flow of GoGym4U without removing any features, and fix all outstanding functional issues.
 
 ## backend:
   - task: "Backend stability after comprehensive plan-to-member integration"
