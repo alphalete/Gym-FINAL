@@ -1,7 +1,4 @@
-export function addDaysISO(iso, days){
-  const d = new Date(iso); d.setDate(d.getDate() + Number(days||0));
-  return d.toISOString().slice(0,10);
-}
+import { addDaysISO } from './utils/common';
 
 /**
  * Compute next due date after a payment.
