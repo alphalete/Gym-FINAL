@@ -5,40 +5,21 @@ import PaymentsHistory from './components/payments/PaymentsHistory';
 import { nextDueDateFromJoin, isOverdue, nextDueAfterPayment } from "./billing";
 import LockBadge from "./LockBadge";
 import { requirePinIfEnabled } from './pinlock';
+// Import consolidated utilities from common.js (Phase D requirement)
+import { 
+  navigate, 
+  addDaysISO, 
+  computeNextDueOptionA, 
+  openWhatsApp, 
+  openEmail, 
+  buildReminder,
+  formatCurrency,
+  formatDate,
+  getPaymentStatus,
+  getInitials
+} from './utils/common';
 
-/* Utilities */
-function navigate(tab) {
-  const t = String(tab).toLowerCase();
-  try { location.hash = `#tab=${t}`; } catch {}
-  if (typeof window.setActiveTab === 'function') window.setActiveTab(t);
-  else window.dispatchEvent(new CustomEvent('NAVIGATE', { detail: t }));
-}
-function addDaysISO(iso, days){ const d=new Date(iso); d.setDate(d.getDate()+Number(days||0)); return d.toISOString().slice(0,10); }
-/* Option A: keep cadence; roll forward by whole cycles until nextDue > paidOn */
-function computeNextDueOptionA(prevNextDueISO, paidOnISO, cycleDays){
-  const cycle = Number(cycleDays || 30);
-  const paid = new Date(paidOnISO);
-  if (!prevNextDueISO) return addDaysISO(paidOnISO, cycle);
-  let nextDue = new Date(prevNextDueISO);
-  while (nextDue <= paid) nextDue.setDate(nextDue.getDate() + cycle);
-  return nextDue.toISOString().slice(0,10);
-}
-function openWhatsApp(text, phone){
-  const msg = encodeURIComponent(text || "");
-  const pn  = phone ? encodeURIComponent(String(phone)) : "";
-  const url = pn ? `https://wa.me/${pn}?text=${msg}` : `https://wa.me/?text=${msg}`;
-  window.open(url, "_blank");
-}
-function openEmail(subject, body, to){
-  const s=encodeURIComponent(subject||""); const b=encodeURIComponent(body||""); const t=to?encodeURIComponent(to):"";
-  window.location.href = `mailto:${t}?subject=${s}&body=${b}`;
-}
-function buildReminder(m){
-  const due = m.nextDue || "your due date";
-  const amt = m.fee != null ? `$${Number(m.fee).toFixed(2)}` : "your fee";
-  return `Hi ${m.name||''}, this is a reminder from Alphalete Club. ${amt} is due on ${due}.`;
-}
-function shareFallback(text){
+/* Share utility function */
   if (navigator.share) {
     navigator.share({ text }).catch(console.error);
   } else {
