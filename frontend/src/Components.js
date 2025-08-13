@@ -20,6 +20,7 @@ import {
 } from './utils/common';
 
 /* Share utility function */
+function shareFallback(text) {
   if (navigator.share) {
     navigator.share({ text }).catch(console.error);
   } else {
