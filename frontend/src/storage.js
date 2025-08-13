@@ -123,6 +123,69 @@ class GymStorage {
   async savePlan(plan){ return this.saveData('plans', plan); }
 }
 const gymStorage = new GymStorage();
+//-------------------------------------------------------------------------
+// SAFE INITIALIZATION AND NAMED EXPORTS FOR ROBUST APP LOADING
+//-------------------------------------------------------------------------
+
+// Safe init function that always resolves quickly
+export async function init(){ 
+  try { 
+    if (typeof indexedDB !== "undefined") {
+      // Use the existing gymStorage init if available
+      return gymStorage?.init?.() ?? Promise.resolve();
+    }
+  } catch(e){ 
+    console.warn("IDB init err", e); 
+  }
+  return Promise.resolve();
+}
+
+export async function persistHint(){ 
+  try { 
+    await navigator.storage?.persist?.(); 
+  } catch(_){
+    // Ignore errors - not critical
+  } 
+}
+
+// Ensure default instance has required methods
+const gs = (typeof gymStorage !== "undefined" ? gymStorage : {});
+if (!gs.init) gs.init = init;
+if (!gs.persistHint) gs.persistHint = persistHint;
+
+// Pass-through named exports used by Components.js so imports don't crash
+export async function getSetting(name, fb){ 
+  return (gs.getSetting ? gs.getSetting(name, fb) : fb); 
+}
+
+export async function saveSetting(name, val){ 
+  return gs.saveSetting ? gs.saveSetting(name, val) : undefined; 
+}
+
+export async function getPlans(){ 
+  return gs.getPlans ? gs.getPlans() : []; 
+}
+
+export async function savePlan(p){ 
+  return gs.savePlan ? gs.savePlan(p) : undefined; 
+}
+
+export async function savePayment(p){ 
+  return gs.savePayment ? gs.savePayment(p) : undefined; 
+}
+
+export async function getAllPayments(){ 
+  return gs.getAllPayments ? gs.getAllPayments() : []; 
+}
+
+export async function getAllMembers(){
+  return gs.getAllMembers ? gs.getAllMembers() : [];
+}
+
+export async function saveMembers(data){
+  return gs.saveMembers ? gs.saveMembers(data) : undefined;
+}
+
 export default gymStorage;
 export async function getAll(store){ return gymStorage.getAll(store); }
 
