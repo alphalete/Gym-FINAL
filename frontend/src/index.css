@@ -9,14 +9,8 @@ html, body, #root {
   padding: 0;
 }
 
-body { 
-  background: #F8FAFC; 
-}
-
-#root { 
-  display: flex; 
-  flex-direction: column; 
-}
+html, body, #root { height: 100%; }
+body { @apply bg-slate-50 text-slate-900; }
 
 /* Safe area handling for mobile devices */
 main { 
