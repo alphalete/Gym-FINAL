@@ -29,7 +29,7 @@ from typing import Dict, List, Any
 import uuid
 
 # Get backend URL from environment
-BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://11de4989-73e3-4ef7-af2f-9a3e17ae8392.preview.emergentagent.com')
+BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://gogym4u-upgrade.preview.emergentagent.com')
 if not BACKEND_URL.endswith('/api'):
     BACKEND_URL = f"{BACKEND_URL}/api"
 
