@@ -618,9 +618,10 @@ class AlphaleteBackendTester:
         print(f"🧹 Cleaned up {cleanup_count}/{len(self.created_test_clients)} test clients")
 
     def run_all_tests(self):
-        """Run all backend tests for Components.js cleanup stability"""
+        """Run all backend tests for comprehensive frontend overhaul stability"""
         print("🚀 STARTING ALPHALETE CLUB BACKEND STABILITY TESTING")
-        print("🎯 Focus: Backend Stability After Frontend Components.js Code Cleanup")
+        print("🎯 Focus: Backend Stability After Comprehensive Frontend Overhaul")
+        print("📋 Testing: Storage.js replacement, Option A payment logic, dashboard counts, real reminders")
         print("=" * 80)
         
         # Test sequence
