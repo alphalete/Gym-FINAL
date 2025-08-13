@@ -985,74 +985,43 @@ const ClientManagement = () => {
             {filteredClients.length > 0 ? (
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                 {filteredClients.map(client => {
-                  const status = getPaymentStatus(client);
+                  // Compute single status badge (no duplicates)
+                  const status = (client?.status || client?.active) ? 'ACTIVE' : 'INACTIVE';
+                  const StatusBadge = () => (
+                    status === 'ACTIVE'
+                      ? <span className="badge-active">ACTIVE</span>
+                      : <span className="badge-inactive">INACTIVE</span>
+                  );
                   
                   return (
-                    <div key={client.id} className="card hover:shadow-md transition-shadow duration-200">
+                    <div key={client.id} className="card">
                       <div className="card-body">
-                        {/* Member Header */}
-                        <div className="flex items-center space-x-3 mb-4">
-                          {/* Avatar */}
-                          <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white font-medium text-lg">
-                            {getInitials(client.name)}
+                        {/* Top row: avatar + name + ONE status badge */}
+                        <div className="flex items-center gap-3">
+                          <div className="h-12 w-12 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold">
+                            {(client?.name || '').split(' ').map(s=>s[0]).join('').slice(0,2) || 'MM'}
                           </div>
-                          
-                          {/* Basic Info */}
-                          <div className="flex-1 min-w-0">
-                            <div className="font-medium text-gray-900 truncate">{client.name || "(No name)"}</div>
-                            <div className="text-sm text-gray-500 flex items-center space-x-1">
-                              <span className={`badge ${status.class}`}>{status.label}</span>
-                              <span className={`badge ${client.status === 'Active' ? 'badge-success' : 'badge-gray'}`}>
-                                {client.status || 'Active'}
-                              </span>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <h3 className="text-base font-semibold">{client?.name || 'Member'}</h3>
+                              <StatusBadge />
                             </div>
+                            <div className="text-sm text-slate-500">{client?.email}</div>
+                            <div className="text-sm text-slate-500">{client?.phone}</div>
                           </div>
                         </div>
 
-                        {/* Contact Info */}
-                        <div className="space-y-2 mb-4">
-                          <div className="flex items-center text-sm text-gray-600">
-                            <span className="w-5">📧</span>
-                            <span className="truncate">{client.email || "No email"}</span>
-                          </div>
-                          <div className="flex items-center text-sm text-gray-600">
-                            <span className="w-5">📱</span>
-                            <span>{client.phone || "No phone"}</span>
-                          </div>
-                          <div className="flex items-center text-sm text-gray-600">
-                            <span className="w-5">📅</span>
-                            <span>Joined {formatDate(client.joinDate)}</span>
-                          </div>
-                        </div>
-
-                        {/* Plan Info */}
-                        {client.planName ? (
-                          <div className="bg-gray-50 rounded-lg p-3 mb-4">
-                            <div className="flex justify-between items-start">
-                              <div>
-                                <div className="font-medium text-gray-900">{client.planName}</div>
-                                <div className="text-sm text-gray-600">{formatCurrency(client.fee)} / {client.cycleDays || 30} days</div>
-                              </div>
-                              <span className="badge badge-info">Plan</span>
-                            </div>
-                            {client.nextDue && (
-                              <div className="text-sm text-gray-600 mt-2">
-                                Next due: {formatDate(client.nextDue, false)}
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          <div className="bg-gray-50 rounded-lg p-3 mb-4 text-center text-gray-500">
-                            <div className="text-2xl mb-1">📋</div>
-                            <div className="text-sm">No plan assigned</div>
+                        {/* Plan chip (if present) */}
+                        {client?.planName && (
+                          <div className="mt-3">
+                            <span className="badge-warning">{client.planName}</span>
                           </div>
                         )}
 
-                        {/* Action Buttons */}
-                        <div className="flex space-x-2">
+                        {/* Actions (normalized buttons) */}
+                        <div className="mt-4 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">
                           <button 
-                            type="button" 
-                            className="btn btn-sm btn-outline flex-1"
+                            className="btn-secondary" 
                             onClick={() => { 
                               setEditingClient(client); 
                               setForm({ 
@@ -1067,36 +1036,27 @@ const ClientManagement = () => {
                             Edit
                           </button>
                           <button 
-                            type="button" 
-                            className={`btn btn-sm flex-1 ${client.status === "Active" ? 'btn-warning' : 'btn-success'}`}
+                            className="btn-warning" 
                             onClick={() => toggleStatus(client)}
                           >
                             {client.status === "Active" ? "Deactivate" : "Activate"}
                           </button>
+                          <button 
+                            className="btn-primary" 
+                            onClick={() => {
+                              localStorage.setItem("pendingPaymentMemberId", String(client.id));
+                              navigate('payments');
+                            }}
+                          >
+                            Record Payment
+                          </button>
+                          <button 
+                            className="btn-ghost" 
+                            onClick={() => openWhatsApp(buildReminder(client), client.phone)}
+                          >
+                            WhatsApp
+                          </button>
                         </div>
-
-                        {/* Quick Action Buttons for Active Members */}
-                        {client.status === 'Active' && (
-                          <div className="flex space-x-2 mt-2">
-                            <button 
-                              type="button" 
-                              className="btn btn-sm btn-primary flex-1"
-                              onClick={() => {
-                                localStorage.setItem("pendingPaymentMemberId", String(client.id));
-                                navigate('payments');
-                              }}
-                            >
-                              Record Payment
-                            </button>
-                            <button 
-                              type="button" 
-                              className="btn btn-sm btn-outline"
-                              onClick={() => openWhatsApp(buildReminder(client), client.phone)}
-                            >
-                              WhatsApp
-                            </button>
-                          </div>
-                        )}
                       </div>
                     </div>
                   );
