@@ -1,6 +1,10 @@
 /* ============================================ */
 /* MOBILE-FIRST PWA STYLES - ALPHALETE CLUB   */
+/* GOGYM4U THEME INTEGRATION                  */
 /* ============================================ */
+
+/* Import GoGym4U Global Styles */
+@import './globals.css';
 
 /* Mobile-First Base Configuration */
 :root {
