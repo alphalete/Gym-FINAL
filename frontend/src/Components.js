@@ -476,43 +476,29 @@ const PlansMini = () => {
 
 // --- Members (ClientManagement) ---
 const ClientManagement = () => {
-  const [members, setMembers] = useState([]);
+  const [clients, setClients] = useState([]);
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
-  const [editing, setEditing] = useState(null);
+  const [isAddingClient, setIsAddingClient] = useState(false);
+  const [editingClient, setEditingClient] = useState(null);
   const [form, setForm] = useState({ name:"", email:"", phone:"", planId:"" });
 
-  async function load() {
-    setLoading(true);
+  async function loadMembersAndPlans(){
     try {
-      const m1 = await (gymStorage.getAllMembers?.() ?? []);
-      const m2 = await (getAllStore?.('members') ?? []);
-      const byId = new Map();
-      [...m1, ...m2].forEach(x => { 
-        if (!x) return; 
-        const id = String(x.id || x.memberId || x.email || x.phone || Date.now()); 
-        byId.set(id, { ...x, id }); 
-      });
-      setMembers(Array.from(byId.values()).sort((a,b)=> (a.name||"").localeCompare(b.name||"")));
-    } finally { 
-      setLoading(false); 
-    }
+      const ms = await gymStorage.getAllMembers();
+      setClients(ms || []);
+      const ps = await gymStorage.getPlans();
+      setPlans((ps || []).filter(p=>!p._deleted).sort((a,b)=> (a.name||"").localeCompare(b.name||"")));
+    } catch(e){ console.error('load error', e); }
   }
 
-  async function loadMembersAndPlans(){
-    await load(); // existing members loader
-    const ps = await (getAllStore?.('plans') ?? []);
-    setPlans((ps || []).filter(p=>!p._deleted).sort((a,b)=>(a.name||"").localeCompare(b.name||"")));
-  }
-  
-  useEffect(() => { loadMembersAndPlans(); }, []);
-  
+  useEffect(()=>{ loadMembersAndPlans(); },[]);
+
   useEffect(() => {
     const onOpen = () => { 
-      setEditing(null); 
+      setEditingClient(null); 
       setForm({ name:"", email:"", phone:"", planId:"" }); 
-      setIsOpen(true); 
+      setIsAddingClient(true); 
     };
     window.addEventListener("OPEN_ADD_MEMBER", onOpen);
     const onChanged = () => loadMembersAndPlans();
@@ -524,18 +510,18 @@ const ClientManagement = () => {
   }, []);
 
   async function save(){
-    try {
-      const id = editing?.id || (crypto.randomUUID?.() || String(Date.now()));
+    try{
+      const id = editingClient?.id || (crypto.randomUUID?.() || String(Date.now()));
       const plan = form.planId ? plans.find(p=>String(p.id)===String(form.planId)) : null;
       const base = {
         id,
         name: form.name?.trim() || '',
         email: form.email?.trim() || '',
         phone: form.phone?.trim() || '',
-        status: editing?.status || 'Active',
-        joinDate: editing?.joinDate || new Date().toISOString().slice(0,10),
-        lastPayment: editing?.lastPayment || null,
-        nextDue: editing?.nextDue || (plan ? addDaysISO(new Date().toISOString().slice(0,10), Number(plan.cycleDays||30)) : undefined),
+        status: editingClient?.status || 'Active',
+        joinDate: editingClient?.joinDate || new Date().toISOString().slice(0,10),
+        lastPayment: editingClient?.lastPayment || null,
+        nextDue: editingClient?.nextDue || (plan ? addDaysISO(new Date().toISOString().slice(0,10), Number(plan.cycleDays||30)) : undefined),
       };
       const snap = plan ? {
         planId: plan.id,
@@ -543,27 +529,17 @@ const ClientManagement = () => {
         cycleDays: Number(plan.cycleDays || 30),
         fee: Number(plan.price || 0),
       } : {};
-      const rec = { ...base, ...snap };
-
-      // WRITE through the new API (covers both new & legacy paths)
-      await gymStorage.saveMembers(rec);
-
-      // notify and refresh
-      try { window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail:'members' })); } catch {}
-      setIsOpen(false); 
-      setEditing(null);
-      await loadMembersAndPlans?.();
-    } catch (e) {
-      console.error('[ClientManagement.save] failed', e);
-      alert('Save failed. See console for details.');
-    }
+      await gymStorage.saveMembers({ ...base, ...snap });
+      try { window.dispatchEvent(new CustomEvent('DATA_CHANGED',{detail:'members'})); } catch {}
+      setIsAddingClient(false); setEditingClient(null);
+      await loadMembersAndPlans();
+    }catch(e){ console.error('[save] failed', e); alert('Save failed'); }
   }
-  
-  async function del(m) {
-    // soft delete: set status Inactive for simplicity
-    await gymStorage.saveMembers({ ...m, status: "Inactive" });
+
+  async function toggleStatus(m) {
+    await gymStorage.saveMembers({ ...m, status: m.status === "Active" ? "Inactive" : "Active" });
     signalChanged('members'); 
-    load();
+    loadMembersAndPlans();
   }
 
   return (
@@ -574,9 +550,9 @@ const ClientManagement = () => {
           type="button" 
           className="border rounded px-3 py-2 bg-blue-500 text-white hover:bg-blue-600" 
           onClick={() => { 
-            setEditing(null); 
+            setEditingClient(null); 
             setForm({ name:"", email:"", phone:"", planId:"" }); 
-            setIsOpen(true); 
+            setIsAddingClient(true); 
           }}
         >
           + Add Member
@@ -584,46 +560,40 @@ const ClientManagement = () => {
       </div>
 
       {loading ? (
-        <div className="text-sm text-gray-500">Loading…</div>
-      ) : members.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          <div className="text-4xl mb-2">👥</div>
-          <div>No members yet.</div>
-          <div className="text-sm">Click "Add Member" to get started.</div>
-        </div>
+        <div className="text-center py-8">Loading...</div>
       ) : (
         <div className="space-y-2">
-          {members.filter(m => m.status !== 'Inactive').map(m => (
-            <div key={m.id} className="flex items-center justify-between border rounded-xl px-3 py-2 bg-white">
+          {clients.map(c => (
+            <div key={c.id} className="flex items-center justify-between border rounded-xl px-3 py-2">
               <div>
-                <div className="font-medium">{m.name || "(no name)"}</div>
+                <div className="font-medium">{c.name || "(no name)"}</div>
                 <div className="text-xs text-gray-500">
-                  {m.email || "—"} • {m.phone || "—"} • {m.status || "Active"}
-                  {m.joinDate && ` • Joined ${m.joinDate}`}
+                  {c.email || "—"} • {c.phone || "—"} • {c.status || "Active"}
+                  {c.joinDate && ` • Joined ${c.joinDate}`}
                 </div>
-                <div className="text-xs text-gray-500">
-                  {(m.planName ? `${m.planName} • $${Number(m.fee||0).toFixed(2)} / ${m.cycleDays||30}d` : "No plan")}
-                </div>
-                {m.nextDue && <div className="text-xs">{`Next due: ${m.nextDue}`}</div>}
+                {c.planName
+                  ? <div className="text-xs text-gray-500">{c.planName} • ${Number(c.fee||0).toFixed(2)} / {c.cycleDays||30}d</div>
+                  : <div className="text-xs text-gray-400">No plan</div>}
+                {c.nextDue && <div className="text-xs">Next due: {c.nextDue}</div>}
               </div>
               <div className="flex gap-2">
                 <button 
                   type="button" 
                   className="text-xs border rounded px-2 py-1 hover:bg-gray-50" 
                   onClick={() => { 
-                    setEditing(m); 
-                    setForm({ name:m.name||"", email:m.email||"", phone:m.phone||"", planId: m.planId || "" }); 
-                    setIsOpen(true); 
+                    setEditingClient(c); 
+                    setForm({ name:c.name||"", email:c.email||"", phone:c.phone||"", planId: c.planId || "" }); 
+                    setIsAddingClient(true); 
                   }}
                 >
                   Edit
                 </button>
                 <button 
                   type="button" 
-                  className="text-xs border rounded px-2 py-1 text-red-600 hover:bg-red-50" 
-                  onClick={() => del(m)}
+                  className="text-xs border rounded px-2 py-1" 
+                  onClick={() => toggleStatus(c)}
                 >
-                  Deactivate
+                  {c.status === "Active" ? "Deactivate" : "Activate"}
                 </button>
               </div>
             </div>
@@ -631,50 +601,57 @@ const ClientManagement = () => {
         </div>
       )}
 
-      {isOpen && (
+      {isAddingClient && (
         <div className="fixed inset-0 bg-black/20 z-[999] flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-4 w-full max-w-md space-y-3">
-            <div className="text-lg font-semibold">{editing ? "Edit Member" : "Add Member"}</div>
-            <input 
-              className="border rounded px-3 py-2 w-full" 
-              placeholder="Full Name" 
-              value={form.name} 
-              onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-            />
-            <input 
-              className="border rounded px-3 py-2 w-full" 
-              type="email"
-              placeholder="Email Address" 
-              value={form.email} 
-              onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-            />
-            <input 
-              className="border rounded px-3 py-2 w-full" 
-              type="tel"
-              placeholder="Phone Number" 
-              value={form.phone} 
-              onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
-            />
-            <select className="border rounded px-3 py-2 w-full" value={form.planId} onChange={e=>setForm(f=>({ ...f, planId:e.target.value }))}>
-              <option value="">No plan</option>
-              {plans.map(p => <option key={p.id} value={p.id}>{p.name} — ${Number(p.price||0).toFixed(2)} / {p.cycleDays||30}d</option>)}
-            </select>
-            <div className="flex justify-end gap-2 pt-2">
-              <button 
-                type="button" 
-                className="border rounded px-3 py-2 hover:bg-gray-50" 
-                onClick={() => setIsOpen(false)}
-              >
-                Cancel
-              </button>
-              <button 
-                type="button" 
-                className="border rounded px-3 py-2 bg-blue-500 text-white hover:bg-blue-600" 
-                onClick={save}
-              >
-                {editing ? "Save Changes" : "Add Member"}
-              </button>
-            </div>
+            <div className="text-lg font-semibold">{editingClient ? "Edit Member" : "Add Member"}</div>
+            <form onSubmit={(e)=>e.preventDefault()}>
+              <input 
+                className="border rounded px-3 py-2 w-full mb-3" 
+                placeholder="Full Name" 
+                value={form.name} 
+                onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+              />
+              <input 
+                className="border rounded px-3 py-2 w-full mb-3" 
+                type="email"
+                placeholder="Email Address" 
+                value={form.email} 
+                onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+              />
+              <input 
+                className="border rounded px-3 py-2 w-full mb-3" 
+                type="tel"
+                placeholder="Phone Number" 
+                value={form.phone} 
+                onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+              />
+              <select className="border rounded px-3 py-2 w-full mb-3" value={form.planId}
+                onChange={e=>setForm(f=>({ ...f, planId:e.target.value }))}>
+                <option value="">No plan</option>
+                {plans.map(p => (
+                  <option key={p.id} value={p.id}>
+                    {p.name} — ${Number(p.price||0).toFixed(2)} / {p.cycleDays||30}d
+                  </option>
+                ))}
+              </select>
+              <div className="flex justify-end gap-2 pt-2">
+                <button 
+                  type="button" 
+                  className="border rounded px-3 py-2 hover:bg-gray-50" 
+                  onClick={() => setIsAddingClient(false)}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="button" 
+                  className="border rounded px-3 py-2 bg-blue-500 text-white hover:bg-blue-600" 
+                  onClick={save}
+                >
+                  {editingClient ? "Save Changes" : "Add Member"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
