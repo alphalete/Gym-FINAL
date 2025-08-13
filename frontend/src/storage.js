@@ -188,14 +188,3 @@ export async function saveMembers(data){
 
 export default gymStorage;
 export async function getAll(store){ return gymStorage.getAll(store); }
-
-// ---- Named exports for existing class methods (compat for Components.js) ----
-export async function getSetting(name, fallback){ return gymStorage.getSetting(name, fallback); }
-export async function saveSetting(name, value){ return gymStorage.saveSetting(name, value); }
-
-export async function getPlans(){ return gymStorage.getPlans(); }
-export async function savePlan(plan){ return gymStorage.savePlan(plan); }
-
-export async function savePayment(p){ return gymStorage.savePayment(p); }
-export async function getAllPayments(){ return gymStorage.getAllPayments(); }
-// ---------------------------------------------------------------------------
