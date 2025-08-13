@@ -145,7 +145,7 @@
   }
   
   .nav-bottom-item.active {
-    @apply text-primary;
+    @apply text-primary-600;
   }
   
   .nav-bottom-item:not(.active) {
