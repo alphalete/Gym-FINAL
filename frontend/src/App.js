@@ -1,71 +1,84 @@
 import React, { useEffect, useMemo, useState } from "react";
-import "./App.css";
 import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
-import Components from "./Components";
-import gymStorage from "./storage";
+import "./App.css";
 import ErrorBoundary from "./ErrorBoundary";
+import gymStorage, * as storageNamed from "./storage";
+import Components from "./Components";
 import BottomNav from "./components/BottomNav";
 
 const Fallback = () => (
-  <div className="min-h-screen flex items-center justify-center">
-    <div className="animate-pulse text-gray-600">Loading…</div>
-  </div>
+  <div className="min-h-screen flex items-center justify-center text-gray-600">Loading…</div>
 );
 
-// Be defensive: Components default-exports an object of subcomponents
-const safe = (C, name) => (C && C[name]) || (() => <div className="p-4">Missing component: {name}</div>);
+const safePick = (bag, key) => (bag && bag[key]) ? bag[key] : (() => <div className="p-4">Missing component: {key}</div>);
 
 export default function App(){
   const [ready, setReady] = useState(false);
-  const [authed, setAuthed] = useState(true); // if you gate by login, wire true/false accordingly
-  
+
   const C = useMemo(() => ({
-    Sidebar: safe(Components, "Sidebar"),
-    Dashboard: safe(Components, "Dashboard"),
-    ClientManagement: safe(Components, "ClientManagement"),
-    PaymentTracking: safe(Components, "PaymentTracking"),
-    MembershipManagement: safe(Components, "MembershipManagement"),
-    Reports: safe(Components, "Reports"),
-    Settings: safe(Components, "Settings"),
-    LoginForm: safe(Components, "LoginForm"),
-    InstallPrompt: safe(Components, "InstallPrompt"),
-  }), [Components]);
+    Sidebar:              safePick(Components, "Sidebar"),
+    Dashboard:            safePick(Components, "Dashboard"),
+    ClientManagement:     safePick(Components, "ClientManagement"),
+    PaymentTracking:      safePick(Components, "PaymentTracking"),
+    MembershipManagement: safePick(Components, "MembershipManagement"),
+    Reports:              safePick(Components, "Reports"),
+    Settings:             safePick(Components, "Settings"),
+    LoginForm:            safePick(Components, "LoginForm"),
+    InstallPrompt:        safePick(Components, "InstallPrompt"),
+  }), []);
 
   useEffect(() => {
     let cancelled = false;
+    
+    // 1) Kill dev SW caches so we don't serve stale JS
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.getRegistrations?.().then(rs => rs.forEach(r => r.unregister())).catch(()=>{});
+      caches?.keys?.().then(keys => keys.forEach(k => caches.delete(k))).catch(()=>{});
+    }
+    
+    // 2) Safe init with a hard timeout so UI always mounts
+    const hardTimeout = setTimeout(() => {
+      if (!cancelled) {
+        console.warn("[App] storage init timeout; continuing with UI");
+        setReady(true);
+        // Force dismiss loading screen on timeout
+        setTimeout(() => {
+          const loadingScreen = document.getElementById('loading-screen');
+          if (loadingScreen) {
+            loadingScreen.style.display = 'none';
+            console.log("[App] Loading screen force dismissed on timeout");
+          }
+        }, 100);
+      }
+    }, 4000);
+
     (async () => {
       try {
-        console.log("[App] Initializing storage...");
-        // Init IndexedDB (with fallback in storage.js)
-        await gymStorage.init?.();
-        await gymStorage.persistHint?.();
-        console.log("[App] Storage initialized successfully");
+        console.log("[App] Starting safe initialization...");
+        // Try both default and named to cover different storage shapes
+        await (gymStorage?.init?.() ?? storageNamed?.init?.?.() ?? Promise.resolve());
+        await (gymStorage?.persistHint?.() ?? storageNamed?.persistHint?.?.() ?? Promise.resolve());
+        window.__BOOT_OK__ = true;
+        console.log("[App] Safe initialization completed");
       } catch (e) {
-        console.warn("[App] storage init failed (continuing):", e);
+        console.error("[App] init error (continuing):", e);
       } finally {
+        clearTimeout(hardTimeout);
         if (!cancelled) {
           setReady(true);
-          // Dismiss HTML loading screen now that React is ready
+          // Dismiss loading screen when ready
           setTimeout(() => {
             const loadingScreen = document.getElementById('loading-screen');
             if (loadingScreen) {
               loadingScreen.style.display = 'none';
-              console.log("[App] HTML loading screen dismissed");
+              console.log("[App] Loading screen dismissed after safe init");
             }
           }, 100);
         }
       }
     })();
-    
-    // (Optional) During dev, avoid stale SW keeping old broken bundles
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.getRegistrations?.().then(rs => {
-        rs.forEach(r => {
-          if (process.env.NODE_ENV !== "production") r.unregister();
-        });
-      }).catch(()=>{});
-    }
-    return () => { cancelled = true; };
+
+    return () => { cancelled = true; clearTimeout(hardTimeout); };
   }, []);
 
   if (!ready) return <Fallback />;
@@ -73,26 +86,22 @@ export default function App(){
   return (
     <ErrorBoundary>
       <HashRouter>
-        {!authed ? (
-          <C.LoginForm onLogin={() => setAuthed(true)} />
-        ) : (
-          <div className="min-h-screen bg-soft flex">
-            <C.Sidebar />
-            <main className="flex-1 min-w-0 pb-20 md:pb-4 md:ml-16">
-              <Routes>
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                <Route path="/dashboard" element={<C.Dashboard />} />
-                <Route path="/members" element={<C.ClientManagement />} />
-                <Route path="/payments" element={<C.PaymentTracking />} />
-                <Route path="/plans" element={<C.MembershipManagement />} />
-                <Route path="/reports" element={<C.Reports />} />
-                <Route path="/settings" element={<C.Settings />} />
-                <Route path="*" element={<div className="p-4">Not found</div>} />
-              </Routes>
-            </main>
-            <BottomNav />
-          </div>
-        )}
+        <div className="min-h-screen bg-soft flex">
+          <C.Sidebar />
+          <main className="flex-1 min-w-0 pb-20 md:pb-4 md:ml-16">
+            <Routes>
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard" element={<C.Dashboard />} />
+              <Route path="/members" element={<C.ClientManagement />} />
+              <Route path="/plans" element={<C.MembershipManagement />} />
+              <Route path="/payments" element={<C.PaymentTracking />} />
+              <Route path="/reports" element={<C.Reports />} />
+              <Route path="/settings" element={<C.Settings />} />
+              <Route path="*" element={<div className="p-4">Not found</div>} />
+            </Routes>
+          </main>
+          <BottomNav />
+        </div>
       </HashRouter>
     </ErrorBoundary>
   );
