@@ -50,7 +50,7 @@ export default function App(){
           }
         }, 100);
       }
-    }, 4000);
+    }, 1500);
 
     (async () => {
       try {
