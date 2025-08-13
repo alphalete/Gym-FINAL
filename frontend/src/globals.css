@@ -206,7 +206,7 @@
 /* Utility Classes */
 @layer utilities {
   .content-padding {
-    @apply pb-16 sm:pb-4 md:ml-16 lg:ml-64;
+    @apply pb-20 sm:pb-4 md:ml-16 lg:ml-64;
   }
   
   .page-header {
@@ -222,15 +222,15 @@
   }
   
   .stat-card {
-    @apply card p-6 text-center;
+    @apply card p-3 sm:p-6 text-center;
   }
   
   .stat-value {
-    @apply text-3xl font-bold mb-2;
+    @apply text-2xl sm:text-3xl font-bold mb-2;
   }
   
   .stat-label {
-    @apply text-sm text-gray-600 font-medium;
+    @apply text-xs sm:text-sm text-gray-600 font-medium;
   }
 }
 
