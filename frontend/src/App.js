@@ -56,8 +56,8 @@ export default function App(){
       try {
         console.log("[App] Starting safe initialization...");
         // Try both default and named to cover different storage shapes
-        await (gymStorage?.init?.() ?? storageNamed?.init?.?.() ?? Promise.resolve());
-        await (gymStorage?.persistHint?.() ?? storageNamed?.persistHint?.?.() ?? Promise.resolve());
+        await (gymStorage?.init?.() ?? storageNamed?.init?.() ?? Promise.resolve());
+        await (gymStorage?.persistHint?.() ?? storageNamed?.persistHint?.() ?? Promise.resolve());
         window.__BOOT_OK__ = true;
         console.log("[App] Safe initialization completed");
       } catch (e) {
