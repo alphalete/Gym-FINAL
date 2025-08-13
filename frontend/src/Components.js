@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import gymStorage, { getAll as getAllStore, getPlanById, upsertMemberWithPlanSnapshot, getSetting as getSettingNamed, saveSetting as saveSettingNamed } from "./storage";
+import gymStorageMain, * as storageNamed from "./storage";
 import { toISODate, add30DaysFrom, recomputeStatus, advanceNextDueByCycles, daysBetween } from './utils/date';
 import PaymentsHistory from './components/payments/PaymentsHistory';
 import { nextDueDateFromJoin, isOverdue, nextDueAfterPayment } from "./billing";
@@ -18,6 +19,25 @@ import {
   getPaymentStatus,
   getInitials
 } from './utils/common';
+
+// Hook to load members from storage - prevents mockClients issues
+function useMembersFromStorage() {
+  const [members, setMembers] = useState([]);
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      try {
+        const data = await (gymStorage?.getAllMembers?.() ?? storageNamed.getAllMembers());
+        if (live) setMembers(Array.isArray(data) ? data : []);
+      } catch (e) {
+        console.error("[useMembersFromStorage] load failed", e);
+        if (live) setMembers([]);
+      }
+    })();
+    return () => { live = false; };
+  }, []);
+  return members;
+}
 
 /* Share utility function */
 function shareFallback(text) {
