@@ -119,9 +119,12 @@
 
 ## test_plan:
   current_focus:
-    - "GoGym4U Theme & Dashboard Implementation"
-    - "Service worker cleanup verification"
-    - "Navigation debug cleanup verification"
+    - "Backend stability after LOADER HANG FIX implementation"
+    - "Storage.js hardening backend compatibility"
+    - "MockClients elimination backend support"
+    - "App.js stability backend integration"
+    - "Settings sequential loading backend support"
+    - "Reports component backend data requirements"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
