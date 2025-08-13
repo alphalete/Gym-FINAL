@@ -8,17 +8,16 @@ module.exports = {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#4F46E5', // GoGym blue-purple
-          50: '#EEF2FF',
-          100: '#E0E7FF',
-          200: '#C7D2FE',
-          300: '#A5B4FC',
-          400: '#818CF8',
-          500: '#4F46E5',
-          600: '#4338CA',
-          700: '#3730A3',
-          800: '#312E81',
-          900: '#1E1B4B',
+          50:  '#eef2ff',
+          100: '#e0e7ff',
+          200: '#c7d2fe',
+          300: '#a5b4fc',
+          400: '#818cf8',
+          500: '#6366f1',   // GoGym4U-ish indigo
+          600: '#4f46e5',
+          700: '#4338ca',
+          800: '#3730a3',
+          900: '#312e81',
         },
         primary2: {
           DEFAULT: '#6366F1',
