@@ -16,7 +16,7 @@
   .btn-ghost    { @apply btn bg-transparent hover:bg-slate-100 text-slate-700; }
 
   .badge { @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium; }
-  .badge-active { @apply badge bg-success-100 text-success-600 ring-1 ring-inset ring-success-200; }
+  .badge-active { @apply badge bg-green-100 text-green-600 ring-1 ring-inset ring-green-200; }
   .badge-inactive { @apply badge bg-slate-100 text-slate-600 ring-1 ring-inset ring-slate-200; }
-  .badge-warning { @apply badge bg-warning-100 text-warning-700 ring-1 ring-inset ring-warning-200; }
+  .badge-warning { @apply badge bg-yellow-100 text-yellow-700 ring-1 ring-inset ring-yellow-200; }
 }
