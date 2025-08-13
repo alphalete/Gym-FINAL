@@ -186,5 +186,13 @@ export async function saveMembers(data){
   return gs.saveMembers ? gs.saveMembers(data) : undefined;
 }
 
+export async function saveMember(m){ 
+  return gs.saveMember ? gs.saveMember(m) : undefined; 
+}
+
+export async function deleteMember(id){ 
+  return gs.deleteMember ? gs.deleteMember(id) : undefined; 
+}
+
 export default gymStorage;
 export async function getAll(store){ return gymStorage.getAll(store); }
