@@ -10,7 +10,7 @@ import sys
 from datetime import datetime, date
 
 # Backend URL from environment
-BACKEND_URL = "https://gogym4u-upgrade.preview.emergentagent.com/api"
+BACKEND_URL = "https://fitness-club-app-1.preview.emergentagent.com/api"
 
 def test_endpoint(method, endpoint, data=None, expected_status=200):
     """Test a specific endpoint"""

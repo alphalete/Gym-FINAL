@@ -13,7 +13,7 @@ from concurrent.futures import ThreadPoolExecutor
 class OptimisticToggleBackendTest:
     def __init__(self):
         # Use the production URL from frontend/.env
-        self.base_url = "https://gogym4u-upgrade.preview.emergentagent.com/api"
+        self.base_url = "https://fitness-club-app-1.preview.emergentagent.com/api"
         self.session = None
         self.test_results = []
         self.test_membership_types = []
