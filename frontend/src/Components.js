@@ -80,7 +80,7 @@ function computeNextDuePreview(currentNextDueISO, monthsCovered) {
 
 // --- Payments (PaymentTracking) ---
 const PaymentComponent = () => {
-  const [clients, setClients] = useState([]);
+  const membersPT = useMembersFromStorage(); // Use hook instead of state for consistency
   const [payments, setPayments] = useState([]);
   const [selectedClient, setSelectedClient] = useState(null);
   const [isRecordingPayment, setIsRecordingPayment] = useState(false);
@@ -90,15 +90,13 @@ const PaymentComponent = () => {
 
   useEffect(() => {
     (async () => {
-      const members = await gymStorage.getAllMembers() || [];
       const paymentsList = await gymStorage.getAllPayments() || [];
-      setClients(members);  
       setPayments(paymentsList);
 
       // Check for pending payment member (from dashboard navigation)
       const pendingId = localStorage.getItem("pendingPaymentMemberId");
-      if (pendingId) {
-        const member = members.find(m => String(m.id) === String(pendingId));
+      if (pendingId && membersPT.length > 0) {
+        const member = membersPT.find(m => String(m.id) === String(pendingId));
         if (member) {
           setSelectedClient(member);
           setIsRecordingPayment(true);
@@ -106,20 +104,20 @@ const PaymentComponent = () => {
         localStorage.removeItem("pendingPaymentMemberId");
       }
     })();
-  }, []);
+  }, [membersPT]);
 
   // When selecting client, default amount from snapshot
   useEffect(() => {
     if (!selectedClient) return;
-    const m = clients.find(x => String(x.id) === String(selectedClient.id));
+    const m = membersPT.find(x => String(x.id) === String(selectedClient.id));
     if (!m) return;
     if (!paymentAmount && m.fee != null) setPaymentAmount(String(m.fee));
-  }, [selectedClient, clients]);
+  }, [selectedClient, membersPT]);
 
   async function handlePaymentSubmit() {
     if (!selectedClient || !paymentAmount) return;
     
-    const m = clients.find(x => String(x.id) === String(selectedClient.id));
+    const m = membersPT.find(x => String(x.id) === String(selectedClient.id));
     const amountNum = Number(paymentAmount || 0);
     const paidOn = paidOnDate || new Date().toISOString().slice(0, 10);
     
@@ -159,10 +157,8 @@ const PaymentComponent = () => {
     setPaymentAmount('');
     setPaidOnDate(new Date().toISOString().slice(0, 10));
     
-    // Reload data
-    const members = await gymStorage.getAllMembers() || [];
+    // Reload payments data
     const paymentsList = await gymStorage.getAllPayments() || [];
-    setClients(members);
     setPayments(paymentsList);
   }
 
