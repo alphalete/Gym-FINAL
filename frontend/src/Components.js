@@ -690,7 +690,7 @@ const Dashboard = () => {
                           </span>
                           <button 
                             type="button" 
-                            className="p-2 rounded-lg hover:bg-soft transition-colors" 
+                            className="p-2 rounded-lg hover:bg-slate-50 transition-colors" 
                             onClick={() => goRecordPayment(member)}
                             aria-label="Record payment"
                           >
