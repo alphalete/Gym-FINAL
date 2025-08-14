@@ -9,10 +9,10 @@
   .card-body { @apply p-4; }
 
   .btn { @apply inline-flex items-center justify-center rounded-lg px-4 py-2 font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2; }
-  .btn-primary { @apply btn bg-primary-600 hover:bg-primary-700 text-white focus:ring-primary-600; }
+  .btn-primary { @apply btn bg-indigo-600 hover:bg-indigo-700 text-white focus:ring-indigo-600; }
   .btn-secondary { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-900 focus:ring-slate-300; }
-  .btn-warning  { @apply btn bg-warning-600 hover:bg-warning-500 text-white focus:ring-warning-600; }
-  .btn-danger   { @apply btn bg-danger-600 hover:bg-danger-500 text-white focus:ring-danger-600; }
+  .btn-warning  { @apply btn bg-amber-600 hover:bg-amber-500 text-white focus:ring-amber-600; }
+  .btn-danger   { @apply btn bg-rose-600 hover:bg-rose-500 text-white focus:ring-rose-600; }
   .btn-ghost    { @apply btn bg-transparent hover:bg-slate-100 text-slate-700; }
 
   .badge { @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium; }
