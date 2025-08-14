@@ -6,9 +6,22 @@ async function safe(fn, fb){ try{ const v = await fn?.(); return v ?? fb; }catch
 
 // ---- Members ----
 export async function getAllMembers(){
-  const fn = s.getAllMembers || storageNamed.getAllMembers || (s.getAll ? () => s.getAll("members") : null);
-  const out = await safe(fn, []);
-  return Array.isArray(out) ? out : [];
+  const fn = s.getAllMembers || storageNamed.getAllMembers;
+  if (fn) {
+    const out = await safe(fn, []);
+    return Array.isArray(out) ? out : [];
+  }
+  // Fallback to getAll if direct method not available
+  if (s.getAll) {
+    const out = await safe(() => s.getAll("members"), []);
+    return Array.isArray(out) ? out : [];
+  }
+  // Final fallback to named export
+  if (storageNamed.getAll) {
+    const out = await safe(() => storageNamed.getAll("members"), []);
+    return Array.isArray(out) ? out : [];
+  }
+  return [];
 }
 export async function saveMember(m){
   const fn = s.saveMember || storageNamed.saveMember;
