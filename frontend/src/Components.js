@@ -239,7 +239,7 @@ const PaymentComponent = () => {
             </div>
           </div>
 
-          <div className="stat-card bg-primary text-white">
+          <div className="stat-card bg-indigo-600 text-white">
             <div className="flex items-center justify-between">
               <div>
                 <div className="stat-value">{todayPayments.length}</div>
