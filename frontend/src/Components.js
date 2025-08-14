@@ -1994,7 +1994,7 @@ export function RecordPayment(){
 }
 
 // --- Inline Add Member Form Component ---
-function AddMemberForm({ onCancel, onSuccess }) {
+function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
   const [form, setForm] = React.useState({ 
     firstName: "", 
     lastName: "", 
@@ -2039,9 +2039,7 @@ function AddMemberForm({ onCancel, onSuccess }) {
 
     setSaving(true);
     try {
-      const id = crypto?.randomUUID?.() || String(Date.now());
       const member = { 
-        id, 
         ...form, 
         name: `${form.firstName} ${form.lastName}`.trim() || form.firstName || form.lastName,
         status: "Active", 
@@ -2049,34 +2047,31 @@ function AddMemberForm({ onCancel, onSuccess }) {
         joinedOn: new Date().toISOString() 
       };
       
-      // Save to backend first
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-      if (backendUrl) {
-        const response = await fetch(`${backendUrl}/api/clients`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(member)
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Backend save failed: ${response.status}`);
+      // Use the repo-based save function
+      if (onAddOrUpdateMember) {
+        await onAddOrUpdateMember(member);
+        alert(`✅ Member "${member.name}" added successfully!`);
+        onSuccess?.();
+      } else {
+        // Fallback to backend save
+        const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+        if (backendUrl) {
+          const response = await fetch(`${backendUrl}/api/clients`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({...member, id: crypto?.randomUUID?.() || String(Date.now())})
+          });
+          
+          if (!response.ok) {
+            throw new Error(`Backend save failed: ${response.status}`);
+          }
+          console.log('✅ Member saved to backend successfully');
         }
-        console.log('✅ Member saved to backend successfully');
+        alert(`✅ Member "${member.name}" added successfully!`);
+        onSuccess?.();
       }
-      
-      // Also save to local storage as backup
-      const storage = storageNamed || gymStorageMain;
-      if (storage.saveMember) {
-        await storage.saveMember(member);
-      } else if (storage.saveData) {
-        await storage.saveData("members", member);
-      }
-      
-      // Show success message
-      alert(`✅ Member "${member.name}" added successfully!`);
-      onSuccess?.();
     } catch (error) {
       console.error('Error saving member:', error);
       alert('❌ Error saving member. Please try again.');
