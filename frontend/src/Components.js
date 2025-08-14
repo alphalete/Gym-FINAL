@@ -1174,10 +1174,21 @@ function MembershipManagement() {
         updatedAt: new Date().toISOString()
       };
 
-      await storageFacade.savePlan(planData);
+      // Direct storage access instead of facade
+      const storage = storageNamed || gymStorageMain;
+      if (storage.savePlan) {
+        await storage.savePlan(planData);
+      } else if (storage.saveData) {
+        await storage.saveData("plans", planData);
+      }
       
-      // Refresh plans
-      const updatedPlans = await storageFacade.getPlans();
+      // Refresh plans using direct storage
+      let updatedPlans = [];
+      if (storage.getPlans) {
+        updatedPlans = await storage.getPlans();
+      } else if (storage.getAll) {
+        updatedPlans = await storage.getAll("plans");
+      }
       setPlans(Array.isArray(updatedPlans) ? updatedPlans : []);
       
       resetForm();
