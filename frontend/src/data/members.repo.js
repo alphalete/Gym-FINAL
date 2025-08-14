@@ -4,11 +4,35 @@ const s = storageDefault || storageNamed || {};
 
 const getAllMembers = async () => {
   try {
+    // First try to get members from backend (primary source)
+    let members = [];
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      if (backendUrl) {
+        const response = await fetch(`${backendUrl}/api/clients`);
+        if (response.ok) {
+          const backendMembers = await response.json();
+          if (Array.isArray(backendMembers) && backendMembers.length > 0) {
+            members = backendMembers;
+            console.log(`✅ Loaded ${members.length} members from backend`);
+            return members;
+          }
+        }
+      }
+    } catch (backendError) {
+      console.warn('⚠️ Backend connection failed, falling back to local storage:', backendError.message);
+    }
+    
+    // If no backend data, try local storage
     const out =
       (await s.getAllMembers?.()) ??
       (await s.getAll?.("members")) ?? [];
+    console.log(`📱 Loaded ${out.length} members from local storage`);
     return Array.isArray(out) ? out : [];
-  } catch (e) { console.error("[members.repo] getAllMembers", e); return []; }
+  } catch (e) { 
+    console.error("[members.repo] getAllMembers", e); 
+    return []; 
+  }
 };
 
 const saveAllMembers = async (arr) => {
@@ -37,9 +61,37 @@ export async function listMembers() {
 export async function upsertMember(member) {
   const list = await listMembers();
   const norm = withId(member);
+  
+  // Save to backend first
+  try {
+    const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+    if (backendUrl) {
+      const method = norm.id && list.find(x => pickId(x) === pickId(norm)) ? 'PUT' : 'POST';
+      const url = method === 'PUT' ? `${backendUrl}/api/clients/${norm.id}` : `${backendUrl}/api/clients`;
+      
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(norm)
+      });
+      
+      if (response.ok) {
+        console.log(`✅ Member ${method === 'PUT' ? 'updated' : 'created'} in backend:`, norm.id);
+      } else {
+        throw new Error(`Backend ${method} failed: ${response.status}`);
+      }
+    }
+  } catch (backendError) {
+    console.error('Backend save failed:', backendError);
+    // Continue with local save as fallback
+  }
+  
+  // Update local list
   const idx = list.findIndex(x => pickId(x) === pickId(norm));
   if (idx >= 0) list[idx] = { ...list[idx], ...norm };
   else list.push(norm);
+  
+  // Save to local storage as backup
   await saveAllMembers(list);
   return list;
 }
@@ -47,6 +99,27 @@ export async function upsertMember(member) {
 export async function removeMember(idLike) {
   const list = await listMembers();
   const idStr = String(idLike);
+  
+  // Delete from backend first
+  try {
+    const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+    if (backendUrl) {
+      const response = await fetch(`${backendUrl}/api/clients/${idStr}`, {
+        method: 'DELETE'
+      });
+      
+      if (response.ok) {
+        console.log('✅ Member deleted from backend:', idStr);
+      } else {
+        throw new Error(`Backend DELETE failed: ${response.status}`);
+      }
+    }
+  } catch (backendError) {
+    console.error('Backend delete failed:', backendError);
+    // Continue with local delete as fallback
+  }
+  
+  // Update local list
   const next = list.filter(x => String(pickId(x)) !== idStr);
   await saveAllMembers(next);
   return next;
