@@ -40,9 +40,22 @@ export async function deleteMember(id){
 
 // ---- Payments ----
 export async function getAllPayments(){
-  const fn = s.getAllPayments || storageNamed.getAllPayments || (s.getAll ? () => s.getAll("payments") : null);
-  const out = await safe(fn, []);
-  return Array.isArray(out) ? out : [];
+  const fn = s.getAllPayments || storageNamed.getAllPayments;
+  if (fn) {
+    const out = await safe(fn, []);
+    return Array.isArray(out) ? out : [];
+  }
+  // Fallback to getAll if direct method not available
+  if (s.getAll) {
+    const out = await safe(() => s.getAll("payments"), []);
+    return Array.isArray(out) ? out : [];
+  }
+  // Final fallback to named export
+  if (storageNamed.getAll) {
+    const out = await safe(() => storageNamed.getAll("payments"), []);
+    return Array.isArray(out) ? out : [];
+  }
+  return [];
 }
 export async function savePayment(p){
   const fn = s.savePayment || storageNamed.savePayment;
