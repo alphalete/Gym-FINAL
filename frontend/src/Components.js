@@ -1570,7 +1570,7 @@ const MembershipManagement = () => {
                       {/* Pricing */}
                       <div className="bg-indigo-50 rounded-lg p-4 mb-4">
                         <div className="text-center">
-                          <div className="text-3xl font-bold text-primary mb-1">
+                          <div className="text-3xl font-bold text-indigo-600 mb-1">
                             {formatCurrency(plan.price)}
                           </div>
                           <div className="text-sm text-indigo-600">
@@ -1797,7 +1797,7 @@ const Sidebar = () => {
       <div className="p-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
           <div className={`transition-opacity duration-300 ${isExpanded ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-            <h1 className="text-lg font-bold text-primary whitespace-nowrap">GoGym4U</h1>
+            <h1 className="text-lg font-bold text-indigo-600 whitespace-nowrap">GoGym4U</h1>
             <p className="text-xs text-gray-500 whitespace-nowrap">Gym Management</p>
           </div>
           <button
