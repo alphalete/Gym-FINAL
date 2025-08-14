@@ -212,7 +212,7 @@ const PaymentComponent = () => {
         <div className="px-6 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="page-title text-primary">Payment Tracking</h1>
+              <h1 className="page-title text-indigo-600">Payment Tracking</h1>
               <p className="page-subtitle">Record payments and track gym revenue</p>
             </div>
             <button 
