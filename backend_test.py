@@ -258,113 +258,263 @@ class AlphaleteBackendTester:
             
         return True
 
-    def test_option_a_payment_logic_compatibility(self):
-        """Test 4: Option A Payment Logic Compatibility - ensure backend supports new payment flows"""
-        print("\n🔍 TEST 4: Option A Payment Logic Compatibility")
+    def test_storage_abstraction_layer_compatibility(self):
+        """Test 4: Storage Abstraction Layer - ensure backend supports new storage layer with safe named exports"""
+        print("\n🔍 TEST 4: Storage Abstraction Layer Compatibility")
         print("-" * 50)
         
-        # Test that backend can handle Option A payment logic from frontend
-        # Create a test client with specific payment scenario
-        test_client_data = {
-            "name": f"Option A Test Client {datetime.now().strftime('%H%M%S')}",
-            "email": f"optiona.test.{datetime.now().strftime('%H%M%S')}@example.com",
-            "phone": "+1868-555-OPTA",
+        # Test that backend provides all data required by new storage abstraction layer
+        # The frontend now uses getAllMembers, saveMembers, saveMember, deleteMember functions
+        
+        # Test getAllMembers equivalent (GET /api/clients)
+        response = self.make_request("GET", "/clients")
+        if response and response.status_code == 200:
+            clients = response.json()
+            
+            # Verify all required fields for useMembersFromStorage hook
+            required_fields = ['id', 'name', 'email', 'payment_status', 'amount_owed', 'monthly_fee']
+            if clients:
+                client = clients[0]
+                has_required_fields = all(field in client for field in required_fields)
+                self.log_test("Storage Layer - getAllMembers Data", has_required_fields,
+                            f"Required fields for useMembersFromStorage: {has_required_fields}")
+                
+                # Verify payment_status field values
+                payment_statuses = set(client.get('payment_status') for client in clients if 'payment_status' in client)
+                valid_statuses = payment_statuses.issubset({'paid', 'due', 'overdue'})
+                self.log_test("Storage Layer - Payment Status Values", valid_statuses,
+                            f"Payment statuses: {payment_statuses}")
+            else:
+                self.log_test("Storage Layer - getAllMembers Data", True, "No clients to verify (empty state)")
+        else:
+            self.log_test("Storage Layer - getAllMembers Data", False, "Failed to retrieve clients")
+            
+        # Test saveMember equivalent (POST /api/clients)
+        test_member_data = {
+            "name": f"Storage Layer Test {datetime.now().strftime('%H%M%S')}",
+            "email": f"storage.layer.{datetime.now().strftime('%H%M%S')}@example.com",
+            "phone": "+1868-555-STOR",
             "membership_type": "Standard",
             "monthly_fee": 55.0,
-            "start_date": (date.today() - timedelta(days=35)).isoformat(),  # Started 35 days ago
+            "start_date": date.today().isoformat(),
             "payment_status": "due",
             "amount_owed": 55.0
         }
         
-        response = self.make_request("POST", "/clients", test_client_data)
-        if not response or response.status_code not in [200, 201]:
-            self.log_test("Option A Client Creation", False, "Could not create test client")
-            return False
-            
-        created_client = response.json()
-        client_id = created_client.get('id')
-        self.created_test_clients.append(client_id)
-        
-        # Verify client created with proper next_payment_date calculation
-        next_payment_date = created_client.get('next_payment_date')
-        self.log_test("Option A Client Creation", True, 
-                    f"Client created with next payment: {next_payment_date}")
-        
-        # Test payment recording with Option A logic (cadence preservation)
-        # Record a payment that should preserve the original billing cycle
-        payment_data = {
-            "client_id": client_id,
-            "amount_paid": 55.0,
-            "payment_date": date.today().isoformat(),
-            "payment_method": "Cash",
-            "notes": "Option A payment - cadence preservation test"
-        }
-        
-        response = self.make_request("POST", "/payments/record", payment_data)
-        if response and response.status_code == 200:
-            payment_result = response.json()
-            self.log_test("Option A Payment Recording", True,
-                        f"Payment recorded: TTD {payment_result.get('amount_paid')}")
-            
-            # Verify payment status and due date advancement
-            new_next_payment_date = payment_result.get('new_next_payment_date')
-            due_date_advanced = payment_result.get('due_date_advanced', False)
-            
-            self.log_test("Option A Due Date Logic", True,
-                        f"Due date advanced: {due_date_advanced}, New date: {new_next_payment_date}")
-            
-            # Verify client status updated correctly
-            response = self.make_request("GET", f"/clients/{client_id}")
-            if response and response.status_code == 200:
-                updated_client = response.json()
-                payment_status = updated_client.get('payment_status')
-                amount_owed = updated_client.get('amount_owed')
-                
-                self.log_test("Option A Client Status Update", payment_status == 'paid',
-                            f"Status: {payment_status}, Amount owed: TTD {amount_owed}")
-        else:
-            self.log_test("Option A Payment Recording", False,
-                        f"HTTP {response.status_code if response else 'No response'}")
-            
-        # Test partial payment scenario (Option A should handle gracefully)
-        partial_client_data = {
-            "name": f"Partial Payment Test {datetime.now().strftime('%H%M%S')}",
-            "email": f"partial.test.{datetime.now().strftime('%H%M%S')}@example.com",
-            "phone": "+1868-555-PART",
-            "membership_type": "Premium",
-            "monthly_fee": 75.0,
-            "start_date": date.today().isoformat(),
-            "payment_status": "due",
-            "amount_owed": 75.0
-        }
-        
-        response = self.make_request("POST", "/clients", partial_client_data)
+        response = self.make_request("POST", "/clients", test_member_data)
         if response and response.status_code in [200, 201]:
-            partial_client = response.json()
-            partial_client_id = partial_client.get('id')
-            self.created_test_clients.append(partial_client_id)
+            created_member = response.json()
+            member_id = created_member.get('id')
+            self.created_test_clients.append(member_id)
             
-            # Record partial payment
-            partial_payment_data = {
-                "client_id": partial_client_id,
-                "amount_paid": 40.0,  # Partial payment
-                "payment_date": date.today().isoformat(),
-                "payment_method": "Card",
-                "notes": "Option A partial payment test"
+            # Verify backend returns all fields needed by storage abstraction
+            storage_fields_present = all(field in created_member for field in 
+                                       ['id', 'name', 'email', 'payment_status', 'amount_owed'])
+            self.log_test("Storage Layer - saveMember Response", storage_fields_present,
+                        f"Created member with storage-compatible fields")
+            
+            # Test member update (PUT /api/clients/{id}) for storage layer compatibility
+            update_data = {
+                "payment_status": "paid",
+                "amount_owed": 0.0
             }
-            
-            response = self.make_request("POST", "/payments/record", partial_payment_data)
+            response = self.make_request("PUT", f"/clients/{member_id}", update_data)
             if response and response.status_code == 200:
-                partial_result = response.json()
-                remaining_balance = partial_result.get('remaining_balance')
-                payment_type = partial_result.get('payment_type')
-                
-                self.log_test("Option A Partial Payment", True,
-                            f"Remaining: TTD {remaining_balance}, Type: {payment_type}")
-            else:
-                self.log_test("Option A Partial Payment", False, "Partial payment failed")
+                updated_member = response.json()
+                update_successful = (updated_member.get('payment_status') == 'paid' and 
+                                   updated_member.get('amount_owed') == 0.0)
+                self.log_test("Storage Layer - Member Update", update_successful,
+                            f"Member update compatible with storage layer")
         else:
-            self.log_test("Option A Partial Payment Setup", False, "Could not create partial test client")
+            self.log_test("Storage Layer - saveMember Response", False, "Failed to create member")
+            
+        return True
+
+    def test_shared_hook_data_requirements(self):
+        """Test 5: Shared Hook Data - verify backend provides data for useMembersFromStorage hook"""
+        print("\n🔍 TEST 5: Shared Hook Data Requirements")
+        print("-" * 50)
+        
+        # Test that backend provides comprehensive data for useMembersFromStorage hook
+        # used across PaymentTracking, Reports, MembershipManagement, and ClientManagement
+        
+        response = self.make_request("GET", "/clients")
+        if response and response.status_code == 200:
+            clients = response.json()
+            
+            if clients:
+                # Test data completeness for PaymentTracking component
+                payment_tracking_fields = ['id', 'name', 'email', 'payment_status', 'amount_owed', 'monthly_fee']
+                payment_data_complete = all(
+                    all(field in client for field in payment_tracking_fields) 
+                    for client in clients
+                )
+                self.log_test("Shared Hook - PaymentTracking Data", payment_data_complete,
+                            f"PaymentTracking component data requirements met")
+                
+                # Test data completeness for Reports component
+                reports_fields = ['id', 'name', 'payment_status', 'amount_owed', 'monthly_fee', 'membership_type']
+                reports_data_complete = all(
+                    all(field in client for field in reports_fields) 
+                    for client in clients
+                )
+                self.log_test("Shared Hook - Reports Data", reports_data_complete,
+                            f"Reports component data requirements met")
+                
+                # Test data completeness for MembershipManagement component
+                membership_fields = ['id', 'name', 'email', 'membership_type', 'monthly_fee', 'status']
+                membership_data_complete = all(
+                    all(field in client for field in membership_fields) 
+                    for client in clients
+                )
+                self.log_test("Shared Hook - MembershipManagement Data", membership_data_complete,
+                            f"MembershipManagement component data requirements met")
+                
+                # Test data completeness for ClientManagement component
+                client_mgmt_fields = ['id', 'name', 'email', 'phone', 'membership_type', 'start_date', 'status']
+                client_data_complete = all(
+                    all(field in client for field in client_mgmt_fields) 
+                    for client in clients
+                )
+                self.log_test("Shared Hook - ClientManagement Data", client_data_complete,
+                            f"ClientManagement component data requirements met")
+                
+                # Test payment status distribution for dashboard calculations
+                payment_statuses = [client.get('payment_status', 'unknown') for client in clients]
+                status_counts = {
+                    'paid': payment_statuses.count('paid'),
+                    'due': payment_statuses.count('due'),
+                    'overdue': payment_statuses.count('overdue')
+                }
+                self.log_test("Shared Hook - Payment Status Distribution", True,
+                            f"Status counts: {status_counts}")
+            else:
+                self.log_test("Shared Hook - Data Requirements", True, "No clients to verify (empty state)")
+        else:
+            self.log_test("Shared Hook - Data Requirements", False, "Failed to retrieve client data")
+            
+        return True
+
+    def test_component_refactoring_backend_support(self):
+        """Test 6: Component Refactoring Support - verify backend supports refactored components"""
+        print("\n🔍 TEST 6: Component Refactoring Backend Support")
+        print("-" * 50)
+        
+        # Test PaymentTracking component backend support
+        response = self.make_request("GET", "/payments/stats")
+        if response and response.status_code == 200:
+            payment_stats = response.json()
+            required_stats = ['total_revenue', 'monthly_revenue', 'payment_count', 'total_amount_owed']
+            has_payment_stats = all(field in payment_stats for field in required_stats)
+            self.log_test("PaymentTracking Component Support", has_payment_stats,
+                        f"Payment statistics API supports refactored PaymentTracking")
+        else:
+            self.log_test("PaymentTracking Component Support", False, "Payment stats API not available")
+            
+        # Test Reports component backend support
+        # Reports component needs both client data and payment statistics
+        clients_response = self.make_request("GET", "/clients")
+        stats_response = self.make_request("GET", "/payments/stats")
+        
+        reports_supported = (clients_response and clients_response.status_code == 200 and
+                           stats_response and stats_response.status_code == 200)
+        
+        if reports_supported:
+            clients = clients_response.json()
+            stats = stats_response.json()
+            
+            # Verify Reports can calculate member analysis
+            total_members = len(clients)
+            active_members = len([c for c in clients if c.get('status') == 'Active'])
+            paid_members = len([c for c in clients if c.get('payment_status') == 'paid'])
+            due_members = len([c for c in clients if c.get('payment_status') == 'due'])
+            
+            self.log_test("Reports Component Support", True,
+                        f"Member analysis: {total_members} total, {active_members} active, {paid_members} paid, {due_members} due")
+        else:
+            self.log_test("Reports Component Support", False, "Reports data APIs not available")
+            
+        # Test MembershipManagement component backend support
+        membership_response = self.make_request("GET", "/membership-types")
+        if membership_response and membership_response.status_code == 200:
+            membership_types = membership_response.json()
+            has_membership_types = len(membership_types) > 0
+            self.log_test("MembershipManagement Component Support", has_membership_types,
+                        f"Membership types available: {len(membership_types)}")
+        else:
+            self.log_test("MembershipManagement Component Support", False, "Membership types API not available")
+            
+        # Test Settings component backend support
+        # Settings component needs email templates and reminder stats
+        templates_response = self.make_request("GET", "/email/templates")
+        reminders_response = self.make_request("GET", "/reminders/stats")
+        
+        settings_supported = (templates_response and templates_response.status_code == 200 and
+                            reminders_response and reminders_response.status_code == 200)
+        
+        self.log_test("Settings Component Support", settings_supported,
+                    f"Settings APIs available: templates and reminders")
+        
+        return True
+
+    def test_error_boundaries_backend_resilience(self):
+        """Test 7: Error Boundaries - verify backend handles errors gracefully for new error handling"""
+        print("\n🔍 TEST 7: Error Boundaries Backend Resilience")
+        print("-" * 50)
+        
+        # Test backend error handling for invalid requests (ErrorBoundary compatibility)
+        
+        # Test invalid client ID
+        response = self.make_request("GET", "/clients/invalid-id-12345")
+        if response:
+            is_proper_404 = response.status_code == 404
+            try:
+                error_data = response.json()
+                has_error_message = 'detail' in error_data
+                self.log_test("Error Handling - Invalid Client ID", is_proper_404 and has_error_message,
+                            f"Proper 404 response with error message")
+            except:
+                self.log_test("Error Handling - Invalid Client ID", is_proper_404,
+                            f"Proper 404 response")
+        else:
+            self.log_test("Error Handling - Invalid Client ID", False, "No response to invalid request")
+            
+        # Test invalid payment recording
+        invalid_payment_data = {
+            "client_id": "non-existent-client-id",
+            "amount_paid": 50.0,
+            "payment_date": date.today().isoformat(),
+            "payment_method": "Cash"
+        }
+        
+        response = self.make_request("POST", "/payments/record", invalid_payment_data)
+        if response:
+            is_proper_error = response.status_code in [404, 422]
+            try:
+                error_data = response.json()
+                has_error_message = 'detail' in error_data
+                self.log_test("Error Handling - Invalid Payment", is_proper_error and has_error_message,
+                            f"Proper error response for invalid payment")
+            except:
+                self.log_test("Error Handling - Invalid Payment", is_proper_error,
+                            f"Proper error response")
+        else:
+            self.log_test("Error Handling - Invalid Payment", False, "No response to invalid payment")
+            
+        # Test malformed request data
+        malformed_client_data = {
+            "name": "Test Client",
+            "email": "invalid-email-format",  # Invalid email
+            "monthly_fee": "not-a-number"     # Invalid number
+        }
+        
+        response = self.make_request("POST", "/clients", malformed_client_data)
+        if response:
+            is_validation_error = response.status_code == 422
+            self.log_test("Error Handling - Malformed Data", is_validation_error,
+                        f"Proper validation error for malformed data")
+        else:
+            self.log_test("Error Handling - Malformed Data", False, "No response to malformed data")
             
         return True
 
