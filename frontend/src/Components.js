@@ -1764,7 +1764,7 @@ export function RecordPayment(){
         </div>
         <div className="p-4 flex gap-3">
           <button type="submit" className="btn-primary">Save Payment</button>
-          <button type="button" className="btn-secondary" onClick={()=>nav("/payments")}>Cancel</button>
+          <button type="button" className="btn-secondary" onClick={() => window.navigateToTab?.('payments')}>Cancel</button>
         </div>
       </form>
     </div>
