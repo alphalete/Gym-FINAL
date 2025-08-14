@@ -1806,7 +1806,12 @@ export function RecordPayment(){
         </div>
         <div className="p-4 flex gap-3">
           <button type="submit" className="btn-primary">Save Payment</button>
-          <button type="button" className="btn-secondary" onClick={() => window.navigateToTab?.('payments')}>Cancel</button>
+          <button type="button" className="btn-secondary" onClick={() => {
+            // Go back to where user came from, default to payments if unknown
+            const origin = localStorage.getItem("pendingPaymentOrigin") || "payments";
+            localStorage.removeItem("pendingPaymentOrigin"); // Clean up
+            window.navigateToTab?.(origin);
+          }}>Cancel</button>
         </div>
       </form>
     </div>
