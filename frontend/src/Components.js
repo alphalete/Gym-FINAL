@@ -861,6 +861,9 @@ const ClientManagement = () => {
   const [form, setForm] = useState({ name:"", email:"", phone:"", planId:"" });
   const [searchTerm, setSearchTerm] = useState("");
 
+  // Guard render while loading
+  if (membersLoading) return <div className="p-4">Loading members…</div>;
+
   async function loadMembersAndPlans(){
     try {
       const ms = await gymStorage.getAllMembers();
