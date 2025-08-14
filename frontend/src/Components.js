@@ -987,7 +987,7 @@ const ClientManagement = () => {
             <div className="grid grid-cols-2 gap-4">
               <div className="stat-card bg-primary text-white text-center">
                 <div className="stat-value">{clients.filter(c => c.status === 'Active').length}</div>
-                <div className="stat-label text-primary-100">Active</div>
+                <div className="stat-label text-indigo-100">Active</div>
               </div>
               <div className="stat-card bg-gray-600 text-white text-center">
                 <div className="stat-value">{clients.length}</div>
@@ -1530,7 +1530,7 @@ const MembershipManagement = () => {
               </div>
               <div className="stat-card bg-primary text-white text-center">
                 <div className="stat-value">{allMembersMM.filter(m => m.planId).length}</div>
-                <div className="stat-label text-primary-100">Enrolled</div>
+                <div className="stat-label text-indigo-100">Enrolled</div>
               </div>
             </div>
           </div>
@@ -1923,7 +1923,7 @@ const InstallPrompt = () => {
       <div className="flex items-center justify-between">
         <div>
           <p className="font-medium">Install GoGym4U</p>
-          <p className="text-sm text-primary-100">Add to home screen for quick access</p>
+          <p className="text-sm text-indigo-100">Add to home screen for quick access</p>
         </div>
         <button
           onClick={() => setShowPrompt(false)}
