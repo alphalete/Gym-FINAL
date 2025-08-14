@@ -128,6 +128,13 @@ const PaymentComponent = () => {
         }
         localStorage.removeItem("pendingPaymentMemberId");
       }
+
+      // Auto-open payment modal if requested from dashboard
+      const autoOpen = localStorage.getItem("autoOpenRecordPayment");
+      if (autoOpen === "true") {
+        localStorage.removeItem("autoOpenRecordPayment"); // Clean up
+        setIsRecordingPayment(true);
+      }
     })();
   }, [membersPT]);
 
