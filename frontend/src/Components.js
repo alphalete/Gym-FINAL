@@ -979,7 +979,7 @@ function ClientManagement() {
             <button 
               type="button" 
               className="text-indigo-600 underline hover:text-indigo-800"
-              onClick={() => window.navigateToTab?.('members')}
+              onClick={() => window.navigateTo?.('/add-member')}
             >
               Add your first member
             </button>
