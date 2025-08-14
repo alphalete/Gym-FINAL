@@ -904,6 +904,10 @@ const ClientManagement = () => {
       // Use helper function
       await upsertMember({ ...base, ...snap }, setClients);
       
+      // Safety refresh from façade
+      const fresh = await facadeGetAllMembers();
+      setClients(Array.isArray(fresh)?fresh:[]);
+      
       setIsAddingClient(false); 
       setEditingClient(null);
     }catch(e){ 
