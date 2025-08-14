@@ -1469,7 +1469,8 @@ const MembershipManagement = () => {
   }
   
   async function remove(p) {
-    const membersCount = allMembersMM.filter(m => m.planId === p.id).length;
+    const membersList = Array.isArray(allMembersMM) ? allMembersMM : [];
+    const membersCount = membersList.filter(m => m.planId === p.id).length;
     
     if (membersCount > 0) {
       if (!window.confirm(`This plan has ${membersCount} members. Are you sure you want to delete it? This will not affect existing members but they won't be able to select this plan for new signups.`)) {
