@@ -1209,8 +1209,11 @@ const ClientManagement = () => {
 
 // --- Reports ---
 const Reports = () => {
-  const membersR = useMembersFromStorage();
+  const { members: membersR, loading: loadingR } = useMembersFromStorage();
   const [payments, setPayments] = useState([]);
+  
+  // Guard early loading state
+  if (loadingR) return <div className="p-6">Loading reports…</div>;
   
   useEffect(() => {
     (async () => {
