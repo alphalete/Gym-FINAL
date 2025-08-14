@@ -547,17 +547,21 @@ const Dashboard = () => {
   }
 
   // Calculate KPIs with GoGym4U logic
-  const activeCount = clients.filter(m => (m.status || "Active") === "Active").length;
-  const totalCount = clients.length;
+  // Safety guards for arrays
+  const clientsList = Array.isArray(membersPT) ? membersPT : [];
+  const paymentsList = Array.isArray(payments) ? payments : [];
+  
+  const activeCount = clientsList.filter(m => (m.status || "Active") === "Active").length;
+  const totalCount = clientsList.length;
   
   // Due today calculation
-  const dueToday = clients.filter(m => {
+  const dueToday = clientsList.filter(m => {
     if (m.status !== "Active") return false;
     return m.nextDue === todayISO;
   });
   
   // Overdue calculation
-  const overdue = clients.filter(m => {
+  const overdue = clientsList.filter(m => {
     if (m.status !== "Active") return false;
     const due = m.nextDue;
     if (!due) return false;
@@ -565,7 +569,7 @@ const Dashboard = () => {
   });
 
   // Due soon (next 3 days)
-  const dueSoon = clients.filter(m => {
+  const dueSoon = clientsList.filter(m => {
     if (m.status !== "Active" || overdue.includes(m) || dueToday.includes(m)) return false;
     const due = m.nextDue;
     if (!due) return false;
@@ -577,7 +581,7 @@ const Dashboard = () => {
   });
 
   // Revenue calculation (MTD)
-  const revenueMTD = payments
+  const revenueMTD = paymentsList
     .filter(p => p.paidOn && p.paidOn.slice(0,7) === todayISO.slice(0,7))
     .reduce((sum,p)=> sum + Number(p.amount||0), 0);
 
