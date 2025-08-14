@@ -2032,6 +2032,7 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
       const member = { 
         ...form, 
         name: `${form.firstName} ${form.lastName}`.trim() || form.firstName || form.lastName,
+        membershipType: form.membershipType || "Basic", // Default membership type if none selected
         status: "Active", 
         active: true, 
         joinedOn: new Date().toISOString() 
