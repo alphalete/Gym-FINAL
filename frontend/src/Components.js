@@ -2025,11 +2025,7 @@ export function RecordPayment(){
 
 // --- Inline Add Member Form Component ---
 function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
-  console.log('🔧 AddMemberForm component rendered with props:', { 
-    hasOnAddOrUpdateMember: !!onAddOrUpdateMember, 
-    hasOnCancel: !!onCancel, 
-    hasOnSuccess: !!onSuccess 
-  });
+  console.log('🔧 AddMemberForm component rendered');
   
   const [form, setForm] = React.useState({ 
     firstName: "", 
@@ -2042,10 +2038,13 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
   const [plans, setPlans] = React.useState([]);
   const [loadingPlans, setLoadingPlans] = React.useState(true);
 
-  // Load plans for dropdown
+  // Stabilize the plans loading with proper dependency array
   React.useEffect(() => {
+    let isMounted = true;
+    
     const loadPlans = async () => {
       try {
+        console.log('🔧 Loading plans...');
         const storage = storageNamed || gymStorageMain;
         let plansList = [];
         
@@ -2055,18 +2054,31 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
           plansList = await storage.getAll("plans");
         }
         
-        setPlans(Array.isArray(plansList) ? plansList : []);
+        if (isMounted) {
+          setPlans(Array.isArray(plansList) ? plansList : []);
+          console.log('🔧 Plans loaded:', plansList.length);
+        }
       } catch (error) {
         console.error('Error loading plans:', error);
+        if (isMounted) {
+          setPlans([]);
+        }
       } finally {
-        setLoadingPlans(false);
+        if (isMounted) {
+          setLoadingPlans(false);
+        }
       }
     };
     
     loadPlans();
-  }, []);
+    
+    return () => {
+      isMounted = false;
+    };
+  }, []); // Empty dependency array to prevent re-renders
 
-  const handleSubmit = async (e) => {
+  // Stabilize handleSubmit with useCallback
+  const handleSubmit = React.useCallback(async (e) => {
     e.preventDefault();
     console.log('🚀 AddMemberForm handleSubmit triggered', form);
     
@@ -2091,8 +2103,8 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
         email: form.email || '',
         phone: form.phone || '',
         membership_type: form.membershipType || "Basic",
-        monthly_fee: 55.0, // Default fee
-        start_date: new Date().toISOString().slice(0, 10), // Required field
+        monthly_fee: 55.0,
+        start_date: new Date().toISOString().slice(0, 10),
         payment_status: "due",
         status: "Active", 
         active: true,
@@ -2102,26 +2114,20 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
       
       console.log('📝 Member object created:', member);
       
-      // Use the repo-based save function
       if (onAddOrUpdateMember) {
         console.log('🔄 Using onAddOrUpdateMember handler');
         await onAddOrUpdateMember(member);
-        
-        // Clear form on success
         setForm({ firstName: "", lastName: "", email: "", phone: "", membershipType: "" });
         console.log('✅ Member saved via onAddOrUpdateMember, form cleared');
         alert(`✅ Member "${member.name}" added successfully!`);
         onSuccess?.();
       } else {
         console.log('🔄 Using fallback backend save');
-        // Fallback to direct backend save
         const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
         if (backendUrl) {
           const response = await fetch(`${backendUrl}/api/clients`, {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({...member, id: crypto?.randomUUID?.() || String(Date.now())})
           });
           
@@ -2131,7 +2137,6 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
             throw new Error(`Backend save failed: ${response.status} - ${JSON.stringify(errorData)}`);
           }
           
-          // Clear form on success
           setForm({ firstName: "", lastName: "", email: "", phone: "", membershipType: "" });
           console.log('✅ Member saved to backend successfully, form cleared');
           alert(`✅ Member "${member.name}" added successfully!`);
@@ -2145,8 +2150,8 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
       setSaving(false);
       console.log('🏁 handleSubmit completed');
     }
-  };
-  
+  }, [form, onAddOrUpdateMember, onSuccess]);
+
   console.log('🔧 handleSubmit function defined:', typeof handleSubmit);
 
   return (
