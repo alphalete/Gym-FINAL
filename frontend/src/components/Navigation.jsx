@@ -22,8 +22,10 @@ const NavItem = ({ icon, label, isActive, onClick, className = '' }) => (
     onClick={onClick}
     className={`nav-bottom-item ${isActive ? 'active' : ''} ${className} transition-colors duration-200`}
   >
-    <span className="text-xl mb-1">{Icons[icon] || icon}</span>
-    <span className="font-medium">{label}</span>
+    <div className="mb-1">
+      <NavigationIcon name={Icons[icon] || icon} isActive={isActive} size="lg" />
+    </div>
+    <span className="font-medium text-xs leading-tight">{label}</span>
   </button>
 );
 
