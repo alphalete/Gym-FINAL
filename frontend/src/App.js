@@ -39,6 +39,8 @@ const AppContent = () => {
         navigate(routes[tab]);
       }
     };
+    // Back-compat alias in case older code calls window.setActiveTab
+    window.setActiveTab = window.navigateToTab;
     // Also expose direct navigate function
     window.navigateTo = navigate;
   }, [navigate]);
