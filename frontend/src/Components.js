@@ -1838,6 +1838,32 @@ function AddMemberForm({ onCancel, onSuccess }) {
     membershipType: "" 
   });
   const [saving, setSaving] = React.useState(false);
+  const [plans, setPlans] = React.useState([]);
+  const [loadingPlans, setLoadingPlans] = React.useState(true);
+
+  // Load plans for dropdown
+  React.useEffect(() => {
+    const loadPlans = async () => {
+      try {
+        const storage = storageNamed || gymStorageMain;
+        let plansList = [];
+        
+        if (storage.getPlans) {
+          plansList = await storage.getPlans();
+        } else if (storage.getAll) {
+          plansList = await storage.getAll("plans");
+        }
+        
+        setPlans(Array.isArray(plansList) ? plansList : []);
+      } catch (error) {
+        console.error('Error loading plans:', error);
+      } finally {
+        setLoadingPlans(false);
+      }
+    };
+    
+    loadPlans();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -1858,7 +1884,24 @@ function AddMemberForm({ onCancel, onSuccess }) {
         joinedOn: new Date().toISOString() 
       };
       
-      // Save member using storage facade
+      // Save to backend first
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      if (backendUrl) {
+        const response = await fetch(`${backendUrl}/api/clients`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(member)
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Backend save failed: ${response.status}`);
+        }
+        console.log('✅ Member saved to backend successfully');
+      }
+      
+      // Also save to local storage as backup
       const storage = storageNamed || gymStorageMain;
       if (storage.saveMember) {
         await storage.saveMember(member);
@@ -1866,10 +1909,12 @@ function AddMemberForm({ onCancel, onSuccess }) {
         await storage.saveData("members", member);
       }
       
+      // Show success message
+      alert(`✅ Member "${member.name}" added successfully!`);
       onSuccess?.();
     } catch (error) {
       console.error('Error saving member:', error);
-      alert('Error saving member. Please try again.');
+      alert('❌ Error saving member. Please try again.');
     } finally {
       setSaving(false);
     }
