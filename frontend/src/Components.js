@@ -2150,14 +2150,20 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
   console.log('🔧 handleSubmit function defined:', typeof handleSubmit);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={(e) => {
+      console.log('🚀 DIRECT onSubmit triggered!', e);
+      handleSubmit(e);
+    }} className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <input 
           type="text"
           className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
           placeholder="First Name *" 
           value={form.firstName}
-          onChange={e => setForm(f => ({...f, firstName: e.target.value}))}
+          onChange={e => {
+            console.log('🔧 First Name changed:', e.target.value);
+            setForm(f => ({...f, firstName: e.target.value}));
+          }}
           required
         />
         <input 
@@ -2223,6 +2229,9 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
           type="submit" 
           className="btn btn-primary"
           disabled={saving}
+          onClick={(e) => {
+            console.log('🚀 Submit button clicked!', e.type);
+          }}
         >
           {saving ? 'Saving...' : 'Add Member'}
         </button>
