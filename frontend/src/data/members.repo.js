@@ -2,6 +2,75 @@ import storageDefault, * as storageNamed from "../storage";
 
 const s = storageDefault || storageNamed || {};
 
+// Sync queue management for offline operations
+const getPendingSync = async () => {
+  try {
+    return (await s.getSetting?.('pendingSync', [])) ?? [];
+  } catch (e) {
+    console.warn('Failed to get pending sync:', e);
+    return [];
+  }
+};
+
+const addPendingSync = async (operation) => {
+  try {
+    const pending = await getPendingSync();
+    const syncItem = {
+      id: crypto?.randomUUID?.() || String(Date.now()),
+      timestamp: Date.now(),
+      ...operation
+    };
+    pending.push(syncItem);
+    await s.saveSetting?.('pendingSync', pending);
+    console.log('📤 Added to sync queue:', syncItem.type, syncItem.data?.id || syncItem.memberId);
+  } catch (e) {
+    console.warn('Failed to add pending sync:', e);
+  }
+};
+
+const removePendingSync = async (syncId) => {
+  try {
+    const pending = await getPendingSync();
+    const filtered = pending.filter(item => item.id !== syncId);
+    await s.saveSetting?.('pendingSync', filtered);
+  } catch (e) {
+    console.warn('Failed to remove pending sync:', e);
+  }
+};
+
+// Client-side validation functions
+const validateMember = (member) => {
+  const errors = [];
+  
+  // Required fields
+  if (!member.name || !member.name.trim()) {
+    errors.push('Name is required');
+  }
+  
+  // Email validation
+  if (member.email && member.email.trim()) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(member.email.trim())) {
+      errors.push('Please enter a valid email address');
+    }
+  }
+  
+  // Monthly fee validation
+  if (member.monthly_fee != null && (isNaN(member.monthly_fee) || member.monthly_fee < 0)) {
+    errors.push('Monthly fee must be a positive number');
+  }
+  
+  // Phone validation (basic)
+  if (member.phone && member.phone.trim()) {
+    const phoneRegex = /^\+?[\d\s\-\(\)]{7,}$/;
+    if (!phoneRegex.test(member.phone.trim())) {
+      errors.push('Please enter a valid phone number');
+    }
+  }
+  
+  return errors;
+};
+
 // Offline-first data loading: IndexedDB primary, API sync secondary
 const getAllMembers = async () => {
   try {
