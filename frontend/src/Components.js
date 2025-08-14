@@ -951,8 +951,9 @@ function ClientManagement() {
               }
             }}>Delete</button>
             <button type="button" className="btn-primary" onClick={() => {
-              // Store pending payment member ID and navigate to payments tab
+              // Store pending payment member ID and where user came from
               localStorage.setItem("pendingPaymentMemberId", String(m.id));
+              localStorage.setItem("pendingPaymentOrigin", "members");
               window.navigateToTab?.('payments');
             }}>Record Payment</button>
             <button type="button" className="btn-ghost" onClick={() => {
