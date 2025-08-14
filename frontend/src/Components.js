@@ -623,7 +623,7 @@ const Dashboard = () => {
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4 mb-6">
           {/* Active Members */}
           <div className="bg-card rounded-xl shadow-sm p-3 md:p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full flex items-center justify-center bg-primary/10 text-primary">
+            <div className="w-10 h-10 rounded-full flex items-center justify-center bg-primary/10 text-indigo-600">
               <span className="text-xl">👥</span>
             </div>
             <div>
@@ -943,7 +943,7 @@ const ClientManagement = () => {
         <div className="px-6 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="page-title text-primary">Members</h1>
+              <h1 className="page-title text-indigo-600">Members</h1>
               <p className="page-subtitle">Manage gym memberships and member information</p>
             </div>
             <button 
@@ -1240,7 +1240,7 @@ const Reports = () => {
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="bg-white border rounded-2xl p-4">
-          <div className="text-2xl font-bold text-primary">{totalMembers}</div>
+          <div className="text-2xl font-bold text-indigo-600">{totalMembers}</div>
           <div className="text-sm text-gray-600">Total Members</div>
         </div>
         <div className="bg-white border rounded-2xl p-4">
@@ -1248,7 +1248,7 @@ const Reports = () => {
           <div className="text-sm text-gray-600">Active Members</div>
         </div>
         <div className="bg-white border rounded-2xl p-4">
-          <div className="text-2xl font-bold text-primary">{formatCurrency(totalRevenue)}</div>
+          <div className="text-2xl font-bold text-indigo-600">{formatCurrency(totalRevenue)}</div>
           <div className="text-sm text-gray-600">Total Revenue</div>
         </div>
       </div>
@@ -1483,7 +1483,7 @@ const MembershipManagement = () => {
         <div className="px-6 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="page-title text-primary">Membership Plans</h1>
+              <h1 className="page-title text-indigo-600">Membership Plans</h1>
               <p className="page-subtitle">Create and manage gym membership plans and pricing</p>
             </div>
             <button 
