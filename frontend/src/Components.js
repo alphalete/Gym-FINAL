@@ -551,7 +551,7 @@ const Dashboard = () => {
 
   // Calculate KPIs with GoGym4U logic
   // Safety guards for arrays
-  const clientsList = Array.isArray(membersPT) ? membersPT : [];
+  const clientsList = Array.isArray(clients) ? clients : [];
   const paymentsList = Array.isArray(payments) ? payments : [];
   
   const activeCount = clientsList.filter(m => (m.status || "Active") === "Active").length;
