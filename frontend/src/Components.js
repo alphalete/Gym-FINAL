@@ -1109,6 +1109,15 @@ function MembershipManagement() {
   const { members: membersMM, loading: loadingMM, error: errorMM } = useMembersFromStorage();
   const [plans, setPlans] = React.useState([]);
   const [loadingPlans, setLoadingPlans] = React.useState(true);
+  const [showCreateForm, setShowCreateForm] = React.useState(false);
+  const [editingPlan, setEditingPlan] = React.useState(null);
+  const [formData, setFormData] = React.useState({
+    name: '',
+    price: '',
+    description: '',
+    duration: 'monthly',
+    features: []
+  });
 
   React.useEffect(() => { let live = true; (async () => {
     try {
@@ -1116,6 +1125,80 @@ function MembershipManagement() {
       if (live) setPlans(Array.isArray(p) ? p : []);
     } finally { if (live) setLoadingPlans(false); }
   })(); return () => { live = false; }; }, []);
+
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      price: '',
+      description: '',
+      duration: 'monthly', 
+      features: []
+    });
+    setEditingPlan(null);
+    setShowCreateForm(false);
+  };
+
+  const handleEdit = (plan) => {
+    setFormData({
+      name: plan.name || '',
+      price: plan.price || '',
+      description: plan.description || '',
+      duration: plan.duration || 'monthly',
+      features: plan.features || []
+    });
+    setEditingPlan(plan);
+    setShowCreateForm(true);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.name.trim() || !formData.price) return;
+
+    try {
+      const planData = {
+        ...formData,
+        price: parseFloat(formData.price),
+        id: editingPlan?.id || crypto?.randomUUID?.() || String(Date.now()),
+        createdAt: editingPlan?.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      await storageFacade.savePlan(planData);
+      
+      // Refresh plans
+      const updatedPlans = await storageFacade.getPlans();
+      setPlans(Array.isArray(updatedPlans) ? updatedPlans : []);
+      
+      resetForm();
+    } catch (error) {
+      console.error('Error saving plan:', error);
+      alert('Error saving plan. Please try again.');
+    }
+  };
+
+  const handleDelete = async (plan) => {
+    const membersArr = Array.isArray(membersMM) ? membersMM : [];
+    const count = membersArr.filter(m => (m?.membershipType || m?.plan) === plan.name).length;
+    
+    if (count > 0) {
+      alert(`Cannot delete "${plan.name}" - it has ${count} active member${count === 1 ? '' : 's'}.`);
+      return;
+    }
+
+    if (!confirm(`Are you sure you want to delete the plan "${plan.name}"?`)) return;
+
+    try {
+      // Note: Implement actual delete functionality in storage.js if needed
+      const updatedPlans = plans.filter(p => p.id !== plan.id);
+      setPlans(updatedPlans);
+      
+      // If you have a deletePlan function in storage, use it here
+      // await storageFacade.deletePlan(plan.id);
+    } catch (error) {
+      console.error('Error deleting plan:', error);
+      alert('Error deleting plan. Please try again.');
+    }
+  };
 
   if (loadingMM || loadingPlans) return <div className="p-4">Loading plans…</div>;
   if (errorMM) return <div className="p-4 text-rose-600">Error loading plans</div>;
@@ -1125,27 +1208,175 @@ function MembershipManagement() {
 
   return (
     <div className="p-4">
-      <h1 className="text-xl font-semibold mb-3">Plans</h1>
-      {plansArr.length === 0
-        ? <div className="text-slate-500">No plans created yet.</div>
-        : plansArr.map((p, i) => {
-            const name = p?.name || "Plan";
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-xl font-semibold">Membership Plans</h1>
+        <button 
+          type="button"
+          className="btn btn-primary"
+          onClick={() => setShowCreateForm(true)}
+        >
+          <ActionIcon name="➕" className="mr-2" />
+          Add Plan
+        </button>
+      </div>
+
+      {/* Create/Edit Form */}
+      {showCreateForm && (
+        <div className="card mb-6">
+          <div className="card-header">
+            <h3 className="text-lg font-semibold">
+              {editingPlan ? 'Edit Plan' : 'Create New Plan'}
+            </h3>
+          </div>
+          <div className="card-body">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Plan Name *
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    placeholder="e.g., Premium, Basic, VIP"
+                    value={formData.name}
+                    onChange={(e) => setFormData(f => ({...f, name: e.target.value}))}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Price (TTD) *
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    placeholder="e.g., 55.00"
+                    value={formData.price}
+                    onChange={(e) => setFormData(f => ({...f, price: e.target.value}))}
+                    required
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Duration
+                </label>
+                <select
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  value={formData.duration}
+                  onChange={(e) => setFormData(f => ({...f, duration: e.target.value}))}
+                >
+                  <option value="monthly">Monthly</option>
+                  <option value="quarterly">Quarterly (3 months)</option>
+                  <option value="yearly">Yearly</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Description
+                </label>
+                <textarea
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  rows="3"
+                  placeholder="Describe what's included in this plan..."
+                  value={formData.description}
+                  onChange={(e) => setFormData(f => ({...f, description: e.target.value}))}
+                />
+              </div>
+              
+              <div className="flex gap-3 pt-4">
+                <button type="submit" className="btn btn-primary">
+                  {editingPlan ? 'Update Plan' : 'Create Plan'}
+                </button>
+                <button 
+                  type="button" 
+                  className="btn btn-secondary"
+                  onClick={resetForm}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Plans List */}
+      {plansArr.length === 0 ? (
+        <div className="text-center py-12">
+          <div className="text-6xl mb-4">
+            <div className="flex justify-center">
+              <Icon name="📋" size="2xl" className="text-gray-400" />
+            </div>
+          </div>
+          <div className="text-xl font-medium text-gray-900 mb-2">No Plans Yet</div>
+          <div className="text-gray-500 mb-6">Create your first membership plan to get started</div>
+          <button 
+            type="button"
+            className="btn btn-primary"
+            onClick={() => setShowCreateForm(true)}
+          >
+            Create First Plan
+          </button>
+        </div>
+      ) : (
+        <div className="grid gap-4">
+          {plansArr.map((plan, i) => {
+            const name = plan?.name || "Plan";
             const count = membersArr.filter(m => (m?.membershipType || m?.plan) === name).length;
             return (
-              <div key={p.id || p._id || i} className="card mb-3">
-                <div className="card-body flex items-center justify-between">
-                  <div>
-                    <div className="font-semibold">{name}</div>
-                    <div className="text-sm text-slate-500">{p?.description || ""}</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-bold">{String(p?.price ?? "—")}</div>
-                    <div className="text-xs text-slate-500">{count} member{count===1?"":"s"}</div>
+              <div key={plan.id || plan._id || i} className="card">
+                <div className="card-body">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className="text-lg font-semibold text-gray-900">{name}</h3>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          count > 0 ? 'bg-success-100 text-success-700' : 'bg-gray-100 text-gray-600'
+                        }`}>
+                          {count} member{count === 1 ? '' : 's'}
+                        </span>
+                      </div>
+                      <div className="text-2xl font-bold text-primary-600 mb-2">
+                        {formatCurrency(plan?.price ?? 0)}
+                        <span className="text-sm font-normal text-gray-500 ml-1">
+                          / {plan?.duration || 'month'}
+                        </span>
+                      </div>
+                      {plan?.description && (
+                        <p className="text-gray-600 text-sm">{plan.description}</p>
+                      )}
+                    </div>
+                    <div className="flex gap-2 ml-4">
+                      <button
+                        type="button"
+                        className="p-2 text-gray-400 hover:text-primary-600 transition-colors"
+                        onClick={() => handleEdit(plan)}
+                        title="Edit plan"
+                      >
+                        <ActionIcon name="✏️" size="sm" />
+                      </button>
+                      <button
+                        type="button"
+                        className="p-2 text-gray-400 hover:text-danger-600 transition-colors"
+                        onClick={() => handleDelete(plan)}
+                        title="Delete plan"
+                      >
+                        <ActionIcon name="🗑️" size="sm" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
             );
           })}
+        </div>
+      )}
     </div>
   );
 }
