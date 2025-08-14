@@ -1405,10 +1405,13 @@ const Settings = () => {
 // --- Plans (MembershipManagement) ---
 const MembershipManagement = () => {
   const [plans, setPlans] = useState([]);
-  const { members: allMembersMM } = useMembersFromStorage();
+  const { members: allMembersMM, loading: loadingMM } = useMembersFromStorage();
   const [isOpen, setIsOpen] = useState(false);
   const [form, setForm] = useState({ id: "", name: "", price: 0, cycleDays: 30, description: "" });
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Guard render while loading
+  if (loadingMM) return <div className="p-4">Loading plans…</div>;
 
   async function load() {
     try {
