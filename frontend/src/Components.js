@@ -1820,7 +1820,7 @@ const Sidebar = () => {
                 href={`#${item.path}`}
                 className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer ${
                   isActive(item.path)
-                    ? 'text-primary-600 font-semibold border-r-2 border-primary-600'
+                    ? 'text-indigo-600 font-semibold border-r-2 border-indigo-600'
                     : 'text-slate-500 hover:text-slate-700'
                 }`}
               >
