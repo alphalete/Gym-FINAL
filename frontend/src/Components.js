@@ -2258,32 +2258,38 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
             type="button" 
             disabled={saving}
             style={{ 
-              backgroundColor: 'green',
+              backgroundColor: '#1e40af',
               color: 'white',
               padding: '12px 24px',
               border: 'none',
               borderRadius: '8px',
-              cursor: 'pointer',
+              cursor: saving ? 'not-allowed' : 'pointer',
               minHeight: '48px',
               fontSize: '16px',
+              fontWeight: '600',
+              opacity: saving ? 0.6 : 1,
               zIndex: 99999
             }}
-            onClick={(e) => {
-              console.log('🚀 GREEN BUTTON CLICKED!', e.type);
-              console.log('🚀 Button element:', e.target);
-              console.log('🚀 Event details:', { clientX: e.clientX, clientY: e.clientY });
+            onClick={async (e) => {
+              console.log('🚀 ADD MEMBER BUTTON CLICKED!', e.type);
               e.preventDefault();
               e.stopPropagation();
-              handleSubmit(e);
-            }}
-            onMouseDown={(e) => {
-              console.log('🔧 GREEN mouseDown detected!', e.type);
-            }}
-            onMouseUp={(e) => {
-              console.log('🔧 GREEN mouseUp detected!', e.type);
+              
+              // Enhanced validation with email check
+              if (!form.firstName.trim()) {
+                alert('First name is required');
+                return;
+              }
+              
+              if (form.email && !form.email.includes('@')) {
+                alert('Please enter a valid email address with @ sign');
+                return;
+              }
+              
+              await handleSubmit(e);
             }}
           >
-            {saving ? 'Saving...' : 'GREEN TEST ADD'}
+            {saving ? 'Saving...' : 'Add Member'}
           </button>
           <button 
             type="button" 
