@@ -2254,26 +2254,11 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
         
         <button 
           type="button" 
-          disabled={saving}
-          style={{ 
-            backgroundColor: '#1e40af',
-            color: 'white',
-            padding: '12px 24px',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: saving ? 'not-allowed' : 'pointer',
-            minHeight: '48px',
-            fontSize: '16px',
-            fontWeight: '600',
-            opacity: saving ? 0.6 : 1,
-            zIndex: 99999
-          }}
-          onClick={async (e) => {
-            console.log('🚀 ADD MEMBER BUTTON CLICKED!', e.type);
-            e.preventDefault();
-            e.stopPropagation();
+          onClick={() => {
+            console.log('🚀 ADD MEMBER DIRECT CLICK!');
+            alert('Add Member clicked! Now proceeding with form submission...');
             
-            // Enhanced validation with email check
+            // Simple validation
             if (!form.firstName.trim()) {
               alert('First name is required');
               return;
@@ -2284,10 +2269,22 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
               return;
             }
             
-            await handleSubmit(e);
+            // Call handleSubmit directly without event parameter
+            handleSubmit({ preventDefault: () => {}, stopPropagation: () => {} });
+          }}
+          style={{
+            backgroundColor: '#1e40af',
+            color: 'white',
+            padding: '15px 25px',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            zIndex: 999999
           }}
         >
-          {saving ? 'Saving...' : 'Add Member'}
+          Add Member
         </button>
         <button 
           type="button" 
