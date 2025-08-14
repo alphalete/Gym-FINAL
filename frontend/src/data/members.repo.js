@@ -199,36 +199,68 @@ export async function listMembers() {
 }
 
 export async function upsertMember(member) {
-  const list = await listMembers();
-  const norm = withId(member);
-  
-  // Save to backend first - this must succeed
-  const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-  if (backendUrl) {
-    const method = norm.id && list.find(x => pickId(x) === pickId(norm)) ? 'PUT' : 'POST';
-    const url = method === 'PUT' ? `${backendUrl}/api/clients/${norm.id}` : `${backendUrl}/api/clients`;
-    
-    const response = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(norm)
-    });
-    
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => `HTTP ${response.status}`);
-      throw new Error(`Backend ${method} failed: ${errorText}`);
-    }
-    
-    console.log(`✅ Member ${method === 'PUT' ? 'updated' : 'created'} in backend:`, norm.id);
+  // CLIENT-SIDE VALIDATION FIRST
+  const validationErrors = validateMember(member);
+  if (validationErrors.length > 0) {
+    throw new Error(`Validation failed: ${validationErrors.join(', ')}`);
   }
   
-  // Only update local storage if backend succeeded (or no backend URL)
+  const list = await listMembers();
+  const norm = withId(member);
+  const isUpdate = norm.id && list.find(x => pickId(x) === pickId(norm));
+  
+  console.log(`🔄 ${isUpdate ? 'Updating' : 'Creating'} member:`, norm.name);
+  
+  // ALWAYS save to local storage first (offline-first)
   const idx = list.findIndex(x => pickId(x) === pickId(norm));
   if (idx >= 0) list[idx] = { ...list[idx], ...norm };
   else list.push(norm);
   
-  // Save to local storage as backup
-  await saveAllMembers(list);
+  try {
+    await saveAllMembers(list);
+    console.log(`✅ Member saved locally:`, norm.id);
+  } catch (localError) {
+    throw new Error(`Failed to save locally: ${localError.message}`);
+  }
+  
+  // TRY to sync with backend immediately if online
+  if (navigator.onLine) {
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      if (backendUrl) {
+        const method = isUpdate ? 'PUT' : 'POST';
+        const url = method === 'PUT' ? `${backendUrl}/api/clients/${norm.id}` : `${backendUrl}/api/clients`;
+        
+        const response = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(norm)
+        });
+        
+        if (response.ok) {
+          console.log(`✅ Member synced to backend:`, norm.id);
+          return list; // Success - no need to queue
+        } else {
+          throw new Error(`Backend ${method} failed: ${response.status}`);
+        }
+      }
+    } catch (backendError) {
+      console.warn(`⚠️ Backend sync failed, queuing for later:`, backendError.message);
+      // Add to sync queue for later
+      await addPendingSync({
+        type: isUpdate ? 'UPDATE' : 'CREATE',
+        data: norm
+      });
+    }
+  } else {
+    console.log(`📴 Offline - queuing member for sync:`, norm.id);
+    // Add to sync queue for when we're back online
+    await addPendingSync({
+      type: isUpdate ? 'UPDATE' : 'CREATE',
+      data: norm
+    });
+  }
+  
   return list;
 }
 
