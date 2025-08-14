@@ -161,7 +161,7 @@
   }
   
   .nav-sidebar-item.active {
-    @apply bg-primary-50 text-indigo-600 border-r-2 border-indigo-600;
+    @apply bg-indigo-50 text-indigo-600 border-r-2 border-indigo-600;
   }
 }
 
