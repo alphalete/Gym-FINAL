@@ -46,9 +46,7 @@ import {
   DocumentTextIcon,
   AdjustmentsHorizontalIcon,
   BeakerIcon,
-  CircleStackIcon,
-  GemIcon,
-  SparklesIcon
+  CircleStackIcon
 } from '@heroicons/react/24/outline';
 
 import {
