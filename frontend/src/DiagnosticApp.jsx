@@ -47,6 +47,18 @@ export default function DiagnosticApp(){
         out.getAllMembersOK = e; 
       }
       
+      // Members repository diagnostics
+      try {
+        const before = await membersRepo.listMembers();
+        out.MembersRepoListOK = Array.isArray(before);
+        const tmp = { name:"_diag_", email:"_", phone:"_" };
+        const afterUpsert = await membersRepo.upsertMember(tmp);
+        out.MembersRepoUpsertOK = Array.isArray(afterUpsert) && afterUpsert.some(x => x.name==="_diag_");
+        const diagId = afterUpsert.find(x => x.name==="_diag_")?.id ?? afterUpsert.find(x => x.name==="_diag_")?._id;
+        const afterDelete = await membersRepo.removeMember(diagId);
+        out.MembersRepoDeleteOK = Array.isArray(afterDelete) && !afterDelete.some(x => x.name==="_diag_");
+      } catch(e){ out.MembersRepoError = e?.message || String(e); }
+      
       setO(out);
     })();
   }, []);
