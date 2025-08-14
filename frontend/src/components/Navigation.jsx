@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { NavigationIcon } from './Icons';
 
-// Simple icons (we'll use emojis initially, can replace with Heroicons later)
+// Icon mappings for navigation
 const Icons = {
   home: '🏠',
   users: '👥',
