@@ -245,7 +245,7 @@ const PaymentComponent = () => {
                 <div className="stat-value">{formatCurrency(monthlyRevenue)}</div>
                 <div className="stat-label text-success-100">This Month</div>
               </div>
-              <div className="text-success-200 text-3xl">💰</div>
+              <StatIcon name="💰" color="success" />
             </div>
           </div>
 
@@ -255,7 +255,9 @@ const PaymentComponent = () => {
                 <div className="stat-value">{todayPayments.length}</div>
                 <div className="stat-label text-indigo-100">Today</div>
               </div>
-              <div className="text-indigo-200 text-3xl">📅</div>
+              <div className="text-indigo-200 text-3xl">
+                <Icon name="📅" size="2xl" />
+              </div>
             </div>
           </div>
 
@@ -265,7 +267,9 @@ const PaymentComponent = () => {
                 <div className="stat-value">{payments.length}</div>
                 <div className="stat-label text-info-100">Total Payments</div>
               </div>
-              <div className="text-info-200 text-3xl">📊</div>
+              <div className="text-info-200 text-3xl">
+                <Icon name="📊" size="2xl" />
+              </div>
             </div>
           </div>
 
@@ -275,7 +279,9 @@ const PaymentComponent = () => {
                 <div className="stat-value">{formatCurrency(totalRevenue)}</div>
                 <div className="stat-label text-warning-100">All Time</div>
               </div>
-              <div className="text-warning-200 text-3xl">💎</div>
+              <div className="text-warning-200 text-3xl">
+                <Icon name="💎" size="2xl" />
+              </div>
             </div>
           </div>
         </div>
@@ -285,7 +291,7 @@ const PaymentComponent = () => {
           <div className="card-header">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                <span className="text-indigo-600 mr-2">💳</span>
+                <ActionIcon name="💳" className="text-indigo-600 mr-2" />
                 Payment History ({filteredPayments.length})
               </h3>
               
