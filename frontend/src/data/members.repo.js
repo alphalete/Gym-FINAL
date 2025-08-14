@@ -47,10 +47,14 @@ const saveAllMembers = async (arr) => {
   } catch (e) { console.error("[members.repo] saveAllMembers", e); }
 };
 
-const pickId = (m) => m?.id ?? m?._id ?? m?.uuid;
-const withId  = (m) => {
-  const id = pickId(m) || (globalThis.crypto?.randomUUID?.() ?? String(Date.now()));
-  // Keep original fields, but ensure a unified id for comparisons
+// Normalize ID across different shapes and types
+export const pickId = (m) => {
+  const raw = m?.id ?? m?._id ?? m?.uuid ?? m?.ID ?? m?.Id;
+  return raw == null ? undefined : String(raw);
+};
+const withId = (m) => {
+  const id = pickId(m) ?? (globalThis.crypto?.randomUUID?.() ?? String(Date.now()));
+  // Preserve original fields but ensure we always have a comparable id string
   return { id, ...m };
 };
 
