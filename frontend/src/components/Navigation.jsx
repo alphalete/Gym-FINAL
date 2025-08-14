@@ -35,8 +35,8 @@ const SidebarNavItem = ({ icon, label, isActive, onClick, className = '' }) => (
     onClick={onClick}
     className={`nav-sidebar-item ${isActive ? 'active' : ''} ${className} transition-all duration-200 group`}
   >
-    <span className="text-xl mr-3 group-hover:scale-110 transition-transform duration-200">
-      {Icons[icon] || icon}
+    <span className="mr-3 group-hover:scale-110 transition-transform duration-200">
+      <NavigationIcon name={Icons[icon] || icon} isActive={isActive} size="lg" />
     </span>
     <span className="font-medium">{label}</span>
   </button>
