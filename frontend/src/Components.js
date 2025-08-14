@@ -847,7 +847,7 @@ const PlansMini = () => {
             <div className="font-medium">{p.name}</div>
             <div className="text-xs text-gray-500">${Number(p.price||0).toFixed(2)} • {p.cycleDays || 30}d</div>
           </div>
-          <button type="button" className="text-xs rounded-lg border px-2 py-1" onClick={()=> navigate('plans')}>View</button>
+          <button type="button" className="text-xs rounded-lg border px-2 py-1" onClick={()=> nav('/plans')}>View</button>
         </div>
       ))}
     </div>
