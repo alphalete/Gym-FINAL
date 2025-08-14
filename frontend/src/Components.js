@@ -2025,6 +2025,12 @@ export function RecordPayment(){
 
 // --- Inline Add Member Form Component ---
 function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
+  console.log('🔧 AddMemberForm component rendered with props:', { 
+    hasOnAddOrUpdateMember: !!onAddOrUpdateMember, 
+    hasOnCancel: !!onCancel, 
+    hasOnSuccess: !!onSuccess 
+  });
+  
   const [form, setForm] = React.useState({ 
     firstName: "", 
     lastName: "", 
