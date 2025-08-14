@@ -912,9 +912,7 @@ const ClientManagement = () => {
   }
 
   async function toggleStatus(m) {
-    await gymStorage.saveMembers({ ...m, status: m.status === "Active" ? "Inactive" : "Active" });
-    signalChanged('members'); 
-    loadMembersAndPlans();
+    await upsertMember({ ...m, status: m.status === "Active" ? "Inactive" : "Active" }, setClients);
   }
 
   // Filter clients based on search term
