@@ -2077,9 +2077,15 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
     };
   }, []); // Empty dependency array to prevent re-renders
 
-  // Stabilize handleSubmit with useCallback
+  // FIXED: Stabilize handleSubmit with proper useCallback and dependencies
   const handleSubmit = React.useCallback(async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) {
+      e.preventDefault();
+    }
+    if (e && e.stopPropagation) {
+      e.stopPropagation();
+    }
+    
     console.log('🚀 AddMemberForm handleSubmit triggered', form);
     
     if (!form.firstName.trim()) {
@@ -2120,7 +2126,7 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
         setForm({ firstName: "", lastName: "", email: "", phone: "", membershipType: "" });
         console.log('✅ Member saved via onAddOrUpdateMember, form cleared');
         alert(`✅ Member "${member.name}" added successfully!`);
-        onSuccess?.();
+        if (onSuccess) onSuccess();
       } else {
         console.log('🔄 Using fallback backend save');
         const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
@@ -2140,7 +2146,7 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
           setForm({ firstName: "", lastName: "", email: "", phone: "", membershipType: "" });
           console.log('✅ Member saved to backend successfully, form cleared');
           alert(`✅ Member "${member.name}" added successfully!`);
-          onSuccess?.();
+          if (onSuccess) onSuccess();
         }
       }
     } catch (error) {
@@ -2150,162 +2156,132 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
       setSaving(false);
       console.log('🏁 handleSubmit completed');
     }
-  }, [form, onAddOrUpdateMember, onSuccess]);
+  }, [form, onAddOrUpdateMember, onSuccess]); // Include all dependencies
 
   console.log('🔧 handleSubmit function defined:', typeof handleSubmit);
 
+  // FIXED: Create a dedicated click handler that's properly bound
+  const handleAddMemberClick = React.useCallback((e) => {
+    console.log('🚀 handleAddMemberClick triggered!');
+    e.preventDefault();
+    e.stopPropagation();
+    handleSubmit(e);
+  }, [handleSubmit]);
+
   return (
-    <form onSubmit={(e) => {
-      console.log('🚀 DIRECT onSubmit triggered!', e);
-      handleSubmit(e);
-    }} className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input 
-          type="text"
-          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
-          placeholder="First Name *" 
-          value={form.firstName}
-          onChange={e => {
-            console.log('🔧 First Name changed:', e.target.value);
-            setForm(f => ({...f, firstName: e.target.value}));
-          }}
-          required
-        />
-        <input 
-          type="text"
-          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
-          placeholder="Last Name" 
-          value={form.lastName}
-          onChange={e => setForm(f => ({...f, lastName: e.target.value}))}
-        />
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input 
-          type="email"
-          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
-          placeholder="Email" 
-          value={form.email}
-          onChange={e => setForm(f => ({...f, email: e.target.value}))}
-        />
-        <input 
-          type="tel"
-          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
-          placeholder="Phone" 
-          value={form.phone}
-          onChange={e => setForm(f => ({...f, phone: e.target.value}))}
-        />
-      </div>
-      
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Membership Plan *
-        </label>
-        {loadingPlans ? (
-          <div className="w-full p-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500">
-            Loading plans...
-          </div>
-        ) : (
-          <select
-            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-            value={form.membershipType}
-            onChange={e => setForm(f => ({...f, membershipType: e.target.value}))}
-            required={plans.length > 0} // Only required if plans exist
-          >
-            <option value="">Select a plan...</option>
-            {plans.map((plan) => (
-              <option key={plan.id || plan._id} value={plan.name}>
-                {plan.name} - {plan.price ? `$${plan.price}` : 'No price'} 
-                {plan.duration ? ` / ${plan.duration}` : ''}
-              </option>
-            ))}
-            <option value="Custom">Custom Plan</option>
-          </select>
-        )}
-        {plans.length === 0 && !loadingPlans && (
-          <div className="text-sm text-gray-500 mt-1">
-            No plans available. <button type="button" className="text-indigo-600 underline" onClick={() => window.navigateToTab?.('plans')}>Create plans first</button>
-          </div>
-        )}
-      </div>
-      
-      <div className="flex gap-3 pt-4">
-        {/* SIMPLE TEST BUTTON */}
-        <button 
-          type="button"
-          onClick={() => {
-            console.log('🎯 SIMPLE CLICK TEST!');
-            alert('Simple button clicked!');
-          }}
-          style={{
-            backgroundColor: 'orange',
-            color: 'white',
-            padding: '15px 25px',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontSize: '16px',
-            fontWeight: 'bold',
-            zIndex: 999999
-          }}
-        >
-          SIMPLE TEST
-        </button>
+    <div>
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input 
+            type="text"
+            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+            placeholder="First Name *" 
+            value={form.firstName}
+            onChange={e => {
+              console.log('🔧 First Name changed:', e.target.value);
+              setForm(f => ({...f, firstName: e.target.value}));
+            }}
+            required
+          />
+          <input 
+            type="text"
+            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+            placeholder="Last Name" 
+            value={form.lastName}
+            onChange={e => setForm(f => ({...f, lastName: e.target.value}))}
+          />
+        </div>
         
-        <button 
-          type="button" 
-          onClick={() => {
-            console.log('🚀 ADD MEMBER DIRECT CLICK!');
-            alert('Add Member clicked! Now proceeding with form submission...');
-            
-            // Simple validation
-            if (!form.firstName.trim()) {
-              alert('First name is required');
-              return;
-            }
-            
-            if (form.email && !form.email.includes('@')) {
-              alert('Please enter a valid email address with @ sign');
-              return;
-            }
-            
-            // Call handleSubmit directly without event parameter
-            handleSubmit({ preventDefault: () => {}, stopPropagation: () => {} });
-          }}
-          style={{
-            backgroundColor: '#1e40af',
-            color: 'white',
-            padding: '15px 25px',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontSize: '16px',
-            fontWeight: 'bold',
-            zIndex: 999999
-          }}
-        >
-          Add Member
-        </button>
-        <button 
-          type="button" 
-          style={{
-            backgroundColor: '#6b7280',
-            color: 'white',
-            padding: '12px 24px',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            minHeight: '48px',
-            fontSize: '16px',
-            fontWeight: '600'
-          }}
-          onClick={onCancel}
-          disabled={saving}
-        >
-          Cancel
-        </button>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input 
+            type="email"
+            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+            placeholder="Email" 
+            value={form.email}
+            onChange={e => setForm(f => ({...f, email: e.target.value}))}
+          />
+          <input 
+            type="tel"
+            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+            placeholder="Phone" 
+            value={form.phone}
+            onChange={e => setForm(f => ({...f, phone: e.target.value}))}
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Membership Plan *
+          </label>
+          {loadingPlans ? (
+            <div className="w-full p-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500">
+              Loading plans...
+            </div>
+          ) : (
+            <select
+              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              value={form.membershipType}
+              onChange={e => setForm(f => ({...f, membershipType: e.target.value}))}
+              required={plans.length > 0} // Only required if plans exist
+            >
+              <option value="">Select a plan...</option>
+              {plans.map((plan) => (
+                <option key={plan.id || plan._id} value={plan.name}>
+                  {plan.name} - {plan.price ? `$${plan.price}` : 'No price'} 
+                  {plan.duration ? ` / ${plan.duration}` : ''}
+                </option>
+              ))}
+              <option value="Custom">Custom Plan</option>
+            </select>
+          )}
+          {plans.length === 0 && !loadingPlans && (
+            <div className="text-sm text-gray-500 mt-1">
+              No plans available. <button type="button" className="text-indigo-600 underline" onClick={() => window.navigateToTab?.('plans')}>Create plans first</button>
+            </div>
+          )}
+        </div>
+        
+        <div className="flex gap-3 pt-4">
+          {/* FIXED: Proper button with stable event handler */}
+          <button 
+            type="button"
+            disabled={saving}
+            onClick={handleAddMemberClick}
+            style={{
+              backgroundColor: saving ? '#9ca3af' : '#1e40af',
+              color: 'white',
+              padding: '12px 24px',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: saving ? 'not-allowed' : 'pointer',
+              fontSize: '16px',
+              fontWeight: '600',
+              opacity: saving ? 0.7 : 1
+            }}
+          >
+            {saving ? 'Saving...' : 'Add Member'}
+          </button>
+          <button 
+            type="button" 
+            style={{
+              backgroundColor: '#6b7280',
+              color: 'white',
+              padding: '12px 24px',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              minHeight: '48px',
+              fontSize: '16px',
+              fontWeight: '600'
+            }}
+            onClick={onCancel}
+            disabled={saving}
+          >
+            Cancel
+          </button>
+        </div>
       </div>
-    </form>
+    </div>
   );
 }
 
