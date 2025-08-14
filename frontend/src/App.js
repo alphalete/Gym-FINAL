@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
+import { HashRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import "./App.css";
 import ErrorBoundary from "./ErrorBoundary";
 import DiagnosticApp from "./DiagnosticApp";
@@ -13,8 +13,9 @@ const Fallback = () => (
 
 const safePick = (bag, key) => (bag && bag[key]) ? bag[key] : (() => <div className="p-4">Missing component: {key}</div>);
 
-export default function App(){
-  const [ready, setReady] = useState(false);
+// Navigation wrapper component to expose navigation globally
+const AppContent = () => {
+  const navigate = useNavigate();
   const C = Components || {};
 
   const safePick = (bag, key) => (bag && bag[key]) ? bag[key] : (() => <div className="p-4">No {key}</div>);
@@ -22,6 +23,51 @@ export default function App(){
   // Add missing form components with fallback
   const AddMember     = C.AddMember     || (() => <div className="p-4">Add member form missing</div>);
   const RecordPayment = C.RecordPayment || (() => <div className="p-4">Record payment form missing</div>);
+
+  // Expose navigation function globally for quick start links
+  useEffect(() => {
+    window.navigateToTab = (tab) => {
+      const routes = {
+        'dashboard': '/dashboard',
+        'members': '/members', 
+        'plans': '/plans',
+        'payments': '/payments',
+        'reports': '/reports',
+        'settings': '/settings'
+      };
+      if (routes[tab]) {
+        navigate(routes[tab]);
+      }
+    };
+    // Also expose direct navigate function
+    window.navigateTo = navigate;
+  }, [navigate]);
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex">
+      {C.Sidebar ? <C.Sidebar /> : null}
+      <main className="flex-1 min-w-0 pb-20 md:pb-4 md:ml-16">
+        <Routes>
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/dashboard" element={C.Dashboard ? <C.Dashboard /> : <div className="p-4">No Dashboard</div>} />
+          <Route path="/members" element={C.ClientManagement ? <C.ClientManagement /> : <div className="p-4">No Members</div>} />
+          <Route path="/add-member" element={<AddMember />} />
+          <Route path="/plans" element={C.MembershipManagement ? <C.MembershipManagement /> : <div className="p-4">No Plans</div>} />
+          <Route path="/payments" element={C.PaymentTracking ? <C.PaymentTracking /> : <div className="p-4">No Payments</div>} />
+          <Route path="/payments/new" element={<RecordPayment />} />
+          <Route path="/reports" element={C.Reports ? <C.Reports /> : <div className="p-4">No Reports</div>} />
+          <Route path="/settings" element={C.Settings ? <C.Settings /> : <div className="p-4">No Settings</div>} />
+          <Route path="/__diag" element={<DiagnosticApp />} />
+          <Route path="*" element={<div className="p-4">Not found</div>} />
+        </Routes>
+      </main>
+      <BottomNav />
+    </div>
+  );
+};
+
+export default function App(){
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     // Clear service workers and caches
@@ -34,25 +80,7 @@ export default function App(){
   return (
     <ErrorBoundary>
       <HashRouter>
-        <div className="min-h-screen bg-slate-50 flex">
-          {C.Sidebar ? <C.Sidebar /> : null}
-          <main className="flex-1 min-w-0 pb-20 md:pb-4 md:ml-16">
-            <Routes>
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              <Route path="/dashboard" element={C.Dashboard ? <C.Dashboard /> : <div className="p-4">No Dashboard</div>} />
-              <Route path="/members" element={C.ClientManagement ? <C.ClientManagement /> : <div className="p-4">No Members</div>} />
-              <Route path="/add-member" element={<AddMember />} />
-              <Route path="/plans" element={C.MembershipManagement ? <C.MembershipManagement /> : <div className="p-4">No Plans</div>} />
-              <Route path="/payments" element={C.PaymentTracking ? <C.PaymentTracking /> : <div className="p-4">No Payments</div>} />
-              <Route path="/payments/new" element={<RecordPayment />} />
-              <Route path="/reports" element={C.Reports ? <C.Reports /> : <div className="p-4">No Reports</div>} />
-              <Route path="/settings" element={C.Settings ? <C.Settings /> : <div className="p-4">No Settings</div>} />
-              <Route path="/__diag" element={<DiagnosticApp />} />
-              <Route path="*" element={<div className="p-4">Not found</div>} />
-            </Routes>
-          </main>
-          <BottomNav />
-        </div>
+        <AppContent />
       </HashRouter>
     </ErrorBoundary>
   );
