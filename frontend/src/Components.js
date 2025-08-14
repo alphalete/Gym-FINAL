@@ -655,6 +655,7 @@ const Dashboard = () => {
                 onClick={() => {
                   // Navigate to members and auto-open the add form
                   localStorage.setItem("autoOpenAddMember", "true");
+                  localStorage.setItem("addMemberOrigin", "dashboard");
                   window.navigateToTab?.('members');
                 }}
               >
