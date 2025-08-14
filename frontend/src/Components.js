@@ -355,7 +355,11 @@ const PaymentComponent = () => {
               <div className="text-center py-12">
                 {payments.length === 0 ? (
                   <>
-                    <div className="text-6xl mb-4">💳</div>
+                    <div className="text-6xl mb-4">
+                      <div className="flex justify-center">
+                        <Icon name="💳" size="2xl" className="text-gray-400" />
+                      </div>
+                    </div>
                     <div className="text-xl font-medium text-gray-900 mb-2">No Payments Yet</div>
                     <div className="text-gray-500 mb-6">Record your first payment to start tracking revenue</div>
                     <button 
