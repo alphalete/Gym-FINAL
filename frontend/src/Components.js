@@ -917,13 +917,17 @@ function ClientManagement() {
   };
 
   const onDeleteMember = async (id) => {
-    if (!confirm("Delete this member?")) return;
+    console.log('🔥 DELETE MEMBER CALLED:', id);
     try {
+      console.log('🔥 Calling repo.removeMember...');
       await repo.removeMember(id);
+      console.log('🔥 repo.removeMember completed, refreshing...');
       await refresh(); // Refresh from backend to get latest data
       
+      console.log('🔥 Triggering dashboard refresh event...');
       // Trigger dashboard refresh
       window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'member_deleted' }));
+      console.log('✅ Member deletion completed successfully');
     } catch (e) {
       console.error("delete member failed", e);
       alert("Could not delete member. Please try again.");
