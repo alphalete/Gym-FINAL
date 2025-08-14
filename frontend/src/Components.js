@@ -909,10 +909,33 @@ function ClientManagement() {
           </div>
 
           <div className="mt-4 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">
-            <button type="button" className="btn-secondary">Edit</button>
-            <button type="button" className="btn-warning">Deactivate</button>
-            <button type="button" className="btn-primary">Record Payment</button>
-            <button type="button" className="btn-ghost">WhatsApp</button>
+            <button type="button" className="btn-secondary" onClick={() => {
+              // Navigate to edit member (you can implement edit form later)
+              console.log('Edit member:', m.id);
+              alert('Edit functionality coming soon!');
+            }}>Edit</button>
+            <button type="button" className="btn-warning" onClick={() => {
+              if (confirm(`Deactivate ${name}?`)) {
+                console.log('Deactivate member:', m.id);
+                alert('Deactivate functionality coming soon!');
+              }
+            }}>Deactivate</button>
+            <button type="button" className="btn-primary" onClick={() => {
+              // Use the existing goRecordPayment function from Dashboard scope
+              localStorage.setItem("pendingPaymentMemberId", String(m.id));
+              // Navigate to payments page
+              window.location.hash = '/payments/new';
+            }}>Record Payment</button>
+            <button type="button" className="btn-ghost" onClick={() => {
+              // Open WhatsApp with member's phone
+              const phoneNum = phone.replace(/\D/g, ''); // Remove non-digits
+              if (phoneNum) {
+                const message = encodeURIComponent(`Hi ${name}, this is regarding your gym membership.`);
+                window.open(`https://wa.me/${phoneNum}?text=${message}`, '_blank');
+              } else {
+                alert('No phone number available for this member.');
+              }
+            }}>WhatsApp</button>
           </div>
         </div>
       </div>
