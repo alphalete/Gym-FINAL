@@ -898,7 +898,7 @@ const PlansMini = () => {
 
 // --- Members (ClientManagement) ---
 function ClientManagement() {
-  const { members, setMembers, loading, error } = useMembersFromStorage(); // top-level, not conditional
+  const { members, setMembers, loading, error, refresh, repo } = useMembersRepo();
   const [showAddForm, setShowAddForm] = React.useState(false);
 
   const list = Array.isArray(members) ? members : [];
@@ -911,6 +911,28 @@ function ClientManagement() {
       setShowAddForm(true);
     }
   }, []);
+
+  // ADD handlers (use repo; ensure buttons in forms are type="button"):
+  const onAddOrUpdateMember = async (partialOrFull) => {
+    try {
+      const next = await repo.upsertMember(partialOrFull);
+      setMembers(next);   // optimistic UI update
+    } catch (e) {
+      console.error("save member failed", e);
+      alert("Could not save member. Please try again.");
+    }
+  };
+
+  const onDeleteMember = async (id) => {
+    if (!confirm("Delete this member?")) return;
+    try {
+      const next = await repo.removeMember(id);
+      setMembers(next);
+    } catch (e) {
+      console.error("delete member failed", e);
+      alert("Could not delete member. Please try again.");
+    }
+  };
 
   if (loading) return <div className="p-4">Loading members…</div>;
   if (error)   return <div className="p-4 text-rose-600">Error loading members</div>;
