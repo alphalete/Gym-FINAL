@@ -899,11 +899,16 @@ const ClientManagement = () => {
         cycleDays: Number(plan.cycleDays || 30),
         fee: Number(plan.price || 0),
       } : {};
-      await gymStorage.saveMembers({ ...base, ...snap });
-      try { window.dispatchEvent(new CustomEvent('DATA_CHANGED',{detail:'members'})); } catch {}
-      setIsAddingClient(false); setEditingClient(null);
-      await loadMembersAndPlans();
-    }catch(e){ console.error('[save] failed', e); alert('Save failed'); }
+      
+      // Use helper function
+      await upsertMember({ ...base, ...snap }, setClients);
+      
+      setIsAddingClient(false); 
+      setEditingClient(null);
+    }catch(e){ 
+      console.error('[save] failed', e); 
+      alert('Save failed'); 
+    }
   }
 
   async function toggleStatus(m) {
