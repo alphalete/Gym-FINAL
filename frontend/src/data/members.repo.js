@@ -74,31 +74,27 @@ export async function upsertMember(member) {
   const list = await listMembers();
   const norm = withId(member);
   
-  // Save to backend first
-  try {
-    const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-    if (backendUrl) {
-      const method = norm.id && list.find(x => pickId(x) === pickId(norm)) ? 'PUT' : 'POST';
-      const url = method === 'PUT' ? `${backendUrl}/api/clients/${norm.id}` : `${backendUrl}/api/clients`;
-      
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(norm)
-      });
-      
-      if (response.ok) {
-        console.log(`✅ Member ${method === 'PUT' ? 'updated' : 'created'} in backend:`, norm.id);
-      } else {
-        throw new Error(`Backend ${method} failed: ${response.status}`);
-      }
+  // Save to backend first - this must succeed
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+  if (backendUrl) {
+    const method = norm.id && list.find(x => pickId(x) === pickId(norm)) ? 'PUT' : 'POST';
+    const url = method === 'PUT' ? `${backendUrl}/api/clients/${norm.id}` : `${backendUrl}/api/clients`;
+    
+    const response = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(norm)
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => `HTTP ${response.status}`);
+      throw new Error(`Backend ${method} failed: ${errorText}`);
     }
-  } catch (backendError) {
-    console.error('Backend save failed:', backendError);
-    // Continue with local save as fallback
+    
+    console.log(`✅ Member ${method === 'PUT' ? 'updated' : 'created'} in backend:`, norm.id);
   }
   
-  // Update local list
+  // Only update local storage if backend succeeded (or no backend URL)
   const idx = list.findIndex(x => pickId(x) === pickId(norm));
   if (idx >= 0) list[idx] = { ...list[idx], ...norm };
   else list.push(norm);
