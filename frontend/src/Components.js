@@ -2229,10 +2229,30 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
           type="button" 
           className="btn btn-primary"
           disabled={saving}
+          style={{ 
+            position: 'relative', 
+            zIndex: 9999, 
+            backgroundColor: '#1e40af',
+            color: 'white',
+            padding: '12px 24px',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            minHeight: '48px'
+          }}
           onClick={(e) => {
             console.log('🚀 DIRECT button onClick triggered!', e.type);
+            console.log('🚀 Button element:', e.target);
+            console.log('🚀 Event details:', { clientX: e.clientX, clientY: e.clientY });
             e.preventDefault();
+            e.stopPropagation();
             handleSubmit(e);
+          }}
+          onMouseDown={(e) => {
+            console.log('🔧 Button mouseDown detected!', e.type);
+          }}
+          onMouseUp={(e) => {
+            console.log('🔧 Button mouseUp detected!', e.type);
           }}
         >
           {saving ? 'Saving...' : 'Add Member'}
