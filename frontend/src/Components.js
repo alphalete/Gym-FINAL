@@ -845,7 +845,7 @@ const PlansMini = () => {
 
 // --- Members (ClientManagement) ---
 const ClientManagement = () => {
-  const [clients, setClients] = useState([]);
+  const { members: clients, setMembers: setClients, loading: membersLoading } = useMembersFromStorage();
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isAddingClient, setIsAddingClient] = useState(false);
