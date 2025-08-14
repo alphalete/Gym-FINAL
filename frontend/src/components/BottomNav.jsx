@@ -30,8 +30,10 @@ const BottomNav = () => {
                 : 'text-slate-500 hover:text-slate-700'
             }`}
           >
-            <span className="text-xl mb-1">{item.icon}</span>
-            <span className="font-medium">{item.label}</span>
+            <div className="mb-1">
+              <NavigationIcon name={item.icon} isActive={isActive(item.path)} size="lg" />
+            </div>
+            <span className="font-medium text-xs leading-tight">{item.label}</span>
           </button>
         ))}
       </div>
