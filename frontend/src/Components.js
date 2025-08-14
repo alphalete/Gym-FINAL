@@ -1723,7 +1723,7 @@ export function RecordPayment(){
     // Optional: if your existing code updates due date, call storageFacade.saveMember(updatedMember) here
     // This preserves the existing Option A payment logic
     
-    nav("/payments", { replace:true });
+    window.navigateToTab?.('payments');
   };
 
   return (
