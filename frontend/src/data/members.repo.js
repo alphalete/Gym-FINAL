@@ -267,25 +267,58 @@ export async function upsertMember(member) {
 export async function removeMember(idLike) {
   const list = await listMembers();
   const target = String(idLike);
+  const memberToDelete = list.find(x => pickId(x) === target);
   
-  // Delete from backend first - this must succeed
-  const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-  if (backendUrl) {
-    const response = await fetch(`${backendUrl}/api/clients/${target}`, {
-      method: 'DELETE'
-    });
-    
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => `HTTP ${response.status}`);
-      throw new Error(`Backend DELETE failed: ${errorText}`);
-    }
-    
-    console.log('✅ Member deleted from backend:', target);
+  if (!memberToDelete) {
+    throw new Error(`Member with ID ${target} not found`);
   }
   
-  // Only update local storage if backend succeeded (or no backend URL)
+  console.log(`🗑️ Deleting member:`, memberToDelete.name);
+  
+  // ALWAYS remove from local storage first (offline-first)
   const next = list.filter(x => pickId(x) !== target);
-  await saveAllMembers(next);
+  
+  try {
+    await saveAllMembers(next);
+    console.log(`✅ Member removed locally:`, target);
+  } catch (localError) {
+    throw new Error(`Failed to delete locally: ${localError.message}`);
+  }
+  
+  // TRY to sync deletion with backend immediately if online
+  if (navigator.onLine) {
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      if (backendUrl) {
+        const response = await fetch(`${backendUrl}/api/clients/${target}`, {
+          method: 'DELETE'
+        });
+        
+        if (response.ok) {
+          console.log(`✅ Member deletion synced to backend:`, target);
+          return next; // Success - return immediately
+        } else {
+          throw new Error(`Backend DELETE failed: ${response.status}`);
+        }
+      }
+    } catch (backendError) {
+      console.warn(`⚠️ Backend delete sync failed, queuing for later:`, backendError.message);
+      // Add to sync queue for later
+      await addPendingSync({
+        type: 'DELETE',
+        memberId: target,
+        memberName: memberToDelete.name
+      });
+    }
+  } else {
+    console.log(`📴 Offline - queuing deletion for sync:`, target);
+    // Add to sync queue for when we're back online
+    await addPendingSync({
+      type: 'DELETE',
+      memberId: target,
+      memberName: memberToDelete.name
+    });
+  }
   
   // Some stores cache; re-read to confirm persistence for /__diag
   const verify = await listMembers();
