@@ -1087,406 +1087,50 @@ const Settings = () => {
 };
 
 // --- Plans (MembershipManagement) ---
-const MembershipManagement = () => {
-  const [plans, setPlans] = useState([]);
-  const { members: allMembersMM, loading: loadingMM } = useMembersFromStorage();
-  const [isOpen, setIsOpen] = useState(false);
-  const [form, setForm] = useState({ id: "", name: "", price: 0, cycleDays: 30, description: "" });
-  const [searchTerm, setSearchTerm] = useState("");
+function MembershipManagement() {
+  const { members: membersMM, loading: loadingMM, error: errorMM } = useMembersFromStorage();
+  const [plans, setPlans] = React.useState([]);
+  const [loadingPlans, setLoadingPlans] = React.useState(true);
 
-  useEffect(() => { load(); }, []);
-
-  async function load() {
+  React.useEffect(() => { let live = true; (async () => {
     try {
-      const list = await (getAllStore?.('plans') ?? []);
-      setPlans(list.filter(p => !p._deleted).sort((a,b) => (a.name||"").localeCompare(b.name||"")));
-    } catch (e) {
-      console.error('Plans load error:', e);
-      setPlans([]);
-    }
-  }
+      const p = await storageFacade.getPlans();
+      if (live) setPlans(Array.isArray(p) ? p : []);
+    } finally { if (live) setLoadingPlans(false); }
+  })(); return () => { live = false; }; }, []);
 
-  // Render loading state without early return to avoid hook issues
-  if (loadingMM) {
-    return <div className="p-4">Loading plans…</div>;
-  }
-  
-  useEffect(() => { 
-    const onC = () => load(); 
-    window.addEventListener('DATA_CHANGED', onC); 
-    return () => window.removeEventListener('DATA_CHANGED', onC); 
-  }, []);
+  if (loadingMM || loadingPlans) return <div className="p-4">Loading plans…</div>;
+  if (errorMM) return <div className="p-4 text-rose-600">Error loading plans</div>;
 
-  async function save() {
-    if (!form.name?.trim()) {
-      alert('Plan name is required');
-      return;
-    }
-
-    const id = form.id || (crypto.randomUUID?.() || String(Date.now()));
-    const rec = { 
-      ...form, 
-      id,
-      name: form.name.trim(),
-      price: Number(form.price || 0), 
-      cycleDays: Number(form.cycleDays || 30),
-      description: form.description?.trim() || '',
-      createdAt: form.id ? form.createdAt : new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    
-    await gymStorage.saveData('plans', rec);
-    setIsOpen(false); 
-    setForm({ id: "", name: "", price: 0, cycleDays: 30, description: "" }); 
-    signalChanged('plans'); 
-    load();
-  }
-  
-  async function edit(p) { 
-    setForm({
-      id: p.id,
-      name: p.name || "",
-      price: p.price || 0,
-      cycleDays: p.cycleDays || 30,
-      description: p.description || ""
-    }); 
-    setIsOpen(true); 
-  }
-  
-  async function remove(p) {
-    const membersList = Array.isArray(allMembersMM) ? allMembersMM : [];
-    const membersCount = membersList.filter(m => m.planId === p.id).length;
-    
-    if (membersCount > 0) {
-      if (!window.confirm(`This plan has ${membersCount} members. Are you sure you want to delete it? This will not affect existing members but they won't be able to select this plan for new signups.`)) {
-        return;
-      }
-    } else {
-      if (!window.confirm(`Are you sure you want to delete the "${p.name}" plan?`)) {
-        return;
-      }
-    }
-
-    await gymStorage.saveData('plans', { ...p, _deleted: true }); 
-    signalChanged('plans'); 
-    load(); 
-  }
-
-  // Get member count for each plan (with safety guard)
-  const getPlansWithMemberCount = () => {
-    const membersList = Array.isArray(allMembersMM) ? allMembersMM : [];
-    const plansList = Array.isArray(plans) ? plans : [];
-    return plansList.map(plan => ({
-      ...plan,
-      memberCount: membersList.filter(member => member.planId === plan.id).length
-    }));
-  };
-
-  // Filter plans based on search
-  const filteredPlans = getPlansWithMemberCount().filter(plan => 
-    !searchTerm || 
-    (plan.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (plan.description || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-    formatCurrency(plan.price).includes(searchTerm)
-  );
+  const membersArr = Array.isArray(membersMM) ? membersMM : [];
+  const plansArr   = Array.isArray(plans) ? plans : [];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header Section */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="px-6 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="page-title text-indigo-600">Membership Plans</h1>
-              <p className="page-subtitle">Create and manage gym membership plans and pricing</p>
-            </div>
-            <button 
-              type="button" 
-              className="btn btn-primary"
-              onClick={() => { 
-                setForm({ id: "", name: "", price: 0, cycleDays: 30, description: "" }); 
-                setIsOpen(true); 
-              }}
-            >
-              + New Plan
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="px-6 py-6">
-        {/* Search and Quick Stats */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
-          {/* Search Bar */}
-          <div className="lg:col-span-2">
-            <div className="relative">
-              <div className="input-group">
-                <div className="input-group-text">
-                  <span>🔍</span>
-                </div>
-                <input
-                  type="text"
-                  className="input pl-10"
-                  placeholder="Search plans by name, description, or price..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Stats */}
-          <div className="lg:col-span-2">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="stat-card bg-success text-white text-center">
-                <div className="stat-value">{plans.length}</div>
-                <div className="stat-label text-success-100">Total Plans</div>
-              </div>
-              <div className="stat-card bg-indigo-600 text-white text-center">
-                <div className="stat-value">{allMembersMM.filter(m => m.planId).length}</div>
-                <div className="stat-label text-indigo-100">Enrolled</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Plans List */}
-        <div className="card">
-          <div className="card-header">
-            <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-              <span className="text-indigo-600 mr-2">📋</span>
-              Membership Plans ({filteredPlans.length})
-            </h3>
-          </div>
-          <div className="card-body">
-            {filteredPlans.length > 0 ? (
-              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                {filteredPlans.map(plan => (
-                  <div key={plan.id} className="card hover:shadow-md transition-shadow duration-200 relative">
-                    <div className="card-body">
-                      {/* Plan Header */}
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-gray-900 mb-1">{plan.name}</h3>
-                          {plan.description && (
-                            <p className="text-sm text-gray-600 mb-3">{plan.description}</p>
-                          )}
-                        </div>
-                        
-                        {/* Member count badge */}
-                        {plan.memberCount > 0 && (
-                          <span className="badge badge-info ml-2">
-                            {plan.memberCount} {plan.memberCount === 1 ? 'member' : 'members'}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Pricing */}
-                      <div className="bg-indigo-50 rounded-lg p-4 mb-4">
-                        <div className="text-center">
-                          <div className="text-3xl font-bold text-indigo-600 mb-1">
-                            {formatCurrency(plan.price)}
-                          </div>
-                          <div className="text-sm text-indigo-600">
-                            Every {plan.cycleDays} {plan.cycleDays === 1 ? 'day' : 'days'}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Plan Details */}
-                      <div className="space-y-2 mb-4">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-600">Billing Cycle:</span>
-                          <span className="font-medium">{plan.cycleDays} days</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-600">Monthly Rate:</span>
-                          <span className="font-medium">
-                            {formatCurrency((plan.price / plan.cycleDays) * 30)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-600">Created:</span>
-                          <span className="font-medium">
-                            {plan.createdAt ? formatDate(plan.createdAt.split('T')[0]) : 'Unknown'}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Action Buttons */}
-                      <div className="flex space-x-2">
-                        <button 
-                          type="button" 
-                          className="btn btn-sm btn-outline flex-1"
-                          onClick={() => edit(plan)}
-                        >
-                          Edit Plan
-                        </button>
-                        <button 
-                          type="button" 
-                          className="btn btn-sm btn-danger"
-                          onClick={() => remove(plan)}
-                        >
-                          Delete
-                        </button>
-                      </div>
-
-                      {/* Popular badge for plans with most members */}
-                      {plan.memberCount > 0 && plan.memberCount === Math.max(...getPlansWithMemberCount().map(p => p.memberCount)) && (
-                        <div className="absolute -top-2 -right-2">
-                          <span className="badge badge-success">Popular</span>
-                        </div>
-                      )}
-                    </div>
+    <div className="p-4">
+      <h1 className="text-xl font-semibold mb-3">Plans</h1>
+      {plansArr.length === 0
+        ? <div className="text-slate-500">No plans created yet.</div>
+        : plansArr.map((p, i) => {
+            const name = p?.name || "Plan";
+            const count = membersArr.filter(m => (m?.membershipType || m?.plan) === name).length;
+            return (
+              <div key={p.id || p._id || i} className="card mb-3">
+                <div className="card-body flex items-center justify-between">
+                  <div>
+                    <div className="font-semibold">{name}</div>
+                    <div className="text-sm text-slate-500">{p?.description || ""}</div>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                {plans.length === 0 ? (
-                  <>
-                    <div className="text-6xl mb-4">📋</div>
-                    <div className="text-xl font-medium text-gray-900 mb-2">No Plans Yet</div>
-                    <div className="text-gray-500 mb-6">Create your first membership plan to start managing subscriptions</div>
-                    <button 
-                      type="button" 
-                      className="btn btn-primary"
-                      onClick={() => { 
-                        setForm({ id: "", name: "", price: 0, cycleDays: 30, description: "" }); 
-                        setIsOpen(true); 
-                      }}
-                    >
-                      + Create First Plan
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <div className="text-4xl mb-4">🔍</div>
-                    <div className="text-xl font-medium text-gray-900 mb-2">No Plans Match Your Search</div>
-                    <div className="text-gray-500">Try adjusting your search terms</div>
-                  </>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Add/Edit Plan Modal */}
-      {isOpen && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <div className="modal-header">
-              <h2 className="modal-title">
-                {form.id ? "Edit Membership Plan" : "New Membership Plan"}
-              </h2>
-            </div>
-            
-            <div className="modal-body">
-              <form onSubmit={(e)=>e.preventDefault()} className="space-y-4">
-                <div className="form-group">
-                  <label className="form-label">Plan Name *</label>
-                  <input 
-                    className="input" 
-                    placeholder="e.g., Monthly Membership, VIP Access, Student Plan" 
-                    value={form.name} 
-                    onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Description</label>
-                  <textarea
-                    className="input"
-                    rows="2"
-                    placeholder="Brief description of what this plan includes..."
-                    value={form.description}
-                    onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-                  />
-                  <div className="form-help">Optional: Help members understand what this plan offers</div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="form-group">
-                    <label className="form-label">Price *</label>
-                    <div className="input-group">
-                      <div className="input-group-text">TT$</div>
-                      <input 
-                        className="input pl-12"
-                        type="number" 
-                        min="0"
-                        step="0.01"
-                        placeholder="0.00" 
-                        value={form.price} 
-                        onChange={e => setForm(f => ({ ...f, price: e.target.value }))}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Billing Cycle *</label>
-                    <div className="input-group">
-                      <input 
-                        className="input pr-16"
-                        type="number" 
-                        min="1"
-                        placeholder="30" 
-                        value={form.cycleDays} 
-                        onChange={e => setForm(f => ({ ...f, cycleDays: e.target.value }))}
-                        required
-                      />
-                      <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                        <span className="text-gray-500 text-sm">days</span>
-                      </div>
-                    </div>
-                    <div className="form-help">How often members are billed</div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold">{String(p?.price ?? "—")}</div>
+                    <div className="text-xs text-slate-500">{count} member{count===1?"":"s"}</div>
                   </div>
                 </div>
-
-                {/* Preview */}
-                {form.price > 0 && form.cycleDays > 0 && (
-                  <div className="card">
-                    <div className="card-body">
-                      <div className="text-sm font-medium text-gray-700 mb-1">Preview:</div>
-                      <div className="text-sm text-gray-600">
-                        Members pay {formatCurrency(form.price)} every {form.cycleDays} days
-                        {form.cycleDays !== 30 && (
-                          <span className="text-gray-500">
-                            {' '}(≈ {formatCurrency((Number(form.price) / Number(form.cycleDays)) * 30)} monthly)
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </form>
-            </div>
-
-            <div className="modal-footer">
-              <button 
-                type="button" 
-                className="btn btn-outline" 
-                onClick={() => setIsOpen(false)}
-              >
-                Cancel
-              </button>
-              <button 
-                type="button" 
-                className="btn btn-primary" 
-                onClick={save}
-                disabled={!form.name?.trim() || !form.price || !form.cycleDays}
-              >
-                {form.id ? "Save Changes" : "Create Plan"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+              </div>
+            );
+          })}
     </div>
   );
-};
+}
 
 // Sidebar Component for Router-based navigation
 const Sidebar = () => {
