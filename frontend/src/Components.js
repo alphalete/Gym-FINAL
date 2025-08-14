@@ -1057,7 +1057,8 @@ function ClientManagement() {
                     });
                     if (response.ok) {
                       alert(`✅ Member name updated to "${newName}"`);
-                      window.location.reload(); // Refresh to show changes
+                      // Trigger data refresh without full page reload
+                      window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'member_updated' }));
                     } else {
                       throw new Error('Backend update failed');
                     }
