@@ -985,7 +985,7 @@ const ClientManagement = () => {
           {/* Quick Stats */}
           <div className="lg:col-span-2">
             <div className="grid grid-cols-2 gap-4">
-              <div className="stat-card bg-primary text-white text-center">
+              <div className="stat-card bg-indigo-600 text-white text-center">
                 <div className="stat-value">{clients.filter(c => c.status === 'Active').length}</div>
                 <div className="stat-label text-indigo-100">Active</div>
               </div>
@@ -1528,7 +1528,7 @@ const MembershipManagement = () => {
                 <div className="stat-value">{plans.length}</div>
                 <div className="stat-label text-success-100">Total Plans</div>
               </div>
-              <div className="stat-card bg-primary text-white text-center">
+              <div className="stat-card bg-indigo-600 text-white text-center">
                 <div className="stat-value">{allMembersMM.filter(m => m.planId).length}</div>
                 <div className="stat-label text-indigo-100">Enrolled</div>
               </div>
@@ -1919,7 +1919,7 @@ const InstallPrompt = () => {
   if (!showPrompt) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 bg-primary text-white p-4 rounded-lg shadow-lg z-50">
+    <div className="fixed bottom-4 left-4 right-4 bg-indigo-600 text-white p-4 rounded-lg shadow-lg z-50">
       <div className="flex items-center justify-between">
         <div>
           <p className="font-medium">Install GoGym4U</p>
