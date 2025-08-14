@@ -973,14 +973,45 @@ function ClientManagement() {
 
   return (
     <div className="p-4">
-      <h1 className="text-xl font-semibold mb-3">Members</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-xl font-semibold">Members</h1>
+        {list.length > 0 && (
+          <button 
+            type="button"
+            className="btn btn-primary"
+            onClick={() => setShowAddForm(true)}
+          >
+            + Add Member
+          </button>
+        )}
+      </div>
+
+      {/* Add Member Form */}
+      {showAddForm && (
+        <div className="card mb-6">
+          <div className="card-header">
+            <h3 className="text-lg font-semibold">Add New Member</h3>
+          </div>
+          <div className="card-body">
+            <AddMemberForm 
+              onCancel={() => setShowAddForm(false)} 
+              onSuccess={() => {
+                setShowAddForm(false);
+                // Refresh members list
+                window.location.reload();
+              }} 
+            />
+          </div>
+        </div>
+      )}
+
       {list.length === 0
         ? <div className="text-center py-8">
             <div className="text-slate-500 mb-4">No members yet.</div>
             <button 
               type="button" 
-              className="text-indigo-600 underline hover:text-indigo-800"
-              onClick={() => window.navigateTo?.('/add-member')}
+              className="btn btn-primary"
+              onClick={() => setShowAddForm(true)}
             >
               Add your first member
             </button>
