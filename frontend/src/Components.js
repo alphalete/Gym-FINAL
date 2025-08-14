@@ -758,7 +758,7 @@ const Dashboard = () => {
           <div className="bg-card rounded-xl shadow-sm">
             <div className="p-4 border-b border-gray-200">
               <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                <span className="text-indigo-600 mr-2">💳</span>
+                <ActionIcon name="💳" className="text-indigo-600 mr-2" />
                 Recent Payments
               </h3>
             </div>
@@ -769,7 +769,7 @@ const Dashboard = () => {
                     <div key={payment.id} className="flex items-center justify-between p-3 border border-gray-100 rounded-lg">
                       <div className="flex items-center space-x-3">
                         <div className="w-8 h-8 bg-success/10 rounded-full flex items-center justify-center">
-                          <span className="text-success text-sm">💰</span>
+                          <ActionIcon name="💰" className="text-success" size="sm" />
                         </div>
                         <div>
                           <div className="font-medium text-gray-900">{formatCurrency(payment.amount)}</div>
@@ -782,7 +782,11 @@ const Dashboard = () => {
                 </div>
               ) : (
                 <div className="text-center py-8 text-gray-500">
-                  <div className="text-4xl mb-2">💳</div>
+                  <div className="text-4xl mb-2">
+                    <div className="flex justify-center">
+                      <Icon name="💳" size="2xl" className="text-gray-400" />
+                    </div>
+                  </div>
                   <div>No payments yet</div>
                   <div className="text-sm">Recent payments will appear here</div>
                 </div>
@@ -794,7 +798,7 @@ const Dashboard = () => {
           <div className="bg-card rounded-xl shadow-sm">
             <div className="p-4 border-b border-gray-200">
               <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                <span className="text-info mr-2">📊</span>
+                <ActionIcon name="📊" className="text-info mr-2" />
                 Quick Stats
               </h3>
             </div>
