@@ -38,16 +38,21 @@ const removePendingSync = async (syncId) => {
   }
 };
 
-// Client-side validation functions
-const validateMember = (member) => {
+// Client-side validation functions (only for new member creation)
+const validateMember = (member, isCreation = true) => {
   const errors = [];
   
-  // Required fields
+  // Only validate for new member creation, not for existing member updates
+  if (!isCreation) {
+    return errors; // Skip validation for updates/existing members
+  }
+  
+  // Required fields for new members only
   if (!member.name || !member.name.trim()) {
     errors.push('Name is required');
   }
   
-  // Email validation
+  // Email validation (only if provided and for new members)
   if (member.email && member.email.trim()) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(member.email.trim())) {
@@ -55,12 +60,12 @@ const validateMember = (member) => {
     }
   }
   
-  // Monthly fee validation
+  // Monthly fee validation (only if provided and for new members)
   if (member.monthly_fee != null && (isNaN(member.monthly_fee) || member.monthly_fee < 0)) {
     errors.push('Monthly fee must be a positive number');
   }
   
-  // Phone validation (basic)
+  // Phone validation (only if provided and for new members)
   if (member.phone && member.phone.trim()) {
     const phoneRegex = /^\+?[\d\s\-\(\)]{7,}$/;
     if (!phoneRegex.test(member.phone.trim())) {
