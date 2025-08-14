@@ -918,6 +918,9 @@ const ClientManagement = () => {
 
   async function toggleStatus(m) {
     await upsertMember({ ...m, status: m.status === "Active" ? "Inactive" : "Active" }, setClients);
+    // Safety refresh from façade
+    const fresh = await facadeGetAllMembers();
+    setClients(Array.isArray(fresh)?fresh:[]);
   }
 
   // Filter clients based on search term
