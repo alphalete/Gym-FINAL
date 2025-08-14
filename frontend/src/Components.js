@@ -893,6 +893,15 @@ function ClientManagement() {
 
   const list = Array.isArray(members) ? members : [];
 
+  // Auto-open add form if requested from dashboard
+  React.useEffect(() => {
+    const autoOpen = localStorage.getItem("autoOpenAddMember");
+    if (autoOpen === "true") {
+      localStorage.removeItem("autoOpenAddMember"); // Clean up
+      setShowAddForm(true);
+    }
+  }, []);
+
   if (loading) return <div className="p-4">Loading members…</div>;
   if (error)   return <div className="p-4 text-rose-600">Error loading members</div>;
 
