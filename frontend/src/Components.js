@@ -1380,7 +1380,7 @@ const Settings = () => {
 // --- Plans (MembershipManagement) ---
 const MembershipManagement = () => {
   const [plans, setPlans] = useState([]);
-  const allClientsMM = useMembersFromStorage(); // Use hook instead of state
+  const { members: allMembersMM } = useMembersFromStorage();
   const [isOpen, setIsOpen] = useState(false);
   const [form, setForm] = useState({ id: "", name: "", price: 0, cycleDays: 30, description: "" });
   const [searchTerm, setSearchTerm] = useState("");
