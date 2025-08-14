@@ -577,8 +577,18 @@ const Dashboard = () => {
     document.addEventListener('visibilitychange', onVisible);
     window.addEventListener('hashchange', onHash);
     
+    // Also listen for member-specific changes to refresh dashboard stats
+    const onMemberChanged = (event) => {
+      if (event.detail && (event.detail.includes('member') || event.detail === 'payments')) {
+        console.log('[Dashboard] Member/payment data changed, refreshing...');
+        loadDashboard();
+      }
+    };
+    window.addEventListener('DATA_CHANGED', onMemberChanged);
+    
     return () => {
       window.removeEventListener('DATA_CHANGED', onChanged);
+      window.removeEventListener('DATA_CHANGED', onMemberChanged);
       document.removeEventListener('visibilitychange', onVisible);
       window.removeEventListener('hashchange', onHash);
     };
