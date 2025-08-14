@@ -196,8 +196,9 @@ const PaymentComponent = () => {
     formatDate(payment.paidOn).toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Get active clients for payment recording
-  const activeClients = membersPT.filter(c => c.status === 'Active' || !c.status);
+  // Get active clients for payment recording (with safety guard)
+  const membersList = Array.isArray(membersPT) ? membersPT : [];
+  const activeClients = membersList.filter(c => c.status === 'Active' || !c.status);
 
   // Calculate stats
   const todayISO = new Date().toISOString().slice(0, 10);
