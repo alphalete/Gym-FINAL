@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { NavigationIcon } from './Icons';
 
 const BottomNav = () => {
   const location = useLocation();
