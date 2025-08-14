@@ -649,7 +649,7 @@ const Dashboard = () => {
           {/* Active Members */}
           <div className="bg-card rounded-xl shadow-sm p-3 md:p-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-full flex items-center justify-center bg-indigo-600/10 text-indigo-600">
-              <span className="text-xl">👥</span>
+              <ActionIcon name="👥" size="lg" />
             </div>
             <div>
               <div className="text-xl md:text-2xl font-bold text-gray-900">{activeCount}</div>
@@ -660,7 +660,7 @@ const Dashboard = () => {
           {/* Due Soon */}
           <div className="bg-card rounded-xl shadow-sm p-3 md:p-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-full flex items-center justify-center bg-warning/10 text-warning">
-              <span className="text-xl">⏰</span>
+              <ActionIcon name="🕐" size="lg" />
             </div>
             <div>
               <div className="text-xl md:text-2xl font-bold text-gray-900">{dueSoon.length}</div>
@@ -671,7 +671,7 @@ const Dashboard = () => {
           {/* Overdue */}
           <div className="bg-card rounded-xl shadow-sm p-3 md:p-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-full flex items-center justify-center bg-danger/10 text-danger">
-              <span className="text-xl">⚠️</span>
+              <ActionIcon name="⚠️" size="lg" />
             </div>
             <div>
               <div className="text-xl md:text-2xl font-bold text-gray-900">{overdue.length}</div>
@@ -682,7 +682,7 @@ const Dashboard = () => {
           {/* Revenue */}
           <div className="bg-card rounded-xl shadow-sm p-3 md:p-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-full flex items-center justify-center bg-success/10 text-success">
-              <span className="text-xl">💰</span>
+              <ActionIcon name="💰" size="lg" />
             </div>
             <div>
               <div className="text-xl md:text-2xl font-bold text-gray-900">{formatCurrency(revenueMTD)}</div>
@@ -697,7 +697,7 @@ const Dashboard = () => {
             <div className="bg-card rounded-xl shadow-sm">
               <div className="p-4 border-b border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                  <span className="text-warning mr-2">⚠️</span>
+                  <ActionIcon name="⚠️" className="text-warning mr-2" />
                   Payment Alerts ({alerts.length})
                 </h3>
               </div>
