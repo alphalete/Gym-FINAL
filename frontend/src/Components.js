@@ -2256,21 +2256,20 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
         <div className="flex gap-3 pt-4">
           <button 
             type="button" 
-            className="btn btn-primary"
             disabled={saving}
             style={{ 
-              position: 'relative', 
-              zIndex: 9999, 
-              backgroundColor: '#1e40af',
+              backgroundColor: 'green',
               color: 'white',
               padding: '12px 24px',
               border: 'none',
               borderRadius: '8px',
               cursor: 'pointer',
-              minHeight: '48px'
+              minHeight: '48px',
+              fontSize: '16px',
+              zIndex: 99999
             }}
             onClick={(e) => {
-              console.log('🚀 DIRECT button onClick triggered!', e.type);
+              console.log('🚀 GREEN BUTTON CLICKED!', e.type);
               console.log('🚀 Button element:', e.target);
               console.log('🚀 Event details:', { clientX: e.clientX, clientY: e.clientY });
               e.preventDefault();
@@ -2278,13 +2277,13 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
               handleSubmit(e);
             }}
             onMouseDown={(e) => {
-              console.log('🔧 Button mouseDown detected!', e.type);
+              console.log('🔧 GREEN mouseDown detected!', e.type);
             }}
             onMouseUp={(e) => {
-              console.log('🔧 Button mouseUp detected!', e.type);
+              console.log('🔧 GREEN mouseUp detected!', e.type);
             }}
           >
-            {saving ? 'Saving...' : 'Add Member'}
+            {saving ? 'Saving...' : 'GREEN TEST ADD'}
           </button>
           <button 
             type="button" 
