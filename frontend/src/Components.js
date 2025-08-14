@@ -2226,11 +2226,13 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
       
       <div className="flex gap-3 pt-4">
         <button 
-          type="submit" 
+          type="button" 
           className="btn btn-primary"
           disabled={saving}
           onClick={(e) => {
-            console.log('🚀 Submit button clicked!', e.type);
+            console.log('🚀 DIRECT button onClick triggered!', e.type);
+            e.preventDefault();
+            handleSubmit(e);
           }}
         >
           {saving ? 'Saving...' : 'Add Member'}
