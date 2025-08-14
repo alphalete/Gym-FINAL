@@ -108,26 +108,22 @@ export async function removeMember(idLike) {
   const list = await listMembers();
   const target = String(idLike);
   
-  // Delete from backend first
-  try {
-    const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-    if (backendUrl) {
-      const response = await fetch(`${backendUrl}/api/clients/${target}`, {
-        method: 'DELETE'
-      });
-      
-      if (response.ok) {
-        console.log('✅ Member deleted from backend:', target);
-      } else {
-        throw new Error(`Backend DELETE failed: ${response.status}`);
-      }
+  // Delete from backend first - this must succeed
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+  if (backendUrl) {
+    const response = await fetch(`${backendUrl}/api/clients/${target}`, {
+      method: 'DELETE'
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => `HTTP ${response.status}`);
+      throw new Error(`Backend DELETE failed: ${errorText}`);
     }
-  } catch (backendError) {
-    console.error('Backend delete failed:', backendError);
-    // Continue with local delete as fallback
+    
+    console.log('✅ Member deleted from backend:', target);
   }
   
-  // Filter using normalized ID comparison
+  // Only update local storage if backend succeeded (or no backend URL)
   const next = list.filter(x => pickId(x) !== target);
   await saveAllMembers(next);
   
