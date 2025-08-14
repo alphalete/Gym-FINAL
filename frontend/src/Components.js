@@ -1242,9 +1242,6 @@ const Reports = () => {
   const { members: membersR, loading: loadingR } = useMembersFromStorage();
   const [payments, setPayments] = useState([]);
   
-  // Guard early loading state
-  if (loadingR) return <div className="p-6">Loading reports…</div>;
-  
   useEffect(() => {
     (async () => {
       try {
@@ -1256,6 +1253,11 @@ const Reports = () => {
       }
     })();
   }, []);
+  
+  // Render loading state without early return to avoid hook issues
+  if (loadingR) {
+    return <div className="p-6">Loading reports…</div>;
+  }
   
   const paymentsList = Array.isArray(payments) ? payments : [];
   const membersList = Array.isArray(membersR) ? membersR : [];
