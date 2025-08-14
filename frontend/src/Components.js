@@ -1812,6 +1812,119 @@ export function RecordPayment(){
   );
 }
 
+// --- Inline Add Member Form Component ---
+function AddMemberForm({ onCancel, onSuccess }) {
+  const [form, setForm] = React.useState({ 
+    firstName: "", 
+    lastName: "", 
+    email: "", 
+    phone: "", 
+    membershipType: "" 
+  });
+  const [saving, setSaving] = React.useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.firstName.trim()) {
+      alert('First name is required');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const id = crypto?.randomUUID?.() || String(Date.now());
+      const member = { 
+        id, 
+        ...form, 
+        name: `${form.firstName} ${form.lastName}`.trim() || form.firstName || form.lastName,
+        status: "Active", 
+        active: true, 
+        joinedOn: new Date().toISOString() 
+      };
+      
+      // Save member using storage facade
+      const storage = storageNamed || gymStorageMain;
+      if (storage.saveMember) {
+        await storage.saveMember(member);
+      } else if (storage.saveData) {
+        await storage.saveData("members", member);
+      }
+      
+      onSuccess?.();
+    } catch (error) {
+      console.error('Error saving member:', error);
+      alert('Error saving member. Please try again.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input 
+          type="text"
+          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+          placeholder="First Name *" 
+          value={form.firstName}
+          onChange={e => setForm(f => ({...f, firstName: e.target.value}))}
+          required
+        />
+        <input 
+          type="text"
+          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+          placeholder="Last Name" 
+          value={form.lastName}
+          onChange={e => setForm(f => ({...f, lastName: e.target.value}))}
+        />
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input 
+          type="email"
+          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+          placeholder="Email" 
+          value={form.email}
+          onChange={e => setForm(f => ({...f, email: e.target.value}))}
+        />
+        <input 
+          type="tel"
+          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+          placeholder="Phone" 
+          value={form.phone}
+          onChange={e => setForm(f => ({...f, phone: e.target.value}))}
+        />
+      </div>
+      
+      <input 
+        type="text"
+        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+        placeholder="Membership Plan (e.g., Premium, Basic)" 
+        value={form.membershipType}
+        onChange={e => setForm(f => ({...f, membershipType: e.target.value}))}
+      />
+      
+      <div className="flex gap-3 pt-4">
+        <button 
+          type="submit" 
+          className="btn btn-primary"
+          disabled={saving}
+        >
+          {saving ? 'Saving...' : 'Add Member'}
+        </button>
+        <button 
+          type="button" 
+          className="btn btn-secondary"
+          onClick={onCancel}
+          disabled={saving}
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  );
+}
+
 // Explicit component exports
 export {
   Dashboard,
