@@ -940,8 +940,8 @@ function ClientManagement() {
   // ADD handlers (use repo; ensure buttons in forms are type="button"):
   const onAddOrUpdateMember = async (partialOrFull) => {
     try {
-      const next = await repo.upsertMember(partialOrFull);
-      setMembers(next);   // optimistic UI update
+      await repo.upsertMember(partialOrFull);
+      await refresh(); // Refresh from backend to get latest data
       
       // Trigger dashboard refresh
       window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'member_added' }));
