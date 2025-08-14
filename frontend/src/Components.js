@@ -1487,11 +1487,13 @@ const MembershipManagement = () => {
     load(); 
   }
 
-  // Get member count for each plan
+  // Get member count for each plan (with safety guard)
   const getPlansWithMemberCount = () => {
-    return plans.map(plan => ({
+    const membersList = Array.isArray(allMembersMM) ? allMembersMM : [];
+    const plansList = Array.isArray(plans) ? plans : [];
+    return plansList.map(plan => ({
       ...plan,
-      memberCount: allMembersMM.filter(member => member.planId === plan.id).length
+      memberCount: membersList.filter(member => member.planId === plan.id).length
     }));
   };
 
