@@ -1568,7 +1568,7 @@ const MembershipManagement = () => {
                       </div>
 
                       {/* Pricing */}
-                      <div className="bg-primary-50 rounded-lg p-4 mb-4">
+                      <div className="bg-indigo-50 rounded-lg p-4 mb-4">
                         <div className="text-center">
                           <div className="text-3xl font-bold text-primary mb-1">
                             {formatCurrency(plan.price)}
