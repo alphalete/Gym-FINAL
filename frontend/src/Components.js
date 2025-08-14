@@ -23,6 +23,43 @@ import {
 
 // Hook to load members from storage
 
+// Helper functions for member management
+const upsertMember = async (m, setMembers) => {
+  try {
+    if (gymStorage?.saveMember) {
+      await gymStorage.saveMember(m);
+    } else { 
+      const all = await gymStorage.getAllMembers(); 
+      const idx = all.findIndex(x => x.id === m.id); 
+      if (idx > -1) { 
+        all[idx] = m; 
+      } else { 
+        all.push(m); 
+      } 
+      await gymStorage.saveMembers(all); 
+    }
+    const latest = await gymStorage.getAllMembers(); 
+    setMembers(latest);
+  } catch(e) { 
+    console.error("saveMember error", e); 
+  }
+};
+
+const removeMember = async (id, setMembers) => {
+  try {
+    if (gymStorage?.deleteMember) {
+      await gymStorage.deleteMember(id);
+    } else { 
+      const all = await gymStorage.getAllMembers(); 
+      await gymStorage.saveMembers(all.filter(x => x.id !== id)); 
+    }
+    const latest = await gymStorage.getAllMembers(); 
+    setMembers(latest);
+  } catch(e) { 
+    console.error("deleteMember error", e); 
+  }
+};
+
 /* Share utility function */
 function shareFallback(text) {
   if (navigator.share) {
