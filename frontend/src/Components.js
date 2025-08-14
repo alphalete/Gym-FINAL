@@ -1154,6 +1154,7 @@ function ClientManagement() {
           </div>
           <div className="card-body">
             <AddMemberForm 
+              onAddOrUpdateMember={onAddOrUpdateMember}
               onCancel={() => {
                 setShowAddForm(false);
                 // Navigate back to origin if user came from elsewhere
