@@ -2230,6 +2230,28 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
       </div>
       
       <div className="flex gap-3 pt-4">
+        {/* SIMPLE TEST BUTTON */}
+        <button 
+          type="button"
+          onClick={() => {
+            console.log('🎯 SIMPLE CLICK TEST!');
+            alert('Simple button clicked!');
+          }}
+          style={{
+            backgroundColor: 'orange',
+            color: 'white',
+            padding: '15px 25px',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            zIndex: 999999
+          }}
+        >
+          SIMPLE TEST
+        </button>
+        
         <button 
           type="button" 
           disabled={saving}
