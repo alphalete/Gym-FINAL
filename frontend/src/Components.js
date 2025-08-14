@@ -1062,20 +1062,26 @@ function ClientManagement() {
                 try {
                   const updatedMember = { ...m, status: isActive ? 'Inactive' : 'Active', active: !isActive };
                   
-                  // Save to backend
-                  const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-                  if (backendUrl) {
-                    const response = await fetch(`${backendUrl}/api/clients/${m.id}`, {
-                      method: 'PUT',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify(updatedMember)
-                    });
-                    if (response.ok) {
-                      alert(`✅ Member ${isActive ? 'deactivated' : 'activated'} successfully`);
-                      // Trigger data refresh without full page reload
-                      window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'member_status_updated' }));
-                    } else {
-                      throw new Error('Backend update failed');
+                  // Use repository system for consistent offline-first behavior
+                  if (onAddOrUpdateMember) {
+                    await onAddOrUpdateMember(updatedMember);
+                    alert(`✅ Member ${isActive ? 'deactivated' : 'activated'} successfully`);
+                  } else {
+                    // Fallback to direct backend call if no repository handler
+                    const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+                    if (backendUrl) {
+                      const response = await fetch(`${backendUrl}/api/clients/${m.id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(updatedMember)
+                      });
+                      if (response.ok) {
+                        alert(`✅ Member ${isActive ? 'deactivated' : 'activated'} successfully`);
+                        // Trigger data refresh without full page reload
+                        window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'member_status_updated' }));
+                      } else {
+                        throw new Error('Backend update failed');
+                      }
                     }
                   }
                 } catch (error) {
