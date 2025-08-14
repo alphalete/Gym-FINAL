@@ -623,7 +623,7 @@ const Dashboard = () => {
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4 mb-6">
           {/* Active Members */}
           <div className="bg-card rounded-xl shadow-sm p-3 md:p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full flex items-center justify-center bg-primary/10 text-indigo-600">
+            <div className="w-10 h-10 rounded-full flex items-center justify-center bg-indigo-600/10 text-indigo-600">
               <span className="text-xl">👥</span>
             </div>
             <div>
