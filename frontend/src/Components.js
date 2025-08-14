@@ -875,6 +875,7 @@ const PlansMini = () => {
 // --- Members (ClientManagement) ---
 function ClientManagement() {
   const { members, setMembers, loading, error } = useMembersFromStorage(); // top-level, not conditional
+  const [showAddForm, setShowAddForm] = React.useState(false);
 
   const list = Array.isArray(members) ? members : [];
 
