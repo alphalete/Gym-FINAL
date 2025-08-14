@@ -644,7 +644,11 @@ const Dashboard = () => {
               <button 
                 type="button" 
                 className="btn btn-secondary w-full md:w-auto"
-                onClick={() => window.navigateToTab?.('members')}
+                onClick={() => {
+                  // Navigate to members and auto-open the add form
+                  localStorage.setItem("autoOpenAddMember", "true");
+                  window.navigateToTab?.('members');
+                }}
               >
                 + Add Member
               </button>
