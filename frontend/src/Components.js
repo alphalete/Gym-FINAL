@@ -243,7 +243,7 @@ const PaymentComponent = () => {
             <div className="flex items-center justify-between">
               <div>
                 <div className="stat-value">{todayPayments.length}</div>
-                <div className="stat-label text-primary-100">Today</div>
+                <div className="stat-label text-indigo-100">Today</div>
               </div>
               <div className="text-primary-200 text-3xl">📅</div>
             </div>
