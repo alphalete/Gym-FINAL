@@ -891,10 +891,10 @@ function ClientManagement() {
           </div>
 
           <div className="mt-4 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">
-            <button type="button" className="btn-secondary" onClick={()=>onEdit?.(m)}>Edit</button>
-            <button type="button" className="btn-warning"  onClick={()=>onDeactivate?.(m)}>Deactivate</button>
-            <button type="button" className="btn-primary"  onClick={()=>onRecordPayment?.(m)}>Record Payment</button>
-            <button type="button" className="btn-ghost"     onClick={()=>onWhatsApp?.(m)}>WhatsApp</button>
+            <button type="button" className="btn-secondary">Edit</button>
+            <button type="button" className="btn-warning">Deactivate</button>
+            <button type="button" className="btn-primary">Record Payment</button>
+            <button type="button" className="btn-ghost">WhatsApp</button>
           </div>
         </div>
       </div>
