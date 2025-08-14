@@ -942,6 +942,9 @@ function ClientManagement() {
     try {
       const next = await repo.upsertMember(partialOrFull);
       setMembers(next);   // optimistic UI update
+      
+      // Trigger dashboard refresh
+      window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'member_added' }));
     } catch (e) {
       console.error("save member failed", e);
       alert("Could not save member. Please try again.");
