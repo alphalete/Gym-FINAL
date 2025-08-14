@@ -204,15 +204,15 @@ export async function listMembers() {
 }
 
 export async function upsertMember(member) {
-  // CLIENT-SIDE VALIDATION FIRST
-  const validationErrors = validateMember(member);
-  if (validationErrors.length > 0) {
-    throw new Error(`Validation failed: ${validationErrors.join(', ')}`);
-  }
-  
   const list = await listMembers();
   const norm = withId(member);
   const isUpdate = norm.id && list.find(x => pickId(x) === pickId(norm));
+  
+  // CLIENT-SIDE VALIDATION ONLY FOR NEW MEMBER CREATION
+  const validationErrors = validateMember(member, !isUpdate);
+  if (validationErrors.length > 0) {
+    throw new Error(`Validation failed: ${validationErrors.join(', ')}`);
+  }
   
   console.log(`🔄 ${isUpdate ? 'Updating' : 'Creating'} member:`, norm.name);
   
