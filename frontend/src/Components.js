@@ -1475,7 +1475,9 @@ const Components = {
   Settings,
   Sidebar,
   LoginForm,
-  InstallPrompt
+  InstallPrompt,
+  AddMember,
+  RecordPayment
 };
 
 export default Components;
