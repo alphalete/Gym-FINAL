@@ -399,7 +399,7 @@ const PaymentComponent = () => {
                     <div className="text-sm font-medium text-indigo-800 mb-2">Member Details:</div>
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <div>
-                        <span className="text-primary-600">Plan:</span> {selectedClient.planName || 'None'}
+                        <span className="text-indigo-600">Plan:</span> {selectedClient.planName || 'None'}
                       </div>
                       <div>
                         <span className="text-primary-600">Current Due:</span> {formatDate(selectedClient.nextDue) || 'Not set'}
