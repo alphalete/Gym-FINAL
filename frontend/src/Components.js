@@ -110,9 +110,6 @@ const PaymentComponent = () => {
   const [paidOnDate, setPaidOnDate] = useState(new Date().toISOString().slice(0,10));
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Guard render while loading
-  if (loadingPT) return <div className="p-4">Loading payments…</div>;
-
   useEffect(() => {
     (async () => {
       const paymentsList = await gymStorage.getAllPayments() || [];
@@ -138,6 +135,11 @@ const PaymentComponent = () => {
     if (!m) return;
     if (!paymentAmount && m.fee != null) setPaymentAmount(String(m.fee));
   }, [selectedClient, membersPT]);
+
+  // Render loading state without early return to avoid hook issues
+  if (loadingPT) {
+    return <div className="p-4">Loading payments…</div>;
+  }
 
   async function handlePaymentSubmit() {
     if (!selectedClient || !paymentAmount) return;
