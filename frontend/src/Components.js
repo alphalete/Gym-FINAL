@@ -733,7 +733,7 @@ const Dashboard = () => {
           <div className="bg-card rounded-xl shadow-sm">
             <div className="p-4 border-b border-gray-200">
               <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                <span className="text-primary mr-2">💳</span>
+                <span className="text-indigo-600 mr-2">💳</span>
                 Recent Payments
               </h3>
             </div>
