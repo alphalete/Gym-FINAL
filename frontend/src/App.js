@@ -41,8 +41,10 @@ export default function App(){
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="/dashboard" element={C.Dashboard ? <C.Dashboard /> : <div className="p-4">No Dashboard</div>} />
               <Route path="/members" element={C.ClientManagement ? <C.ClientManagement /> : <div className="p-4">No Members</div>} />
+              <Route path="/add-member" element={<AddMember />} />
               <Route path="/plans" element={C.MembershipManagement ? <C.MembershipManagement /> : <div className="p-4">No Plans</div>} />
               <Route path="/payments" element={C.PaymentTracking ? <C.PaymentTracking /> : <div className="p-4">No Payments</div>} />
+              <Route path="/payments/new" element={<RecordPayment />} />
               <Route path="/reports" element={C.Reports ? <C.Reports /> : <div className="p-4">No Reports</div>} />
               <Route path="/settings" element={C.Settings ? <C.Settings /> : <div className="p-4">No Settings</div>} />
               <Route path="/__diag" element={<DiagnosticApp />} />
