@@ -1460,7 +1460,9 @@ export {
   Settings,
   Sidebar,
   LoginForm,
-  InstallPrompt
+  InstallPrompt,
+  AddMember,
+  RecordPayment
 };
 
 // Default export object for App.js
