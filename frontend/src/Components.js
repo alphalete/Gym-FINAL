@@ -1646,7 +1646,7 @@ export function AddMember(){
       joinedOn: new Date().toISOString() 
     };
     await storageFacade.saveMember(member);
-    nav("/members", { replace:true });
+    window.navigateToTab?.('members');
   };
 
   return (
