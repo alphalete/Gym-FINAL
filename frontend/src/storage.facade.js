@@ -66,9 +66,22 @@ export async function savePayment(p){
 
 // ---- Plans ----
 export async function getPlans(){
-  const fn = s.getPlans || storageNamed.getPlans || (s.getAll ? () => s.getAll("plans") : null);
-  const out = await safe(fn, []);
-  return Array.isArray(out) ? out : [];
+  const fn = s.getPlans || storageNamed.getPlans;
+  if (fn) {
+    const out = await safe(fn, []);
+    return Array.isArray(out) ? out : [];
+  }
+  // Fallback to getAll if direct method not available
+  if (s.getAll) {
+    const out = await safe(() => s.getAll("plans"), []);
+    return Array.isArray(out) ? out : [];
+  }
+  // Final fallback to named export
+  if (storageNamed.getAll) {
+    const out = await safe(() => storageNamed.getAll("plans"), []);
+    return Array.isArray(out) ? out : [];
+  }
+  return [];
 }
 export async function savePlan(plan){
   const fn = s.savePlan || storageNamed.savePlan;
