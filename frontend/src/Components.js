@@ -22,6 +22,8 @@ import {
   getPaymentStatus,
   getInitials
 } from './utils/common';
+// Import Icon components for consistent iconography
+import { Icon, StatIcon, ActionIcon } from './components/Icons';
 
 // Hook to load members from storage
 
