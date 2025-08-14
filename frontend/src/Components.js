@@ -950,10 +950,9 @@ function ClientManagement() {
               }
             }}>Delete</button>
             <button type="button" className="btn-primary" onClick={() => {
-              // Use the existing goRecordPayment function from Dashboard scope
+              // Store pending payment member ID and navigate to payments tab
               localStorage.setItem("pendingPaymentMemberId", String(m.id));
-              // Navigate to payments page
-              window.location.hash = '/payments/new';
+              window.navigateToTab?.('payments');
             }}>Record Payment</button>
             <button type="button" className="btn-ghost" onClick={() => {
               // Open WhatsApp with member's phone
