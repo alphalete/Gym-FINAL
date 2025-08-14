@@ -1,6 +1,7 @@
 import React from "react";
 import Components from "./Components";
 import storageDefault, * as storageNamed from "./storage";
+import storageFacade from "./storage.facade";
 
 const Row = ({k,v}) => (
   <div style={{
