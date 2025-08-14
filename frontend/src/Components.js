@@ -1027,11 +1027,26 @@ function ClientManagement() {
           </div>
           <div className="card-body">
             <AddMemberForm 
-              onCancel={() => setShowAddForm(false)} 
+              onCancel={() => {
+                setShowAddForm(false);
+                // Navigate back to origin if user came from elsewhere
+                const origin = localStorage.getItem("addMemberOrigin");
+                if (origin) {
+                  localStorage.removeItem("addMemberOrigin"); // Clean up
+                  window.navigateToTab?.(origin);
+                }
+              }} 
               onSuccess={() => {
                 setShowAddForm(false);
-                // Refresh members list
-                window.location.reload();
+                // Navigate back to origin after success if user came from elsewhere
+                const origin = localStorage.getItem("addMemberOrigin");
+                if (origin) {
+                  localStorage.removeItem("addMemberOrigin"); // Clean up
+                  window.navigateToTab?.(origin);
+                } else {
+                  // Refresh members list if staying on members page
+                  window.location.reload();
+                }
               }} 
             />
           </div>
