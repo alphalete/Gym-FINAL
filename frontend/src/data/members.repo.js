@@ -59,7 +59,15 @@ const withId = (m) => {
 };
 
 export async function listMembers() {
-  return (await getAllMembers()).map(withId);
+  const arr = (await getAllMembers()).map(withId);
+  // Deduplicate by normalized id in case legacy data has duplicates
+  const seen = new Set();
+  const out = [];
+  for (const m of arr) {
+    const key = pickId(m);
+    if (!seen.has(key)) { seen.add(key); out.push(m); }
+  }
+  return out;
 }
 
 export async function upsertMember(member) {
