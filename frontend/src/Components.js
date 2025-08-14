@@ -1420,8 +1420,7 @@ const MembershipManagement = () => {
   const [form, setForm] = useState({ id: "", name: "", price: 0, cycleDays: 30, description: "" });
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Guard render while loading
-  if (loadingMM) return <div className="p-4">Loading plans…</div>;
+  useEffect(() => { load(); }, []);
 
   async function load() {
     try {
@@ -1432,8 +1431,11 @@ const MembershipManagement = () => {
       setPlans([]);
     }
   }
-  
-  useEffect(() => { load(); }, []);
+
+  // Render loading state without early return to avoid hook issues
+  if (loadingMM) {
+    return <div className="p-4">Loading plans…</div>;
+  }
   
   useEffect(() => { 
     const onC = () => load(); 
