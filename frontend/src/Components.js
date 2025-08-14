@@ -101,7 +101,7 @@ function computeNextDuePreview(currentNextDueISO, monthsCovered) {
 
 // --- Payments (PaymentTracking) ---
 const PaymentComponent = () => {
-  const membersPT = useMembersFromStorage(); // Use hook instead of state for consistency
+  const { members: membersPT, setMembers: setMembersPT, loading: loadingPT } = useMembersFromStorage();
   const [payments, setPayments] = useState([]);
   const [selectedClient, setSelectedClient] = useState(null);
   const [isRecordingPayment, setIsRecordingPayment] = useState(false);
