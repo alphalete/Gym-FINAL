@@ -325,4 +325,45 @@ export async function removeMember(idLike) {
   return verify;
 }
 
-export default { listMembers, upsertMember, removeMember };
+// Manual sync function for when user comes back online
+export async function syncPendingChanges() {
+  const pendingSync = await getPendingSync();
+  
+  if (pendingSync.length === 0) {
+    console.log('✅ No pending changes to sync');
+    return { success: true, synced: 0, failed: 0 };
+  }
+  
+  console.log(`🔄 Syncing ${pendingSync.length} pending changes...`);
+  let synced = 0;
+  let failed = 0;
+  
+  for (const operation of pendingSync) {
+    try {
+      await syncWithBackend([operation]);
+      synced++;
+    } catch (e) {
+      console.warn(`Failed to sync operation ${operation.id}:`, e);
+      failed++;
+    }
+  }
+  
+  console.log(`✅ Sync completed: ${synced} synced, ${failed} failed`);
+  return { success: true, synced, failed };
+}
+
+// Get sync status for UI feedback
+export async function getSyncStatus() {
+  const pendingSync = await getPendingSync();
+  return {
+    pendingCount: pendingSync.length,
+    isOnline: navigator.onLine,
+    pendingOperations: pendingSync.map(op => ({
+      type: op.type,
+      memberName: op.data?.name || op.memberName || 'Unknown',
+      timestamp: op.timestamp
+    }))
+  };
+}
+
+export default { listMembers, upsertMember, removeMember, syncPendingChanges, getSyncStatus };
