@@ -18,6 +18,10 @@ export default function App(){
   const C = Components || {};
 
   const safePick = (bag, key) => (bag && bag[key]) ? bag[key] : (() => <div className="p-4">No {key}</div>);
+  
+  // Add missing form components with fallback
+  const AddMember     = C.AddMember     || (() => <div className="p-4">Add member form missing</div>);
+  const RecordPayment = C.RecordPayment || (() => <div className="p-4">Record payment form missing</div>);
 
   useEffect(() => {
     // Clear service workers and caches
