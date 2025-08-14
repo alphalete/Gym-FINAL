@@ -2146,6 +2146,8 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
       console.log('🏁 handleSubmit completed');
     }
   };
+  
+  console.log('🔧 handleSubmit function defined:', typeof handleSubmit);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
