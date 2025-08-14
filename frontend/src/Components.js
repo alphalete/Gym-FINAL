@@ -2120,7 +2120,7 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
             className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             value={form.membershipType}
             onChange={e => setForm(f => ({...f, membershipType: e.target.value}))}
-            required
+            required={plans.length > 0} // Only required if plans exist
           >
             <option value="">Select a plan...</option>
             {plans.map((plan) => (
