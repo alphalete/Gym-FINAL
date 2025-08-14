@@ -864,19 +864,24 @@ const ClientManagement = () => {
   const [form, setForm] = useState({ name:"", email:"", phone:"", planId:"" });
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Guard render while loading
-  if (membersLoading) return <div className="p-4">Loading members…</div>;
+  useEffect(() => {
+    loadMembersAndPlans();
+  }, []);
 
   async function loadMembersAndPlans(){
     try {
       const ms = await gymStorage.getAllMembers();
-      setClients(ms || []);
       const ps = await gymStorage.getPlans();
-      setPlans((ps || []).filter(p=>!p._deleted).sort((a,b)=> (a.name||"").localeCompare(b.name||"")));
-    } catch(e){ console.error('load error', e); }
+      setPlans(Array.isArray(ps) ? ps : []);
+    } catch (e) {
+      console.error("[ClientManagement] Failed to load:", e);
+    }
   }
 
-  useEffect(()=>{ loadMembersAndPlans(); },[]);
+  // Render loading state without early return to avoid hook issues
+  if (membersLoading) {
+    return <div className="p-4">Loading members…</div>;
+  }
 
   useEffect(() => {
     const onOpen = () => { 
