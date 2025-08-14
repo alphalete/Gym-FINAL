@@ -956,6 +956,9 @@ function ClientManagement() {
     try {
       const next = await repo.removeMember(id);
       setMembers(next);
+      
+      // Trigger dashboard refresh
+      window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'member_deleted' }));
     } catch (e) {
       console.error("delete member failed", e);
       alert("Could not delete member. Please try again.");
