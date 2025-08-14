@@ -1239,9 +1239,12 @@ const Reports = () => {
     })();
   }, []);
   
-  const totalRevenue = payments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
-  const activeMembers = membersR.filter(m => m.payment_status !== 'cancelled').length;
-  const totalMembers = membersR.length;
+  const paymentsList = Array.isArray(payments) ? payments : [];
+  const membersList = Array.isArray(membersR) ? membersR : [];
+  
+  const totalRevenue = paymentsList.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+  const activeMembers = membersList.filter(m => m.payment_status !== 'cancelled').length;
+  const totalMembers = membersList.length;
   
   return (
     <div className="p-4">
