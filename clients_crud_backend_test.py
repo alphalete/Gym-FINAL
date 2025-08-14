@@ -22,7 +22,7 @@ from typing import Dict, List, Any
 import uuid
 
 # Get backend URL from environment
-BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://3e59bdc5-4280-4990-b2b0-eb57092d3536.preview.emergentagent.com')
+BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://fittracker-18.preview.emergentagent.com')
 if not BACKEND_URL.endswith('/api'):
     BACKEND_URL = f"{BACKEND_URL}/api"
 
