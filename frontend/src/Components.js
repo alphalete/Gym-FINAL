@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import useMembersFromStorage from "./hooks/useMembersFromStorage";
+import storageFacade, { getAllMembers as facadeGetAllMembers } from "./storage.facade";
 import gymStorage, { getAll as getAllStore, getPlanById, upsertMemberWithPlanSnapshot, getSetting as getSettingNamed, saveSetting as saveSettingNamed } from "./storage";
 import gymStorageMain, * as storageNamed from "./storage";
 import { toISODate, add30DaysFrom, recomputeStatus, advanceNextDueByCycles, daysBetween } from './utils/date';
