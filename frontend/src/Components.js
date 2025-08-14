@@ -974,7 +974,16 @@ function ClientManagement() {
     <div className="p-4">
       <h1 className="text-xl font-semibold mb-3">Members</h1>
       {list.length === 0
-        ? <div className="text-slate-500">No members yet.</div>
+        ? <div className="text-center py-8">
+            <div className="text-slate-500 mb-4">No members yet.</div>
+            <button 
+              type="button" 
+              className="text-indigo-600 underline hover:text-indigo-800"
+              onClick={() => window.navigateToTab?.('members')}
+            >
+              Add your first member
+            </button>
+          </div>
         : list.map((m, i) => <MemberCard key={m.id || m._id || m.uuid || i} m={m} />)}
     </div>
   );
