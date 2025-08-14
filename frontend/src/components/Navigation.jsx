@@ -102,7 +102,7 @@ export const DesktopSidebarNavigation = ({ activeTab, onNavigate }) => {
             onClick={() => setIsCollapsed(!isCollapsed)}
             className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            <span className="text-lg">{isCollapsed ? '☰' : '✕'}</span>
+            <NavigationIcon name={isCollapsed ? '☰' : '✕'} size="md" />
           </button>
         </div>
       </div>
