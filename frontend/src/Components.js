@@ -1085,7 +1085,8 @@ function ClientManagement() {
                     });
                     if (response.ok) {
                       alert(`✅ Member ${isActive ? 'deactivated' : 'activated'} successfully`);
-                      window.location.reload(); // Refresh to show changes
+                      // Trigger data refresh without full page reload
+                      window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'member_status_updated' }));
                     } else {
                       throw new Error('Backend update failed');
                     }
