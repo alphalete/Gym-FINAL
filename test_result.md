@@ -185,7 +185,7 @@
 
 ## test_plan:
   current_focus:
-    - "Add Member functionality - button click events not registering"
+    - "Delete Member functionality - button click events not working properly"
     - "DELETE /api/clients/{id} endpoint functionality verification"
     - "Backend stability after LOADER HANG FIX implementation"
     - "Storage.js hardening backend compatibility"
@@ -194,7 +194,7 @@
     - "Settings sequential loading backend support"
     - "Reports component backend data requirements"
   stuck_tasks:
-    - "Add Member functionality - button click events not registering"
+    - "Delete Member functionality - button click events not working properly"
   test_all: false
   test_priority: "high_first"
 ##
