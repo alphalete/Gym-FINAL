@@ -2299,12 +2299,6 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
     </div>
   );
 }
-          Cancel
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // Explicit component exports
 export {
