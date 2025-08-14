@@ -405,7 +405,7 @@ const PaymentComponent = () => {
                         <span className="text-indigo-600">Current Due:</span> {formatDate(selectedClient.nextDue) || 'Not set'}
                       </div>
                       <div>
-                        <span className="text-primary-600">Regular Fee:</span> {formatCurrency(selectedClient.fee || 0)}
+                        <span className="text-indigo-600">Regular Fee:</span> {formatCurrency(selectedClient.fee || 0)}
                       </div>
                       <div>
                         <span className="text-primary-600">Cycle:</span> {selectedClient.cycleDays || 30} days
