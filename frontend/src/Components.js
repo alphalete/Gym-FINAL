@@ -1001,7 +1001,7 @@ const ClientManagement = () => {
         <div className="card">
           <div className="card-header">
             <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-              <span className="text-primary mr-2">👥</span>
+              <span className="text-indigo-600 mr-2">👥</span>
               Members ({filteredClients.length})
             </h3>
           </div>
@@ -1540,7 +1540,7 @@ const MembershipManagement = () => {
         <div className="card">
           <div className="card-header">
             <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-              <span className="text-primary mr-2">📋</span>
+              <span className="text-indigo-600 mr-2">📋</span>
               Membership Plans ({filteredPlans.length})
             </h3>
           </div>
