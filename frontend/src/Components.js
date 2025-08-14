@@ -855,387 +855,61 @@ const PlansMini = () => {
 // --- Dashboard component continues here ---
 
 // --- Members (ClientManagement) ---
-const ClientManagement = () => {
-  const { members: clients, setMembers: setClients, loading: membersLoading } = useMembersFromStorage();
-  const [plans, setPlans] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [isAddingClient, setIsAddingClient] = useState(false);
-  const [editingClient, setEditingClient] = useState(null);
-  const [form, setForm] = useState({ name:"", email:"", phone:"", planId:"" });
-  const [searchTerm, setSearchTerm] = useState("");
+function ClientManagement() {
+  const { members, setMembers, loading, error } = useMembersFromStorage(); // top-level, not conditional
 
-  useEffect(() => {
-    loadMembersAndPlans();
-  }, []);
+  const list = Array.isArray(members) ? members : [];
 
-  async function loadMembersAndPlans(){
-    try {
-      const ms = await gymStorage.getAllMembers();
-      const ps = await gymStorage.getPlans();
-      setPlans(Array.isArray(ps) ? ps : []);
-    } catch (e) {
-      console.error("[ClientManagement] Failed to load:", e);
-    }
-  }
+  if (loading) return <div className="p-4">Loading members…</div>;
+  if (error)   return <div className="p-4 text-rose-600">Error loading members</div>;
 
-  // Render loading state without early return to avoid hook issues
-  if (membersLoading) {
-    return <div className="p-4">Loading members…</div>;
-  }
+  const MemberCard = ({ m }) => {
+    const name  = m?.name || `${m?.firstName ?? ""} ${m?.lastName ?? ""}`.trim() || "Member";
+    const email = m?.email || "";
+    const phone = m?.phone || m?.phoneNumber || "";
+    const plan  = m?.membershipType || m?.plan || "Unassigned";
+    const isActive = m?.status === "Active" || !!m?.active;
 
-  useEffect(() => {
-    const onOpen = () => { 
-      setEditingClient(null); 
-      setForm({ name:"", email:"", phone:"", planId:"" }); 
-      setIsAddingClient(true); 
-    };
-    window.addEventListener("OPEN_ADD_MEMBER", onOpen);
-    const onChanged = () => loadMembersAndPlans();
-    window.addEventListener("DATA_CHANGED", onChanged);
-    return () => { 
-      window.removeEventListener("OPEN_ADD_MEMBER", onOpen); 
-      window.removeEventListener("DATA_CHANGED", onChanged); 
-    };
-  }, []);
-
-  async function save(){
-    try{
-      const id = editingClient?.id || (crypto.randomUUID?.() || String(Date.now()));
-      const plan = form.planId ? plans.find(p=>String(p.id)===String(form.planId)) : null;
-      const base = {
-        id,
-        name: form.name?.trim() || '',
-        email: form.email?.trim() || '',
-        phone: form.phone?.trim() || '',
-        status: editingClient?.status || 'Active',
-        joinDate: editingClient?.joinDate || new Date().toISOString().slice(0,10),
-        lastPayment: editingClient?.lastPayment || null,
-        nextDue: editingClient?.nextDue || (plan ? addDaysISO(new Date().toISOString().slice(0,10), Number(plan.cycleDays||30)) : undefined),
-      };
-      const snap = plan ? {
-        planId: plan.id,
-        planName: plan.name,
-        cycleDays: Number(plan.cycleDays || 30),
-        fee: Number(plan.price || 0),
-      } : {};
-      
-      // Use helper function
-      await upsertMember({ ...base, ...snap }, setClients);
-      
-      // Safety refresh from façade
-      const fresh = await facadeGetAllMembers();
-      setClients(Array.isArray(fresh)?fresh:[]);
-      
-      setIsAddingClient(false); 
-      setEditingClient(null);
-    }catch(e){ 
-      console.error('[save] failed', e); 
-      alert('Save failed'); 
-    }
-  }
-
-  async function toggleStatus(m) {
-    await upsertMember({ ...m, status: m.status === "Active" ? "Inactive" : "Active" }, setClients);
-    // Safety refresh from façade
-    const fresh = await facadeGetAllMembers();
-    setClients(Array.isArray(fresh)?fresh:[]);
-  }
-
-  // Filter clients based on search term (with safety guard)
-  const list = Array.isArray(clients) ? clients : [];
-  const filteredClients = list.filter(client => 
-    !searchTerm || 
-    (client.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (client.email || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (client.phone || "").includes(searchTerm) ||
-    (client.planName || "").toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // GoGym4U loading state
-  if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <div className="text-gray-600">Loading Members...</div>
+      <div className="card mb-3">
+        <div className="card-body">
+          <div className="flex items-center gap-3">
+            <div className="h-12 w-12 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">
+              {(name.split(" ").map(s => s[0]).join("").slice(0,2) || "MM")}
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <h3 className="text-base font-semibold">{name}</h3>
+                {isActive
+                  ? <span className="badge-active">ACTIVE</span>
+                  : <span className="badge-inactive">INACTIVE</span>}
+              </div>
+              {email ? <div className="text-sm text-slate-500">{email}</div> : null}
+              {phone ? <div className="text-sm text-slate-500">{phone}</div> : null}
+              <div className="mt-2"><span className="badge badge-warning">{String(plan)}</span></div>
+            </div>
+          </div>
+
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">
+            <button type="button" className="btn-secondary" onClick={()=>onEdit?.(m)}>Edit</button>
+            <button type="button" className="btn-warning"  onClick={()=>onDeactivate?.(m)}>Deactivate</button>
+            <button type="button" className="btn-primary"  onClick={()=>onRecordPayment?.(m)}>Record Payment</button>
+            <button type="button" className="btn-ghost"     onClick={()=>onWhatsApp?.(m)}>WhatsApp</button>
+          </div>
         </div>
       </div>
     );
-  }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header Section */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="px-6 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="page-title text-indigo-600">Members</h1>
-              <p className="page-subtitle">Manage gym memberships and member information</p>
-            </div>
-            <button 
-              type="button" 
-              className="btn btn-primary"
-              onClick={() => { 
-                setEditingClient(null); 
-                setForm({ name:"", email:"", phone:"", planId:"" }); 
-                setIsAddingClient(true); 
-              }}
-            >
-              + Add Member
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="px-6 py-6">
-        {/* Search and Stats */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
-          {/* Search Bar */}
-          <div className="lg:col-span-2">
-            <div className="relative">
-              <div className="input-group">
-                <div className="input-group-text">
-                  <span>🔍</span>
-                </div>
-                <input
-                  type="text"
-                  className="input pl-10"
-                  placeholder="Search members by name, email, phone, or plan..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Stats */}
-          <div className="lg:col-span-2">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="stat-card bg-indigo-600 text-white text-center">
-                <div className="stat-value">{clients.filter(c => c.status === 'Active').length}</div>
-                <div className="stat-label text-indigo-100">Active</div>
-              </div>
-              <div className="stat-card bg-gray-600 text-white text-center">
-                <div className="stat-value">{clients.length}</div>
-                <div className="stat-label text-gray-100">Total</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Members List */}
-        <div className="card">
-          <div className="card-header">
-            <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-              <span className="text-indigo-600 mr-2">👥</span>
-              Members ({filteredClients.length})
-            </h3>
-          </div>
-          <div className="card-body">
-            {filteredClients.length > 0 ? (
-              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-                {filteredClients.map(client => {
-                  // Compute single status badge (no duplicates)
-                  const status = (client?.status || client?.active) ? 'ACTIVE' : 'INACTIVE';
-                  const StatusBadge = () => (
-                    status === 'ACTIVE'
-                      ? <span className="badge-active">ACTIVE</span>
-                      : <span className="badge-inactive">INACTIVE</span>
-                  );
-                  
-                  return (
-                    <div key={client.id} className="card">
-                      <div className="card-body">
-                        {/* Top row: avatar + name + ONE status badge */}
-                        <div className="flex items-center gap-3">
-                          <div className="h-12 w-12 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">
-                            {(client?.name || '').split(' ').map(s=>s[0]).join('').slice(0,2) || 'MM'}
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                              <h3 className="text-base font-semibold">{client?.name || 'Member'}</h3>
-                              <StatusBadge />
-                            </div>
-                            <div className="text-sm text-slate-500">{client?.email}</div>
-                            <div className="text-sm text-slate-500">{client?.phone}</div>
-                          </div>
-                        </div>
-
-                        {/* Plan chip (if present) */}
-                        {client?.planName && (
-                          <div className="mt-3">
-                            <span className="badge-warning">{client.planName}</span>
-                          </div>
-                        )}
-
-                        {/* Actions (normalized buttons) */}
-                        <div className="mt-4 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">
-                          <button 
-                            className="btn-secondary" 
-                            onClick={() => { 
-                              setEditingClient(client); 
-                              setForm({ 
-                                name: client.name||"", 
-                                email: client.email||"", 
-                                phone: client.phone||"", 
-                                planId: client.planId || "" 
-                              }); 
-                              setIsAddingClient(true); 
-                            }}
-                          >
-                            Edit
-                          </button>
-                          <button 
-                            className="btn-warning" 
-                            onClick={() => toggleStatus(client)}
-                          >
-                            {client.status === "Active" ? "Deactivate" : "Activate"}
-                          </button>
-                          <button 
-                            className="btn-primary" 
-                            onClick={() => {
-                              localStorage.setItem("pendingPaymentMemberId", String(client.id));
-                              navigate('payments');
-                            }}
-                          >
-                            Record Payment
-                          </button>
-                          <button 
-                            className="btn-ghost" 
-                            onClick={() => openWhatsApp(buildReminder(client), client.phone)}
-                          >
-                            WhatsApp
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                {clients.length === 0 ? (
-                  <>
-                    <div className="text-6xl mb-4">👥</div>
-                    <div className="text-xl font-medium text-gray-900 mb-2">No Members Yet</div>
-                    <div className="text-gray-500 mb-6">Add your first gym member to get started</div>
-                    <button 
-                      type="button" 
-                      className="btn btn-primary"
-                      onClick={() => { 
-                        setEditingClient(null); 
-                        setForm({ name:"", email:"", phone:"", planId:"" }); 
-                        setIsAddingClient(true); 
-                      }}
-                    >
-                      + Add First Member
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <div className="text-4xl mb-4">🔍</div>
-                    <div className="text-xl font-medium text-gray-900 mb-2">No Results Found</div>
-                    <div className="text-gray-500">Try adjusting your search terms</div>
-                  </>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Add/Edit Member Modal */}
-      {isAddingClient && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <div className="modal-header">
-              <h2 className="modal-title">
-                {editingClient ? "Edit Member" : "Add New Member"}
-              </h2>
-            </div>
-            
-            <div className="modal-body">
-              <form onSubmit={(e)=>e.preventDefault()} className="space-y-4">
-                <div className="form-group">
-                  <label className="form-label">Full Name *</label>
-                  <input 
-                    className="input" 
-                    placeholder="Enter member's full name" 
-                    value={form.name} 
-                    onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="form-group">
-                    <label className="form-label">Email Address</label>
-                    <input 
-                      className="input" 
-                      type="email"
-                      placeholder="member@example.com" 
-                      value={form.email} 
-                      onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Phone Number</label>
-                    <input 
-                      className="input" 
-                      type="tel"
-                      placeholder="(xxx) xxx-xxxx" 
-                      value={form.phone} 
-                      onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
-                    />
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Membership Plan</label>
-                  <select 
-                    className="input" 
-                    value={form.planId}
-                    onChange={e=>setForm(f=>({ ...f, planId:e.target.value }))}
-                  >
-                    <option value="">Select a plan (optional)</option>
-                    {plans.map(p => (
-                      <option key={p.id} value={p.id}>
-                        {p.name} — {formatCurrency(p.price)} / {p.cycleDays||30} days
-                      </option>
-                    ))}
-                  </select>
-                  <div className="form-help">
-                    Choose a membership plan to automatically set billing schedule
-                  </div>
-                </div>
-              </form>
-            </div>
-
-            <div className="modal-footer">
-              <button 
-                type="button" 
-                className="btn btn-outline" 
-                onClick={() => setIsAddingClient(false)}
-              >
-                Cancel
-              </button>
-              <button 
-                type="button" 
-                className="btn btn-primary" 
-                onClick={save}
-                disabled={!form.name?.trim()}
-              >
-                {editingClient ? "Save Changes" : "Add Member"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+    <div className="p-4">
+      <h1 className="text-xl font-semibold mb-3">Members</h1>
+      {list.length === 0
+        ? <div className="text-slate-500">No members yet.</div>
+        : list.map((m, i) => <MemberCard key={m.id || m._id || m.uuid || i} m={m} />)}
     </div>
   );
-};
+}
 
 // --- Reports ---
 const Reports = () => {
