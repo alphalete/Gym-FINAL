@@ -1095,22 +1095,29 @@ function ClientManagement() {
                 }
               }
             }}>{isActive ? 'Deactivate' : 'Activate'}</button>
-            <button type="button" className="btn-danger" onClick={() => {
-              if (onDeleteMember) {
-                onDeleteMember(m.id || m._id || m.uuid);
-              } else {
-                // Fallback to old method if no handler provided
-                if (confirm(`Are you sure you want to DELETE ${name}? This action cannot be undone.`)) {
-                  try {
+            <button type="button" className="btn-danger" onClick={async () => {
+              if (confirm(`Are you sure you want to DELETE ${name}? This action cannot be undone.`)) {
+                try {
+                  // Use the repository system for proper delete
+                  if (onDeleteMember) {
+                    await onDeleteMember(m.id || m._id || m.uuid);
+                  } else {
+                    // Fallback to manual backend call if no handler provided
                     const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
                     if (backendUrl) {
-                      fetch(`${backendUrl}/api/clients/${m.id}`, { method: 'DELETE' });
+                      const response = await fetch(`${backendUrl}/api/clients/${m.id}`, { method: 'DELETE' });
+                      if (response.ok) {
+                        alert('✅ Member deleted successfully');
+                        // Trigger data refresh without full page reload
+                        window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'member_deleted' }));
+                      } else {
+                        throw new Error(`Delete failed: ${response.status}`);
+                      }
                     }
-                    window.location.reload();
-                  } catch (error) {
-                    console.error('Error deleting member:', error);
-                    alert('Error deleting member. Please try again.');
                   }
+                } catch (error) {
+                  console.error('Error deleting member:', error);
+                  alert('❌ Error deleting member. Please try again.');
                 }
               }
             }}>Delete</button>
