@@ -275,7 +275,7 @@ const PaymentComponent = () => {
           <div className="card-header">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                <span className="text-primary mr-2">💳</span>
+                <span className="text-indigo-600 mr-2">💳</span>
                 Payment History ({filteredPayments.length})
               </h3>
               
