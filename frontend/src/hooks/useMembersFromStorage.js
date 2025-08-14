@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import facade from "../storage.facade";
+import storageDefault, * as storageNamed from "../storage";
 
 export default function useMembersFromStorage(){
   const [members,setMembers]=useState([]); 
@@ -10,10 +10,23 @@ export default function useMembersFromStorage(){
     let live=true;
     (async()=>{
       try{ 
-        await facade.init(); 
-        const m = await facade.getAllMembers(); 
+        // Initialize storage
+        const storage = storageDefault || storageNamed;
+        if (storage.init) {
+          await storage.init();
+        }
+        
+        // Get members using direct storage access
+        let m = [];
+        if (storage.getAllMembers) {
+          m = await storage.getAllMembers();
+        } else if (storageNamed.getAllMembers) {
+          m = await storageNamed.getAllMembers();
+        }
+        
         if(live) setMembers(Array.isArray(m)?m:[]); 
       } catch(e){ 
+        console.error('[useMembersFromStorage] Error:', e);
         if(live) setError(e); 
       } finally{ 
         if(live) setLoading(false); 
