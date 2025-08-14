@@ -29,7 +29,7 @@
   }
   
   .btn-primary {
-    @apply btn bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-600;
+    @apply btn bg-indigo-600 text-white hover:bg-primary-700 focus:ring-indigo-600;
   }
   
   .btn-secondary {
@@ -49,7 +49,7 @@
   }
   
   .btn-outline {
-    @apply btn border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-primary-600;
+    @apply btn border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-indigo-600;
   }
   
   .btn-sm {
@@ -95,7 +95,7 @@
 /* Input Components */
 @layer components {
   .input {
-    @apply block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-600 focus:ring-primary-600 sm:text-sm;
+    @apply block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-600 focus:ring-indigo-600 sm:text-sm;
   }
   
   .input-error {
@@ -145,7 +145,7 @@
   }
   
   .nav-bottom-item.active {
-    @apply text-primary-600;
+    @apply text-indigo-600;
   }
   
   .nav-bottom-item:not(.active) {
@@ -161,14 +161,14 @@
   }
   
   .nav-sidebar-item.active {
-    @apply bg-primary-50 text-primary-600 border-r-2 border-primary-600;
+    @apply bg-primary-50 text-indigo-600 border-r-2 border-indigo-600;
   }
 }
 
 /* Floating Action Button */
 @layer components {
   .fab {
-    @apply fixed bottom-20 right-4 w-14 h-14 bg-primary-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center text-xl z-40;
+    @apply fixed bottom-20 right-4 w-14 h-14 bg-indigo-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center text-xl z-40;
   }
   
   .fab:hover {
