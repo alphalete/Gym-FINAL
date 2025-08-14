@@ -954,8 +954,8 @@ function ClientManagement() {
   const onDeleteMember = async (id) => {
     if (!confirm("Delete this member?")) return;
     try {
-      const next = await repo.removeMember(id);
-      setMembers(next);
+      await repo.removeMember(id);
+      await refresh(); // Refresh from backend to get latest data
       
       // Trigger dashboard refresh
       window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'member_deleted' }));
