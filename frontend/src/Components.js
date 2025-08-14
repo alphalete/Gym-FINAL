@@ -2066,25 +2066,39 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
       alert('First name is required');
       return;
     }
+    
+    // Validate email format if provided
+    if (form.email && !form.email.includes('@')) {
+      alert('Please enter a valid email address');
+      return;
+    }
 
     setSaving(true);
     try {
       const member = { 
-        ...form, 
         name: `${form.firstName} ${form.lastName}`.trim() || form.firstName || form.lastName,
-        membershipType: form.membershipType || "Basic", // Default membership type if none selected
+        email: form.email || '',
+        phone: form.phone || '',
+        membership_type: form.membershipType || "Basic",
+        monthly_fee: 55.0, // Default fee
+        start_date: new Date().toISOString().slice(0, 10), // Required field
+        payment_status: "due",
         status: "Active", 
-        active: true, 
-        joinedOn: new Date().toISOString() 
+        active: true,
+        auto_reminders_enabled: true,
+        billing_interval_days: 30
       };
       
       // Use the repo-based save function
       if (onAddOrUpdateMember) {
         await onAddOrUpdateMember(member);
+        
+        // Clear form on success
+        setForm({ firstName: "", lastName: "", email: "", phone: "", membershipType: "" });
         alert(`✅ Member "${member.name}" added successfully!`);
         onSuccess?.();
       } else {
-        // Fallback to backend save
+        // Fallback to direct backend save
         const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
         if (backendUrl) {
           const response = await fetch(`${backendUrl}/api/clients`, {
@@ -2096,16 +2110,20 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
           });
           
           if (!response.ok) {
-            throw new Error(`Backend save failed: ${response.status}`);
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(`Backend save failed: ${response.status} - ${JSON.stringify(errorData)}`);
           }
+          
+          // Clear form on success
+          setForm({ firstName: "", lastName: "", email: "", phone: "", membershipType: "" });
           console.log('✅ Member saved to backend successfully');
+          alert(`✅ Member "${member.name}" added successfully!`);
+          onSuccess?.();
         }
-        alert(`✅ Member "${member.name}" added successfully!`);
-        onSuccess?.();
       }
     } catch (error) {
       console.error('Error saving member:', error);
-      alert('❌ Error saving member. Please try again.');
+      alert(`❌ Error saving member: ${error.message}`);
     } finally {
       setSaving(false);
     }
