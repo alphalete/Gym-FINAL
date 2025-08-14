@@ -488,6 +488,13 @@ const PaymentComponent = () => {
                   setIsRecordingPayment(false);
                   setSelectedClient(null);
                   setPaymentAmount('');
+                  
+                  // Navigate back to where user came from
+                  const origin = localStorage.getItem("pendingPaymentOrigin");
+                  if (origin) {
+                    localStorage.removeItem("pendingPaymentOrigin"); // Clean up
+                    window.navigateToTab?.(origin);
+                  }
                 }}
               >
                 Cancel
