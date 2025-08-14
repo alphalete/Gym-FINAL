@@ -8,7 +8,7 @@ from datetime import datetime, date, timedelta
 from typing import Dict, Any
 
 class MembershipTypesInvestigator:
-    def __init__(self, base_url="https://fitness-club-app-1.preview.emergentagent.com"):
+    def __init__(self, base_url="https://gym-manager-app-1.preview.emergentagent.com"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
         self.tests_run = 0
