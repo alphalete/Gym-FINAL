@@ -40,9 +40,8 @@ export default function DiagnosticApp(){
       out.storageDefault = !!storageDefault;
       
       try { 
-        const fn = storageDefault?.getAllMembers || storageNamed?.getAllMembers; 
-        const m = await fn?.(); 
-        out.getAllMembersOK = Array.isArray(m); 
+        const m = await storageFacade.getAllMembers();
+        out.getAllMembersOK = Array.isArray(m);
       } catch(e) { 
         out.getAllMembersOK = e; 
       }
