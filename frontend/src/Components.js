@@ -923,8 +923,9 @@ const ClientManagement = () => {
     setClients(Array.isArray(fresh)?fresh:[]);
   }
 
-  // Filter clients based on search term
-  const filteredClients = clients.filter(client => 
+  // Filter clients based on search term (with safety guard)
+  const list = Array.isArray(clients) ? clients : [];
+  const filteredClients = list.filter(client => 
     !searchTerm || 
     (client.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
     (client.email || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
