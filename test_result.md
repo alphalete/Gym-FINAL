@@ -17,6 +17,17 @@
 ## user_problem_statement: TASK: Upgrade React + FastAPI + MongoDB PWA (Tailwind) gym app to match the visual style and UX flow of GoGym4U without removing any features, and fix all outstanding functional issues.
 
 ## backend:
+  - task: "DELETE /api/clients/{id} endpoint functionality verification"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+        - working: true
+        - agent: "testing"
+        - comment: "VERIFIED: DELETE /api/clients/{id} endpoint is WORKING PERFECTLY. Comprehensive testing confirms: 1) Endpoint exists and is accessible at line 607-629 in server.py, 2) DELETE operation works correctly - clients are actually removed from database, 3) Cascading deletion works - payment records are removed with client (payment_records_deleted count returned), 4) Payment statistics update correctly after deletion (revenue and count reduced appropriately), 5) Proper HTTP status codes returned (200 for success, 404 for not found), 6) No authentication/permission issues - endpoint is publicly accessible, 7) Error handling works correctly for non-existent clients. DIRECT TESTING RESULTS: Created test client 'DELETE TEST FINAL' (ID: d4eb2a53-a103-4152-abf4-df8789e9f9b9), successfully deleted via DELETE request, verified client returns 404 on subsequent GET request, confirmed client not in clients list. CONCLUSION: Backend DELETE functionality is COMPLETELY FUNCTIONAL. The user's reported issue 'frontend delete button not actually removing members' is NOT a backend problem - the issue must be in frontend implementation (incorrect API calls, missing error handling, UI not refreshing, etc.)."
   - task: "Backend stability after FULL CLEANUP & HARDENING implementation"
     implemented: true
     working: true
