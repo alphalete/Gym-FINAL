@@ -1199,7 +1199,7 @@ function ClientManagement() {
               Add your first member
             </button>
           </div>
-        : list.map((m, i) => <MemberCard key={m.id || m._id || m.uuid || i} m={m} onDeleteMember={onDeleteMember} />)}
+        : list.map((m, i) => <MemberCard key={m.id || m._id || m.uuid || i} m={m} onDeleteMember={onDeleteMember} onAddOrUpdateMember={onAddOrUpdateMember} />)}
     </div>
   );
 }
