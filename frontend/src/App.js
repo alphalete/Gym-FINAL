@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
 import ErrorBoundary from "./ErrorBoundary";
+import DiagnosticApp from "./DiagnosticApp";
 import gymStorage, * as storageNamed from "./storage";
 import Components from "./Components";
 import BottomNav from "./components/BottomNav";
