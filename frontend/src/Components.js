@@ -627,7 +627,10 @@ const Dashboard = () => {
               <button 
                 type="button" 
                 className="btn btn-primary w-full md:w-auto"
-                onClick={() => window.navigateToTab?.('payments')}
+                onClick={() => {
+                  localStorage.setItem("pendingPaymentOrigin", "dashboard");
+                  window.navigateToTab?.('payments');
+                }}
               >
                 + Record Payment
               </button>
