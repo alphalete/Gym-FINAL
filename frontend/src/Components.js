@@ -245,7 +245,7 @@ const PaymentComponent = () => {
                 <div className="stat-value">{todayPayments.length}</div>
                 <div className="stat-label text-indigo-100">Today</div>
               </div>
-              <div className="text-primary-200 text-3xl">📅</div>
+              <div className="text-indigo-200 text-3xl">📅</div>
             </div>
           </div>
 
