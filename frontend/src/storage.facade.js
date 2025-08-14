@@ -1,6 +1,6 @@
 import storageDefault, * as storageNamed from "./storage";
 
-const s = storageDefault || storageNamed || {};
+const s = storageDefault?.default || storageDefault || storageNamed || {};
 
 async function safe(fn, fb){ try{ const v = await fn?.(); return v ?? fb; }catch(e){ console.error("[storage.facade]", e); return fb; } }
 
