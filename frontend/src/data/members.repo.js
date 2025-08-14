@@ -110,31 +110,12 @@ export async function upsertMember(member) {
 
 export async function removeMember(idLike) {
   const list = await listMembers();
-  const idStr = String(idLike);
-  
-  // Delete from backend first
-  try {
-    const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-    if (backendUrl) {
-      const response = await fetch(`${backendUrl}/api/clients/${idStr}`, {
-        method: 'DELETE'
-      });
-      
-      if (response.ok) {
-        console.log('✅ Member deleted from backend:', idStr);
-      } else {
-        throw new Error(`Backend DELETE failed: ${response.status}`);
-      }
-    }
-  } catch (backendError) {
-    console.error('Backend delete failed:', backendError);
-    // Continue with local delete as fallback
-  }
-  
-  // Update local list
-  const next = list.filter(x => String(pickId(x)) !== idStr);
+  const target = String(idLike);
+  const next = list.filter(x => pickId(x) !== target);
   await saveAllMembers(next);
-  return next;
+  // Some stores cache; re-read to confirm persistence for /__diag
+  const verify = await listMembers();
+  return verify;
 }
 
 export default { listMembers, upsertMember, removeMember };
