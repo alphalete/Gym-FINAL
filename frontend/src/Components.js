@@ -324,7 +324,7 @@ const PaymentComponent = () => {
                       <div className="flex items-center space-x-4">
                         {/* Amount Badge */}
                         <div className="w-12 h-12 bg-success-100 rounded-full flex items-center justify-center">
-                          <span className="text-success-600 font-bold text-sm">💰</span>
+                          <ActionIcon name="💰" className="text-success-600" />
                         </div>
                         
                         {/* Details */}
