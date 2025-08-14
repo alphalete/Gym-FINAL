@@ -46,7 +46,9 @@ import {
   DocumentTextIcon,
   AdjustmentsHorizontalIcon,
   BeakerIcon,
-  CircleStackIcon
+  CircleStackIcon,
+  GemIcon,
+  SparklesIcon
 } from '@heroicons/react/24/outline';
 
 import {
@@ -100,6 +102,7 @@ export const iconMap = {
   
   // Status and misc icons
   '🕐': ClockIcon,
+  '⏰': ClockIcon,
   'ℹ️': InformationCircleIcon,
   '→': ArrowRightIcon,
   '←': ArrowLeftIcon,
@@ -114,6 +117,8 @@ export const iconMap = {
   '☁️': CloudArrowUpIcon,
   '🎯': InformationCircleIcon, // Target -> Info as fallback
   '🏃‍♂️': UserIcon, // Runner -> User as fallback
+  '💎': GemIcon, // Diamond for premium/all-time stats
+  '✨': SparklesIcon // Sparkles for special effects
 };
 
 // Solid versions for active states
