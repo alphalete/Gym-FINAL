@@ -615,14 +615,14 @@ const Dashboard = () => {
               <button 
                 type="button" 
                 className="btn btn-primary w-full md:w-auto"
-                onClick={() => navigate('payments')}
+                onClick={() => nav("/payments/new")}
               >
                 + Record Payment
               </button>
               <button 
                 type="button" 
                 className="btn btn-secondary w-full md:w-auto"
-                onClick={() => navigate('clients')}
+                onClick={() => nav("/add-member")}
               >
                 + Add Member
               </button>
