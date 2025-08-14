@@ -21,23 +21,6 @@ import {
 } from './utils/common';
 
 // Hook to load members from storage
-function useMembersFromStorage() {
-  const [members, setMembers] = useState([]);
-  useEffect(() => {
-    let live = true;
-    (async () => {
-      try {
-        const data = await (gymStorage?.getAllMembers?.() ?? storageNamed.getAllMembers());
-        if (live) setMembers(Array.isArray(data) ? data : []);
-      } catch (e) {
-        console.error("[useMembersFromStorage] load failed", e);
-        if (live) setMembers([]);
-      }
-    })();
-    return () => { live = false; };
-  }, []);
-  return members;
-}
 
 /* Share utility function */
 function shareFallback(text) {
