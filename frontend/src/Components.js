@@ -920,6 +920,59 @@ function ClientManagement() {
     const phone = m?.phone || m?.phoneNumber || "";
     const plan  = m?.membershipType || m?.plan || "Unassigned";
     const isActive = m?.status === "Active" || !!m?.active;
+    
+    // Calculate due date information
+    const nextDue = m?.nextDue || m?.nextDueDate || m?.dueDate;
+    const joinedOn = m?.joinedOn || m?.createdAt;
+    
+    let dueDateDisplay = null;
+    let dueDateClass = "text-gray-600";
+    let dueDateBadgeClass = "badge-inactive";
+    
+    if (nextDue) {
+      try {
+        const dueDate = new Date(nextDue);
+        const today = new Date();
+        const timeDiff = dueDate - today;
+        const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+        
+        if (daysDiff < 0) {
+          // Overdue
+          dueDateDisplay = `Overdue ${Math.abs(daysDiff)} day${Math.abs(daysDiff) === 1 ? '' : 's'}`;
+          dueDateClass = "text-red-600 font-medium";
+          dueDateBadgeClass = "bg-red-100 text-red-700";
+        } else if (daysDiff <= 3) {
+          // Due soon
+          dueDateDisplay = daysDiff === 0 ? "Due Today" : `Due in ${daysDiff} day${daysDiff === 1 ? '' : 's'}`;
+          dueDateClass = "text-orange-600 font-medium";
+          dueDateBadgeClass = "bg-orange-100 text-orange-700";
+        } else {
+          // Future due date
+          dueDateDisplay = `Due ${dueDate.toLocaleDateString()}`;
+          dueDateClass = "text-green-600";
+          dueDateBadgeClass = "bg-green-100 text-green-700";
+        }
+      } catch (e) {
+        dueDateDisplay = "Invalid due date";
+        dueDateClass = "text-gray-500";
+      }
+    } else if (joinedOn) {
+      // Calculate based on join date if no due date set
+      try {
+        const joined = new Date(joinedOn);
+        const estimatedDue = new Date(joined);
+        estimatedDue.setMonth(estimatedDue.getMonth() + 1); // Add 1 month
+        dueDateDisplay = `Est. due ${estimatedDue.toLocaleDateString()}`;
+        dueDateClass = "text-blue-600";
+        dueDateBadgeClass = "bg-blue-100 text-blue-700";
+      } catch (e) {
+        dueDateDisplay = "No due date set";
+        dueDateClass = "text-gray-500";
+      }
+    } else {
+      dueDateDisplay = "No due date set";
+      dueDateClass = "text-gray-500";
+    }
 
     return (
       <div className="card mb-3">
