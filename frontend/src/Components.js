@@ -595,7 +595,7 @@ const Dashboard = () => {
 
   function goRecordPayment(m) {
     localStorage.setItem("pendingPaymentMemberId", String(m.id));
-    navigate('payments');
+    nav('/payments');
   }
 
   // Get alerts (due today + overdue)
