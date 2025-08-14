@@ -1022,26 +1022,32 @@ function ClientManagement() {
 
           <div className="mt-4 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">
             <button type="button" className="btn-secondary" onClick={async () => {
-              // Simple inline edit functionality
+              // Simple inline edit functionality using repository system
               const newName = prompt(`Edit member name:`, name);
               if (newName && newName.trim() && newName !== name) {
                 try {
                   const updatedMember = { ...m, name: newName.trim() };
                   
-                  // Save to backend
-                  const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-                  if (backendUrl) {
-                    const response = await fetch(`${backendUrl}/api/clients/${m.id}`, {
-                      method: 'PUT',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify(updatedMember)
-                    });
-                    if (response.ok) {
-                      alert(`✅ Member name updated to "${newName}"`);
-                      // Trigger data refresh without full page reload
-                      window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'member_updated' }));
-                    } else {
-                      throw new Error('Backend update failed');
+                  // Use repository system for consistent offline-first behavior
+                  if (onAddOrUpdateMember) {
+                    await onAddOrUpdateMember(updatedMember);
+                    alert(`✅ Member name updated to "${newName}"`);
+                  } else {
+                    // Fallback to direct backend call if no repository handler
+                    const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+                    if (backendUrl) {
+                      const response = await fetch(`${backendUrl}/api/clients/${m.id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(updatedMember)
+                      });
+                      if (response.ok) {
+                        alert(`✅ Member name updated to "${newName}"`);
+                        // Trigger data refresh without full page reload
+                        window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'member_updated' }));
+                      } else {
+                        throw new Error('Backend update failed');
+                      }
                     }
                   }
                 } catch (error) {
