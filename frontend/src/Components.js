@@ -1957,13 +1957,37 @@ function AddMemberForm({ onCancel, onSuccess }) {
         />
       </div>
       
-      <input 
-        type="text"
-        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
-        placeholder="Membership Plan (e.g., Premium, Basic)" 
-        value={form.membershipType}
-        onChange={e => setForm(f => ({...f, membershipType: e.target.value}))}
-      />
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Membership Plan *
+        </label>
+        {loadingPlans ? (
+          <div className="w-full p-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500">
+            Loading plans...
+          </div>
+        ) : (
+          <select
+            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            value={form.membershipType}
+            onChange={e => setForm(f => ({...f, membershipType: e.target.value}))}
+            required
+          >
+            <option value="">Select a plan...</option>
+            {plans.map((plan) => (
+              <option key={plan.id || plan._id} value={plan.name}>
+                {plan.name} - {plan.price ? `$${plan.price}` : 'No price'} 
+                {plan.duration ? ` / ${plan.duration}` : ''}
+              </option>
+            ))}
+            <option value="Custom">Custom Plan</option>
+          </select>
+        )}
+        {plans.length === 0 && !loadingPlans && (
+          <div className="text-sm text-gray-500 mt-1">
+            No plans available. <button type="button" className="text-indigo-600 underline" onClick={() => window.navigateToTab?.('plans')}>Create plans first</button>
+          </div>
+        )}
+      </div>
       
       <div className="flex gap-3 pt-4">
         <button 
