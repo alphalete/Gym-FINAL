@@ -396,7 +396,7 @@ const PaymentComponent = () => {
 
                 {selectedClient && (
                   <div className="bg-indigo-50 rounded-lg p-4">
-                    <div className="text-sm font-medium text-primary-800 mb-2">Member Details:</div>
+                    <div className="text-sm font-medium text-indigo-800 mb-2">Member Details:</div>
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <div>
                         <span className="text-primary-600">Plan:</span> {selectedClient.planName || 'None'}
