@@ -990,7 +990,14 @@ function ClientManagement() {
               </div>
               {email ? <div className="text-sm text-slate-500">{email}</div> : null}
               {phone ? <div className="text-sm text-slate-500">{phone}</div> : null}
-              <div className="mt-2"><span className="badge badge-warning">{String(plan)}</span></div>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <span className="badge badge-warning">{String(plan)}</span>
+                {dueDateDisplay && (
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${dueDateBadgeClass}`}>
+                    📅 {dueDateDisplay}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
