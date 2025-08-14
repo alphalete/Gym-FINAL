@@ -153,12 +153,12 @@
 ## current_status:
   backend_working: true
   frontend_issues:
-    - "Add member form submits but doesn't call repository system correctly"
-    - "Delete member button clicks but doesn't trigger backend API"
-    - "Dashboard now correctly shows 24 members (FIXED)"
-    - "Members page loads 24 members from backend (WORKING)"
-    - "Repository system has bugs in upsertMember and removeMember functions"
-  main_progress: "Fixed Dashboard data loading to use backend instead of local storage only. Add/delete operations still need frontend repository debugging."
+    - "Implementing offline-first architecture with IndexedDB as primary data store"
+    - "Adding comprehensive client-side validation to prevent backend errors"
+    - "Implementing sync queue for offline changes with automatic reconciliation"
+    - "Enhancing error handling with clear user feedback"
+    - "Consolidating repository system to eliminate competing storage approaches"
+  main_progress: "Phase 1: Enhanced members repository with offline-first approach, client-side validation, and sync queue. Removed duplicate storage functions from Components.js. Updated AddMemberForm with comprehensive validation and sync status feedback."
 
 ## test_plan:
   current_focus:
