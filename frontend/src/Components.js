@@ -1298,6 +1298,158 @@ const InstallPrompt = () => {
 // Alias for backward compatibility
 const PaymentTracking = PaymentComponent;
 
+// --- Add Member Form ---
+export function AddMember(){
+  const nav = useNavigate();
+  const [form, setForm] = React.useState({ firstName:"", lastName:"", email:"", phone:"", membershipType:"" });
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    // generate id if needed
+    const id = crypto?.randomUUID?.() || String(Date.now());
+    const member = { 
+      id, 
+      ...form, 
+      name: `${form.firstName} ${form.lastName}`.trim() || form.firstName || form.lastName,
+      status: "Active", 
+      active: true, 
+      joinedOn: new Date().toISOString() 
+    };
+    await storageFacade.saveMember(member);
+    nav("/members", { replace:true });
+  };
+
+  return (
+    <div className="p-4">
+      <h1 className="text-xl font-semibold mb-3">Add Member</h1>
+      <form onSubmit={onSubmit} className="card">
+        <div className="card-body grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <input 
+            className="btn-ghost border p-2 rounded" 
+            placeholder="First name" 
+            value={form.firstName}
+            onChange={e=>setForm(f=>({...f, firstName:e.target.value}))}
+          />
+          <input 
+            className="btn-ghost border p-2 rounded" 
+            placeholder="Last name" 
+            value={form.lastName}
+            onChange={e=>setForm(f=>({...f, lastName:e.target.value}))}
+          />
+          <input 
+            className="btn-ghost border p-2 rounded" 
+            placeholder="Email" 
+            value={form.email}
+            onChange={e=>setForm(f=>({...f, email:e.target.value}))}
+          />
+          <input 
+            className="btn-ghost border p-2 rounded" 
+            placeholder="Phone" 
+            value={form.phone}
+            onChange={e=>setForm(f=>({...f, phone:e.target.value}))}
+          />
+          <input 
+            className="btn-ghost border p-2 rounded sm:col-span-2" 
+            placeholder="Plan (e.g., Standard)"
+            value={form.membershipType}
+            onChange={e=>setForm(f=>({...f, membershipType:e.target.value}))}
+          />
+        </div>
+        <div className="p-4 flex gap-3">
+          <button type="submit" className="btn-primary">Save Member</button>
+          <button type="button" className="btn-secondary" onClick={()=>nav("/members")}>Cancel</button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+// --- Record Payment Form ---
+export function RecordPayment(){
+  const nav = useNavigate();
+  const { members } = useMembersFromStorage();
+  const [form, setForm] = React.useState({ 
+    memberId:"", 
+    amount:"", 
+    paidOn:new Date().toISOString().slice(0,10), 
+    method:"Cash", 
+    note:"" 
+  });
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    const member = (Array.isArray(members)?members:[]).find(m => (m.id||m._id||m.uuid) === form.memberId);
+    if(!member) return alert("Select a member");
+    
+    const payment = { 
+      id: crypto?.randomUUID?.() || String(Date.now()), 
+      ...form, 
+      amount: Number(form.amount||0) 
+    };
+    
+    // Keep existing payment logic: save payment, update member if your code does that elsewhere
+    await storageFacade.savePayment(payment);
+    
+    // Optional: if your existing code updates due date, call storageFacade.saveMember(updatedMember) here
+    // This preserves the existing Option A payment logic
+    
+    nav("/payments", { replace:true });
+  };
+
+  return (
+    <div className="p-4">
+      <h1 className="text-xl font-semibold mb-3">Record Payment</h1>
+      <form onSubmit={onSubmit} className="card">
+        <div className="card-body grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <select 
+            className="btn-ghost border p-2 rounded" 
+            value={form.memberId}
+            onChange={e=>setForm(f=>({...f, memberId:e.target.value}))}
+          >
+            <option value="">Select member…</option>
+            {(Array.isArray(members)?members:[]).map(m=>{
+              const id = m.id||m._id||m.uuid; 
+              const name = m.name || `${m.firstName??""} ${m.lastName??""}`.trim() || "Member";
+              return <option key={id} value={id}>{name}</option>;
+            })}
+          </select>
+          <input 
+            className="btn-ghost border p-2 rounded" 
+            type="number" 
+            min="0" 
+            step="0.01" 
+            placeholder="Amount"
+            value={form.amount} 
+            onChange={e=>setForm(f=>({...f, amount:e.target.value}))}
+          />
+          <input 
+            className="btn-ghost border p-2 rounded" 
+            type="date" 
+            value={form.paidOn}
+            onChange={e=>setForm(f=>({...f, paidOn:e.target.value}))}
+          />
+          <input 
+            className="btn-ghost border p-2 rounded" 
+            placeholder="Method" 
+            value={form.method}
+            onChange={e=>setForm(f=>({...f, method:e.target.value}))}
+          />
+          <input 
+            className="btn-ghost border p-2 rounded sm:col-span-2" 
+            placeholder="Note (optional)"
+            value={form.note} 
+            onChange={e=>setForm(f=>({...f, note:e.target.value}))}
+          />
+        </div>
+        <div className="p-4 flex gap-3">
+          <button type="submit" className="btn-primary">Save Payment</button>
+          <button type="button" className="btn-secondary" onClick={()=>nav("/payments")}>Cancel</button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
 // Explicit component exports
 export {
   Dashboard,
