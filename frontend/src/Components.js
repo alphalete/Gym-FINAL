@@ -1678,7 +1678,7 @@ export function AddMember(){
         </div>
         <div className="p-4 flex gap-3">
           <button type="submit" className="btn-primary">Save Member</button>
-          <button type="button" className="btn-secondary" onClick={()=>nav("/members")}>Cancel</button>
+          <button type="button" className="btn-secondary" onClick={() => window.navigateToTab?.('members')}>Cancel</button>
         </div>
       </form>
     </div>
