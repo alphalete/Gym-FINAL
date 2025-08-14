@@ -115,8 +115,8 @@ export const iconMap = {
   '☁️': CloudArrowUpIcon,
   '🎯': InformationCircleIcon, // Target -> Info as fallback
   '🏃‍♂️': UserIcon, // Runner -> User as fallback
-  '💎': GemIcon, // Diamond for premium/all-time stats
-  '✨': SparklesIcon // Sparkles for special effects
+  '💎': CircleStackIcon, // Diamond -> CircleStack as fallback for premium/all-time stats
+  '✨': InformationCircleIcon // Sparkles -> Info as fallback for special effects
 };
 
 // Solid versions for active states
