@@ -530,13 +530,28 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const todayISO = new Date().toISOString().slice(0,10);
 
-  // Simple data loading without complex dependencies
+  // Use the same repository system as Members page
   async function loadDashboard() {
     try {
       setLoading(true);
       console.log('[Dashboard] Starting data load...');
       
-      const m = await (gymStorage.getAllMembers?.() ?? []);
+      // Load from backend first, fallback to local storage
+      let m = [];
+      try {
+        const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+        if (backendUrl) {
+          const response = await fetch(`${backendUrl}/api/clients`);
+          if (response.ok) {
+            m = await response.json();
+            console.log(`[Dashboard] ✅ Loaded ${m.length} members from backend`);
+          }
+        }
+      } catch (backendError) {
+        console.warn('[Dashboard] ⚠️ Backend failed, using local storage:', backendError.message);
+        m = await (gymStorage.getAllMembers?.() ?? []);
+      }
+      
       const p = await (gymStorage.getAllPayments?.() ?? []);
       setClients(Array.isArray(m) ? m : []);
       setPayments(Array.isArray(p) ? p : []);
