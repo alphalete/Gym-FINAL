@@ -1022,7 +1022,7 @@ const ClientManagement = () => {
                       <div className="card-body">
                         {/* Top row: avatar + name + ONE status badge */}
                         <div className="flex items-center gap-3">
-                          <div className="h-12 w-12 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold">
+                          <div className="h-12 w-12 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">
                             {(client?.name || '').split(' ').map(s=>s[0]).join('').slice(0,2) || 'MM'}
                           </div>
                           <div className="flex-1">
