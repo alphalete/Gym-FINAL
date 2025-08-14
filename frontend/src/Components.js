@@ -408,7 +408,7 @@ const PaymentComponent = () => {
                         <span className="text-indigo-600">Regular Fee:</span> {formatCurrency(selectedClient.fee || 0)}
                       </div>
                       <div>
-                        <span className="text-primary-600">Cycle:</span> {selectedClient.cycleDays || 30} days
+                        <span className="text-indigo-600">Cycle:</span> {selectedClient.cycleDays || 30} days
                       </div>
                     </div>
                   </div>
@@ -1573,7 +1573,7 @@ const MembershipManagement = () => {
                           <div className="text-3xl font-bold text-primary mb-1">
                             {formatCurrency(plan.price)}
                           </div>
-                          <div className="text-sm text-primary-600">
+                          <div className="text-sm text-indigo-600">
                             Every {plan.cycleDays} {plan.cycleDays === 1 ? 'day' : 'days'}
                           </div>
                         </div>
