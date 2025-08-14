@@ -2,6 +2,7 @@ import React from "react";
 import Components from "./Components";
 import storageDefault, * as storageNamed from "./storage";
 import storageFacade from "./storage.facade";
+import membersRepo from "./data/members.repo";
 
 const Row = ({k,v}) => (
   <div style={{
