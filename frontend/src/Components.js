@@ -937,7 +937,7 @@ function ClientManagement() {
   if (loading) return <div className="p-4">Loading members…</div>;
   if (error)   return <div className="p-4 text-rose-600">Error loading members</div>;
 
-  const MemberCard = ({ m }) => {
+  const MemberCard = ({ m, onDeleteMember }) => {
     const name  = m?.name || `${m?.firstName ?? ""} ${m?.lastName ?? ""}`.trim() || "Member";
     const email = m?.email || "";
     const phone = m?.phone || m?.phoneNumber || "";
