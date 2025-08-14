@@ -1121,9 +1121,20 @@ function MembershipManagement() {
 
   React.useEffect(() => { let live = true; (async () => {
     try {
-      const p = await storageFacade.getPlans();
-      if (live) setPlans(Array.isArray(p) ? p : []);
-    } finally { if (live) setLoadingPlans(false); }
+      // Direct storage access instead of facade
+      const storage = storageNamed || gymStorageMain;
+      if (storage.getPlans) {
+        const p = await storage.getPlans();
+        if (live) setPlans(Array.isArray(p) ? p : []);
+      } else if (storage.getAll) {
+        const p = await storage.getAll("plans");
+        if (live) setPlans(Array.isArray(p) ? p : []);
+      }
+    } catch (error) {
+      console.error('Error loading plans:', error);
+    } finally { 
+      if (live) setLoadingPlans(false); 
+    }
   })(); return () => { live = false; }; }, []);
 
   const resetForm = () => {
