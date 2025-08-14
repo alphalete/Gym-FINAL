@@ -1988,7 +1988,7 @@ export function RecordPayment(){
   );
 }
 
-// --- Fixed Add Member Form Component ---
+// --- Enhanced Add Member Form Component with Validation ---
 function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
   console.log('🔧 AddMemberForm component rendered');
   
@@ -1997,141 +1997,267 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
     lastName: "", 
     email: "", 
     phone: "", 
-    membershipType: "" 
+    membershipType: "Basic",
+    monthlyFee: 55.0
   });
   const [saving, setSaving] = React.useState(false);
+  const [errors, setErrors] = React.useState([]);
+  const [syncStatus, setSyncStatus] = React.useState({ isOnline: true, pendingCount: 0 });
 
-  // Direct submit handler - bypassing all complexity
-  const directSubmit = () => {
-    console.log('🚀 DIRECT SUBMIT TRIGGERED!');
-    
-    if (!form.firstName.trim()) {
-      alert('First name is required');
-      return;
-    }
-    
-    if (form.email && !form.email.includes('@')) {
-      alert('Please enter a valid email address');
-      return;
-    }
-
-    console.log('✅ Validation passed, creating member...');
-    setSaving(true);
-    
-    const member = { 
-      name: `${form.firstName} ${form.lastName}`.trim() || form.firstName,
-      email: form.email || '',
-      phone: form.phone || '',
-      membership_type: form.membershipType || "Basic",
-      monthly_fee: 55.0,
-      start_date: new Date().toISOString().slice(0, 10),
-      payment_status: "due",
-      status: "Active", 
-      active: true,
-      auto_reminders_enabled: true,
-      billing_interval_days: 30
+  // Check sync status on mount
+  React.useEffect(() => {
+    const checkSyncStatus = async () => {
+      try {
+        // Import repo dynamically to avoid circular dependencies
+        const { getSyncStatus } = await import('./data/members.repo');
+        const status = await getSyncStatus();
+        setSyncStatus(status);
+      } catch (e) {
+        console.warn('Failed to get sync status:', e);
+      }
     };
     
-    console.log('📝 Member object:', member);
+    checkSyncStatus();
     
-    if (onAddOrUpdateMember) {
-      console.log('🔄 Using onAddOrUpdateMember...');
-      onAddOrUpdateMember(member).then(() => {
-        setForm({ firstName: "", lastName: "", email: "", phone: "", membershipType: "" });
-        console.log('✅ Member added successfully!');
-        alert(`✅ Member "${member.name}" added successfully!`);
-        setSaving(false);
-        if (onSuccess) onSuccess();
-      }).catch((error) => {
-        console.error('❌ Error adding member:', error);
-        alert(`❌ Error: ${error.message}`);
-        setSaving(false);
-      });
-    } else {
-      console.log('🔄 Direct backend save...');
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-      
-      fetch(`${backendUrl}/api/clients`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({...member, id: crypto?.randomUUID?.() || String(Date.now())})
-      }).then(response => {
-        if (!response.ok) {
-          throw new Error(`Backend error: ${response.status}`);
-        }
-        return response.json();
-      }).then(() => {
-        setForm({ firstName: "", lastName: "", email: "", phone: "", membershipType: "" });
-        console.log('✅ Member saved to backend!');
-        alert(`✅ Member "${member.name}" added successfully!`);
-        setSaving(false);
-        if (onSuccess) onSuccess();
-      }).catch((error) => {
-        console.error('❌ Backend error:', error);
-        alert(`❌ Error: ${error.message}`);
-        setSaving(false);
-      });
+    // Listen for online/offline events
+    const handleOnline = () => setSyncStatus(prev => ({ ...prev, isOnline: true }));
+    const handleOffline = () => setSyncStatus(prev => ({ ...prev, isOnline: false }));
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  // Validate form in real-time
+  const validateForm = () => {
+    const newErrors = [];
+    
+    if (!form.firstName.trim()) {
+      newErrors.push('First name is required');
     }
+    
+    if (form.email && form.email.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(form.email.trim())) {
+        newErrors.push('Please enter a valid email address');
+      }
+    }
+    
+    if (form.phone && form.phone.trim()) {
+      const phoneRegex = /^\+?[\d\s\-\(\)]{7,}$/;
+      if (!phoneRegex.test(form.phone.trim())) {
+        newErrors.push('Please enter a valid phone number');
+      }
+    }
+    
+    if (!form.monthlyFee || isNaN(form.monthlyFee) || form.monthlyFee <= 0) {
+      newErrors.push('Monthly fee must be a positive number');
+    }
+    
+    setErrors(newErrors);
+    return newErrors.length === 0;
+  };
+
+  // Enhanced submit handler with comprehensive error handling
+  const handleSubmit = async () => {
+    console.log('🚀 AddMember form submitted');
+    
+    if (!validateForm()) {
+      console.warn('❌ Form validation failed:', errors);
+      return;
+    }
+
+    setSaving(true);
+    setErrors([]);
+    
+    try {
+      const member = { 
+        name: `${form.firstName} ${form.lastName}`.trim() || form.firstName,
+        email: form.email.trim() || '',
+        phone: form.phone.trim() || '',
+        membership_type: form.membershipType,
+        monthly_fee: parseFloat(form.monthlyFee),
+        start_date: new Date().toISOString().slice(0, 10),
+        payment_status: "due",
+        status: "Active", 
+        active: true,
+        auto_reminders_enabled: true,
+        billing_interval_days: 30,
+        amount_owed: parseFloat(form.monthlyFee) // Set initial amount owed
+      };
+      
+      console.log('📝 Creating member:', member);
+      
+      if (onAddOrUpdateMember) {
+        await onAddOrUpdateMember(member);
+        
+        // Reset form
+        setForm({ 
+          firstName: "", 
+          lastName: "", 
+          email: "", 
+          phone: "", 
+          membershipType: "Basic",
+          monthlyFee: 55.0
+        });
+        
+        // Show success message with sync status
+        const statusMsg = syncStatus.isOnline 
+          ? `✅ Member "${member.name}" added successfully!`
+          : `✅ Member "${member.name}" saved locally. Will sync when online.`;
+        
+        alert(statusMsg);
+        
+        if (onSuccess) onSuccess();
+      } else {
+        throw new Error('No save handler provided');
+      }
+    } catch (error) {
+      console.error('❌ Error adding member:', error);
+      setErrors([error.message || 'Failed to add member. Please try again.']);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Update monthly fee when membership type changes
+  const handleMembershipTypeChange = (type) => {
+    const fees = {
+      'Basic': 55.0,
+      'Premium': 75.0,
+      'Elite': 100.0,
+      'VIP': 150.0
+    };
+    
+    setForm(f => ({
+      ...f, 
+      membershipType: type,
+      monthlyFee: fees[type] || 55.0
+    }));
   };
 
   return (
     <div className="space-y-4">
+      {/* Online/Offline Status */}
+      <div className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
+        <div className="flex items-center space-x-2">
+          <div className={`w-3 h-3 rounded-full ${syncStatus.isOnline ? 'bg-green-500' : 'bg-red-500'}`}></div>
+          <span className="text-sm font-medium">
+            {syncStatus.isOnline ? '🌐 Online' : '📴 Offline'}
+          </span>
+        </div>
+        {syncStatus.pendingCount > 0 && (
+          <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
+            {syncStatus.pendingCount} pending sync
+          </span>
+        )}
+      </div>
+
+      {/* Error Messages */}
+      {errors.length > 0 && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+          <div className="text-red-800 font-medium mb-1">Please fix the following errors:</div>
+          <ul className="list-disc list-inside text-sm text-red-700">
+            {errors.map((error, index) => (
+              <li key={index}>{error}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input 
-          type="text"
-          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
-          placeholder="First Name *" 
-          value={form.firstName}
-          onChange={e => setForm(f => ({...f, firstName: e.target.value}))}
-          required
-        />
-        <input 
-          type="text"
-          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
-          placeholder="Last Name" 
-          value={form.lastName}
-          onChange={e => setForm(f => ({...f, lastName: e.target.value}))}
-        />
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
+          <input 
+            type="text"
+            className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+              errors.some(e => e.includes('First name')) ? 'border-red-300 bg-red-50' : 'border-gray-300'
+            }`}
+            placeholder="First Name" 
+            value={form.firstName}
+            onChange={e => setForm(f => ({...f, firstName: e.target.value}))}
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+          <input 
+            type="text"
+            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+            placeholder="Last Name" 
+            value={form.lastName}
+            onChange={e => setForm(f => ({...f, lastName: e.target.value}))}
+          />
+        </div>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input 
-          type="email"
-          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
-          placeholder="Email" 
-          value={form.email}
-          onChange={e => setForm(f => ({...f, email: e.target.value}))}
-        />
-        <input 
-          type="tel"
-          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
-          placeholder="Phone" 
-          value={form.phone}
-          onChange={e => setForm(f => ({...f, phone: e.target.value}))}
-        />
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <input 
+            type="email"
+            className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+              errors.some(e => e.includes('email')) ? 'border-red-300 bg-red-50' : 'border-gray-300'
+            }`}
+            placeholder="email@example.com" 
+            value={form.email}
+            onChange={e => setForm(f => ({...f, email: e.target.value}))}
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+          <input 
+            type="tel"
+            className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+              errors.some(e => e.includes('phone')) ? 'border-red-300 bg-red-50' : 'border-gray-300'
+            }`}
+            placeholder="+1 (868) 555-0123" 
+            value={form.phone}
+            onChange={e => setForm(f => ({...f, phone: e.target.value}))}
+          />
+        </div>
       </div>
       
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Membership Plan (Optional)
-        </label>
-        <select
-          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-          value={form.membershipType}
-          onChange={e => setForm(f => ({...f, membershipType: e.target.value}))}
-        >
-          <option value="">Select a plan...</option>
-          <option value="Basic">Basic - $55/month</option>
-          <option value="Premium">Premium - $75/month</option>
-          <option value="Elite">Elite - $100/month</option>
-        </select>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Membership Plan</label>
+          <select
+            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            value={form.membershipType}
+            onChange={e => handleMembershipTypeChange(e.target.value)}
+          >
+            <option value="Basic">Basic - TTD 55/month</option>
+            <option value="Premium">Premium - TTD 75/month</option>
+            <option value="Elite">Elite - TTD 100/month</option>
+            <option value="VIP">VIP - TTD 150/month</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Monthly Fee (TTD) *</label>
+          <input 
+            type="number"
+            step="0.01"
+            min="0"
+            className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+              errors.some(e => e.includes('Monthly fee')) ? 'border-red-300 bg-red-50' : 'border-gray-300'
+            }`}
+            placeholder="55.00" 
+            value={form.monthlyFee}
+            onChange={e => setForm(f => ({...f, monthlyFee: parseFloat(e.target.value) || 0}))}
+            required
+          />
+        </div>
       </div>
       
       <div className="flex gap-3 pt-4">
-        {/* SIMPLIFIED WORKING BUTTON */}
+        {/* Enhanced submit button with better feedback */}
         <div 
           style={{
-            backgroundColor: saving ? '#9ca3af' : '#1e40af',
+            backgroundColor: saving ? '#9ca3af' : (errors.length > 0 ? '#dc2626' : '#1e40af'),
             color: 'white',
             padding: '12px 24px',
             borderRadius: '8px',
@@ -2140,13 +2266,17 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
             fontWeight: '600',
             textAlign: 'center',
             userSelect: 'none',
-            opacity: saving ? 0.7 : 1
+            opacity: saving ? 0.7 : 1,
+            minWidth: '140px'
           }}
-          onClick={saving ? undefined : directSubmit}
-          onMouseDown={() => console.log('🎯 Button mouse down!')}
-          onMouseUp={() => console.log('🎯 Button mouse up!')}
+          onClick={saving ? undefined : handleSubmit}
         >
-          {saving ? 'Saving...' : 'Add Member'}
+          {saving 
+            ? '💾 Saving...' 
+            : syncStatus.isOnline 
+              ? '➕ Add Member' 
+              : '📱 Save Locally'
+          }
         </div>
         
         <div 
@@ -2163,6 +2293,12 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
           }}
           onClick={onCancel}
         >
+          Cancel
+        </div>
+      </div>
+    </div>
+  );
+}
           Cancel
         </div>
       </div>
