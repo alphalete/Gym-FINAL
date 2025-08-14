@@ -636,6 +636,7 @@ const Dashboard = () => {
                 className="btn btn-primary w-full md:w-auto"
                 onClick={() => {
                   localStorage.setItem("pendingPaymentOrigin", "dashboard");
+                  localStorage.setItem("autoOpenRecordPayment", "true");
                   window.navigateToTab?.('payments');
                 }}
               >
