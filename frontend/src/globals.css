@@ -29,7 +29,7 @@
   }
   
   .btn-primary {
-    @apply btn bg-indigo-600 text-white hover:bg-primary-700 focus:ring-indigo-600;
+    @apply btn bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-600;
   }
   
   .btn-secondary {
@@ -172,7 +172,7 @@
   }
   
   .fab:hover {
-    @apply bg-primary-700 transform scale-105;
+    @apply bg-indigo-700 transform scale-105;
   }
 }
 
