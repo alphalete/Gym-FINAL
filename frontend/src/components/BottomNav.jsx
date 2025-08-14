@@ -25,7 +25,7 @@ const BottomNav = () => {
             onClick={() => navigate(item.path)}
             className={`flex flex-col items-center justify-center text-xs flex-1 h-16 transition-colors duration-200 ${
               isActive(item.path) 
-                ? 'text-primary-600 font-semibold' 
+                ? 'text-indigo-600 font-semibold' 
                 : 'text-slate-500 hover:text-slate-700'
             }`}
           >
