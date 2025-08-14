@@ -130,6 +130,7 @@
 
 ## test_plan:
   current_focus:
+    - "DELETE /api/clients/{id} endpoint functionality verification"
     - "Backend stability after LOADER HANG FIX implementation"
     - "Storage.js hardening backend compatibility"
     - "MockClients elimination backend support"
