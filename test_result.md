@@ -139,6 +139,16 @@
   test_sequence: 1
   run_ui: false
 
+## current_status:
+  backend_working: true
+  frontend_issues:
+    - "Add member form submits but doesn't call repository system correctly"
+    - "Delete member button clicks but doesn't trigger backend API"
+    - "Dashboard now correctly shows 24 members (FIXED)"
+    - "Members page loads 24 members from backend (WORKING)"
+    - "Repository system has bugs in upsertMember and removeMember functions"
+  main_progress: "Fixed Dashboard data loading to use backend instead of local storage only. Add/delete operations still need frontend repository debugging."
+
 ## test_plan:
   current_focus:
     - "DELETE /api/clients/{id} endpoint functionality verification"
