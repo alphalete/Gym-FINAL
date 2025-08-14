@@ -497,6 +497,7 @@ const PaymentComponent = () => {
 };
 
 const Dashboard = () => {
+  const nav = useNavigate();
   const [clients, setClients] = useState([]);
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(false);
