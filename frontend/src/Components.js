@@ -740,7 +740,7 @@ const Dashboard = () => {
                             onClick={() => goRecordPayment(member)}
                             aria-label="Record payment"
                           >
-                            <span className="text-lg">💳</span>
+                            <ActionIcon name="💳" size="lg" />
                           </button>
                         </div>
                       </div>
