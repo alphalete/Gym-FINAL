@@ -1095,12 +1095,17 @@ function ClientManagement() {
               }
             }}>{isActive ? 'Deactivate' : 'Activate'}</button>
             <button type="button" className="btn-danger" onClick={async () => {
+              console.log('🎯 DELETE BUTTON CLICKED!', { name, id: m.id, onDeleteMember: typeof onDeleteMember });
               if (confirm(`Are you sure you want to DELETE ${name}? This action cannot be undone.`)) {
+                console.log('🎯 Delete confirmed, proceeding...');
                 try {
                   // Use the repository system for proper delete
                   if (onDeleteMember) {
+                    console.log('🎯 Calling onDeleteMember function...');
                     await onDeleteMember(m.id || m._id || m.uuid);
+                    console.log('🎯 onDeleteMember completed successfully');
                   } else {
+                    console.log('🎯 No onDeleteMember function, using fallback...');
                     // Fallback to manual backend call if no handler provided
                     const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
                     if (backendUrl) {
@@ -1118,6 +1123,8 @@ function ClientManagement() {
                   console.error('Error deleting member:', error);
                   alert('❌ Error deleting member. Please try again.');
                 }
+              } else {
+                console.log('🎯 Delete cancelled by user');
               }
             }}>Delete</button>
             <button type="button" className="btn-primary" onClick={() => {
