@@ -2,36 +2,95 @@ import storageDefault, * as storageNamed from "../storage";
 
 const s = storageDefault || storageNamed || {};
 
+// Offline-first data loading: IndexedDB primary, API sync secondary
 const getAllMembers = async () => {
   try {
-    // First try to get members from backend (primary source)
-    let members = [];
+    // OFFLINE-FIRST: Load from local storage first
+    let localMembers = [];
+    try {
+      localMembers = (await s.getAllMembers?.()) ?? (await s.getAll?.("members")) ?? [];
+      console.log(`📱 Loaded ${localMembers.length} members from local storage`);
+    } catch (localError) {
+      console.warn('⚠️ Local storage failed:', localError.message);
+    }
+    
+    // If we have local data, return it immediately for fast UI
+    if (Array.isArray(localMembers) && localMembers.length > 0) {
+      // Background sync with backend (don't wait for this)
+      syncWithBackend(localMembers).catch(console.warn);
+      return localMembers;
+    }
+    
+    // Only if no local data, try backend as fallback
     try {
       const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       if (backendUrl) {
         const response = await fetch(`${backendUrl}/api/clients`);
         if (response.ok) {
           const backendMembers = await response.json();
-          if (Array.isArray(backendMembers) && backendMembers.length > 0) {
-            members = backendMembers;
-            console.log(`✅ Loaded ${members.length} members from backend`);
-            return members;
+          if (Array.isArray(backendMembers)) {
+            console.log(`✅ Loaded ${backendMembers.length} members from backend (fallback)`);
+            // Save to local storage for future offline use
+            await saveAllMembers(backendMembers);
+            return backendMembers;
           }
         }
       }
     } catch (backendError) {
-      console.warn('⚠️ Backend connection failed, falling back to local storage:', backendError.message);
+      console.warn('⚠️ Backend connection failed:', backendError.message);
     }
     
-    // If no backend data, try local storage
-    const out =
-      (await s.getAllMembers?.()) ??
-      (await s.getAll?.("members")) ?? [];
-    console.log(`📱 Loaded ${out.length} members from local storage`);
-    return Array.isArray(out) ? out : [];
+    return localMembers; // Return whatever we have locally (even if empty)
   } catch (e) { 
     console.error("[members.repo] getAllMembers", e); 
     return []; 
+  }
+};
+
+// Background sync function - syncs local changes with backend
+const syncWithBackend = async (localMembers) => {
+  try {
+    const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+    if (!backendUrl || !navigator.onLine) return;
+    
+    // Get pending sync items
+    const pendingSync = await getPendingSync();
+    
+    // Process each pending sync operation
+    for (const operation of pendingSync) {
+      try {
+        if (operation.type === 'CREATE' || operation.type === 'UPDATE') {
+          const method = operation.type === 'CREATE' ? 'POST' : 'PUT';
+          const url = method === 'POST' ? 
+            `${backendUrl}/api/clients` : 
+            `${backendUrl}/api/clients/${operation.data.id}`;
+          
+          const response = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(operation.data)
+          });
+          
+          if (response.ok) {
+            console.log(`✅ Synced ${operation.type} for member:`, operation.data.id);
+            await removePendingSync(operation.id);
+          }
+        } else if (operation.type === 'DELETE') {
+          const response = await fetch(`${backendUrl}/api/clients/${operation.memberId}`, {
+            method: 'DELETE'
+          });
+          
+          if (response.ok) {
+            console.log(`✅ Synced DELETE for member:`, operation.memberId);
+            await removePendingSync(operation.id);
+          }
+        }
+      } catch (syncError) {
+        console.warn(`⚠️ Failed to sync operation ${operation.id}:`, syncError.message);
+      }
+    }
+  } catch (e) {
+    console.warn('⚠️ Background sync failed:', e.message);
   }
 };
 
