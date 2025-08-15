@@ -1179,12 +1179,27 @@ function ClientManagement() {
                 }
               }}
             >Delete</div>
-            <button type="button" className="btn-primary" onClick={() => {
-              // Store pending payment member ID and where user came from
-              localStorage.setItem("pendingPaymentMemberId", String(m.id));
-              localStorage.setItem("pendingPaymentOrigin", "members");
-              window.navigateToTab?.('payments');
-            }}>Record Payment</button>
+            <div 
+              style={{
+                backgroundColor: '#1e40af',
+                color: 'white',
+                padding: '8px 16px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500',
+                textAlign: 'center',
+                userSelect: 'none',
+                border: 'none',
+                display: 'inline-block'
+              }}
+              onClick={() => {
+                // Store pending payment member ID and where user came from
+                localStorage.setItem("pendingPaymentMemberId", String(m.id));
+                localStorage.setItem("pendingPaymentOrigin", "members");
+                window.navigateToTab?.('payments');
+              }}
+            >Record Payment</div>
             <button type="button" className="btn-ghost" onClick={() => {
               // Open WhatsApp with member's phone
               const phoneNum = phone.replace(/\D/g, ''); // Remove non-digits
