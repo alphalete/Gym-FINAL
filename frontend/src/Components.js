@@ -1827,13 +1827,39 @@ const Settings = () => {
                              getSettingNamed?.('gymSettings', s) ?? s);
         setS(saved);
         
+        // Load email templates
+        const templates = await gymStorage.getAll('emailTemplates') || [];
+        // Add default payment reminder template if none exist
+        if (templates.length === 0) {
+          const defaultTemplate = {
+            id: 'payment-reminder',
+            name: 'Payment Reminder',
+            subject: 'Payment Reminder - GoGym4U',
+            body: `Dear {memberName},
+
+This is a friendly reminder that your membership payment is due on {dueDate}.
+
+Please make your payment at your earliest convenience to avoid any interruption to your membership.
+
+Thank you for being a valued member of GoGym4U!
+
+Best regards,
+GoGym4U Team`
+          };
+          await gymStorage.upsert('emailTemplates', defaultTemplate);
+          setEmailTemplates([defaultTemplate]);
+        } else {
+          setEmailTemplates(templates);
+        }
+        
         // Optionally get storage stats if available
         const stats = await gymStorage?.getStorageStats?.();
         if (stats) setStorageStats(stats);
       } catch (e) { 
         console.error("Settings load error", e); 
       } finally { 
-        setLoading(false); 
+        setLoading(false);
+        setLoadingTemplates(false); 
       }
     })(); 
   }, []);
