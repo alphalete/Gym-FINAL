@@ -1182,7 +1182,8 @@ function ClientManagement() {
                 }
               }}
             >Delete</button>
-            <div 
+            <button 
+              type="button"
               style={{
                 backgroundColor: '#1e40af',
                 color: 'white',
@@ -1202,7 +1203,7 @@ function ClientManagement() {
                 localStorage.setItem("pendingPaymentOrigin", "members");
                 window.navigateToTab?.('payments');
               }}
-            >Record Payment</div>
+            >Record Payment</button>
             <button type="button" className="btn-ghost" onClick={() => {
               // Open WhatsApp with member's phone
               const phoneNum = phone.replace(/\D/g, ''); // Remove non-digits
