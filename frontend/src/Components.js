@@ -5,6 +5,7 @@ import useMembersRepo from "./hooks/useMembersRepo";
 import storageFacade from "./storage.facade";
 import gymStorage, { getSetting as getSettingNamed, saveSetting as saveSettingNamed } from "./storage";
 import gymStorageMain, * as storageNamed from "./storage";
+import { advanceNextDueByCycles } from './utils/date';
 import { 
   computeNextDueOptionA, 
   formatCurrency,
