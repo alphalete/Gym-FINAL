@@ -2885,7 +2885,7 @@ function EditMemberForm({ member, onSave, onCancel }) {
         lastName,
         email: member.email || "",
         phone: member.phone || "",
-        membershipType: member.membership_type || "",
+        membershipType: member.membershipType || member.membership_type || member.plan || member.planName || "",
         monthlyFee: parseFloat(member.monthly_fee) || 0,
         status: member.status || "Active"
       });
