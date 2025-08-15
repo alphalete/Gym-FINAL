@@ -2473,7 +2473,336 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
 }
 
 // Explicit component exports
-export {
+// --- Comprehensive Edit Member Form Component ---
+function EditMemberForm({ member, onSave, onCancel }) {
+  console.log('🔧 EditMemberForm component rendered for:', member?.name);
+  
+  const [form, setForm] = React.useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    membershipType: "",
+    monthlyFee: 0,
+    status: "Active"
+  });
+  const [saving, setSaving] = React.useState(false);
+  const [errors, setErrors] = React.useState([]);
+  const [availablePlans, setAvailablePlans] = React.useState([]);
+  const [plansLoading, setPlansLoading] = React.useState(true);
+
+  // Initialize form with member data
+  React.useEffect(() => {
+    if (member) {
+      const nameParts = (member.name || "").split(" ");
+      const firstName = nameParts[0] || "";
+      const lastName = nameParts.slice(1).join(" ") || "";
+      
+      setForm({
+        firstName,
+        lastName,
+        email: member.email || "",
+        phone: member.phone || "",
+        membershipType: member.membership_type || "",
+        monthlyFee: parseFloat(member.monthly_fee) || 0,
+        status: member.status || "Active"
+      });
+    }
+  }, [member]);
+
+  // Load available plans
+  React.useEffect(() => {
+    const loadPlans = async () => {
+      try {
+        console.log('📋 Loading available plans for member editing...');
+        const { getAll } = await import('./storage');
+        const allPlans = await getAll('plans') || [];
+        const activePlans = allPlans.filter(p => !p._deleted);
+        
+        console.log(`📋 Loaded ${activePlans.length} active plans for editing`);
+        setAvailablePlans(activePlans);
+      } catch (error) {
+        console.error('❌ Error loading plans:', error);
+        // Fallback to hardcoded plans if storage fails
+        const fallbackPlans = [
+          { name: 'Basic', price: 55.0, cycleDays: 30 },
+          { name: 'Premium', price: 75.0, cycleDays: 30 },
+          { name: 'Elite', price: 100.0, cycleDays: 30 },
+          { name: 'VIP', price: 150.0, cycleDays: 30 }
+        ];
+        setAvailablePlans(fallbackPlans);
+      } finally {
+        setPlansLoading(false);
+      }
+    };
+    
+    loadPlans();
+  }, []);
+
+  // Validate form
+  const validateForm = () => {
+    const newErrors = [];
+    
+    if (!form.firstName.trim()) {
+      newErrors.push('First name is required');
+    }
+    
+    if (!form.membershipType) {
+      newErrors.push('Please select a membership plan');
+    }
+    
+    if (form.email && form.email.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(form.email.trim())) {
+        newErrors.push('Please enter a valid email address');
+      }
+    }
+    
+    if (form.phone && form.phone.trim()) {
+      const phoneRegex = /^\+?[\d\s\-\(\)]{7,}$/;
+      if (!phoneRegex.test(form.phone.trim())) {
+        newErrors.push('Please enter a valid phone number');
+      }
+    }
+    
+    if (!form.monthlyFee || isNaN(form.monthlyFee) || form.monthlyFee <= 0) {
+      newErrors.push('Monthly fee must be a positive number');
+    }
+    
+    setErrors(newErrors);
+    return newErrors.length === 0;
+  };
+
+  // Handle form submission
+  const handleSubmit = async () => {
+    console.log('🚀 EditMemberForm submitted for:', member?.name);
+    
+    if (!validateForm()) {
+      console.warn('❌ Form validation failed:', errors);
+      return;
+    }
+
+    setSaving(true);
+    setErrors([]);
+    
+    try {
+      const updatedMember = {
+        ...member,
+        name: `${form.firstName} ${form.lastName}`.trim() || form.firstName,
+        email: form.email.trim() || '',
+        phone: form.phone.trim() || '',
+        membership_type: form.membershipType,
+        monthly_fee: parseFloat(form.monthlyFee),
+        status: form.status,
+        active: form.status === "Active"
+      };
+      
+      console.log('📝 Updating member:', updatedMember);
+      
+      if (onSave) {
+        await onSave(updatedMember);
+        alert(`✅ Member "${updatedMember.name}" updated successfully!`);
+      } else {
+        throw new Error('No save handler provided');
+      }
+    } catch (error) {
+      console.error('❌ Error updating member:', error);
+      setErrors([error.message || 'Failed to update member. Please try again.']);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Update monthly fee when membership plan changes
+  const handleMembershipTypeChange = (planName) => {
+    const selectedPlan = availablePlans.find(p => p.name === planName);
+    if (selectedPlan) {
+      console.log('📋 Plan selected for edit:', selectedPlan.name, 'Fee:', selectedPlan.price);
+      setForm(f => ({
+        ...f, 
+        membershipType: planName,
+        monthlyFee: parseFloat(selectedPlan.price) || 0
+      }));
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold">Edit Member: {member?.name}</h2>
+          <button
+            onClick={onCancel}
+            className="text-gray-500 hover:text-gray-700 text-2xl"
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          {/* Error Messages */}
+          {errors.length > 0 && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <div className="text-red-800 font-medium mb-1">Please fix the following errors:</div>
+              <ul className="list-disc list-inside text-sm text-red-700">
+                {errors.map((error, index) => (
+                  <li key={index}>{error}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          
+          {/* Name Fields */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
+              <input 
+                type="text"
+                className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                  errors.some(e => e.includes('First name')) ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                }`}
+                value={form.firstName}
+                onChange={e => setForm(f => ({...f, firstName: e.target.value}))}
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+              <input 
+                type="text"
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                value={form.lastName}
+                onChange={e => setForm(f => ({...f, lastName: e.target.value}))}
+              />
+            </div>
+          </div>
+          
+          {/* Contact Fields */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <input 
+                type="email"
+                className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                  errors.some(e => e.includes('email')) ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                }`}
+                value={form.email}
+                onChange={e => setForm(f => ({...f, email: e.target.value}))}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+              <input 
+                type="tel"
+                className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                  errors.some(e => e.includes('phone')) ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                }`}
+                value={form.phone}
+                onChange={e => setForm(f => ({...f, phone: e.target.value}))}
+              />
+            </div>
+          </div>
+          
+          {/* Membership Plan and Fee */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Membership Plan *</label>
+              {plansLoading ? (
+                <div className="w-full p-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500">
+                  Loading plans...
+                </div>
+              ) : (
+                <select
+                  className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                    errors.some(e => e.includes('membership plan')) ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                  }`}
+                  value={form.membershipType}
+                  onChange={e => handleMembershipTypeChange(e.target.value)}
+                  required
+                >
+                  <option value="">Select a plan...</option>
+                  {availablePlans.map(plan => (
+                    <option key={plan.name} value={plan.name}>
+                      {plan.name} - TTD {plan.price}/{plan.cycleDays} days
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Monthly Fee (TTD) *</label>
+              <input 
+                type="number"
+                step="0.01"
+                min="0"
+                className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                  errors.some(e => e.includes('Monthly fee')) ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                }`}
+                value={form.monthlyFee}
+                onChange={e => setForm(f => ({...f, monthlyFee: parseFloat(e.target.value) || 0}))}
+                required
+              />
+            </div>
+          </div>
+
+          {/* Status Field */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+            <select
+              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              value={form.status}
+              onChange={e => setForm(f => ({...f, status: e.target.value}))}
+            >
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+              <option value="Suspended">Suspended</option>
+            </select>
+          </div>
+          
+          {/* Action Buttons */}
+          <div className="flex gap-3 pt-4">
+            <button
+              type="button"
+              style={{
+                backgroundColor: saving ? '#9ca3af' : '#1e40af',
+                color: 'white',
+                padding: '12px 24px',
+                borderRadius: '8px',
+                cursor: saving ? 'not-allowed' : 'pointer',
+                fontSize: '16px',
+                fontWeight: '600',
+                textAlign: 'center',
+                border: 'none',
+                minWidth: '140px'
+              }}
+              onClick={saving ? undefined : handleSubmit}
+            >
+              {saving ? '💾 Saving...' : '✅ Update Member'}
+            </button>
+            
+            <button
+              type="button"
+              style={{
+                backgroundColor: '#6b7280',
+                color: 'white',
+                padding: '12px 24px',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '16px',
+                fontWeight: '600',
+                textAlign: 'center',
+                border: 'none'
+              }}
+              onClick={onCancel}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
   Dashboard,
   ClientManagement,
   PaymentTracking,
