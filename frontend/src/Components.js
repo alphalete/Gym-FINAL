@@ -1957,7 +1957,7 @@ export function AddMember(){
 // --- Record Payment Form ---
 export function RecordPayment(){
   const nav = useNavigate();
-  const { members } = useMembersFromStorage();
+  const { members, loading, refresh } = useMembersRepo();
   const [form, setForm] = React.useState({ 
     memberId:"", 
     amount:"", 
@@ -1966,16 +1966,37 @@ export function RecordPayment(){
     note:"" 
   });
 
+  // Get selected member with enhanced data
+  const selectedMember = React.useMemo(() => {
+    if (!form.memberId || !Array.isArray(members)) return null;
+    return members.find(m => (m.id||m._id||m.uuid) === form.memberId);
+  }, [form.memberId, members]);
+
+  // Set default amount when member is selected
+  React.useEffect(() => {
+    if (selectedMember && !form.amount) {
+      const memberFee = selectedMember.monthly_fee || selectedMember.fee || 0;
+      setForm(f => ({ ...f, amount: String(memberFee) }));
+      console.log('💰 Auto-filled payment amount for', selectedMember.name, ':', memberFee);
+    }
+  }, [selectedMember, form.amount]);
+
   const onSubmit = async (e) => {
     e.preventDefault();
-    const member = (Array.isArray(members)?members:[]).find(m => (m.id||m._id||m.uuid) === form.memberId);
-    if(!member) return alert("Select a member");
+    if(!selectedMember) return alert("Select a member");
     
     const payment = { 
       id: crypto?.randomUUID?.() || String(Date.now()), 
       ...form, 
       amount: Number(form.amount||0) 
     };
+    
+    console.log('📝 Recording payment for member:', {
+      name: selectedMember.name,
+      plan: selectedMember.membership_type,
+      amount: payment.amount,
+      nextDue: selectedMember.nextDue || selectedMember.dueDate
+    });
     
     // Keep existing payment logic: save payment, update member if your code does that elsewhere
     await storageFacade.savePayment(payment);
@@ -1985,6 +2006,10 @@ export function RecordPayment(){
     
     window.navigateToTab?.('payments');
   };
+
+  if (loading) {
+    return <div className="p-4">Loading member data...</div>;
+  }
 
   return (
     <div className="p-4">
