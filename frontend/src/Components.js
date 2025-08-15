@@ -1025,7 +1025,8 @@ function ClientManagement() {
           </div>
 
           <div className="mt-4 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">
-            <div 
+            <button 
+              type="button"
               style={{
                 backgroundColor: '#6b7280',
                 color: 'white',
@@ -1075,7 +1076,7 @@ function ClientManagement() {
                   }
                 }
               }}
-            >Edit</div>
+            >Edit</button>
             
             <div 
               style={{
