@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { HashRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import "./App.css";
 import ErrorBoundary from "./ErrorBoundary";
 import DiagnosticApp from "./DiagnosticApp";
