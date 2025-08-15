@@ -1036,20 +1036,7 @@ function ClientManagement() {
             
             <button 
               type="button"
-              style={{
-                backgroundColor: '#f59e0b',
-                color: 'white',
-                padding: '8px 16px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: '500',
-                textAlign: 'center',
-                userSelect: 'none',
-                border: 'none',
-                display: 'inline-block',
-                marginRight: '8px'
-              }}
+              className="btn btn-warning text-sm"
               onClick={async () => {
                 if (confirm(`${isActive ? 'Deactivate' : 'Activate'} ${name}?`)) {
                   try {
@@ -1068,13 +1055,12 @@ function ClientManagement() {
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify(updatedMember)
                         });
-                        if (response.ok) {
-                          alert(`✅ Member ${isActive ? 'deactivated' : 'activated'} successfully`);
-                          // Trigger data refresh without full page reload
-                          window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'member_status_updated' }));
-                        } else {
+                        if (!response.ok) {
                           throw new Error('Backend update failed');
                         }
+                        alert(`✅ Member ${isActive ? 'deactivated' : 'activated'} successfully`);
+                        // Trigger data refresh without full page reload
+                        window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'member_status_updated' }));
                       }
                     }
                   } catch (error) {
