@@ -1296,6 +1296,7 @@ function ClientManagement() {
 const Reports = () => {
   const { members: membersR, loading: loadingR } = useMembersFromStorage();
   const [payments, setPayments] = useState([]);
+  const [selectedDateRange, setSelectedDateRange] = useState('30days');
   
   useEffect(() => {
     (async () => {
@@ -1311,39 +1312,350 @@ const Reports = () => {
   
   // Render loading state without early return to avoid hook issues
   if (loadingR) {
-    return <div className="p-6">Loading reports…</div>;
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <div className="text-gray-600">Loading reports...</div>
+        </div>
+      </div>
+    );
   }
   
   const paymentsList = Array.isArray(payments) ? payments : [];
   const membersList = Array.isArray(membersR) ? membersR : [];
   
+  // Calculate date ranges
+  const today = new Date();
+  const todayISO = today.toISOString().slice(0, 10);
+  const thisMonth = todayISO.slice(0, 7);
+  const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1).toISOString().slice(0, 7);
+  
+  // Filter payments by date range
+  const getDateRangeFilter = (range) => {
+    const now = new Date();
+    switch(range) {
+      case '7days':
+        const sevenDaysAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
+        return (p) => p.paidOn && new Date(p.paidOn) >= sevenDaysAgo;
+      case '30days':
+        const thirtyDaysAgo = new Date(now - 30 * 24 * 60 * 60 * 1000);
+        return (p) => p.paidOn && new Date(p.paidOn) >= thirtyDaysAgo;
+      case 'thisMonth':
+        return (p) => p.paidOn && p.paidOn.slice(0, 7) === thisMonth;
+      case 'lastMonth':
+        return (p) => p.paidOn && p.paidOn.slice(0, 7) === lastMonth;
+      case 'allTime':
+      default:
+        return () => true;
+    }
+  };
+  
+  const dateFilter = getDateRangeFilter(selectedDateRange);
+  const filteredPayments = paymentsList.filter(dateFilter);
+  
+  // Calculate comprehensive statistics
   const totalRevenue = paymentsList.reduce((sum, p) => sum + Number(p.amount || 0), 0);
-  const activeMembers = membersList.filter(m => m.payment_status !== 'cancelled').length;
+  const rangeRevenue = filteredPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+  const activeMembers = membersList.filter(m => m.status === 'Active' || !m.status).length;
   const totalMembers = membersList.length;
+  const inactiveMembers = totalMembers - activeMembers;
+  
+  // Payment status breakdown
+  const paidMembers = membersList.filter(m => {
+    const nextDue = m.nextDue || m.dueDate;
+    if (!nextDue) return false;
+    return new Date(nextDue) > new Date(todayISO);
+  }).length;
+  
+  const overdueMembers = membersList.filter(m => {
+    const nextDue = m.nextDue || m.dueDate;
+    if (!nextDue) return false;
+    return new Date(nextDue) < new Date(todayISO);
+  }).length;
+  
+  const dueTodayMembers = membersList.filter(m => {
+    const nextDue = m.nextDue || m.dueDate;
+    return nextDue === todayISO;
+  }).length;
+  
+  // Revenue trends
+  const thisMonthRevenue = paymentsList.filter(p => p.paidOn && p.paidOn.slice(0, 7) === thisMonth).reduce((sum, p) => sum + Number(p.amount || 0), 0);
+  const lastMonthRevenue = paymentsList.filter(p => p.paidOn && p.paidOn.slice(0, 7) === lastMonth).reduce((sum, p) => sum + Number(p.amount || 0), 0);
+  const revenueGrowth = lastMonthRevenue > 0 ? ((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue * 100) : 0;
+  
+  // Membership plan breakdown
+  const planBreakdown = membersList.reduce((acc, member) => {
+    const plan = member.membership_type || member.planName || 'No Plan';
+    if (!acc[plan]) {
+      acc[plan] = { count: 0, revenue: 0 };
+    }
+    acc[plan].count++;
+    
+    // Calculate revenue for this plan from payments
+    const memberPayments = paymentsList.filter(p => String(p.memberId) === String(member.id));
+    acc[plan].revenue += memberPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+    
+    return acc;
+  }, {});
+  
+  // Top plans by member count
+  const topPlans = Object.entries(planBreakdown)
+    .sort(([,a], [,b]) => b.count - a.count)
+    .slice(0, 5);
+  
+  // Recent payments for activity feed
+  const recentPayments = paymentsList
+    .sort((a, b) => new Date(b.paidOn || 0) - new Date(a.paidOn || 0))
+    .slice(0, 10);
+  
+  // Average payment calculation
+  const avgPayment = paymentsList.length > 0 ? totalRevenue / paymentsList.length : 0;
   
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-semibold mb-4">Reports</h1>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white border rounded-2xl p-4">
-          <div className="text-2xl font-bold text-indigo-600">{totalMembers}</div>
-          <div className="text-sm text-gray-600">Total Members</div>
-        </div>
-        <div className="bg-white border rounded-2xl p-4">
-          <div className="text-2xl font-bold text-success">{activeMembers}</div>
-          <div className="text-sm text-gray-600">Active Members</div>
-        </div>
-        <div className="bg-white border rounded-2xl p-4">
-          <div className="text-2xl font-bold text-indigo-600">{formatCurrency(totalRevenue)}</div>
-          <div className="text-sm text-gray-600">Total Revenue</div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header Section */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="px-6 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 flex items-center">
+                <ActionIcon name="📊" className="text-indigo-600 mr-3" size="xl" />
+                Reports & Analytics
+              </h1>
+              <p className="text-gray-500 mt-1">Comprehensive gym performance insights and member analytics</p>
+            </div>
+            
+            {/* Date Range Selector */}
+            <div className="flex items-center space-x-2">
+              <label className="text-sm font-medium text-gray-700">Date Range:</label>
+              <select
+                value={selectedDateRange}
+                onChange={(e) => setSelectedDateRange(e.target.value)}
+                className="input text-sm"
+              >
+                <option value="7days">Last 7 Days</option>
+                <option value="30days">Last 30 Days</option>
+                <option value="thisMonth">This Month</option>
+                <option value="lastMonth">Last Month</option>
+                <option value="allTime">All Time</option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
-      
-      <div className="text-center py-8 text-gray-500">
-        <div className="text-4xl mb-2">📊</div>
-        <div>Detailed Reports Coming Soon</div>
-        <div className="text-sm">Advanced analytics and reporting features will be available here.</div>
+
+      <div className="px-6 py-6">
+        {/* Key Metrics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+          {/* Total Revenue */}
+          <div className="stat-card bg-success text-white">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="stat-value">{formatCurrency(rangeRevenue)}</div>
+                <div className="stat-label text-success-100">Revenue ({selectedDateRange})</div>
+                <div className="text-xs text-success-200 mt-1">Total: {formatCurrency(totalRevenue)}</div>
+              </div>
+              <BanknotesIcon className="w-10 h-10 text-success-200" />
+            </div>
+          </div>
+
+          {/* Active Members */}
+          <div className="stat-card bg-indigo-600 text-white">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="stat-value">{activeMembers}</div>
+                <div className="stat-label text-indigo-100">Active Members</div>
+                <div className="text-xs text-indigo-200 mt-1">of {totalMembers} total</div>
+              </div>
+              <Icon name="👥" size="2xl" className="text-indigo-200" />
+            </div>
+          </div>
+
+          {/* Payment Rate */}
+          <div className="stat-card bg-warning text-white">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="stat-value">{totalMembers > 0 ? Math.round((paidMembers / totalMembers) * 100) : 0}%</div>
+                <div className="stat-label text-warning-100">Payment Rate</div>
+                <div className="text-xs text-warning-200 mt-1">{paidMembers} paid up</div>
+              </div>
+              <Icon name="✓" size="2xl" className="text-warning-200" />
+            </div>
+          </div>
+
+          {/* Growth Rate */}
+          <div className="stat-card bg-info text-white">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="stat-value">{revenueGrowth > 0 ? '+' : ''}{revenueGrowth.toFixed(1)}%</div>
+                <div className="stat-label text-info-100">Monthly Growth</div>
+                <div className="text-xs text-info-200 mt-1">vs last month</div>
+              </div>
+              <Icon name="📈" size="2xl" className="text-info-200" />
+            </div>
+          </div>
+        </div>
+
+        {/* Detailed Analytics Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
+          {/* Member Status Breakdown */}
+          <div className="card">
+            <div className="card-header">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                <Icon name="👥" className="text-indigo-600 mr-2" />
+                Member Status
+              </h3>
+            </div>
+            <div className="card-body">
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center">
+                    <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                    <span className="text-sm">Active Members</span>
+                  </div>
+                  <span className="font-semibold">{activeMembers}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center">
+                    <div className="w-3 h-3 bg-gray-400 rounded-full mr-2"></div>
+                    <span className="text-sm">Inactive Members</span>
+                  </div>
+                  <span className="font-semibold">{inactiveMembers}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center">
+                    <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
+                    <span className="text-sm">Overdue</span>
+                  </div>
+                  <span className="font-semibold">{overdueMembers}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center">
+                    <div className="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
+                    <span className="text-sm">Due Today</span>
+                  </div>
+                  <span className="font-semibold">{dueTodayMembers}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Revenue Breakdown */}
+          <div className="card">
+            <div className="card-header">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                <BanknotesIcon className="w-5 h-5 text-green-600 mr-2" />
+                Revenue Metrics
+              </h3>
+            </div>
+            <div className="card-body">
+              <div className="space-y-4">
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600">This Month</span>
+                  <span className="font-semibold text-green-600">{formatCurrency(thisMonthRevenue)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600">Last Month</span>
+                  <span className="font-semibold">{formatCurrency(lastMonthRevenue)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600">Average Payment</span>
+                  <span className="font-semibold">{formatCurrency(avgPayment)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600">Total Payments</span>
+                  <span className="font-semibold">{paymentsList.length}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Top Membership Plans */}
+          <div className="card">
+            <div className="card-header">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                <Icon name="🏆" className="text-yellow-600 mr-2" />
+                Top Plans
+              </h3>
+            </div>
+            <div className="card-body">
+              <div className="space-y-3">
+                {topPlans.length > 0 ? (
+                  topPlans.map(([planName, stats], index) => (
+                    <div key={planName} className="flex justify-between items-center">
+                      <div className="flex items-center">
+                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white mr-2 ${
+                          index === 0 ? 'bg-yellow-500' : 
+                          index === 1 ? 'bg-gray-400' : 
+                          index === 2 ? 'bg-yellow-600' : 'bg-indigo-500'
+                        }`}>
+                          {index + 1}
+                        </div>
+                        <div>
+                          <div className="font-medium text-sm">{planName}</div>
+                          <div className="text-xs text-gray-500">{formatCurrency(stats.revenue)} revenue</div>
+                        </div>
+                      </div>
+                      <span className="font-semibold">{stats.count}</span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-4 text-gray-500">
+                    <div className="text-sm">No membership plans yet</div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Recent Activity */}
+        <div className="card">
+          <div className="card-header">
+            <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+              <Icon name="🕐" className="text-blue-600 mr-2" />
+              Recent Payment Activity
+            </h3>
+          </div>
+          <div className="card-body">
+            {recentPayments.length > 0 ? (
+              <div className="space-y-3">
+                {recentPayments.map((payment, index) => (
+                  <div key={payment.id || index} className="flex items-center justify-between p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                        <BanknotesIcon className="w-5 h-5 text-green-600" />
+                      </div>
+                      <div>
+                        <div className="font-medium text-gray-900">{payment.memberName || 'Unknown Member'}</div>
+                        <div className="text-sm text-gray-500 flex items-center space-x-2">
+                          <span>{formatDate(payment.paidOn)}</span>
+                          {payment.planName && (
+                            <>
+                              <span>•</span>
+                              <span>{payment.planName}</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-lg font-semibold text-green-600">{formatCurrency(payment.amount)}</div>
+                      <span className="badge badge-success text-xs">Paid</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <BanknotesIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <div className="text-xl font-medium text-gray-900 mb-2">No Payment Activity</div>
+                <div className="text-gray-500">Recent payments will appear here when members make payments</div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
