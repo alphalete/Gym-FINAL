@@ -24,7 +24,7 @@ import aiohttp
 import os
 import sys
 from motor.motor_asyncio import AsyncIOMotorClient
-from datetime import datetime
+from datetime import datetime, date
 import json
 
 # Configuration
@@ -32,13 +32,14 @@ BACKEND_URL = "https://821b78cf-1060-44c5-a0dd-f265722428d2.preview.emergentagen
 MONGO_URL = "mongodb://localhost:27017"
 DB_NAME = "test_database"
 
-class DatabaseResetTester:
+class TestMemberAdder:
     def __init__(self):
         self.backend_url = BACKEND_URL
         self.mongo_client = None
         self.db = None
         self.session = None
         self.test_results = []
+        self.test_member_id = None
         
     async def setup(self):
         """Initialize database and HTTP connections"""
@@ -81,165 +82,6 @@ class DatabaseResetTester:
             "timestamp": datetime.now().isoformat()
         })
     
-    async def get_collection_count(self, collection_name):
-        """Get count of documents in a collection"""
-        try:
-            collection = getattr(self.db, collection_name)
-            count = await collection.count_documents({})
-            return count
-        except Exception as e:
-            print(f"❌ Error counting {collection_name}: {str(e)}")
-            return -1
-    
-    async def delete_all_from_collection(self, collection_name):
-        """Delete all documents from a collection"""
-        try:
-            collection = getattr(self.db, collection_name)
-            result = await collection.delete_many({})
-            return result.deleted_count
-        except Exception as e:
-            print(f"❌ Error deleting from {collection_name}: {str(e)}")
-            return -1
-    
-    async def test_database_reset(self):
-        """Main database reset test"""
-        print("\n🔥 STARTING DATABASE RESET OPERATION")
-        print("=" * 60)
-        
-        # Step 1: Check initial state
-        print("\n📊 STEP 1: Checking initial database state...")
-        
-        collections_to_check = ['clients', 'payment_records', 'billing_cycles', 'payments']
-        initial_counts = {}
-        
-        for collection in collections_to_check:
-            count = await self.get_collection_count(collection)
-            initial_counts[collection] = count
-            print(f"   {collection}: {count} documents")
-        
-        total_initial = sum(count for count in initial_counts.values() if count > 0)
-        await self.log_test_result(
-            "Initial database state check", 
-            True, 
-            f"Found {total_initial} total documents across all collections"
-        )
-        
-        # Step 2: Delete all data
-        print("\n🗑️ STEP 2: Deleting ALL data from database...")
-        
-        deletion_results = {}
-        total_deleted = 0
-        
-        for collection in collections_to_check:
-            deleted_count = await self.delete_all_from_collection(collection)
-            deletion_results[collection] = deleted_count
-            if deleted_count >= 0:
-                total_deleted += deleted_count
-                print(f"   {collection}: {deleted_count} documents deleted")
-            else:
-                print(f"   {collection}: ERROR during deletion")
-        
-        await self.log_test_result(
-            "Database deletion operation", 
-            all(count >= 0 for count in deletion_results.values()), 
-            f"Deleted {total_deleted} total documents"
-        )
-        
-        # Step 3: Verify deletion
-        print("\n✅ STEP 3: Verifying complete deletion...")
-        
-        final_counts = {}
-        all_empty = True
-        
-        for collection in collections_to_check:
-            count = await self.get_collection_count(collection)
-            final_counts[collection] = count
-            print(f"   {collection}: {count} documents remaining")
-            if count > 0:
-                all_empty = False
-        
-        await self.log_test_result(
-            "Database emptiness verification", 
-            all_empty, 
-            "All collections are empty" if all_empty else "Some collections still have data"
-        )
-        
-        # Step 4: Test API endpoints
-        print("\n🌐 STEP 4: Testing API endpoints...")
-        
-        await self.test_api_clients_empty()
-        await self.test_api_payments_stats_empty()
-        
-        return all_empty
-    
-    async def test_api_clients_empty(self):
-        """Test that GET /api/clients returns empty array"""
-        try:
-            url = f"{self.backend_url}/api/clients"
-            async with self.session.get(url) as response:
-                if response.status == 200:
-                    data = await response.json()
-                    if isinstance(data, list) and len(data) == 0:
-                        await self.log_test_result(
-                            "GET /api/clients returns empty array", 
-                            True, 
-                            "API correctly returns [] for empty database"
-                        )
-                    else:
-                        await self.log_test_result(
-                            "GET /api/clients returns empty array", 
-                            False, 
-                            f"API returned {len(data) if isinstance(data, list) else 'non-array'} items instead of empty array"
-                        )
-                else:
-                    await self.log_test_result(
-                        "GET /api/clients returns empty array", 
-                        False, 
-                        f"API returned status {response.status}"
-                    )
-        except Exception as e:
-            await self.log_test_result(
-                "GET /api/clients returns empty array", 
-                False, 
-                f"API request failed: {str(e)}"
-            )
-    
-    async def test_api_payments_stats_empty(self):
-        """Test that payment stats reflect empty database"""
-        try:
-            url = f"{self.backend_url}/api/payments/stats"
-            async with self.session.get(url) as response:
-                if response.status == 200:
-                    data = await response.json()
-                    total_revenue = data.get('total_revenue', -1)
-                    payment_count = data.get('payment_count', -1)
-                    total_amount_owed = data.get('total_amount_owed', -1)
-                    
-                    if total_revenue == 0 and payment_count == 0 and total_amount_owed == 0:
-                        await self.log_test_result(
-                            "GET /api/payments/stats shows zero values", 
-                            True, 
-                            "Payment stats correctly show all zeros for empty database"
-                        )
-                    else:
-                        await self.log_test_result(
-                            "GET /api/payments/stats shows zero values", 
-                            False, 
-                            f"Stats show revenue:{total_revenue}, count:{payment_count}, owed:{total_amount_owed}"
-                        )
-                else:
-                    await self.log_test_result(
-                        "GET /api/payments/stats shows zero values", 
-                        False, 
-                        f"API returned status {response.status}"
-                    )
-        except Exception as e:
-            await self.log_test_result(
-                "GET /api/payments/stats shows zero values", 
-                False, 
-                f"API request failed: {str(e)}"
-            )
-    
     async def test_api_health(self):
         """Test basic API connectivity"""
         try:
@@ -268,10 +110,183 @@ class DatabaseResetTester:
             )
             return False
     
-    async def run_comprehensive_test(self):
-        """Run the complete database reset test suite"""
-        print("🚀 ALPHALETE CLUB PWA - DATABASE RESET TESTING")
-        print("=" * 60)
+    async def check_database_empty(self):
+        """Check if database is empty before adding test member"""
+        try:
+            url = f"{self.backend_url}/api/clients"
+            async with self.session.get(url) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    member_count = len(data) if isinstance(data, list) else -1
+                    
+                    await self.log_test_result(
+                        "Database empty check", 
+                        member_count == 0, 
+                        f"Found {member_count} existing members in database"
+                    )
+                    return member_count == 0
+                else:
+                    await self.log_test_result(
+                        "Database empty check", 
+                        False, 
+                        f"API returned status {response.status}"
+                    )
+                    return False
+        except Exception as e:
+            await self.log_test_result(
+                "Database empty check", 
+                False, 
+                f"API request failed: {str(e)}"
+            )
+            return False
+    
+    async def add_test_member(self):
+        """Add the specific test member for delete functionality testing"""
+        test_member_data = {
+            "name": "Test Delete Member",
+            "email": "delete.test@example.com",
+            "phone": "+1234567890",
+            "membership_type": "Basic",
+            "monthly_fee": 55.0,
+            "start_date": date.today().isoformat(),
+            "status": "Active",
+            "auto_reminders_enabled": True,
+            "payment_status": "due",
+            "billing_interval_days": 30
+        }
+        
+        try:
+            url = f"{self.backend_url}/api/clients"
+            async with self.session.post(url, json=test_member_data) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    self.test_member_id = data.get('id')
+                    
+                    await self.log_test_result(
+                        "Add test member", 
+                        True, 
+                        f"Successfully created test member with ID: {self.test_member_id}"
+                    )
+                    return True
+                else:
+                    response_text = await response.text()
+                    await self.log_test_result(
+                        "Add test member", 
+                        False, 
+                        f"API returned status {response.status}: {response_text}"
+                    )
+                    return False
+        except Exception as e:
+            await self.log_test_result(
+                "Add test member", 
+                False, 
+                f"API request failed: {str(e)}"
+            )
+            return False
+    
+    async def verify_member_created(self):
+        """Verify the test member was created successfully"""
+        try:
+            url = f"{self.backend_url}/api/clients"
+            async with self.session.get(url) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    
+                    if isinstance(data, list) and len(data) == 1:
+                        member = data[0]
+                        
+                        # Verify member details
+                        expected_details = {
+                            "name": "Test Delete Member",
+                            "email": "delete.test@example.com",
+                            "phone": "+1234567890",
+                            "membership_type": "Basic",
+                            "monthly_fee": 55.0,
+                            "status": "Active"
+                        }
+                        
+                        details_match = all(
+                            member.get(key) == value 
+                            for key, value in expected_details.items()
+                        )
+                        
+                        if details_match:
+                            await self.log_test_result(
+                                "Verify member details", 
+                                True, 
+                                f"All member details match expected values. Member ID: {member.get('id')}"
+                            )
+                            self.test_member_id = member.get('id')
+                            return True
+                        else:
+                            await self.log_test_result(
+                                "Verify member details", 
+                                False, 
+                                f"Member details don't match. Expected: {expected_details}, Got: {member}"
+                            )
+                            return False
+                    else:
+                        await self.log_test_result(
+                            "Verify member count", 
+                            False, 
+                            f"Expected exactly 1 member, found {len(data) if isinstance(data, list) else 'non-array'}"
+                        )
+                        return False
+                else:
+                    await self.log_test_result(
+                        "Verify member created", 
+                        False, 
+                        f"API returned status {response.status}"
+                    )
+                    return False
+        except Exception as e:
+            await self.log_test_result(
+                "Verify member created", 
+                False, 
+                f"API request failed: {str(e)}"
+            )
+            return False
+    
+    async def get_member_by_id(self):
+        """Get the specific member by ID to confirm it exists"""
+        if not self.test_member_id:
+            await self.log_test_result(
+                "Get member by ID", 
+                False, 
+                "No test member ID available"
+            )
+            return False
+        
+        try:
+            url = f"{self.backend_url}/api/clients/{self.test_member_id}"
+            async with self.session.get(url) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    await self.log_test_result(
+                        "Get member by ID", 
+                        True, 
+                        f"Successfully retrieved member: {data.get('name')} ({data.get('email')})"
+                    )
+                    return True
+                else:
+                    await self.log_test_result(
+                        "Get member by ID", 
+                        False, 
+                        f"API returned status {response.status}"
+                    )
+                    return False
+        except Exception as e:
+            await self.log_test_result(
+                "Get member by ID", 
+                False, 
+                f"API request failed: {str(e)}"
+            )
+            return False
+    
+    async def run_test_member_addition(self):
+        """Run the complete test member addition process"""
+        print("🚀 ALPHALETE CLUB PWA - ADD TEST MEMBER FOR DELETE TESTING")
+        print("=" * 70)
         print(f"Backend URL: {self.backend_url}")
         print(f"MongoDB URL: {MONGO_URL}")
         print(f"Database: {DB_NAME}")
@@ -284,15 +299,35 @@ class DatabaseResetTester:
         try:
             # Test API connectivity first
             if not await self.test_api_health():
-                print("❌ API is not accessible, aborting database reset")
+                print("❌ API is not accessible, aborting test member addition")
                 return False
             
-            # Perform database reset
-            reset_success = await self.test_database_reset()
+            print("\n📊 STEP 1: Checking database state...")
+            # Check if database is empty
+            if not await self.check_database_empty():
+                print("⚠️  Database is not empty, but proceeding with test member addition")
+            
+            print("\n➕ STEP 2: Adding test member...")
+            # Add the test member
+            if not await self.add_test_member():
+                print("❌ Failed to add test member")
+                return False
+            
+            print("\n✅ STEP 3: Verifying member creation...")
+            # Verify member was created correctly
+            if not await self.verify_member_created():
+                print("❌ Failed to verify member creation")
+                return False
+            
+            print("\n🔍 STEP 4: Testing member retrieval by ID...")
+            # Test getting member by ID
+            if not await self.get_member_by_id():
+                print("❌ Failed to retrieve member by ID")
+                return False
             
             # Summary
             print("\n📋 TEST SUMMARY")
-            print("=" * 60)
+            print("=" * 70)
             
             passed_tests = sum(1 for result in self.test_results if result['success'])
             total_tests = len(self.test_results)
@@ -300,13 +335,15 @@ class DatabaseResetTester:
             
             print(f"Tests Passed: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
             
-            if reset_success:
-                print("🎉 DATABASE RESET COMPLETED SUCCESSFULLY!")
-                print("✅ All member records have been completely removed")
-                print("✅ Database is now empty and ready for testing")
+            if passed_tests == total_tests:
+                print("🎉 TEST MEMBER ADDITION COMPLETED SUCCESSFULLY!")
+                print("✅ Test member 'Test Delete Member' has been added to database")
+                print(f"✅ Member ID: {self.test_member_id}")
+                print("✅ Database now contains exactly 1 member for delete testing")
+                print("✅ Ready for frontend delete functionality testing")
             else:
-                print("❌ DATABASE RESET FAILED!")
-                print("❌ Some data may still remain in the database")
+                print("❌ TEST MEMBER ADDITION FAILED!")
+                print("❌ Some tests failed during the process")
             
             # Show failed tests
             failed_tests = [result for result in self.test_results if not result['success']]
@@ -315,15 +352,26 @@ class DatabaseResetTester:
                 for test in failed_tests:
                     print(f"   - {test['test']}: {test['details']}")
             
-            return reset_success
+            # Show member details for reference
+            if self.test_member_id:
+                print(f"\n📝 TEST MEMBER DETAILS:")
+                print(f"   Name: Test Delete Member")
+                print(f"   Email: delete.test@example.com")
+                print(f"   Phone: +1234567890")
+                print(f"   Membership: Basic")
+                print(f"   Monthly Fee: TTD 55.0")
+                print(f"   Status: Active")
+                print(f"   Member ID: {self.test_member_id}")
+            
+            return passed_tests == total_tests
             
         finally:
             await self.cleanup()
 
 async def main():
     """Main entry point"""
-    tester = DatabaseResetTester()
-    success = await tester.run_comprehensive_test()
+    tester = TestMemberAdder()
+    success = await tester.run_test_member_addition()
     
     # Exit with appropriate code
     sys.exit(0 if success else 1)
