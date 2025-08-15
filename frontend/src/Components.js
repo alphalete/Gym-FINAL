@@ -1048,8 +1048,10 @@ function ClientManagement() {
               className="rounded-xl px-3 py-2 flex flex-col items-center justify-center min-w-[65px] h-16 transition-all duration-200"
               onClick={() => setShowEditModal(true)}
             >
-              <PencilIcon className="w-6 h-6 text-blue-500 hover:text-blue-600 transition-colors duration-200" />
-              <span className="text-xs font-medium text-gray-700 mt-1">Edit</span>
+              <div className="flex items-center justify-center mb-1">
+                <PencilIcon className="w-6 h-6 text-blue-500 hover:text-blue-600 transition-colors duration-200" />
+              </div>
+              <span className="text-xs font-medium text-gray-700 text-center">Edit</span>
             </button>
             
             <button 
@@ -1088,12 +1090,14 @@ function ClientManagement() {
                 }
               }}
             >
-              {isActive ? (
-                <ClockIcon className="w-6 h-6 text-orange-500 hover:text-orange-600 transition-colors duration-200" />
-              ) : (
-                <ArrowRightIcon className="w-6 h-6 text-orange-500 hover:text-orange-600 transition-colors duration-200" />
-              )}
-              <span className="text-xs font-medium text-gray-700 mt-1">{isActive ? 'Pause' : 'Activate'}</span>
+              <div className="flex items-center justify-center mb-1">
+                {isActive ? (
+                  <ClockIcon className="w-6 h-6 text-orange-500 hover:text-orange-600 transition-colors duration-200" />
+                ) : (
+                  <ArrowRightIcon className="w-6 h-6 text-orange-500 hover:text-orange-600 transition-colors duration-200" />
+                )}
+              </div>
+              <span className="text-xs font-medium text-gray-700 text-center">{isActive ? 'Pause' : 'Activate'}</span>
             </button>
             
             <button 
@@ -1111,8 +1115,10 @@ function ClientManagement() {
                 }
               }}
             >
-              <ChatBubbleLeftRightIcon className="w-6 h-6 text-green-500 hover:text-green-600 transition-colors duration-200" />
-              <span className="text-xs font-medium text-gray-700 mt-1">WHATSAPP</span>
+              <div className="flex items-center justify-center mb-1">
+                <ChatBubbleLeftRightIcon className="w-6 h-6 text-green-500 hover:text-green-600 transition-colors duration-200" />
+              </div>
+              <span className="text-xs font-medium text-gray-700 text-center">WHATSAPP</span>
             </button>
             
             <button 
@@ -1155,8 +1161,10 @@ function ClientManagement() {
                 }
               }}
             >
-              <TrashIcon className="w-6 h-6 text-red-500 hover:text-red-600 transition-colors duration-200" />
-              <span className="text-xs font-medium text-gray-700 mt-1">Delete</span>
+              <div className="flex items-center justify-center mb-1">
+                <TrashIcon className="w-6 h-6 text-red-500 hover:text-red-600 transition-colors duration-200" />
+              </div>
+              <span className="text-xs font-medium text-gray-700 text-center">Delete</span>
             </button>
             
             <button 
@@ -1169,8 +1177,10 @@ function ClientManagement() {
                 window.navigateToTab?.('payments');
               }}
             >
-              <BanknotesIcon className="w-6 h-6 text-purple-500 hover:text-purple-600 transition-colors duration-200" />
-              <span className="text-xs font-medium text-gray-700 mt-1">Payment</span>
+              <div className="flex items-center justify-center mb-1">
+                <BanknotesIcon className="w-6 h-6 text-purple-500 hover:text-purple-600 transition-colors duration-200" />
+              </div>
+              <span className="text-xs font-medium text-gray-700 text-center">Payment</span>
             </button>
           </div>
         </div>
