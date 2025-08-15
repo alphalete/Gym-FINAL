@@ -356,10 +356,13 @@ class HeroiconReportsBackendTester:
                     
                     await self.log_test_result(
                         "CRUD - CREATE Client", 
-                        True, 
+                        created_client_id is not None, 
                         f"Client created with ID: {created_client_id}",
                         f"Response time: {response_time:.3f}s"
                     )
+                    
+                    if not created_client_id:
+                        return False
             else:
                 await self.log_test_result(
                     "CRUD - CREATE Client", 
