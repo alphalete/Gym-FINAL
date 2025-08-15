@@ -1077,39 +1077,55 @@ function ClientManagement() {
               }}
             >Edit</div>
             
-            <button type="button" className="btn-warning" onClick={async () => {
-              if (confirm(`${isActive ? 'Deactivate' : 'Activate'} ${name}?`)) {
-                try {
-                  const updatedMember = { ...m, status: isActive ? 'Inactive' : 'Active', active: !isActive };
-                  
-                  // Use repository system for consistent offline-first behavior
-                  if (onAddOrUpdateMember) {
-                    await onAddOrUpdateMember(updatedMember);
-                    alert(`✅ Member ${isActive ? 'deactivated' : 'activated'} successfully`);
-                  } else {
-                    // Fallback to direct backend call if no repository handler
-                    const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-                    if (backendUrl) {
-                      const response = await fetch(`${backendUrl}/api/clients/${m.id}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(updatedMember)
-                      });
-                      if (response.ok) {
-                        alert(`✅ Member ${isActive ? 'deactivated' : 'activated'} successfully`);
-                        // Trigger data refresh without full page reload
-                        window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'member_status_updated' }));
-                      } else {
-                        throw new Error('Backend update failed');
+            <div 
+              style={{
+                backgroundColor: '#f59e0b',
+                color: 'white',
+                padding: '8px 16px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500',
+                textAlign: 'center',
+                userSelect: 'none',
+                border: 'none',
+                display: 'inline-block',
+                marginRight: '8px'
+              }}
+              onClick={async () => {
+                if (confirm(`${isActive ? 'Deactivate' : 'Activate'} ${name}?`)) {
+                  try {
+                    const updatedMember = { ...m, status: isActive ? 'Inactive' : 'Active', active: !isActive };
+                    
+                    // Use repository system for consistent offline-first behavior
+                    if (onAddOrUpdateMember) {
+                      await onAddOrUpdateMember(updatedMember);
+                      alert(`✅ Member ${isActive ? 'deactivated' : 'activated'} successfully`);
+                    } else {
+                      // Fallback to direct backend call if no repository handler
+                      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+                      if (backendUrl) {
+                        const response = await fetch(`${backendUrl}/api/clients/${m.id}`, {
+                          method: 'PUT',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify(updatedMember)
+                        });
+                        if (response.ok) {
+                          alert(`✅ Member ${isActive ? 'deactivated' : 'activated'} successfully`);
+                          // Trigger data refresh without full page reload
+                          window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'member_status_updated' }));
+                        } else {
+                          throw new Error('Backend update failed');
+                        }
                       }
                     }
+                  } catch (error) {
+                    console.error('Error updating member status:', error);
+                    alert('❌ Error updating member status. Please try again.');
                   }
-                } catch (error) {
-                  console.error('Error updating member status:', error);
-                  alert('❌ Error updating member status. Please try again.');
                 }
-              }
-            }}>{isActive ? 'Deactivate' : 'Activate'}</button>
+              }}
+            >{isActive ? 'Deactivate' : 'Activate'}</div>
             <div 
               style={{
                 backgroundColor: '#dc2626',
