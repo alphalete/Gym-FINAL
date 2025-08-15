@@ -1870,6 +1870,71 @@ GoGym4U Team`
     alert('Settings saved successfully!');
   }
   
+  // Email template management functions
+  const saveTemplate = async () => {
+    try {
+      if (!templateForm.name.trim() || !templateForm.subject.trim() || !templateForm.body.trim()) {
+        alert('Please fill in all template fields');
+        return;
+      }
+      
+      const template = {
+        id: editingTemplate?.id || `template-${Date.now()}`,
+        name: templateForm.name.trim(),
+        subject: templateForm.subject.trim(),
+        body: templateForm.body.trim()
+      };
+      
+      await gymStorage.upsert('emailTemplates', template);
+      
+      // Update local state
+      if (editingTemplate) {
+        setEmailTemplates(prev => prev.map(t => t.id === template.id ? template : t));
+      } else {
+        setEmailTemplates(prev => [...prev, template]);
+      }
+      
+      // Reset form
+      setTemplateForm({ name: '', subject: '', body: '' });
+      setEditingTemplate(null);
+      setShowCreateTemplate(false);
+      
+      alert(`Template ${editingTemplate ? 'updated' : 'created'} successfully!`);
+    } catch (error) {
+      console.error('Error saving template:', error);
+      alert('Error saving template');
+    }
+  };
+  
+  const deleteTemplate = async (template) => {
+    if (!confirm(`Delete template "${template.name}"?`)) return;
+    
+    try {
+      await gymStorage.remove('emailTemplates', template.id);
+      setEmailTemplates(prev => prev.filter(t => t.id !== template.id));
+      alert('Template deleted successfully!');
+    } catch (error) {
+      console.error('Error deleting template:', error);
+      alert('Error deleting template');
+    }
+  };
+  
+  const startEdit = (template) => {
+    setEditingTemplate(template);
+    setTemplateForm({
+      name: template.name,
+      subject: template.subject,
+      body: template.body
+    });
+    setShowCreateTemplate(true);
+  };
+  
+  const cancelEdit = () => {
+    setEditingTemplate(null);
+    setTemplateForm({ name: '', subject: '', body: '' });
+    setShowCreateTemplate(false);
+  };
+  
   return (
     <div className="p-4 space-y-4">
       <h1 className="text-2xl font-semibold">Settings</h1>
