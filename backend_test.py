@@ -1,30 +1,19 @@
 #!/usr/bin/env python3
 """
-Alphalete Club PWA Backend Stability Testing Script
-Testing backend stability after FULL CLEANUP & HARDENING implementation
+Database Reset Testing Script for Alphalete Club PWA
+Purpose: Delete ALL members from database and verify complete cleanup
 
 CRITICAL TESTING REQUIREMENTS:
-- Verify ALL backend API endpoints remain fully functional after comprehensive frontend refactoring
-- Test client/member CRUD operations work correctly with new storage abstraction layer
-- Verify payment recording APIs support updated PaymentTracking component with shared hook
-- Confirm membership plan management APIs work with refactored MembershipManagement component  
-- Test reporting data APIs support updated Reports component using real member/payment data
-- Ensure settings persistence APIs work with updated Settings component
-- Verify backend provides stable data for new useMembersFromStorage hook across all components
+- Connect to MongoDB database directly
+- Delete ALL members/clients from the database completely  
+- Delete ALL payment records and billing cycles
+- Verify the database is empty (0 members)
+- Confirm the DELETE ALL operation was successful
+- Test GET /api/clients returns empty array []
+- Confirm all member records are completely removed
 
-FULL CLEANUP & HARDENING CHANGES TESTED:
-1. Repository-wide mock data cleanup: Removed all mockClients references and imports throughout codebase
-2. Storage hardening: Added safe named exports with proper fallbacks (getAllMembers, saveMembers, etc.)
-3. Shared hook implementation: Created useMembersFromStorage hook for consistent data loading
-4. Component refactoring: Updated PaymentTracking, Reports, MembershipManagement, ClientManagement
-5. Error boundaries and diagnostics: Added ErrorBoundary, DebugOverlay, DiagnosticApp
-6. UI consistency improvements: Updated tokens.css with clean card, button, and badge classes
-7. Form safety: Ensured all buttons in forms have proper type="button" attributes
-8. App.js hardening: Added service worker/cache clearing and diagnostic route (/__diag)
-
-EXPECTED RESULTS:
-Backend should be completely unaffected by frontend cleanup and continue to provide stable API responses 
-for all gym management operations. All CRUD operations should work seamlessly with the new storage abstraction layer.
+This database reset is essential for proper testing of the delete member functionality
+and ensures we start with a clean testing environment.
 """
 
 import requests
