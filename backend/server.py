@@ -174,6 +174,13 @@ class EmailResponse(BaseModel):
     message: str
     client_email: str
 
+class DirectEmailRequest(BaseModel):
+    to: str
+    subject: str
+    body: str
+    memberName: Optional[str] = None
+    templateName: Optional[str] = None
+
 class PaymentRecordRequest(BaseModel):
     client_id: str
     amount_paid: float
