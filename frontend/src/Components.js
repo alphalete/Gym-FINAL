@@ -25,6 +25,7 @@ import {
 } from './utils/common';
 // Import Icon components for consistent iconography
 import { Icon, StatIcon, ActionIcon } from './components/Icons';
+import { PencilIcon, TrashIcon, ChatBubbleLeftRightIcon, BanknotesIcon, ClockIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 
 // Hook to load members from storage
 
