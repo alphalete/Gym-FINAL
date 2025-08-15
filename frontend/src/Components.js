@@ -2986,7 +2986,9 @@ function EditMemberForm({ member, onSave, onCancel }) {
         name: `${form.firstName} ${form.lastName}`.trim() || form.firstName,
         email: form.email.trim() || '',
         phone: form.phone.trim() || '',
-        membership_type: form.membershipType,
+        membershipType: form.membershipType,  // camelCase for consistency
+        membership_type: form.membershipType, // snake_case for backend compatibility
+        plan: form.membershipType,            // alternative field name
         monthly_fee: parseFloat(form.monthlyFee),
         status: form.status,
         active: form.status === "Active",
