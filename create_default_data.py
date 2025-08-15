@@ -246,6 +246,23 @@ class DefaultDataCreator:
                         f"Successfully created member with ID: {member_id}"
                     )
                     return True
+                elif response.status == 400:
+                    response_text = await response.text()
+                    if "already exists" in response_text:
+                        # Member already exists, this is OK for testing
+                        await self.log_test_result(
+                            f"Create member {member_data['name']}", 
+                            True, 
+                            f"Member already exists (skipped): {member_data['name']} ({member_data['email']})"
+                        )
+                        return True
+                    else:
+                        await self.log_test_result(
+                            f"Create member {member_data['name']}", 
+                            False, 
+                            f"API returned status {response.status}: {response_text}"
+                        )
+                        return False
                 else:
                     response_text = await response.text()
                     await self.log_test_result(
