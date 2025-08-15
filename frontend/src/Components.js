@@ -1094,44 +1094,59 @@ function ClientManagement() {
                 }
               }
             }}>{isActive ? 'Deactivate' : 'Activate'}</button>
-            <button type="button" className="btn-danger" onClick={() => {
-              console.log('🎯 DELETE BUTTON CLICKED!', { name, id: m.id, onDeleteMember: typeof onDeleteMember });
-              
-              const performDelete = async () => {
-                console.log('🎯 Delete confirmed, proceeding...');
-                try {
-                  // Use the repository system for proper delete
-                  if (onDeleteMember) {
-                    console.log('🎯 Calling onDeleteMember function...');
-                    await onDeleteMember(m.id || m._id || m.uuid);
-                    console.log('🎯 onDeleteMember completed successfully');
-                  } else {
-                    console.log('🎯 No onDeleteMember function, using fallback...');
-                    // Fallback to manual backend call if no handler provided
-                    const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-                    if (backendUrl) {
-                      const response = await fetch(`${backendUrl}/api/clients/${m.id}`, { method: 'DELETE' });
-                      if (response.ok) {
-                        alert('✅ Member deleted successfully');
-                        // Trigger data refresh without full page reload
-                        window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'member_deleted' }));
-                      } else {
-                        throw new Error(`Delete failed: ${response.status}`);
+            <div 
+              style={{
+                backgroundColor: '#dc2626',
+                color: 'white',
+                padding: '8px 16px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500',
+                textAlign: 'center',
+                userSelect: 'none',
+                border: 'none',
+                display: 'inline-block'
+              }}
+              onClick={() => {
+                console.log('🎯 DELETE BUTTON CLICKED!', { name, id: m.id, onDeleteMember: typeof onDeleteMember });
+                
+                const performDelete = async () => {
+                  console.log('🎯 Delete confirmed, proceeding...');
+                  try {
+                    // Use the repository system for proper delete
+                    if (onDeleteMember) {
+                      console.log('🎯 Calling onDeleteMember function...');
+                      await onDeleteMember(m.id || m._id || m.uuid);
+                      console.log('🎯 onDeleteMember completed successfully');
+                    } else {
+                      console.log('🎯 No onDeleteMember function, using fallback...');
+                      // Fallback to manual backend call if no handler provided
+                      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+                      if (backendUrl) {
+                        const response = await fetch(`${backendUrl}/api/clients/${m.id}`, { method: 'DELETE' });
+                        if (response.ok) {
+                          alert('✅ Member deleted successfully');
+                          // Trigger data refresh without full page reload
+                          window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'member_deleted' }));
+                        } else {
+                          throw new Error(`Delete failed: ${response.status}`);
+                        }
                       }
                     }
+                  } catch (error) {
+                    console.error('Error deleting member:', error);
+                    alert('❌ Error deleting member. Please try again.');
                   }
-                } catch (error) {
-                  console.error('Error deleting member:', error);
-                  alert('❌ Error deleting member. Please try again.');
+                };
+                
+                if (confirm(`Are you sure you want to DELETE ${name}? This action cannot be undone.`)) {
+                  performDelete();
+                } else {
+                  console.log('🎯 Delete cancelled by user');
                 }
-              };
-              
-              if (confirm(`Are you sure you want to DELETE ${name}? This action cannot be undone.`)) {
-                performDelete();
-              } else {
-                console.log('🎯 Delete cancelled by user');
-              }
-            }}>Delete</button>
+              }}
+            >Delete</div>
             <button type="button" className="btn-primary" onClick={() => {
               // Store pending payment member ID and where user came from
               localStorage.setItem("pendingPaymentMemberId", String(m.id));
