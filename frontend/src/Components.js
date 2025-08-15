@@ -1233,7 +1233,7 @@ GoGym4U Team`
               <span className="text-xs font-medium text-gray-700 text-center">WhatsApp</span>
             </button>
             
-            <div className="relative">
+            <div className="relative email-dropdown-container">
               <button 
                 type="button"
                 className="rounded-xl px-1 py-2 flex flex-col items-center justify-center w-[58px] h-16 transition-all duration-200"
