@@ -956,7 +956,7 @@ function ClientManagement() {
     const name  = m?.name || `${m?.firstName ?? ""} ${m?.lastName ?? ""}`.trim() || "Member";
     const email = m?.email || "";
     const phone = m?.phone || m?.phoneNumber || "";
-    const plan  = m?.membershipType || m?.plan || "Unassigned";
+    const plan = m?.membershipType || m?.membership_type || m?.plan || m?.planName || "Unassigned";
     const isActive = m?.status === "Active" || !!m?.active;
     
     // State for edit modal
