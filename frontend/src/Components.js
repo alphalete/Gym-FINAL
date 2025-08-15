@@ -2080,7 +2080,7 @@ export function RecordPayment(){
   );
 }
 
-// --- Enhanced Add Member Form Component with Validation ---
+// --- Enhanced Add Member Form Component with Dynamic Plans Integration ---
 function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
   console.log('🔧 AddMemberForm component rendered');
   
@@ -2089,12 +2089,68 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
     lastName: "", 
     email: "", 
     phone: "", 
-    membershipType: "Basic",
-    monthlyFee: 55.0
+    membershipType: "",
+    monthlyFee: 0
   });
   const [saving, setSaving] = React.useState(false);
   const [errors, setErrors] = React.useState([]);
   const [syncStatus, setSyncStatus] = React.useState({ isOnline: true, pendingCount: 0 });
+  const [availablePlans, setAvailablePlans] = React.useState([]);
+  const [plansLoading, setPlansLoading] = React.useState(true);
+
+  // Load available plans from Plans storage
+  React.useEffect(() => {
+    const loadPlans = async () => {
+      try {
+        console.log('📋 Loading available plans for member creation...');
+        // Import storage dynamically to avoid circular dependencies
+        const { getAll } = await import('./storage');
+        const allPlans = await getAll('plans') || [];
+        const activePlans = allPlans.filter(p => !p._deleted);
+        
+        console.log(`📋 Loaded ${activePlans.length} active plans:`, activePlans.map(p => `${p.name} - TTD ${p.price}`));
+        setAvailablePlans(activePlans);
+        
+        // Set default plan if available
+        if (activePlans.length > 0 && !form.membershipType) {
+          const defaultPlan = activePlans[0];
+          setForm(f => ({
+            ...f,
+            membershipType: defaultPlan.name,
+            monthlyFee: parseFloat(defaultPlan.price) || 0
+          }));
+        }
+      } catch (error) {
+        console.error('❌ Error loading plans:', error);
+        // Fallback to hardcoded plans if storage fails
+        const fallbackPlans = [
+          { name: 'Basic', price: 55.0, cycleDays: 30 },
+          { name: 'Premium', price: 75.0, cycleDays: 30 },
+          { name: 'Elite', price: 100.0, cycleDays: 30 },
+          { name: 'VIP', price: 150.0, cycleDays: 30 }
+        ];
+        setAvailablePlans(fallbackPlans);
+        setForm(f => ({
+          ...f,
+          membershipType: 'Basic',
+          monthlyFee: 55.0
+        }));
+      } finally {
+        setPlansLoading(false);
+      }
+    };
+    
+    loadPlans();
+    
+    // Listen for plan changes to refresh available plans
+    const handlePlanChanged = () => {
+      console.log('🔄 Plans changed, reloading...');
+      loadPlans();
+    };
+    
+    window.addEventListener('DATA_CHANGED', handlePlanChanged);
+    return () => window.removeEventListener('DATA_CHANGED', handlePlanChanged);
+  }, []);
 
   // Check sync status on mount
   React.useEffect(() => {
@@ -2130,6 +2186,10 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
     
     if (!form.firstName.trim()) {
       newErrors.push('First name is required');
+    }
+    
+    if (!form.membershipType) {
+      newErrors.push('Please select a membership plan');
     }
     
     if (form.email && form.email.trim()) {
@@ -2182,25 +2242,26 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
         amount_owed: parseFloat(form.monthlyFee) // Set initial amount owed
       };
       
-      console.log('📝 Creating member:', member);
+      console.log('📝 Creating member with plan:', form.membershipType, member);
       
       if (onAddOrUpdateMember) {
         await onAddOrUpdateMember(member);
         
-        // Reset form
+        // Reset form with first available plan
+        const defaultPlan = availablePlans[0];
         setForm({ 
           firstName: "", 
           lastName: "", 
           email: "", 
           phone: "", 
-          membershipType: "Basic",
-          monthlyFee: 55.0
+          membershipType: defaultPlan?.name || "",
+          monthlyFee: parseFloat(defaultPlan?.price) || 0
         });
         
         // Show success message with sync status
         const statusMsg = syncStatus.isOnline 
-          ? `✅ Member "${member.name}" added successfully!`
-          : `✅ Member "${member.name}" saved locally. Will sync when online.`;
+          ? `✅ Member "${member.name}" added successfully with ${form.membershipType} plan!`
+          : `✅ Member "${member.name}" saved locally with ${form.membershipType} plan. Will sync when online.`;
         
         alert(statusMsg);
         
@@ -2216,20 +2277,17 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
     }
   };
 
-  // Update monthly fee when membership type changes
-  const handleMembershipTypeChange = (type) => {
-    const fees = {
-      'Basic': 55.0,
-      'Premium': 75.0,
-      'Elite': 100.0,
-      'VIP': 150.0
-    };
-    
-    setForm(f => ({
-      ...f, 
-      membershipType: type,
-      monthlyFee: fees[type] || 55.0
-    }));
+  // Update monthly fee when membership plan changes
+  const handleMembershipTypeChange = (planName) => {
+    const selectedPlan = availablePlans.find(p => p.name === planName);
+    if (selectedPlan) {
+      console.log('📋 Plan selected:', selectedPlan.name, 'Fee:', selectedPlan.price);
+      setForm(f => ({
+        ...f, 
+        membershipType: planName,
+        monthlyFee: parseFloat(selectedPlan.price) || 0
+      }));
+    }
   };
 
   return (
