@@ -1042,10 +1042,10 @@ function ClientManagement() {
             </div>
           </div>
 
-          <div className="mt-4 flex gap-1 justify-center overflow-x-auto">
+          <div className="mt-4 flex gap-1 justify-between px-2">
             <button 
               type="button"
-              className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[70px] h-16 transition-all duration-200 flex-shrink-0"
+              className="rounded-xl px-1 py-2 flex flex-col items-center justify-center w-[70px] h-16 transition-all duration-200"
               onClick={() => setShowEditModal(true)}
             >
               <div className="flex items-center justify-center mb-1">
@@ -1056,7 +1056,7 @@ function ClientManagement() {
             
             <button 
               type="button"
-              className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[70px] h-16 transition-all duration-200 flex-shrink-0"
+              className="rounded-xl px-1 py-2 flex flex-col items-center justify-center w-[70px] h-16 transition-all duration-200"
               onClick={async () => {
                 if (confirm(`${isActive ? 'Deactivate' : 'Activate'} ${name}?`)) {
                   try {
@@ -1102,7 +1102,7 @@ function ClientManagement() {
             
             <button 
               type="button"
-              className="rounded-xl px-1 py-2 flex flex-col items-center justify-center min-w-[72px] h-16 transition-all duration-200 flex-shrink-0"
+              className="rounded-xl px-1 py-2 flex flex-col items-center justify-center w-[70px] h-16 transition-all duration-200"
               onClick={() => {
                 // WhatsApp integration
                 if (phone) {
@@ -1118,12 +1118,12 @@ function ClientManagement() {
               <div className="flex items-center justify-center mb-1">
                 <ChatBubbleLeftRightIcon className="w-6 h-6 text-green-500 hover:text-green-600 transition-colors duration-200" />
               </div>
-              <span className="text-xs font-medium text-gray-700 text-center">WHATSAPP</span>
+              <span className="text-xs font-medium text-gray-700 text-center">WhatsApp</span>
             </button>
             
             <button 
               type="button"
-              className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[70px] h-16 transition-all duration-200 flex-shrink-0"
+              className="rounded-xl px-1 py-2 flex flex-col items-center justify-center w-[70px] h-16 transition-all duration-200"
               onClick={async () => {
                 console.log('🎯 DELETE BUTTON CLICKED!', { name, id: m.id, onDeleteMember: typeof onDeleteMember });
                 
@@ -1169,7 +1169,7 @@ function ClientManagement() {
             
             <button 
               type="button"
-              className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[70px] h-16 transition-all duration-200 flex-shrink-0"
+              className="rounded-xl px-1 py-2 flex flex-col items-center justify-center w-[70px] h-16 transition-all duration-200"
               onClick={() => {
                 // Store pending payment member ID and where user came from
                 localStorage.setItem("pendingPaymentMemberId", String(m.id));
