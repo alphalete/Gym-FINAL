@@ -2002,6 +2002,119 @@ GoGym4U Team`
         </div>
       </div>
       
+      {/* Email Templates Section */}
+      <div className="space-y-4 bg-white border rounded-2xl p-4">
+        <div className="flex justify-between items-center">
+          <div className="font-medium">Email Templates</div>
+          <button 
+            type="button" 
+            className="btn btn-primary text-sm px-3 py-1"
+            onClick={() => setShowCreateTemplate(true)}
+          >
+            + Add Template
+          </button>
+        </div>
+        
+        {loadingTemplates ? (
+          <div className="text-center py-4">Loading templates...</div>
+        ) : (
+          <div className="space-y-3">
+            {emailTemplates.map((template) => (
+              <div key={template.id} className="border rounded-lg p-3 bg-gray-50">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <div className="font-medium text-sm">{template.name}</div>
+                    <div className="text-xs text-gray-600">Subject: {template.subject}</div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button 
+                      className="text-blue-500 hover:text-blue-600 text-xs"
+                      onClick={() => startEdit(template)}
+                    >
+                      Edit
+                    </button>
+                    <button 
+                      className="text-red-500 hover:text-red-600 text-xs"
+                      onClick={() => deleteTemplate(template)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+                <div className="text-xs text-gray-500 max-w-full overflow-hidden">
+                  {template.body.substring(0, 100)}...
+                </div>
+              </div>
+            ))}
+            {emailTemplates.length === 0 && (
+              <div className="text-center py-4 text-gray-500">No email templates found</div>
+            )}
+          </div>
+        )}
+        
+        {/* Create/Edit Template Form */}
+        {showCreateTemplate && (
+          <div className="border-t pt-4">
+            <div className="font-medium mb-3">
+              {editingTemplate ? 'Edit Template' : 'Create New Template'}
+            </div>
+            <div className="space-y-3">
+              <label className="block">
+                <span className="text-sm font-medium text-gray-700">Template Name</span>
+                <input 
+                  className="mt-1 border rounded px-3 py-2 w-full" 
+                  type="text"
+                  value={templateForm.name}
+                  onChange={e => setTemplateForm(f => ({ ...f, name: e.target.value }))}
+                  placeholder="e.g., Payment Reminder, Welcome Email"
+                />
+              </label>
+              
+              <label className="block">
+                <span className="text-sm font-medium text-gray-700">Subject Line</span>
+                <input 
+                  className="mt-1 border rounded px-3 py-2 w-full" 
+                  type="text"
+                  value={templateForm.subject}
+                  onChange={e => setTemplateForm(f => ({ ...f, subject: e.target.value }))}
+                  placeholder="Email subject line"
+                />
+              </label>
+              
+              <label className="block">
+                <span className="text-sm font-medium text-gray-700">Email Body</span>
+                <textarea 
+                  className="mt-1 border rounded px-3 py-2 w-full h-32" 
+                  value={templateForm.body}
+                  onChange={e => setTemplateForm(f => ({ ...f, body: e.target.value }))}
+                  placeholder="Email content... Use {memberName} and {dueDate} for automatic member data insertion"
+                />
+                <span className="text-xs text-gray-500">
+                  Available variables: {'{memberName}'} and {'{dueDate}'}
+                </span>
+              </label>
+              
+              <div className="flex gap-2">
+                <button 
+                  type="button" 
+                  className="btn btn-primary"
+                  onClick={saveTemplate}
+                >
+                  {editingTemplate ? 'Update Template' : 'Save Template'}
+                </button>
+                <button 
+                  type="button" 
+                  className="btn btn-secondary"
+                  onClick={cancelEdit}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+      
       <div className="card">
         <div className="card-body">
           <div className="font-medium mb-2">Current Configuration</div>
