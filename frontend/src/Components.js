@@ -2803,6 +2803,9 @@ function EditMemberForm({ member, onSave, onCancel }) {
     </div>
   );
 }
+
+// Explicit component exports
+export {
   Dashboard,
   ClientManagement,
   PaymentTracking,
