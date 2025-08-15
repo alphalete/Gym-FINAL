@@ -1094,9 +1094,10 @@ function ClientManagement() {
                 }
               }
             }}>{isActive ? 'Deactivate' : 'Activate'}</button>
-            <button type="button" className="btn-danger" onClick={async () => {
+            <button type="button" className="btn-danger" onClick={() => {
               console.log('🎯 DELETE BUTTON CLICKED!', { name, id: m.id, onDeleteMember: typeof onDeleteMember });
-              if (confirm(`Are you sure you want to DELETE ${name}? This action cannot be undone.`)) {
+              
+              const performDelete = async () => {
                 console.log('🎯 Delete confirmed, proceeding...');
                 try {
                   // Use the repository system for proper delete
@@ -1123,6 +1124,10 @@ function ClientManagement() {
                   console.error('Error deleting member:', error);
                   alert('❌ Error deleting member. Please try again.');
                 }
+              };
+              
+              if (confirm(`Are you sure you want to DELETE ${name}? This action cannot be undone.`)) {
+                performDelete();
               } else {
                 console.log('🎯 Delete cancelled by user');
               }
