@@ -3173,58 +3173,7 @@ function EditMemberForm({ member, onSave, onCancel }) {
       </div>
     </div>
   );
-                className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-                  errors.some(e => e.includes('Monthly fee')) ? 'border-red-300 bg-red-50' : 'border-gray-300'
-                }`}
-                value={form.monthlyFee}
-                onChange={e => setForm(f => ({...f, monthlyFee: parseFloat(e.target.value) || 0}))}
-                required
-              />
-            </div>
-          </div>
-
-          {/* Status Field */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-            <select
-              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              value={form.status}
-              onChange={e => setForm(f => ({...f, status: e.target.value}))}
-            >
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-              <option value="Suspended">Suspended</option>
-            </select>
-          </div>
-          
-          {/* Action Buttons with GoGym4U styling */}
-          <div className="flex gap-3 pt-4">
-            <button
-              type="button"
-              className={`btn text-base font-semibold min-w-[140px] ${
-                saving 
-                  ? 'btn-secondary opacity-70 cursor-not-allowed' 
-                  : 'btn-primary hover:shadow-lg'
-              }`}
-              onClick={saving ? undefined : handleSubmit}
-              disabled={saving}
-            >
-              {saving ? '💾 Saving...' : '✅ Update Member'}
-            </button>
-            
-            <button
-              type="button"
-              className="btn btn-secondary text-base font-semibold"
-              onClick={onCancel}
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+};
 
 // Explicit component exports
 export {
