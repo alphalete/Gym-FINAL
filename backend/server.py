@@ -768,6 +768,100 @@ async def send_payment_reminder(reminder_request: CustomEmailRequest):
         logger.error(f"Unexpected error in send_payment_reminder: {str(unexpected_error)}")
         raise HTTPException(status_code=500, detail="Internal server error. Please try again.")
 
+@api_router.post("/email/send", response_model=EmailResponse)
+async def send_direct_email(email_request: DirectEmailRequest):
+    """Send direct email with custom subject and body"""
+    try:
+        # Create a simple HTML email from the plain text body
+        html_body = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body {{ 
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                    line-height: 1.6; 
+                    color: #2c3e50; 
+                    margin: 0; 
+                    padding: 20px; 
+                    background-color: #f8f9fa; 
+                }}
+                .container {{ 
+                    max-width: 600px; 
+                    margin: 0 auto; 
+                    background: white; 
+                    border-radius: 8px; 
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+                    overflow: hidden; 
+                }}
+                .header {{ 
+                    background: linear-gradient(135deg, #1a1a1a, #2c3e50); 
+                    color: white; 
+                    padding: 30px 20px; 
+                    text-align: center; 
+                }}
+                .header h1 {{ 
+                    margin: 0; 
+                    font-size: 28px; 
+                    font-weight: 600; 
+                    letter-spacing: 2px; 
+                }}
+                .content {{ 
+                    padding: 40px 30px; 
+                }}
+                .footer {{ 
+                    background: #2c3e50; 
+                    color: white; 
+                    padding: 25px; 
+                    text-align: center; 
+                    font-size: 14px; 
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>ALPHALETE ATHLETICS</h1>
+                    <p>Premium Fitness & Training</p>
+                </div>
+                <div class="content">
+                    {email_request.body.replace(chr(10), '<br>')}
+                </div>
+                <div class="footer">
+                    <p><strong>Alphalete Athletics</strong></p>
+                    <p>Premium Fitness & Training Facility</p>
+                    <p style="margin-top: 15px; font-size: 12px; opacity: 0.8;">
+                        This email was sent from the Alphalete Club management system.
+                    </p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        # Use the existing email service with a simple method
+        success = email_service.send_custom_email(
+            client_email=email_request.to,
+            subject=email_request.subject,
+            html_body=html_body
+        )
+        
+        logger.info(f"Direct email sent to {email_request.to}: {'success' if success else 'failed'}")
+        
+        return EmailResponse(
+            success=success,
+            message="Email sent successfully!" if success else "Failed to send email",
+            client_email=email_request.to
+        )
+        
+    except Exception as e:
+        logger.error(f"Error sending direct email to {email_request.to}: {str(e)}")
+        return EmailResponse(
+            success=False,
+            message=f"Failed to send email: {str(e)}",
+            client_email=email_request.to
+        )
+
 @api_router.post("/payments/record")
 async def record_client_payment(payment_request: PaymentRecordRequest):
     """Record a payment and update client's next payment date and billing cycle"""
