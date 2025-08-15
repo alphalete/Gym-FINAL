@@ -2361,6 +2361,9 @@ export function RecordPayment(){
                 <strong>Email:</strong> {selectedMember.email || 'Not provided'}
               </div>
               <div>
+                <strong>Phone:</strong> {selectedMember.phone || 'Not provided'}
+              </div>
+              <div>
                 <strong>Membership Plan:</strong> {selectedMember.membership_type || 'No plan'}
               </div>
               <div>
