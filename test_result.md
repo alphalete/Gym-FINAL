@@ -255,7 +255,7 @@
 ## current_status:
   backend_working: true
   frontend_issues: []
-  main_progress: "🎉 DYNAMIC MEMBERSHIP PLANS INTEGRATION COMPLETED SUCCESSFULLY! Enhanced Add Member form to dynamically load membership plans from Plans section instead of hardcoded plans. Edge case handling perfect (shows 'No plans available' message when no plans exist), form validation working (submit disabled when no plans), real-time plan updates via DATA_CHANGED events, console logging comprehensive, mobile-first design optimized. Integration between Plans and Members sections fully functional and production-ready."
+  main_progress: "🎉 AUTOMATIC DUE DATE CALCULATION IMPLEMENTED SUCCESSFULLY! Fixed critical issue where members showed 'No due date set' instead of automatically calculated due dates. Enhanced AddMemberForm to auto-calculate nextDue/dueDate fields (start_date + 30 days), enhanced EditMemberForm to recalculate due dates on plan changes, implemented ensureMemberDueDate utility in repository system for existing members, comprehensive due date fields (nextDue, dueDate, joinedOn) for better handling. Testing verified: NO members show 'No due date set', all members display calculated due dates (e.g., 'DUE 9/14/2025'), repository system auto-calculates missing due dates, console logs confirm calculations working perfectly. Due date calculation completely resolved and production-ready."
 
 ## test_plan:
   current_focus:
