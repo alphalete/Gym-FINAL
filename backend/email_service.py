@@ -473,3 +473,31 @@ class EmailService:
             if hasattr(e, 'smtp_error'):
                 logger.error(f"SMTP error: {e.smtp_error}")
             return False
+
+    def send_custom_email(self, client_email: str, subject: str, html_body: str):
+        """Send custom email with HTML body"""
+        try:
+            # Create message
+            msg = MIMEMultipart('alternative')
+            msg['Subject'] = subject
+            msg['From'] = f"Alphalete Athletics Club <{self.email}>"
+            msg['To'] = client_email
+            
+            # Add HTML content
+            html_part = MIMEText(html_body, 'html')
+            msg.attach(html_part)
+            
+            # Send email
+            logger.info(f"Sending custom email to: {client_email}")
+            with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
+                server.starttls()
+                server.login(self.email, self.password)
+                server.send_message(msg)
+                
+            logger.info(f"Custom email sent successfully to {client_email}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Failed to send custom email to {client_email}: {str(e)}")
+            logger.error(f"Error type: {type(e).__name__}")
+            return False
