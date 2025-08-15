@@ -1063,7 +1063,7 @@ function ClientManagement() {
               className="btn btn-secondary text-sm flex flex-col items-center py-3 px-4 min-w-[70px]"
               onClick={() => setShowEditModal(true)}
             >
-              <Icon name="✏️" size="lg" className="mb-1" />
+              <PencilIcon className="w-6 h-6 mb-1" />
               <span className="text-xs">Edit</span>
             </button>
             
@@ -1104,9 +1104,9 @@ function ClientManagement() {
               }}
             >
               {isActive ? (
-                <Icon name="⏰" size="lg" className="mb-1" />
+                <ClockIcon className="w-6 h-6 mb-1" />
               ) : (
-                <Icon name="→" size="lg" className="mb-1" />
+                <ArrowRightIcon className="w-6 h-6 mb-1" />
               )}
               <span className="text-xs">{isActive ? 'Deactivate' : 'Activate'}</span>
             </button>
@@ -1125,7 +1125,7 @@ function ClientManagement() {
                 }
               }}
             >
-              <Icon name="💬" size="lg" className="mb-1" />
+              <ChatBubbleLeftRightIcon className="w-6 h-6 mb-1" />
               <span className="text-xs">WhatsApp</span>
             </button>
             
@@ -1169,7 +1169,7 @@ function ClientManagement() {
                 }
               }}
             >
-              <Icon name="🗑️" size="lg" className="mb-1" />
+              <TrashIcon className="w-6 h-6 mb-1" />
               <span className="text-xs">Delete</span>
             </button>
             
@@ -1183,7 +1183,7 @@ function ClientManagement() {
                 window.navigateToTab?.('payments');
               }}
             >
-              <Icon name="💰" size="lg" className="mb-1" />
+              <BanknotesIcon className="w-6 h-6 mb-1" />
               <span className="text-xs">Payment</span>
             </button>
           </div>
