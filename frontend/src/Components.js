@@ -1809,6 +1809,15 @@ const Settings = () => {
   });
   const [loading, setLoading] = useState(true);
   const [storageStats, setStorageStats] = useState(null);
+  const [emailTemplates, setEmailTemplates] = useState([]);
+  const [loadingTemplates, setLoadingTemplates] = useState(true);
+  const [editingTemplate, setEditingTemplate] = useState(null);
+  const [showCreateTemplate, setShowCreateTemplate] = useState(false);
+  const [templateForm, setTemplateForm] = useState({
+    name: '',
+    subject: '',
+    body: ''
+  });
   
   useEffect(() => { 
     (async () => {
