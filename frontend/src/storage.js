@@ -7,7 +7,7 @@ class GymStorage {
     if (!('indexedDB' in window)) { this.idbOk=false; return false; }
     return new Promise((resolve) => {
       try{
-        const req = indexedDB.open('gym-db', 4);
+        const req = indexedDB.open('gym-db', 5);
         req.onupgradeneeded = (e)=>{
           const db = e.target.result;
           if (!db.objectStoreNames.contains('members')) {
@@ -25,6 +25,10 @@ class GymStorage {
           }
           if (!db.objectStoreNames.contains('plans')) {
             const s = db.createObjectStore('plans', { keyPath:'id' });
+            s.createIndex('id','id',{unique:true});
+          }
+          if (!db.objectStoreNames.contains('emailTemplates')) {
+            const s = db.createObjectStore('emailTemplates', { keyPath:'id' });
             s.createIndex('id','id',{unique:true});
           }
         };
