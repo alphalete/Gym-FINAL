@@ -512,8 +512,8 @@ class HeroiconReportsBackendTester:
                 max_time = max(response_times)
                 min_time = min(response_times)
                 
-                # Check if response times are consistent (max < 3x avg)
-                consistency_good = max_time < (avg_time * 3)
+                # Check if response times are consistent (max < 2x avg, more lenient)
+                consistency_good = max_time < (avg_time * 2) and max_time < 0.5
                 performance_good = avg_time < 1.0
                 
                 await self.log_test_result(
