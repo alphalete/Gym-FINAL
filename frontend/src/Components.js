@@ -2353,15 +2353,21 @@ export function RecordPayment(){
         <div className="card mb-4 bg-blue-50 border-blue-200">
           <div className="card-body">
             <h3 className="font-semibold text-lg mb-2">Member Information</h3>
+            {console.log('🔍 Payment Modal - Selected Member Data:', {
+              name: selectedMember.name,
+              email: selectedMember.email,
+              phone: selectedMember.phone,
+              fullObject: selectedMember
+            })}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
                 <strong>Name:</strong> {selectedMember.name}
               </div>
               <div>
-                <strong>Email:</strong> {selectedMember.email || 'Not provided'}
+                <strong>Email:</strong> {String(selectedMember.email || 'Not provided')}
               </div>
               <div>
-                <strong>Phone:</strong> {selectedMember.phone || 'Not provided'}
+                <strong>Phone:</strong> {String(selectedMember.phone || 'Not provided')}
               </div>
               <div>
                 <strong>Membership Plan:</strong> {selectedMember.membership_type || 'No plan'}
