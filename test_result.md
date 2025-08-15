@@ -236,7 +236,8 @@
     - "App.js stability backend integration"
     - "Settings sequential loading backend support"
     - "Reports component backend data requirements"
-  stuck_tasks: []
+  stuck_tasks: 
+    - "Delete Member functionality - button click events not working properly"
   test_all: false
   test_priority: "high_first"
 ## agent_communication:
