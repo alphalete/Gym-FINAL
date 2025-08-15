@@ -1025,41 +1025,57 @@ function ClientManagement() {
           </div>
 
           <div className="mt-4 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">
-            <button type="button" className="btn-secondary" onClick={async () => {
-              // Simple inline edit functionality using repository system
-              const newName = prompt(`Edit member name:`, name);
-              if (newName && newName.trim() && newName !== name) {
-                try {
-                  const updatedMember = { ...m, name: newName.trim() };
-                  
-                  // Use repository system for consistent offline-first behavior
-                  if (onAddOrUpdateMember) {
-                    await onAddOrUpdateMember(updatedMember);
-                    alert(`✅ Member name updated to "${newName}"`);
-                  } else {
-                    // Fallback to direct backend call if no repository handler
-                    const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-                    if (backendUrl) {
-                      const response = await fetch(`${backendUrl}/api/clients/${m.id}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(updatedMember)
-                      });
-                      if (response.ok) {
-                        alert(`✅ Member name updated to "${newName}"`);
-                        // Trigger data refresh without full page reload
-                        window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'member_updated' }));
-                      } else {
-                        throw new Error('Backend update failed');
+            <div 
+              style={{
+                backgroundColor: '#6b7280',
+                color: 'white',
+                padding: '8px 16px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500',
+                textAlign: 'center',
+                userSelect: 'none',
+                border: 'none',
+                display: 'inline-block',
+                marginRight: '8px'
+              }}
+              onClick={async () => {
+                // Simple inline edit functionality using repository system
+                const newName = prompt(`Edit member name:`, name);
+                if (newName && newName.trim() && newName !== name) {
+                  try {
+                    const updatedMember = { ...m, name: newName.trim() };
+                    
+                    // Use repository system for consistent offline-first behavior
+                    if (onAddOrUpdateMember) {
+                      await onAddOrUpdateMember(updatedMember);
+                      alert(`✅ Member name updated to "${newName}"`);
+                    } else {
+                      // Fallback to direct backend call if no repository handler
+                      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+                      if (backendUrl) {
+                        const response = await fetch(`${backendUrl}/api/clients/${m.id}`, {
+                          method: 'PUT',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify(updatedMember)
+                        });
+                        if (response.ok) {
+                          alert(`✅ Member name updated to "${newName}"`);
+                          // Trigger data refresh without full page reload
+                          window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'member_updated' }));
+                        } else {
+                          throw new Error('Backend update failed');
+                        }
                       }
                     }
+                  } catch (error) {
+                    console.error('Error updating member:', error);
+                    alert('❌ Error updating member. Please try again.');
                   }
-                } catch (error) {
-                  console.error('Error updating member:', error);
-                  alert('❌ Error updating member. Please try again.');
                 }
-              }
-            }}>Edit</button>
+              }}
+            >Edit</div>
             
             <button type="button" className="btn-warning" onClick={async () => {
               if (confirm(`${isActive ? 'Deactivate' : 'Activate'} ${name}?`)) {
