@@ -78,37 +78,30 @@ export default function App(){
       caches?.keys?.().then(keys => keys.forEach(k => caches.delete(k))).catch(() => {});
     }
 
-    // CRITICAL: Clear all local storage and IndexedDB to force fresh data load
-    const clearAllStorage = async () => {
+    // CONSERVATIVE: Clear only specific storage items that might cache member data
+    const clearMemberCache = () => {
       try {
-        // Clear localStorage
-        localStorage.clear();
-        console.log('🧹 Cleared localStorage');
+        // Clear specific localStorage keys related to members
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && (key.includes('member') || key.includes('client') || key.includes('gym'))) {
+            keysToRemove.push(key);
+          }
+        }
+        keysToRemove.forEach(key => localStorage.removeItem(key));
+        console.log(`🧹 Cleared ${keysToRemove.length} member-related localStorage items`);
         
-        // Clear sessionStorage
+        // Clear sessionStorage completely (safer than localStorage full clear)
         sessionStorage.clear();
         console.log('🧹 Cleared sessionStorage');
         
-        // Clear IndexedDB
-        if (window.indexedDB) {
-          const databases = await indexedDB.databases?.() || [];
-          for (const db of databases) {
-            if (db.name) {
-              const deleteReq = indexedDB.deleteDatabase(db.name);
-              await new Promise((resolve) => {
-                deleteReq.onsuccess = () => resolve();
-                deleteReq.onerror = () => resolve();
-              });
-              console.log(`🧹 Cleared IndexedDB: ${db.name}`);
-            }
-          }
-        }
       } catch (e) {
-        console.warn('Warning: Could not clear all storage:', e);
+        console.warn('Warning: Could not clear member cache:', e);
       }
     };
 
-    clearAllStorage();
+    clearMemberCache();
 
     // CRITICAL: Dismiss loading screen when React app mounts
     const dismissLoadingScreen = () => {
