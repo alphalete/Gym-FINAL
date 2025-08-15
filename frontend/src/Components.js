@@ -1045,7 +1045,7 @@ function ClientManagement() {
           <div className="mt-4 flex gap-1 justify-center overflow-x-auto">
             <button 
               type="button"
-              className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[60px] h-16 transition-all duration-200 flex-shrink-0"
+              className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[70px] h-16 transition-all duration-200 flex-shrink-0"
               onClick={() => setShowEditModal(true)}
             >
               <div className="flex items-center justify-center mb-1">
@@ -1056,7 +1056,7 @@ function ClientManagement() {
             
             <button 
               type="button"
-              className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[60px] h-16 transition-all duration-200 flex-shrink-0"
+              className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[70px] h-16 transition-all duration-200 flex-shrink-0"
               onClick={async () => {
                 if (confirm(`${isActive ? 'Deactivate' : 'Activate'} ${name}?`)) {
                   try {
@@ -1102,7 +1102,7 @@ function ClientManagement() {
             
             <button 
               type="button"
-              className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[60px] h-16 transition-all duration-200 flex-shrink-0"
+              className="rounded-xl px-1 py-2 flex flex-col items-center justify-center min-w-[72px] h-16 transition-all duration-200 flex-shrink-0"
               onClick={() => {
                 // WhatsApp integration
                 if (phone) {
@@ -1123,7 +1123,7 @@ function ClientManagement() {
             
             <button 
               type="button"
-              className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[60px] h-16 transition-all duration-200 flex-shrink-0"
+              className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[70px] h-16 transition-all duration-200 flex-shrink-0"
               onClick={async () => {
                 console.log('🎯 DELETE BUTTON CLICKED!', { name, id: m.id, onDeleteMember: typeof onDeleteMember });
                 
@@ -1169,7 +1169,7 @@ function ClientManagement() {
             
             <button 
               type="button"
-              className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[60px] h-16 transition-all duration-200 flex-shrink-0"
+              className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[70px] h-16 transition-all duration-200 flex-shrink-0"
               onClick={() => {
                 // Store pending payment member ID and where user came from
                 localStorage.setItem("pendingPaymentMemberId", String(m.id));
