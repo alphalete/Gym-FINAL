@@ -1056,16 +1056,19 @@ function ClientManagement() {
             </div>
           </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">
+          <div className="mt-4 flex flex-wrap gap-3 justify-center">
             <button 
               type="button"
-              className="btn btn-secondary text-sm"
+              className="btn btn-secondary text-sm flex flex-col items-center py-3 px-4 min-w-[70px]"
               onClick={() => setShowEditModal(true)}
-            >Edit</button>
+            >
+              <span className="text-lg mb-1">✏️</span>
+              <span className="text-xs">Edit</span>
+            </button>
             
             <button 
               type="button"
-              className="btn btn-warning text-sm"
+              className="btn btn-warning text-sm flex flex-col items-center py-3 px-4 min-w-[70px]"
               onClick={async () => {
                 if (confirm(`${isActive ? 'Deactivate' : 'Activate'} ${name}?`)) {
                   try {
@@ -1098,7 +1101,10 @@ function ClientManagement() {
                   }
                 }
               }}
-            >{isActive ? 'Deactivate' : 'Activate'}</button>
+            >
+              <span className="text-lg mb-1">{isActive ? '⏸️' : '▶️'}</span>
+              <span className="text-xs">{isActive ? 'Deactivate' : 'Activate'}</span>
+            </button>
             <button 
               type="button"
               className="btn btn-danger text-sm"
