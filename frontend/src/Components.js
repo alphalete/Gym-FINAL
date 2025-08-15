@@ -2391,22 +2391,18 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
       </div>
       
       <div className="flex gap-3 pt-4">
-        {/* Enhanced submit button with better feedback */}
-        <div 
-          style={{
-            backgroundColor: saving ? '#9ca3af' : (errors.length > 0 || availablePlans.length === 0 ? '#dc2626' : '#1e40af'),
-            color: 'white',
-            padding: '12px 24px',
-            borderRadius: '8px',
-            cursor: (saving || availablePlans.length === 0) ? 'not-allowed' : 'pointer',
-            fontSize: '16px',
-            fontWeight: '600',
-            textAlign: 'center',
-            userSelect: 'none',
-            opacity: (saving || availablePlans.length === 0) ? 0.7 : 1,
-            minWidth: '140px'
-          }}
+        {/* Enhanced submit button with proper GoGym4U styling */}
+        <button
+          type="button"
+          className={`btn text-base font-semibold min-w-[140px] ${
+            saving 
+              ? 'btn-secondary opacity-70 cursor-not-allowed' 
+              : availablePlans.length === 0
+                ? 'btn-danger opacity-70 cursor-not-allowed'
+                : 'btn-primary hover:shadow-lg'
+          }`}
           onClick={saving || availablePlans.length === 0 ? undefined : handleSubmit}
+          disabled={saving || availablePlans.length === 0}
         >
           {saving 
             ? '💾 Saving...' 
@@ -2416,24 +2412,15 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
                 ? '➕ Add Member' 
                 : '📱 Save Locally'
           }
-        </div>
+        </button>
         
-        <div 
-          style={{
-            backgroundColor: '#6b7280',
-            color: 'white',
-            padding: '12px 24px',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontSize: '16px',
-            fontWeight: '600',
-            textAlign: 'center',
-            userSelect: 'none'
-          }}
+        <button
+          type="button"
+          className="btn btn-secondary text-base font-semibold"
           onClick={onCancel}
         >
           Cancel
-        </div>
+        </button>
       </div>
     </div>
   );
