@@ -1030,20 +1030,7 @@ function ClientManagement() {
           <div className="mt-4 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">
             <button 
               type="button"
-              style={{
-                backgroundColor: '#6b7280',
-                color: 'white',
-                padding: '8px 16px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: '500',
-                textAlign: 'center',
-                userSelect: 'none',
-                border: 'none',
-                display: 'inline-block',
-                marginRight: '8px'
-              }}
+              className="btn btn-secondary text-sm"
               onClick={() => setShowEditModal(true)}
             >Edit</button>
             
