@@ -76,30 +76,27 @@ const validateMember = (member, isCreation = true) => {
   return errors;
 };
 
-// Offline-first data loading: IndexedDB primary, API sync secondary
+// Enhanced data loading: Backend first with local fallback
 const getAllMembers = async () => {
   try {
-    console.log('🔄 [members.repo] getAllMembers called - forcing fresh data load');
+    console.log('🔄 [members.repo] getAllMembers called - loading fresh data');
     
-    // FORCE FRESH LOAD: Always try backend first to get latest data
-    let backendMembers = [];
+    // TRY BACKEND FIRST for fresh data
     try {
       const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       if (backendUrl) {
         console.log('🌐 [members.repo] Fetching from backend:', `${backendUrl}/api/clients`);
         const response = await fetch(`${backendUrl}/api/clients`, {
           headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
+            'Cache-Control': 'no-cache'
           }
         });
         if (response.ok) {
-          backendMembers = await response.json();
+          const backendMembers = await response.json();
           console.log(`✅ [members.repo] Loaded ${backendMembers.length} members from backend`);
           
           if (Array.isArray(backendMembers)) {
-            // Save fresh data to local storage
+            // Save fresh data to local storage for offline use
             await saveAllMembers(backendMembers);
             console.log(`💾 [members.repo] Saved ${backendMembers.length} members to local storage`);
             return backendMembers;
@@ -112,7 +109,7 @@ const getAllMembers = async () => {
       console.warn('⚠️ [members.repo] Backend connection failed:', backendError.message);
     }
     
-    // Fallback to local storage only if backend fails
+    // Fallback to local storage if backend fails
     console.log('📱 [members.repo] Falling back to local storage...');
     let localMembers = [];
     try {
