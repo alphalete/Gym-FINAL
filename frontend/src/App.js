@@ -78,6 +78,38 @@ export default function App(){
       caches?.keys?.().then(keys => keys.forEach(k => caches.delete(k))).catch(() => {});
     }
 
+    // CRITICAL: Clear all local storage and IndexedDB to force fresh data load
+    const clearAllStorage = async () => {
+      try {
+        // Clear localStorage
+        localStorage.clear();
+        console.log('🧹 Cleared localStorage');
+        
+        // Clear sessionStorage
+        sessionStorage.clear();
+        console.log('🧹 Cleared sessionStorage');
+        
+        // Clear IndexedDB
+        if (window.indexedDB) {
+          const databases = await indexedDB.databases?.() || [];
+          for (const db of databases) {
+            if (db.name) {
+              const deleteReq = indexedDB.deleteDatabase(db.name);
+              await new Promise((resolve) => {
+                deleteReq.onsuccess = () => resolve();
+                deleteReq.onerror = () => resolve();
+              });
+              console.log(`🧹 Cleared IndexedDB: ${db.name}`);
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Warning: Could not clear all storage:', e);
+      }
+    };
+
+    clearAllStorage();
+
     // CRITICAL: Dismiss loading screen when React app mounts
     const dismissLoadingScreen = () => {
       const loadingScreen = document.getElementById('loading-screen');
