@@ -77,6 +77,25 @@ export default function App(){
       navigator.serviceWorker.getRegistrations?.().then(rs => rs.forEach(r => r.unregister())).catch(() => {});
       caches?.keys?.().then(keys => keys.forEach(k => caches.delete(k))).catch(() => {});
     }
+
+    // CRITICAL: Dismiss loading screen when React app mounts
+    const dismissLoadingScreen = () => {
+      const loadingScreen = document.getElementById('loading-screen');
+      if (loadingScreen) {
+        loadingScreen.style.display = 'none';
+        console.log('🚀 Loading screen dismissed by React App mount');
+      }
+    };
+
+    // Dismiss loading screen immediately when React mounts
+    dismissLoadingScreen();
+    
+    // Also call the global dismissal function if it exists
+    if (window.dismissLoadingScreen) {
+      window.dismissLoadingScreen();
+    }
+
+    setReady(true);
   }, []);
 
   return (
