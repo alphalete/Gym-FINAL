@@ -16,6 +16,7 @@ const safePick = (bag, key) => (bag && bag[key]) ? bag[key] : (() => <div classN
 // Navigation wrapper component to expose navigation globally
 const AppContent = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const C = Components || {};
 
   const safePick = (bag, key) => (bag && bag[key]) ? bag[key] : (() => <div className="p-4">No {key}</div>);
@@ -37,6 +38,12 @@ const AppContent = () => {
       };
       if (routes[tab]) {
         navigate(routes[tab]);
+        // Save the last selected tab
+        try {
+          localStorage.setItem('ui:lastTab', tab);
+        } catch (e) {
+          console.warn('Could not save last tab to localStorage:', e);
+        }
       }
     };
     // Back-compat alias in case older code calls window.setActiveTab
@@ -44,6 +51,52 @@ const AppContent = () => {
     // Also expose direct navigate function
     window.navigateTo = navigate;
   }, [navigate]);
+
+  // Persist last selected tab whenever route changes
+  useEffect(() => {
+    const currentPath = location.pathname;
+    const tabMap = {
+      '/dashboard': 'dashboard',
+      '/members': 'members',
+      '/plans': 'plans',
+      '/payments': 'payments',
+      '/reports': 'reports',
+      '/settings': 'settings'
+    };
+    
+    const currentTab = tabMap[currentPath];
+    if (currentTab) {
+      try {
+        localStorage.setItem('ui:lastTab', currentTab);
+      } catch (e) {
+        console.warn('Could not save last tab to localStorage:', e);
+      }
+    }
+  }, [location.pathname]);
+
+  // Restore last selected tab on app load
+  useEffect(() => {
+    try {
+      const lastTab = localStorage.getItem('ui:lastTab');
+      if (lastTab && location.pathname === '/') {
+        // Only navigate if we're on the root path (to avoid overriding direct navigation)
+        const routes = {
+          'dashboard': '/dashboard',
+          'members': '/members', 
+          'plans': '/plans',
+          'payments': '/payments',
+          'reports': '/reports',
+          'settings': '/settings'
+        };
+        
+        if (routes[lastTab]) {
+          navigate(routes[lastTab], { replace: true });
+        }
+      }
+    } catch (e) {
+      console.warn('Could not restore last tab from localStorage:', e);
+    }
+  }, []); // Run only once on mount
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
