@@ -1145,7 +1145,7 @@ GoGym4U Team`
           <div className="mt-4 flex gap-1 justify-between px-2">
             <button 
               type="button"
-              className="rounded-xl px-1 py-2 flex flex-col items-center justify-center w-[70px] h-16 transition-all duration-200"
+              className="rounded-xl px-1 py-2 flex flex-col items-center justify-center w-[58px] h-16 transition-all duration-200"
               onClick={() => setShowEditModal(true)}
             >
               <div className="flex items-center justify-center mb-1">
@@ -1156,7 +1156,7 @@ GoGym4U Team`
             
             <button 
               type="button"
-              className="rounded-xl px-1 py-2 flex flex-col items-center justify-center w-[70px] h-16 transition-all duration-200"
+              className="rounded-xl px-1 py-2 flex flex-col items-center justify-center w-[58px] h-16 transition-all duration-200"
               onClick={async () => {
                 if (confirm(`${isActive ? 'Deactivate' : 'Activate'} ${name}?`)) {
                   try {
@@ -1202,7 +1202,7 @@ GoGym4U Team`
             
             <button 
               type="button"
-              className="rounded-xl px-1 py-2 flex flex-col items-center justify-center w-[70px] h-16 transition-all duration-200"
+              className="rounded-xl px-1 py-2 flex flex-col items-center justify-center w-[58px] h-16 transition-all duration-200"
               onClick={() => {
                 // WhatsApp integration
                 if (phone) {
@@ -1221,9 +1221,46 @@ GoGym4U Team`
               <span className="text-xs font-medium text-gray-700 text-center">WhatsApp</span>
             </button>
             
+            <div className="relative">
+              <button 
+                type="button"
+                className="rounded-xl px-1 py-2 flex flex-col items-center justify-center w-[58px] h-16 transition-all duration-200"
+                onClick={() => setShowEmailDropdown(!showEmailDropdown)}
+                disabled={sendingEmail}
+              >
+                <div className="flex items-center justify-center mb-1">
+                  <EnvelopeIcon className="w-6 h-6 text-indigo-500 hover:text-indigo-600 transition-colors duration-200" />
+                </div>
+                <span className="text-xs font-medium text-gray-700 text-center">
+                  {sendingEmail ? 'Sending...' : 'Email'}
+                </span>
+              </button>
+              
+              {/* Email Template Dropdown */}
+              {showEmailDropdown && (
+                <div className="absolute bottom-full left-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[180px]">
+                  <div className="p-2">
+                    <div className="text-xs font-semibold text-gray-600 mb-2 px-2">Select Template:</div>
+                    {emailTemplates.map((template) => (
+                      <button
+                        key={template.id}
+                        className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 rounded transition-colors"
+                        onClick={() => handleSendEmail(template)}
+                      >
+                        {template.name}
+                      </button>
+                    ))}
+                    {emailTemplates.length === 0 && (
+                      <div className="px-3 py-2 text-sm text-gray-500">No templates available</div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+            
             <button 
               type="button"
-              className="rounded-xl px-1 py-2 flex flex-col items-center justify-center w-[70px] h-16 transition-all duration-200"
+              className="rounded-xl px-1 py-2 flex flex-col items-center justify-center w-[58px] h-16 transition-all duration-200"
               onClick={async () => {
                 console.log('🎯 DELETE BUTTON CLICKED!', { name, id: m.id, onDeleteMember: typeof onDeleteMember });
                 
@@ -1269,7 +1306,7 @@ GoGym4U Team`
             
             <button 
               type="button"
-              className="rounded-xl px-1 py-2 flex flex-col items-center justify-center w-[70px] h-16 transition-all duration-200"
+              className="rounded-xl px-1 py-2 flex flex-col items-center justify-center w-[58px] h-16 transition-all duration-200"
               onClick={() => {
                 // Store pending payment member ID and where user came from
                 localStorage.setItem("pendingPaymentMemberId", String(m.id));
