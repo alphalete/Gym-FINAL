@@ -1183,6 +1183,40 @@ function ClientManagement() {
             }}>WhatsApp</button>
           </div>
         </div>
+        
+        {/* Edit Member Modal */}
+        {showEditModal && (
+          <EditMemberForm
+            member={m}
+            onSave={async (updatedMember) => {
+              try {
+                if (onAddOrUpdateMember) {
+                  await onAddOrUpdateMember(updatedMember);
+                } else {
+                  // Fallback to direct backend call if no repository handler
+                  const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+                  if (backendUrl) {
+                    const response = await fetch(`${backendUrl}/api/clients/${updatedMember.id}`, {
+                      method: 'PUT',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(updatedMember)
+                    });
+                    if (!response.ok) {
+                      throw new Error('Backend update failed');
+                    }
+                    // Trigger data refresh
+                    window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'member_updated' }));
+                  }
+                }
+                setShowEditModal(false);
+              } catch (error) {
+                console.error('Error updating member:', error);
+                throw error; // Let EditMemberForm handle the error display
+              }
+            }}
+            onCancel={() => setShowEditModal(false)}
+          />
+        )}
       </div>
     );
   };
