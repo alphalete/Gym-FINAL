@@ -1126,7 +1126,8 @@ function ClientManagement() {
                 }
               }}
             >{isActive ? 'Deactivate' : 'Activate'}</div>
-            <div 
+            <button 
+              type="button"
               style={{
                 backgroundColor: '#dc2626',
                 color: 'white',
@@ -1178,7 +1179,7 @@ function ClientManagement() {
                   console.log('🎯 Delete cancelled by user');
                 }
               }}
-            >Delete</div>
+            >Delete</button>
             <div 
               style={{
                 backgroundColor: '#1e40af',
