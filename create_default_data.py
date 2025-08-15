@@ -117,6 +117,23 @@ class DefaultDataCreator:
                         f"Successfully created plan with ID: {plan_id}, Fee: TTD {plan_data['monthly_fee']}"
                     )
                     return True
+                elif response.status == 400:
+                    response_text = await response.text()
+                    if "already exists" in response_text:
+                        # Plan already exists, this is OK
+                        await self.log_test_result(
+                            f"Create {plan_data['name']} plan", 
+                            True, 
+                            f"Plan already exists (skipped): {plan_data['name']} - TTD {plan_data['monthly_fee']}"
+                        )
+                        return True
+                    else:
+                        await self.log_test_result(
+                            f"Create {plan_data['name']} plan", 
+                            False, 
+                            f"API returned status {response.status}: {response_text}"
+                        )
+                        return False
                 else:
                     response_text = await response.text()
                     await self.log_test_result(
