@@ -1078,7 +1078,8 @@ function ClientManagement() {
               }}
             >Edit</button>
             
-            <div 
+            <button 
+              type="button"
               style={{
                 backgroundColor: '#f59e0b',
                 color: 'white',
@@ -1126,7 +1127,7 @@ function ClientManagement() {
                   }
                 }
               }}
-            >{isActive ? 'Deactivate' : 'Activate'}</div>
+            >{isActive ? 'Deactivate' : 'Activate'}</button>
             <button 
               type="button"
               style={{
