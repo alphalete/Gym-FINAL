@@ -71,7 +71,7 @@ function computeNextDuePreview(currentNextDueISO, monthsCovered) {
 
 // --- Payments (PaymentTracking) ---
 const PaymentComponent = () => {
-  const { members: membersPT, setMembers: setMembersPT, loading: loadingPT } = useMembersFromStorage();
+  const { members: membersPT, setMembers: setMembersPT, loading: loadingPT, refresh: refreshMembers } = useMembersRepo();
   const [payments, setPayments] = useState([]);
   const [selectedClient, setSelectedClient] = useState(null);
   const [isRecordingPayment, setIsRecordingPayment] = useState(false);
@@ -89,6 +89,13 @@ const PaymentComponent = () => {
       if (pendingId && membersPT.length > 0) {
         const member = membersPT.find(m => String(m.id) === String(pendingId));
         if (member) {
+          console.log('🎯 Selected member for payment:', {
+            name: member.name,
+            plan: member.membership_type,
+            fee: member.monthly_fee,
+            nextDue: member.nextDue || member.dueDate,
+            startDate: member.start_date
+          });
           setSelectedClient(member);
           setIsRecordingPayment(true);
         }
@@ -104,12 +111,17 @@ const PaymentComponent = () => {
     })();
   }, [membersPT]);
 
-  // When selecting client, default amount from snapshot
+  // When selecting client, default amount from enhanced member data
   useEffect(() => {
     if (!selectedClient) return;
     const m = membersPT.find(x => String(x.id) === String(selectedClient.id));
     if (!m) return;
-    if (!paymentAmount && m.fee != null) setPaymentAmount(String(m.fee));
+    // Use monthly_fee from enhanced member data
+    const memberFee = m.monthly_fee || m.fee;
+    if (!paymentAmount && memberFee != null) {
+      setPaymentAmount(String(memberFee));
+      console.log('💰 Set payment amount from member data:', memberFee);
+    }
   }, [selectedClient, membersPT]);
 
   // Render loading state without early return to avoid hook issues
