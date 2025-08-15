@@ -2734,40 +2734,24 @@ function EditMemberForm({ member, onSave, onCancel }) {
             </select>
           </div>
           
-          {/* Action Buttons */}
+          {/* Action Buttons with GoGym4U styling */}
           <div className="flex gap-3 pt-4">
             <button
               type="button"
-              style={{
-                backgroundColor: saving ? '#9ca3af' : '#1e40af',
-                color: 'white',
-                padding: '12px 24px',
-                borderRadius: '8px',
-                cursor: saving ? 'not-allowed' : 'pointer',
-                fontSize: '16px',
-                fontWeight: '600',
-                textAlign: 'center',
-                border: 'none',
-                minWidth: '140px'
-              }}
+              className={`btn text-base font-semibold min-w-[140px] ${
+                saving 
+                  ? 'btn-secondary opacity-70 cursor-not-allowed' 
+                  : 'btn-primary hover:shadow-lg'
+              }`}
               onClick={saving ? undefined : handleSubmit}
+              disabled={saving}
             >
               {saving ? '💾 Saving...' : '✅ Update Member'}
             </button>
             
             <button
               type="button"
-              style={{
-                backgroundColor: '#6b7280',
-                color: 'white',
-                padding: '12px 24px',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: '16px',
-                fontWeight: '600',
-                textAlign: 'center',
-                border: 'none'
-              }}
+              className="btn btn-secondary text-base font-semibold"
               onClick={onCancel}
             >
               Cancel
