@@ -1112,7 +1112,7 @@ function ClientManagement() {
                 // WhatsApp integration
                 if (phone) {
                   const phoneNumber = phone.replace(/\D/g, ''); // Remove non-digits
-                  const message = `Hi ${name}, this is a message from GoGym4U regarding your ${membershipType} membership.`;
+                  const message = `Hi ${name}, this is a message from GoGym4U regarding your ${plan} membership.`;
                   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
                   window.open(whatsappUrl, '_blank');
                 } else {
