@@ -1107,7 +1107,26 @@ function ClientManagement() {
             </button>
             <button 
               type="button"
-              className="btn btn-danger text-sm"
+              className="btn btn-success text-sm flex flex-col items-center py-3 px-4 min-w-[70px]"
+              onClick={() => {
+                // WhatsApp integration
+                if (phone) {
+                  const phoneNumber = phone.replace(/\D/g, ''); // Remove non-digits
+                  const message = `Hi ${name}, this is a message from GoGym4U regarding your ${membershipType} membership.`;
+                  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+                  window.open(whatsappUrl, '_blank');
+                } else {
+                  alert('❌ No phone number available for this member');
+                }
+              }}
+            >
+              <span className="text-lg mb-1">💬</span>
+              <span className="text-xs">WhatsApp</span>
+            </button>
+            
+            <button 
+              type="button"
+              className="btn btn-danger text-sm flex flex-col items-center py-3 px-4 min-w-[70px]"
               onClick={async () => {
                 console.log('🎯 DELETE BUTTON CLICKED!', { name, id: m.id, onDeleteMember: typeof onDeleteMember });
                 
@@ -1144,28 +1163,24 @@ function ClientManagement() {
                   alert('❌ Error deleting member. Please try again.');
                 }
               }}
-            >Delete</button>
+            >
+              <span className="text-lg mb-1">🗑️</span>
+              <span className="text-xs">Delete</span>
+            </button>
             
             <button 
               type="button"
-              className="btn btn-primary text-sm"
+              className="btn btn-primary text-sm flex flex-col items-center py-3 px-4 min-w-[70px]"
               onClick={() => {
                 // Store pending payment member ID and where user came from
                 localStorage.setItem("pendingPaymentMemberId", String(m.id));
                 localStorage.setItem("pendingPaymentOrigin", "members");
                 window.navigateToTab?.('payments');
               }}
-            >Record Payment</button>
-            <button type="button" className="btn-ghost" onClick={() => {
-              // Open WhatsApp with member's phone
-              const phoneNum = phone.replace(/\D/g, ''); // Remove non-digits
-              if (phoneNum) {
-                const message = encodeURIComponent(`Hi ${name}, this is regarding your gym membership.`);
-                window.open(`https://wa.me/${phoneNum}?text=${message}`, '_blank');
-              } else {
-                alert('No phone number available for this member.');
-              }
-            }}>WhatsApp</button>
+            >
+              <span className="text-lg mb-1">💰</span>
+              <span className="text-xs">Payment</span>
+            </button>
           </div>
         </div>
         
