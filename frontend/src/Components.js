@@ -2230,22 +2230,36 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
     setErrors([]);
     
     try {
+      const startDate = new Date();
+      const billingIntervalDays = 30; // Default 30-day billing cycle
+      const nextDueDate = new Date(startDate);
+      nextDueDate.setDate(nextDueDate.getDate() + billingIntervalDays);
+      
       const member = { 
         name: `${form.firstName} ${form.lastName}`.trim() || form.firstName,
         email: form.email.trim() || '',
         phone: form.phone.trim() || '',
         membership_type: form.membershipType,
         monthly_fee: parseFloat(form.monthlyFee),
-        start_date: new Date().toISOString().slice(0, 10),
+        start_date: startDate.toISOString().slice(0, 10),
+        nextDue: nextDueDate.toISOString().slice(0, 10), // Auto-calculated due date
+        dueDate: nextDueDate.toISOString().slice(0, 10), // Alternative field name
+        joinedOn: startDate.toISOString().slice(0, 10), // For fallback calculations
         payment_status: "due",
         status: "Active", 
         active: true,
         auto_reminders_enabled: true,
-        billing_interval_days: 30,
+        billing_interval_days: billingIntervalDays,
         amount_owed: parseFloat(form.monthlyFee) // Set initial amount owed
       };
       
-      console.log('📝 Creating member with plan:', form.membershipType, member);
+      console.log('📝 Creating member with auto-calculated due date:', {
+        name: member.name,
+        plan: form.membershipType,
+        startDate: member.start_date,
+        nextDue: member.nextDue,
+        billingInterval: billingIntervalDays
+      });
       
       if (onAddOrUpdateMember) {
         await onAddOrUpdateMember(member);
