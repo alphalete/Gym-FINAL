@@ -944,6 +944,9 @@ function ClientManagement() {
     const plan  = m?.membershipType || m?.plan || "Unassigned";
     const isActive = m?.status === "Active" || !!m?.active;
     
+    // State for edit modal
+    const [showEditModal, setShowEditModal] = React.useState(false);
+    
     // Calculate due date information
     const nextDue = m?.nextDue || m?.nextDueDate || m?.dueDate;
     const joinedOn = m?.joinedOn || m?.createdAt;
