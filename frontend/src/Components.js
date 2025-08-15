@@ -2603,6 +2603,19 @@ function EditMemberForm({ member, onSave, onCancel }) {
     setErrors([]);
     
     try {
+      // Calculate due date if it doesn't exist or if plan/billing changed
+      let nextDueDate = member.nextDue || member.dueDate;
+      
+      // If no due date exists or if this is a plan change, calculate new due date
+      if (!nextDueDate || form.membershipType !== member.membership_type) {
+        const startDate = member.start_date ? new Date(member.start_date) : new Date();
+        const billingIntervalDays = member.billing_interval_days || 30;
+        const calculatedDue = new Date(startDate);
+        calculatedDue.setDate(calculatedDue.getDate() + billingIntervalDays);
+        nextDueDate = calculatedDue.toISOString().slice(0, 10);
+        console.log('📅 Recalculated due date for member:', nextDueDate);
+      }
+      
       const updatedMember = {
         ...member,
         name: `${form.firstName} ${form.lastName}`.trim() || form.firstName,
@@ -2611,10 +2624,17 @@ function EditMemberForm({ member, onSave, onCancel }) {
         membership_type: form.membershipType,
         monthly_fee: parseFloat(form.monthlyFee),
         status: form.status,
-        active: form.status === "Active"
+        active: form.status === "Active",
+        nextDue: nextDueDate, // Ensure due date is set
+        dueDate: nextDueDate, // Alternative field name
+        joinedOn: member.joinedOn || member.start_date || new Date().toISOString().slice(0, 10)
       };
       
-      console.log('📝 Updating member:', updatedMember);
+      console.log('📝 Updating member with due date:', {
+        name: updatedMember.name,
+        nextDue: updatedMember.nextDue,
+        plan: updatedMember.membership_type
+      });
       
       if (onSave) {
         await onSave(updatedMember);
