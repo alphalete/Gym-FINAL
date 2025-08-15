@@ -3012,21 +3012,47 @@ function EditMemberForm({ member, onSave, onCancel }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center p-4 pt-4 z-50 overflow-y-auto">
-      <div className="bg-white rounded-lg w-full max-w-lg my-4 shadow-xl">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-semibold">Edit Member: {member?.name}</h2>
-          <button
-            onClick={onCancel}
-            className="text-gray-500 hover:text-gray-700 text-xl font-bold w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100"
-          >
-            ×
-          </button>
+    <div className="p-4">
+      <h1 className="text-xl font-semibold mb-3">Edit Member: {member?.name}</h1>
+      
+      {/* Current Member Information Display */}
+      <div className="card mb-4 bg-blue-50 border-blue-200">
+        <div className="card-body">
+          <h3 className="font-semibold text-lg mb-2">Current Information</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <strong>Name:</strong> {member?.name}
+            </div>
+            <div>
+              <strong>Email:</strong> {member?.email || 'Not provided'}
+            </div>
+            <div>
+              <strong>Phone:</strong> {member?.phone || 'Not provided'}
+            </div>
+            <div>
+              <strong>Membership Plan:</strong> {member?.membership_type || 'No plan'}
+            </div>
+            <div>
+              <strong>Monthly Fee:</strong> TTD {member?.monthly_fee || 0}
+            </div>
+            <div>
+              <strong>Due Date:</strong> {member?.nextDue || member?.dueDate || 'Not set'}
+            </div>
+            <div>
+              <strong>Status:</strong> 
+              <span className={`ml-1 px-2 py-1 rounded-full text-xs ${
+                member?.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+              }`}>
+                {member?.status || 'Unknown'}
+              </span>
+            </div>
+          </div>
         </div>
+      </div>
 
-        {/* Body */}
-        <div className="p-4">
+      {/* Edit Form */}
+      <div className="card">
+        <div className="card-body">
           {/* Error Messages */}
           {errors.length > 0 && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
@@ -3039,138 +3065,88 @@ function EditMemberForm({ member, onSave, onCancel }) {
             </div>
           )}
           
-          {/* Form Fields */}
-          <div className="space-y-4">
-            {/* Name Fields */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
-                <input 
-                  type="text"
-                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.some(e => e.includes('First name')) ? 'border-red-300 bg-red-50' : 'border-gray-300'
-                  }`}
-                  value={form.firstName}
-                  onChange={e => setForm(f => ({...f, firstName: e.target.value}))}
-                  placeholder="First name"
-                  required
-                />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <input 
+              type="text"
+              className="btn-ghost border p-2 rounded"
+              placeholder="First name"
+              value={form.firstName}
+              onChange={e => setForm(f => ({...f, firstName: e.target.value}))}
+            />
+            <input 
+              type="text"
+              className="btn-ghost border p-2 rounded"
+              placeholder="Last name"
+              value={form.lastName}
+              onChange={e => setForm(f => ({...f, lastName: e.target.value}))}
+            />
+            <input 
+              type="email"
+              className="btn-ghost border p-2 rounded"
+              placeholder="Email"
+              value={form.email}
+              onChange={e => setForm(f => ({...f, email: e.target.value}))}
+            />
+            <input 
+              type="tel"
+              className="btn-ghost border p-2 rounded"
+              placeholder="Phone"
+              value={form.phone}
+              onChange={e => setForm(f => ({...f, phone: e.target.value}))}
+            />
+            {plansLoading ? (
+              <div className="btn-ghost border p-2 rounded bg-gray-50 text-gray-500">
+                Loading plans...
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                <input 
-                  type="text"
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  value={form.lastName}
-                  onChange={e => setForm(f => ({...f, lastName: e.target.value}))}
-                  placeholder="Last name"
-                />
-              </div>
-            </div>
-            
-            {/* Contact Fields */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-              <input 
-                type="email"
-                className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  errors.some(e => e.includes('email')) ? 'border-red-300 bg-red-50' : 'border-gray-300'
-                }`}
-                value={form.email}
-                onChange={e => setForm(f => ({...f, email: e.target.value}))}
-                placeholder="Email address"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-              <input 
-                type="tel"
-                className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  errors.some(e => e.includes('phone')) ? 'border-red-300 bg-red-50' : 'border-gray-300'
-                }`}
-                value={form.phone}
-                onChange={e => setForm(f => ({...f, phone: e.target.value}))}
-                placeholder="Phone number"
-              />
-            </div>
-            
-            {/* Membership Plan */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Membership Plan *</label>
-              {plansLoading ? (
-                <div className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500">
-                  Loading plans...
-                </div>
-              ) : (
-                <select
-                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.some(e => e.includes('membership plan')) ? 'border-red-300 bg-red-50' : 'border-gray-300'
-                  }`}
-                  value={form.membershipType}
-                  onChange={e => handleMembershipTypeChange(e.target.value)}
-                  required
-                >
-                  <option value="">Select a plan...</option>
-                  {availablePlans.map(plan => (
-                    <option key={plan.name} value={plan.name}>
-                      {plan.name} - TTD {plan.price}/{plan.cycleDays || 30} days
-                    </option>
-                  ))}
-                </select>
-              )}
-            </div>
-            
-            {/* Monthly Fee */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Monthly Fee (TTD) *</label>
-              <input 
-                type="number"
-                step="0.01"
-                min="0"
-                className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  errors.some(e => e.includes('Monthly fee')) ? 'border-red-300 bg-red-50' : 'border-gray-300'
-                }`}
-                value={form.monthlyFee}
-                onChange={e => setForm(f => ({...f, monthlyFee: parseFloat(e.target.value) || 0}))}
-                placeholder="0.00"
-                required
-              />
-            </div>
-            
-            {/* Status */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+            ) : (
               <select
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                value={form.status}
-                onChange={e => setForm(f => ({...f, status: e.target.value}))}
+                className="btn-ghost border p-2 rounded"
+                value={form.membershipType}
+                onChange={e => handleMembershipTypeChange(e.target.value)}
               >
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-                <option value="Suspended">Suspended</option>
+                <option value="">Select a plan...</option>
+                {availablePlans.map(plan => (
+                  <option key={plan.name} value={plan.name}>
+                    {plan.name} - TTD {plan.price}/{plan.cycleDays || 30} days
+                  </option>
+                ))}
               </select>
-            </div>
+            )}
+            <input 
+              type="number"
+              step="0.01"
+              min="0"
+              className="btn-ghost border p-2 rounded"
+              placeholder="Monthly Fee"
+              value={form.monthlyFee}
+              onChange={e => setForm(f => ({...f, monthlyFee: parseFloat(e.target.value) || 0}))}
+            />
+            <select
+              className="btn-ghost border p-2 rounded sm:col-span-2"
+              value={form.status}
+              onChange={e => setForm(f => ({...f, status: e.target.value}))}
+            >
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+              <option value="Suspended">Suspended</option>
+            </select>
           </div>
         </div>
-
-        {/* Footer */}
-        <div className="flex justify-end space-x-3 p-4 border-t bg-gray-50">
-          <button
+        <div className="p-4 flex gap-3">
+          <button 
             type="button"
-            onClick={onCancel}
-            className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-blue-500"
-            disabled={saving}
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
+            className="btn-primary"
             onClick={handleSubmit}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
             disabled={saving}
           >
             {saving ? 'Saving...' : 'Save Changes'}
+          </button>
+          <button 
+            type="button"
+            className="btn-secondary" 
+            onClick={onCancel}
+          >
+            Cancel
           </button>
         </div>
       </div>
