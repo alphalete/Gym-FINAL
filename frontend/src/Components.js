@@ -2014,6 +2014,41 @@ export function RecordPayment(){
   return (
     <div className="p-4">
       <h1 className="text-xl font-semibold mb-3">Record Payment</h1>
+      
+      {/* Selected Member Information Display */}
+      {selectedMember && (
+        <div className="card mb-4 bg-blue-50 border-blue-200">
+          <div className="card-body">
+            <h3 className="font-semibold text-lg mb-2">Member Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <strong>Name:</strong> {selectedMember.name}
+              </div>
+              <div>
+                <strong>Email:</strong> {selectedMember.email || 'Not provided'}
+              </div>
+              <div>
+                <strong>Membership Plan:</strong> {selectedMember.membership_type || 'No plan'}
+              </div>
+              <div>
+                <strong>Monthly Fee:</strong> TTD {selectedMember.monthly_fee || selectedMember.fee || 0}
+              </div>
+              <div>
+                <strong>Due Date:</strong> {selectedMember.nextDue || selectedMember.dueDate || 'Not set'}
+              </div>
+              <div>
+                <strong>Status:</strong> 
+                <span className={`ml-1 px-2 py-1 rounded-full text-xs ${
+                  selectedMember.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                }`}>
+                  {selectedMember.status || 'Unknown'}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
       <form onSubmit={onSubmit} className="card">
         <div className="card-body grid grid-cols-1 sm:grid-cols-2 gap-3">
           <select 
