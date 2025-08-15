@@ -1143,42 +1143,40 @@ function ClientManagement() {
                 border: 'none',
                 display: 'inline-block'
               }}
-              onClick={() => {
+              onClick={async () => {
                 console.log('🎯 DELETE BUTTON CLICKED!', { name, id: m.id, onDeleteMember: typeof onDeleteMember });
                 
-                const performDelete = async () => {
-                  console.log('🎯 Delete confirmed, proceeding...');
-                  try {
-                    // Use the repository system for proper delete
-                    if (onDeleteMember) {
-                      console.log('🎯 Calling onDeleteMember function...');
-                      await onDeleteMember(m.id || m._id || m.uuid);
-                      console.log('🎯 onDeleteMember completed successfully');
-                    } else {
-                      console.log('🎯 No onDeleteMember function, using fallback...');
-                      // Fallback to manual backend call if no handler provided
-                      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-                      if (backendUrl) {
-                        const response = await fetch(`${backendUrl}/api/clients/${m.id}`, { method: 'DELETE' });
-                        if (response.ok) {
-                          alert('✅ Member deleted successfully');
-                          // Trigger data refresh without full page reload
-                          window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'member_deleted' }));
-                        } else {
-                          throw new Error(`Delete failed: ${response.status}`);
-                        }
+                // Check confirm first
+                if (!confirm(`Are you sure you want to DELETE ${name}? This action cannot be undone.`)) {
+                  console.log('🎯 Delete cancelled by user');
+                  return;
+                }
+                
+                console.log('🎯 Delete confirmed, proceeding...');
+                try {
+                  // Use the repository system for proper delete
+                  if (onDeleteMember) {
+                    console.log('🎯 Calling onDeleteMember function...');
+                    await onDeleteMember(m.id || m._id || m.uuid);
+                    console.log('🎯 onDeleteMember completed successfully');
+                  } else {
+                    console.log('🎯 No onDeleteMember function, using fallback...');
+                    // Fallback to manual backend call if no handler provided
+                    const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+                    if (backendUrl) {
+                      const response = await fetch(`${backendUrl}/api/clients/${m.id}`, { method: 'DELETE' });
+                      if (response.ok) {
+                        alert('✅ Member deleted successfully');
+                        // Trigger data refresh without full page reload
+                        window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'member_deleted' }));
+                      } else {
+                        throw new Error(`Delete failed: ${response.status}`);
                       }
                     }
-                  } catch (error) {
-                    console.error('Error deleting member:', error);
-                    alert('❌ Error deleting member. Please try again.');
                   }
-                };
-                
-                if (confirm(`Are you sure you want to DELETE ${name}? This action cannot be undone.`)) {
-                  performDelete();
-                } else {
-                  console.log('🎯 Delete cancelled by user');
+                } catch (error) {
+                  console.error('Error deleting member:', error);
+                  alert('❌ Error deleting member. Please try again.');
                 }
               }}
             >Delete</button>
