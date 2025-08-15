@@ -965,6 +965,103 @@ function ClientManagement() {
     const [emailTemplates, setEmailTemplates] = React.useState([]);
     const [sendingEmail, setSendingEmail] = React.useState(false);
     
+    // Load email templates on component mount
+    React.useEffect(() => {
+      const loadEmailTemplates = async () => {
+        try {
+          const templates = await gymStorage.getAll('emailTemplates') || [];
+          // Add default payment reminder template if none exist
+          if (templates.length === 0) {
+            const defaultTemplate = {
+              id: 'payment-reminder',
+              name: 'Payment Reminder',
+              subject: 'Payment Reminder - GoGym4U',
+              body: `Dear {memberName},
+
+This is a friendly reminder that your membership payment is due on {dueDate}.
+
+Please make your payment at your earliest convenience to avoid any interruption to your membership.
+
+Thank you for being a valued member of GoGym4U!
+
+Best regards,
+GoGym4U Team`
+            };
+            await gymStorage.upsert('emailTemplates', defaultTemplate);
+            setEmailTemplates([defaultTemplate]);
+          } else {
+            setEmailTemplates(templates);
+          }
+        } catch (error) {
+          console.error('Error loading email templates:', error);
+          // Set default template as fallback
+          setEmailTemplates([{
+            id: 'payment-reminder',
+            name: 'Payment Reminder',
+            subject: 'Payment Reminder - GoGym4U',
+            body: `Dear {memberName},
+
+This is a friendly reminder that your membership payment is due on {dueDate}.
+
+Please make your payment at your earliest convenience to avoid any interruption to your membership.
+
+Thank you for being a valued member of GoGym4U!
+
+Best regards,
+GoGym4U Team`
+          }]);
+        }
+      };
+      
+      loadEmailTemplates();
+    }, []);
+    
+    // Handle email sending
+    const handleSendEmail = async (template) => {
+      if (!email) {
+        alert('❌ No email address available for this member');
+        return;
+      }
+      
+      setSendingEmail(true);
+      setShowEmailDropdown(false);
+      
+      try {
+        // Replace template variables with member data
+        const dueDate = m.nextDue || m.dueDate || 'Not set';
+        const personalizedSubject = template.subject.replace('{memberName}', name).replace('{dueDate}', dueDate);
+        const personalizedBody = template.body.replace('{memberName}', name).replace('{dueDate}', dueDate);
+        
+        const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+        if (backendUrl) {
+          const response = await fetch(`${backendUrl}/api/email/send`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              to: email,
+              subject: personalizedSubject,
+              body: personalizedBody,
+              memberName: name,
+              templateName: template.name
+            })
+          });
+          
+          if (response.ok) {
+            alert(`✅ Email sent successfully to ${name}!`);
+          } else {
+            throw new Error('Failed to send email');
+          }
+        } else {
+          throw new Error('Backend URL not configured');
+        }
+      } catch (error) {
+        console.error('Error sending email:', error);
+        alert('❌ Failed to send email. Please try again.');
+      } finally {
+        setSendingEmail(false);
+      }
+    };
+    
     // Calculate due date information
     const nextDue = m?.nextDue || m?.nextDueDate || m?.dueDate;
     const joinedOn = m?.joinedOn || m?.createdAt;
