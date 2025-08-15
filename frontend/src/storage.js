@@ -125,6 +125,47 @@ class GymStorage {
 
   async getPlans(){ return this.getAll('plans'); }
   async savePlan(plan){ return this.saveData('plans', plan); }
+
+  // Email template methods for email functionality
+  async upsert(storeName, data) {
+    // This is an alias for saveData to maintain compatibility with email functionality
+    return this.saveData(storeName, data);
+  }
+
+  async remove(storeName, id) {
+    if (await this.init()) {
+      return new Promise((resolve, reject) => {
+        try {
+          const tx = this.db.transaction([storeName], 'readwrite');
+          const store = tx.objectStore(storeName);
+          const request = store.delete(id);
+          
+          tx.oncomplete = () => {
+            try {
+              window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: storeName }));
+            } catch {}
+            resolve(true);
+          };
+          tx.onerror = () => reject(tx.error);
+        } catch (e) {
+          reject(e);
+        }
+      });
+    }
+    
+    // Fallback to localStorage
+    const key = `__${storeName}__`;
+    const list = JSON.parse(localStorage.getItem(key) || '[]');
+    const idx = list.findIndex(x => String(x.id) === String(id));
+    if (idx >= 0) {
+      list.splice(idx, 1);
+      localStorage.setItem(key, JSON.stringify(list));
+      try {
+        window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: storeName }));
+      } catch {}
+    }
+    return true;
+  }
 }
 const gymStorage = new GymStorage();
 //-------------------------------------------------------------------------
