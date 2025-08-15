@@ -2374,17 +2374,33 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Membership Plan</label>
-          <select
-            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-            value={form.membershipType}
-            onChange={e => handleMembershipTypeChange(e.target.value)}
-          >
-            <option value="Basic">Basic - TTD 55/month</option>
-            <option value="Premium">Premium - TTD 75/month</option>
-            <option value="Elite">Elite - TTD 100/month</option>
-            <option value="VIP">VIP - TTD 150/month</option>
-          </select>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Membership Plan *</label>
+          {plansLoading ? (
+            <div className="w-full p-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500">
+              Loading plans...
+            </div>
+          ) : availablePlans.length > 0 ? (
+            <select
+              className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                errors.some(e => e.includes('membership plan')) ? 'border-red-300 bg-red-50' : 'border-gray-300'
+              }`}
+              value={form.membershipType}
+              onChange={e => handleMembershipTypeChange(e.target.value)}
+              required
+            >
+              <option value="">Select a plan...</option>
+              {availablePlans.map(plan => (
+                <option key={plan.name} value={plan.name}>
+                  {plan.name} - TTD {plan.price}/{plan.cycleDays} days
+                </option>
+              ))}
+            </select>
+          ) : (
+            <div className="w-full p-2 border border-red-300 rounded-lg bg-red-50 text-red-600">
+              <div className="text-sm">No membership plans available.</div>
+              <div className="text-xs mt-1">Please create plans in the Plans section first.</div>
+            </div>
+          )}
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Monthly Fee (TTD) *</label>
@@ -2395,11 +2411,15 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
             className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
               errors.some(e => e.includes('Monthly fee')) ? 'border-red-300 bg-red-50' : 'border-gray-300'
             }`}
-            placeholder="55.00" 
+            placeholder="0.00" 
             value={form.monthlyFee}
             onChange={e => setForm(f => ({...f, monthlyFee: parseFloat(e.target.value) || 0}))}
             required
+            disabled={plansLoading}
           />
+          <div className="text-xs text-gray-500 mt-1">
+            {form.membershipType && `Fee for ${form.membershipType} plan`}
+          </div>
         </div>
       </div>
       
