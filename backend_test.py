@@ -1,19 +1,22 @@
 #!/usr/bin/env python3
 """
-Database Reset Testing Script for Alphalete Club PWA
-Purpose: Delete ALL members from database and verify complete cleanup
+Add Test Member for Delete Functionality Testing - Alphalete Club PWA
+Purpose: Add ONE test member to empty database for testing delete functionality
 
 CRITICAL TESTING REQUIREMENTS:
-- Connect to MongoDB database directly
-- Delete ALL members/clients from the database completely  
-- Delete ALL payment records and billing cycles
-- Verify the database is empty (0 members)
-- Confirm the DELETE ALL operation was successful
-- Test GET /api/clients returns empty array []
-- Confirm all member records are completely removed
+- Add ONE test member with specific details:
+  * name: "Test Delete Member"
+  * email: "delete.test@example.com"
+  * phone: "+1234567890"
+  * membership_type: "Basic"
+  * monthly_fee: 55.0
+  * status: "Active"
+- Verify the member was created successfully
+- Confirm GET /api/clients returns exactly 1 member
+- Get the member ID for testing
+- This single member will be used to test delete functionality from frontend
 
-This database reset is essential for proper testing of the delete member functionality
-and ensures we start with a clean testing environment.
+This test member addition is essential for proper testing of the delete member functionality.
 """
 
 import asyncio
