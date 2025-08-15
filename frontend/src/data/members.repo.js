@@ -76,6 +76,36 @@ const validateMember = (member, isCreation = true) => {
   return errors;
 };
 
+// Utility function to ensure member has proper due date
+const ensureMemberDueDate = (member) => {
+  if (!member) return member;
+  
+  // If member already has a due date, keep it
+  if (member.nextDue || member.dueDate || member.nextDueDate) {
+    return member;
+  }
+  
+  // Calculate due date based on start_date and billing interval
+  try {
+    const startDate = member.start_date ? new Date(member.start_date) : new Date();
+    const billingInterval = member.billing_interval_days || 30;
+    const dueDate = new Date(startDate);
+    dueDate.setDate(dueDate.getDate() + billingInterval);
+    
+    console.log(`📅 Auto-calculated due date for ${member.name}:`, dueDate.toISOString().slice(0, 10));
+    
+    return {
+      ...member,
+      nextDue: dueDate.toISOString().slice(0, 10),
+      dueDate: dueDate.toISOString().slice(0, 10),
+      joinedOn: member.joinedOn || member.start_date || startDate.toISOString().slice(0, 10)
+    };
+  } catch (error) {
+    console.warn('Failed to calculate due date for member:', member.name, error);
+    return member;
+  }
+};
+
 // Enhanced data loading: Backend first with local fallback
 const getAllMembers = async () => {
   try {
@@ -96,10 +126,13 @@ const getAllMembers = async () => {
           console.log(`✅ [members.repo] Loaded ${backendMembers.length} members from backend`);
           
           if (Array.isArray(backendMembers)) {
-            // Save fresh data to local storage for offline use
-            await saveAllMembers(backendMembers);
-            console.log(`💾 [members.repo] Saved ${backendMembers.length} members to local storage`);
-            return backendMembers;
+            // Ensure all members have proper due dates
+            const membersWithDueDates = backendMembers.map(ensureMemberDueDate);
+            
+            // Save enhanced data to local storage for offline use
+            await saveAllMembers(membersWithDueDates);
+            console.log(`💾 [members.repo] Saved ${membersWithDueDates.length} members with due dates to local storage`);
+            return membersWithDueDates;
           }
         } else {
           console.warn(`⚠️ [members.repo] Backend response not OK: ${response.status}`);
@@ -115,6 +148,9 @@ const getAllMembers = async () => {
     try {
       localMembers = (await s.getAllMembers?.()) ?? (await s.getAll?.("members")) ?? [];
       console.log(`📱 [members.repo] Loaded ${localMembers.length} members from local storage`);
+      
+      // Ensure local members also have proper due dates
+      localMembers = localMembers.map(ensureMemberDueDate);
     } catch (localError) {
       console.warn('⚠️ [members.repo] Local storage failed:', localError.message);
     }
