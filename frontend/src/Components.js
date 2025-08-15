@@ -2427,25 +2427,27 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
         {/* Enhanced submit button with better feedback */}
         <div 
           style={{
-            backgroundColor: saving ? '#9ca3af' : (errors.length > 0 ? '#dc2626' : '#1e40af'),
+            backgroundColor: saving ? '#9ca3af' : (errors.length > 0 || availablePlans.length === 0 ? '#dc2626' : '#1e40af'),
             color: 'white',
             padding: '12px 24px',
             borderRadius: '8px',
-            cursor: saving ? 'not-allowed' : 'pointer',
+            cursor: (saving || availablePlans.length === 0) ? 'not-allowed' : 'pointer',
             fontSize: '16px',
             fontWeight: '600',
             textAlign: 'center',
             userSelect: 'none',
-            opacity: saving ? 0.7 : 1,
+            opacity: (saving || availablePlans.length === 0) ? 0.7 : 1,
             minWidth: '140px'
           }}
-          onClick={saving ? undefined : handleSubmit}
+          onClick={saving || availablePlans.length === 0 ? undefined : handleSubmit}
         >
           {saving 
             ? '💾 Saving...' 
-            : syncStatus.isOnline 
-              ? '➕ Add Member' 
-              : '📱 Save Locally'
+            : availablePlans.length === 0
+              ? '❌ No Plans Available'
+              : syncStatus.isOnline 
+                ? '➕ Add Member' 
+                : '📱 Save Locally'
           }
         </div>
         
