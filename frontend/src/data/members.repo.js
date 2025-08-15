@@ -79,44 +79,52 @@ const validateMember = (member, isCreation = true) => {
 // Offline-first data loading: IndexedDB primary, API sync secondary
 const getAllMembers = async () => {
   try {
-    // OFFLINE-FIRST: Load from local storage first
-    let localMembers = [];
-    try {
-      localMembers = (await s.getAllMembers?.()) ?? (await s.getAll?.("members")) ?? [];
-      console.log(`📱 Loaded ${localMembers.length} members from local storage`);
-    } catch (localError) {
-      console.warn('⚠️ Local storage failed:', localError.message);
-    }
+    console.log('🔄 [members.repo] getAllMembers called - forcing fresh data load');
     
-    // If we have local data, return it immediately for fast UI
-    if (Array.isArray(localMembers) && localMembers.length > 0) {
-      // Background sync with backend (don't wait for this)
-      syncWithBackend(localMembers).catch(console.warn);
-      return localMembers;
-    }
-    
-    // Only if no local data, try backend as fallback
+    // FORCE FRESH LOAD: Always try backend first to get latest data
+    let backendMembers = [];
     try {
       const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       if (backendUrl) {
-        const response = await fetch(`${backendUrl}/api/clients`);
+        console.log('🌐 [members.repo] Fetching from backend:', `${backendUrl}/api/clients`);
+        const response = await fetch(`${backendUrl}/api/clients`, {
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
+        });
         if (response.ok) {
-          const backendMembers = await response.json();
+          backendMembers = await response.json();
+          console.log(`✅ [members.repo] Loaded ${backendMembers.length} members from backend`);
+          
           if (Array.isArray(backendMembers)) {
-            console.log(`✅ Loaded ${backendMembers.length} members from backend (fallback)`);
-            // Save to local storage for future offline use
+            // Save fresh data to local storage
             await saveAllMembers(backendMembers);
+            console.log(`💾 [members.repo] Saved ${backendMembers.length} members to local storage`);
             return backendMembers;
           }
+        } else {
+          console.warn(`⚠️ [members.repo] Backend response not OK: ${response.status}`);
         }
       }
     } catch (backendError) {
-      console.warn('⚠️ Backend connection failed:', backendError.message);
+      console.warn('⚠️ [members.repo] Backend connection failed:', backendError.message);
     }
     
-    return localMembers; // Return whatever we have locally (even if empty)
+    // Fallback to local storage only if backend fails
+    console.log('📱 [members.repo] Falling back to local storage...');
+    let localMembers = [];
+    try {
+      localMembers = (await s.getAllMembers?.()) ?? (await s.getAll?.("members")) ?? [];
+      console.log(`📱 [members.repo] Loaded ${localMembers.length} members from local storage`);
+    } catch (localError) {
+      console.warn('⚠️ [members.repo] Local storage failed:', localError.message);
+    }
+    
+    return Array.isArray(localMembers) ? localMembers : [];
   } catch (e) { 
-    console.error("[members.repo] getAllMembers", e); 
+    console.error("[members.repo] getAllMembers error:", e); 
     return []; 
   }
 };
