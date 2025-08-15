@@ -2664,19 +2664,20 @@ function EditMemberForm({ member, onSave, onCancel }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center p-4 pt-8 z-50 overflow-y-auto">
+      <div className="bg-white rounded-lg p-6 w-full max-w-2xl min-h-min my-4 shadow-xl">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold">Edit Member: {member?.name}</h2>
           <button
             onClick={onCancel}
-            className="text-gray-500 hover:text-gray-700 text-2xl"
+            className="text-gray-500 hover:text-gray-700 text-2xl font-bold w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100"
+            style={{ lineHeight: '1' }}
           >
             ×
           </button>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-4 max-h-[calc(100vh-120px)] overflow-y-auto">
           {/* Error Messages */}
           {errors.length > 0 && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-3">
