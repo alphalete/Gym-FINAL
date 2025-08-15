@@ -10,7 +10,7 @@ import time
 from datetime import datetime
 import json
 
-BACKEND_URL = "https://gogym4u-app.preview.emergentagent.com"
+BACKEND_URL = "https://fitness-tracker-app.preview.emergentagent.com"
 
 class FinalBackendTester:
     def __init__(self):

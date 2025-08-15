@@ -42,7 +42,7 @@ import json
 import concurrent.futures
 
 # Configuration
-BACKEND_URL = "https://gogym4u-app.preview.emergentagent.com"
+BACKEND_URL = "https://fitness-tracker-app.preview.emergentagent.com"
 MONGO_URL = "mongodb://localhost:27017"
 DB_NAME = "test_database"
 
@@ -582,7 +582,7 @@ class HeroiconReportsBackendTester:
             
             # Test with Origin header (simulating frontend request)
             headers = {
-                'Origin': 'https://gogym4u-app.preview.emergentagent.com',
+                'Origin': 'https://fitness-tracker-app.preview.emergentagent.com',
                 'Content-Type': 'application/json'
             }
             
