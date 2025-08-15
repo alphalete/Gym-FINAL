@@ -1045,16 +1045,16 @@ function ClientManagement() {
           <div className="mt-4 flex flex-wrap gap-2 justify-center">
             <button 
               type="button"
-              className="bg-blue-500 hover:bg-blue-600 text-white rounded-xl px-4 py-2 flex flex-col items-center justify-center min-w-[65px] h-16 transition-all duration-200 shadow-sm hover:shadow-md"
+              className="bg-blue-500 hover:bg-blue-600 text-white rounded-xl px-3 py-2 flex flex-col items-center justify-center min-w-[65px] h-16 transition-all duration-200"
               onClick={() => setShowEditModal(true)}
             >
-              <PencilIcon className="w-5 h-5 mb-1" />
-              <span className="text-xs font-medium">Edit</span>
+              <PencilIcon className="w-6 h-6" />
+              <span className="text-xs font-medium mt-1">Edit</span>
             </button>
             
             <button 
               type="button"
-              className="bg-orange-500 hover:bg-orange-600 text-white rounded-xl px-4 py-2 flex flex-col items-center justify-center min-w-[65px] h-16 transition-all duration-200 shadow-sm hover:shadow-md"
+              className="bg-orange-500 hover:bg-orange-600 text-white rounded-xl px-3 py-2 flex flex-col items-center justify-center min-w-[65px] h-16 transition-all duration-200"
               onClick={async () => {
                 if (confirm(`${isActive ? 'Deactivate' : 'Activate'} ${name}?`)) {
                   try {
@@ -1089,16 +1089,16 @@ function ClientManagement() {
               }}
             >
               {isActive ? (
-                <ClockIcon className="w-5 h-5 mb-1" />
+                <ClockIcon className="w-6 h-6" />
               ) : (
-                <ArrowRightIcon className="w-5 h-5 mb-1" />
+                <ArrowRightIcon className="w-6 h-6" />
               )}
-              <span className="text-xs font-medium">{isActive ? 'Pause' : 'Activate'}</span>
+              <span className="text-xs font-medium mt-1">{isActive ? 'Pause' : 'Activate'}</span>
             </button>
             
             <button 
               type="button"
-              className="bg-green-500 hover:bg-green-600 text-white rounded-xl px-4 py-2 flex flex-col items-center justify-center min-w-[65px] h-16 transition-all duration-200 shadow-sm hover:shadow-md"
+              className="bg-green-500 hover:bg-green-600 text-white rounded-xl px-3 py-2 flex flex-col items-center justify-center min-w-[65px] h-16 transition-all duration-200"
               onClick={() => {
                 // WhatsApp integration
                 if (phone) {
@@ -1111,13 +1111,13 @@ function ClientManagement() {
                 }
               }}
             >
-              <ChatBubbleLeftRightIcon className="w-5 h-5 mb-1" />
-              <span className="text-xs font-medium">WhatsApp</span>
+              <ChatBubbleLeftRightIcon className="w-6 h-6" />
+              <span className="text-xs font-medium mt-1">WHATSAPP</span>
             </button>
             
             <button 
               type="button"
-              className="bg-red-500 hover:bg-red-600 text-white rounded-xl px-4 py-2 flex flex-col items-center justify-center min-w-[65px] h-16 transition-all duration-200 shadow-sm hover:shadow-md"
+              className="bg-red-500 hover:bg-red-600 text-white rounded-xl px-3 py-2 flex flex-col items-center justify-center min-w-[65px] h-16 transition-all duration-200"
               onClick={async () => {
                 console.log('🎯 DELETE BUTTON CLICKED!', { name, id: m.id, onDeleteMember: typeof onDeleteMember });
                 
@@ -1155,13 +1155,13 @@ function ClientManagement() {
                 }
               }}
             >
-              <TrashIcon className="w-5 h-5 mb-1" />
-              <span className="text-xs font-medium">Delete</span>
+              <TrashIcon className="w-6 h-6" />
+              <span className="text-xs font-medium mt-1">Delete</span>
             </button>
             
             <button 
               type="button"
-              className="bg-purple-500 hover:bg-purple-600 text-white rounded-xl px-4 py-2 flex flex-col items-center justify-center min-w-[65px] h-16 transition-all duration-200 shadow-sm hover:shadow-md"
+              className="bg-purple-500 hover:bg-purple-600 text-white rounded-xl px-3 py-2 flex flex-col items-center justify-center min-w-[65px] h-16 transition-all duration-200"
               onClick={() => {
                 // Store pending payment member ID and where user came from
                 localStorage.setItem("pendingPaymentMemberId", String(m.id));
@@ -1169,8 +1169,8 @@ function ClientManagement() {
                 window.navigateToTab?.('payments');
               }}
             >
-              <BanknotesIcon className="w-5 h-5 mb-1" />
-              <span className="text-xs font-medium">Payment</span>
+              <BanknotesIcon className="w-6 h-6" />
+              <span className="text-xs font-medium mt-1">Payment</span>
             </button>
           </div>
         </div>
