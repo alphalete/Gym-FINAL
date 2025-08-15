@@ -959,8 +959,11 @@ function ClientManagement() {
     const plan = m?.membershipType || m?.membership_type || m?.plan || m?.planName || "Unassigned";
     const isActive = m?.status === "Active" || !!m?.active;
     
-    // State for edit modal
+    // State for edit modal and email dropdown
     const [showEditModal, setShowEditModal] = React.useState(false);
+    const [showEmailDropdown, setShowEmailDropdown] = React.useState(false);
+    const [emailTemplates, setEmailTemplates] = React.useState([]);
+    const [sendingEmail, setSendingEmail] = React.useState(false);
     
     // Calculate due date information
     const nextDue = m?.nextDue || m?.nextDueDate || m?.dueDate;
