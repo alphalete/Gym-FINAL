@@ -1072,19 +1072,7 @@ function ClientManagement() {
             >{isActive ? 'Deactivate' : 'Activate'}</button>
             <button 
               type="button"
-              style={{
-                backgroundColor: '#dc2626',
-                color: 'white',
-                padding: '8px 16px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: '500',
-                textAlign: 'center',
-                userSelect: 'none',
-                border: 'none',
-                display: 'inline-block'
-              }}
+              className="btn btn-danger text-sm"
               onClick={async () => {
                 console.log('🎯 DELETE BUTTON CLICKED!', { name, id: m.id, onDeleteMember: typeof onDeleteMember });
                 
@@ -1122,21 +1110,10 @@ function ClientManagement() {
                 }
               }}
             >Delete</button>
+            
             <button 
               type="button"
-              style={{
-                backgroundColor: '#1e40af',
-                color: 'white',
-                padding: '8px 16px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: '500',
-                textAlign: 'center',
-                userSelect: 'none',
-                border: 'none',
-                display: 'inline-block'
-              }}
+              className="btn btn-primary text-sm"
               onClick={() => {
                 // Store pending payment member ID and where user came from
                 localStorage.setItem("pendingPaymentMemberId", String(m.id));
