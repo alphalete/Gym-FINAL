@@ -384,17 +384,28 @@ const PaymentComponent = () => {
                     className="input"
                     value={selectedClient?.id || ''}
                     onChange={e => {
-                      const client = membersPT.find(c => c.id === e.target.value);
+                      const client = membersPT.find(c => c.id === e.target.value || c._id === e.target.value || c.uuid === e.target.value);
                       setSelectedClient(client || null);
+                      console.log('💳 Selected client for payment:', {
+                        name: client?.name,
+                        plan: client?.membership_type,
+                        fee: client?.monthly_fee,
+                        nextDue: client?.nextDue || client?.dueDate
+                      });
                     }}
                     required
                   >
                     <option value="">Choose a member...</option>
-                    {activeClients.map(c => (
-                      <option key={c.id} value={c.id}>
-                        {c.name} - {c.planName || 'No Plan'} - {formatCurrency(c.fee || 0)}
-                      </option>
-                    ))}
+                    {activeClients.map(c => {
+                      const id = c.id || c._id || c.uuid;
+                      const plan = c.membership_type || 'No Plan';
+                      const fee = c.monthly_fee || c.fee || 0;
+                      return (
+                        <option key={id} value={id}>
+                          {c.name} - {plan} - TTD {fee}
+                        </option>
+                      );
+                    })}
                   </select>
                   <div className="form-help">Only active members are shown</div>
                 </div>
@@ -404,16 +415,22 @@ const PaymentComponent = () => {
                     <div className="text-sm font-medium text-indigo-800 mb-2">Member Details:</div>
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <div>
-                        <span className="text-indigo-600">Plan:</span> {selectedClient.planName || 'None'}
+                        <span className="text-indigo-600">Plan:</span> {selectedClient.membership_type || 'No Plan'}
                       </div>
                       <div>
-                        <span className="text-indigo-600">Current Due:</span> {formatDate(selectedClient.nextDue) || 'Not set'}
+                        <span className="text-indigo-600">Next Due:</span> {selectedClient.nextDue || selectedClient.dueDate || 'Not set'}
                       </div>
                       <div>
-                        <span className="text-indigo-600">Regular Fee:</span> {formatCurrency(selectedClient.fee || 0)}
+                        <span className="text-indigo-600">Monthly Fee:</span> TTD {selectedClient.monthly_fee || selectedClient.fee || 0}
                       </div>
                       <div>
-                        <span className="text-indigo-600">Cycle:</span> {selectedClient.cycleDays || 30} days
+                        <span className="text-indigo-600">Status:</span> {selectedClient.status || 'Active'}
+                      </div>
+                      <div>
+                        <span className="text-indigo-600">Email:</span> {selectedClient.email || 'Not provided'}
+                      </div>
+                      <div>
+                        <span className="text-indigo-600">Phone:</span> {selectedClient.phone || 'Not provided'}
                       </div>
                     </div>
                   </div>
