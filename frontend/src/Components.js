@@ -2,22 +2,11 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useMembersFromStorage from "./hooks/useMembersFromStorage";
 import useMembersRepo from "./hooks/useMembersRepo";
-import storageFacade, { getAllMembers as facadeGetAllMembers } from "./storage.facade";
-import gymStorage, { getAll as getAllStore, getPlanById, upsertMemberWithPlanSnapshot, getSetting as getSettingNamed, saveSetting as saveSettingNamed } from "./storage";
+import storageFacade from "./storage.facade";
+import gymStorage, { getSetting as getSettingNamed, saveSetting as saveSettingNamed } from "./storage";
 import gymStorageMain, * as storageNamed from "./storage";
-import { toISODate, add30DaysFrom, recomputeStatus, advanceNextDueByCycles, daysBetween } from './utils/date';
-import PaymentsHistory from './components/payments/PaymentsHistory';
-import { nextDueDateFromJoin, isOverdue, nextDueAfterPayment } from "./billing";
-import LockBadge from "./LockBadge";
-import { requirePinIfEnabled } from './pinlock';
-// Import consolidated utilities from common.js (Phase D requirement)
 import { 
-  navigate, 
-  addDaysISO, 
   computeNextDueOptionA, 
-  openWhatsApp, 
-  openEmail, 
-  buildReminder,
   formatCurrency,
   formatDate,
   getPaymentStatus,
@@ -27,7 +16,7 @@ import {
 import { Icon, StatIcon, ActionIcon } from './components/Icons';
 import { PencilIcon, TrashIcon, ChatBubbleLeftRightIcon, BanknotesIcon, ClockIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 // Import Skeleton Loaders
-import { DashboardSkeleton, ReportsSkeleton, StatCardSkeleton, MemberCardSkeleton } from './components/SkeletonLoader';
+import { DashboardSkeleton, ReportsSkeleton } from './components/SkeletonLoader';
 
 // Hook to load members from storage
 
