@@ -541,8 +541,8 @@ class HeroiconReportsBackendTester:
     async def test_database_connectivity(self):
         """Test direct database connectivity and stability"""
         try:
-            # Test MongoDB connection
-            await self.db.admin.command('ping')
+            # Test MongoDB connection using the correct method
+            ping_result = await self.mongo_client.admin.command('ping')
             
             # Test collections exist
             collections = await self.db.list_collection_names()
@@ -559,7 +559,7 @@ class HeroiconReportsBackendTester:
             await self.log_test_result(
                 "Database Collections", 
                 has_required_collections, 
-                f"Required collections present: {has_required_collections}"
+                f"Required collections present: {has_required_collections}, Available: {collections}"
             )
             
             return has_required_collections
