@@ -332,7 +332,7 @@ class HeroiconReportsBackendTester:
         """Test all CRUD operations still work after frontend changes"""
         test_client_data = {
             "name": "Heroicon Test Client",
-            "email": "heroicon.test@example.com",
+            "email": f"heroicon.test.{int(time.time())}@example.com",  # Unique email
             "phone": "+1234567890",
             "membership_type": "Premium",
             "monthly_fee": 75.0,
