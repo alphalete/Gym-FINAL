@@ -71,6 +71,8 @@ const PaymentComponent = () => {
   const [paymentAmount, setPaymentAmount] = useState('');
   const [paidOnDate, setPaidOnDate] = useState(new Date().toISOString().slice(0,10));
   const [searchTerm, setSearchTerm] = useState("");
+  const [sendInvoiceEmail, setSendInvoiceEmail] = useState(false);
+  const [sendingInvoice, setSendingInvoice] = useState(false);
 
   useEffect(() => {
     (async () => {
