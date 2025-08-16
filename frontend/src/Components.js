@@ -2189,11 +2189,11 @@ const Settings = () => {
     body: ''
   });
   
-  // Collapsible sections state
+  // Collapsible sections state - all collapsed by default
   const [collapsedSections, setCollapsedSections] = useState({
-    membership: false,
-    emailTemplates: false,
-    configuration: false
+    membership: true,
+    emailTemplates: true,
+    configuration: true
   });
   
   const toggleSection = (section) => {
