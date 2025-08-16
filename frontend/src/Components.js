@@ -1341,7 +1341,7 @@ Alphalete Athletics Team`
       
       try {
         // Replace template variables with member data
-        const dueDate = m.nextDue || m.dueDate || 'Not set';
+        const dueDate = m.nextDue || m.dueDate || m.next_payment_date || 'Not set';
         const personalizedSubject = template.subject.replace('{memberName}', name).replace('{dueDate}', dueDate);
         const personalizedBody = template.body.replace('{memberName}', name).replace('{dueDate}', dueDate);
         
