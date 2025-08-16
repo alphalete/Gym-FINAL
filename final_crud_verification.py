@@ -8,7 +8,7 @@ import os
 from datetime import date
 import json
 
-BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://gym-billing-system.preview.emergentagent.com')
+BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://fitness-club-app-2.preview.emergentagent.com')
 if not BACKEND_URL.endswith('/api'):
     BACKEND_URL = f'{BACKEND_URL}/api'
 

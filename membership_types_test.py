@@ -8,7 +8,7 @@ from datetime import datetime
 from typing import Dict, Any
 
 class MembershipTypesAPITester:
-    def __init__(self, base_url="https://gym-billing-system.preview.emergentagent.com"):
+    def __init__(self, base_url="https://fitness-club-app-2.preview.emergentagent.com"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
         self.tests_run = 0
