@@ -2875,10 +2875,102 @@ export function RecordPayment(){
     // Keep existing payment logic: save payment, update member if your code does that elsewhere
     await storageFacade.savePayment(payment);
     
+    // Send invoice email if requested
+    if (sendInvoiceEmail && selectedMember.email) {
+      setSendingInvoice(true);
+      try {
+        await sendPaymentInvoiceEmail(selectedMember, payment);
+        alert('Payment recorded and invoice email sent successfully!');
+      } catch (error) {
+        console.error('Error sending invoice email:', error);
+        alert('Payment recorded successfully, but failed to send invoice email.');
+      } finally {
+        setSendingInvoice(false);
+      }
+    }
+    
     // Optional: if your existing code updates due date, call storageFacade.saveMember(updatedMember) here
     // This preserves the existing Option A payment logic
     
     window.navigateToTab?.('payments');
+  };
+
+  // Function to send payment invoice email
+  const sendPaymentInvoiceEmail = async (member, payment) => {
+    try {
+      // Load payment receipt template
+      const templates = await gymStorage.getAll('emailTemplates') || [];
+      const receiptTemplate = templates.find(t => t.id === 'payment-receipt' || t.name === 'Payment Receipt');
+      
+      if (!receiptTemplate) {
+        throw new Error('Payment receipt template not found');
+      }
+      
+      // Generate invoice number
+      const invoiceNumber = `INV-${Date.now()}`;
+      
+      // Calculate next due date (assuming monthly billing)
+      const paymentDate = new Date(payment.paidOn);
+      const nextDue = new Date(paymentDate);
+      nextDue.setMonth(nextDue.getMonth() + 1);
+      const nextDueDateString = nextDue.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+      
+      // Replace template variables with member and payment data
+      const memberName = member.name || `${member.firstName || ''} ${member.lastName || ''}`.trim() || 'Member';
+      const paymentDateString = new Date(payment.paidOn).toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+      
+      const personalizedSubject = receiptTemplate.subject
+        .replace('{memberName}', memberName)
+        .replace('{invoiceNumber}', invoiceNumber)
+        .replace('{paymentAmount}', payment.amount)
+        .replace('{paymentDate}', paymentDateString)
+        .replace('{membershipType}', member.membership_type || 'Standard')
+        .replace('{nextDueDate}', nextDueDateString);
+      
+      const personalizedBody = receiptTemplate.body
+        .replace(/{memberName}/g, memberName)
+        .replace(/{invoiceNumber}/g, invoiceNumber)
+        .replace(/{paymentAmount}/g, payment.amount)
+        .replace(/{paymentDate}/g, paymentDateString)
+        .replace(/{membershipType}/g, member.membership_type || 'Standard')
+        .replace(/{nextDueDate}/g, nextDueDateString);
+      
+      // Send email via backend API
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      if (backendUrl) {
+        const response = await fetch(`${backendUrl}/api/email/send`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: member.email,
+            subject: personalizedSubject,
+            body: personalizedBody,
+            memberName: memberName,
+            templateName: receiptTemplate.name
+          })
+        });
+        
+        const result = await response.json();
+        if (!result.success) {
+          throw new Error(result.message || 'Failed to send email');
+        }
+        
+        console.log('📧 Invoice email sent successfully:', result);
+      } else {
+        throw new Error('Backend URL not configured');
+      }
+    } catch (error) {
+      console.error('Error sending invoice email:', error);
+      throw error;
+    }
   };
 
   if (loading) {
