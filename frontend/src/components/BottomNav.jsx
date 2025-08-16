@@ -44,7 +44,18 @@ const BottomNav = () => {
             }`}
           >
             <div className="flex items-center justify-center w-6 h-6 mb-1">
-              <NavigationIcon name={item.icon} isActive={isActive(item.path)} size="lg" />
+              {React.createElement(
+                isActive(item.path) 
+                  ? {
+                      '/dashboard': ChartBarIconSolid,
+                      '/members': UserGroupIconSolid,
+                      '/plans': ClipboardDocumentListIconSolid,
+                      '/payments': CreditCardIconSolid,
+                      '/settings': Cog6ToothIconSolid
+                    }[item.path] || item.icon
+                  : item.icon,
+                { className: "w-5 h-5" }
+              )}
             </div>
             <span className="font-medium text-xs leading-tight text-center">{item.label}</span>
           </button>
