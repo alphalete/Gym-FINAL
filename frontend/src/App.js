@@ -6,6 +6,7 @@ import DiagnosticApp from "./DiagnosticApp";
 import gymStorage, * as storageNamed from "./storage";
 import Components from "./Components";
 import BottomNav from "./components/BottomNav";
+import Dashboard from "./Dashboard"; // Import the new Dashboard component
 
 const Fallback = () => (
   <div className="min-h-screen flex items-center justify-center text-gray-600">Loading…</div>
