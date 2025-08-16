@@ -10,6 +10,7 @@ import {
   computeNextDueOptionA, 
   calculateAlphaleteNextDue,
   calculateAlphaleteOverdue,
+  updateMemberCycleIfNeeded,
   formatCurrency,
   formatDate,
   getPaymentStatus,
