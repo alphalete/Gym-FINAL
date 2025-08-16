@@ -586,7 +586,7 @@ const Dashboard = () => {
     return <DashboardSkeleton />;
   }
 
-  // Calculate KPIs with GoGym4U logic
+  // Calculate KPIs with Alphalete Athletics logic
   // Safety guards for arrays
   const clientsList = Array.isArray(clients) ? clients : [];
   const paymentsList = Array.isArray(payments) ? payments : [];
