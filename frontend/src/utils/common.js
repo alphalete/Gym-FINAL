@@ -189,7 +189,7 @@ export function formatDate(dateString, includeYear = true) {
   }
 }
 
-// Payment status calculation using Alphalete Club logic
+// Payment status calculation using Alphalete Club logic with cycle restart
 export function getPaymentStatus(member) {
   if (!member || !member.nextDue) {
     return { status: 'unknown', label: 'No due date', class: 'badge-gray' };
@@ -203,7 +203,8 @@ export function getPaymentStatus(member) {
       label: `Overdue ${overdueInfo.daysPastDue} days`,
       class: 'badge-danger',
       overdueAmount: overdueInfo.overdueAmount,
-      cyclesOverdue: overdueInfo.cyclesOverdue
+      cyclesOverdue: overdueInfo.cyclesOverdue,
+      updatedMember: overdueInfo.updatedMember
     };
   }
   
@@ -220,19 +221,22 @@ export function getPaymentStatus(member) {
     return { 
       status: 'due-today', 
       label: 'Due Today', 
-      class: 'badge-warning' 
+      class: 'badge-warning',
+      updatedMember: overdueInfo.updatedMember
     };
   } else if (diffDays <= 3) {
     return { 
       status: 'due-soon', 
       label: `Due in ${diffDays} days`, 
-      class: 'badge-warning' 
+      class: 'badge-warning',
+      updatedMember: overdueInfo.updatedMember
     };
   } else {
     return { 
       status: 'active', 
       label: 'Active', 
-      class: 'badge-success' 
+      class: 'badge-success',
+      updatedMember: overdueInfo.updatedMember
     };
   }
 }
