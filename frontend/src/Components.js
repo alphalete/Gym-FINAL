@@ -622,11 +622,18 @@ const PaymentComponent = () => {
               </button>
               <button 
                 type="button" 
-                className="btn btn-primary" 
+                className="btn btn-primary flex items-center space-x-2" 
                 onClick={handlePaymentSubmit}
-                disabled={!selectedClient || !paymentAmount}
+                disabled={!selectedClient || !paymentAmount || sendingInvoice}
               >
-                Record Payment
+                {sendingInvoice ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span>Recording & Sending...</span>
+                  </>
+                ) : (
+                  <span>Record Payment</span>
+                )}
               </button>
             </div>
           </div>
