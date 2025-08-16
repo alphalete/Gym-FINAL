@@ -3181,7 +3181,7 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
       </div>
       
       <div className="flex gap-3 pt-4">
-        {/* Enhanced submit button with proper GoGym4U styling */}
+        {/* Enhanced submit button with proper Alphalete Athletics styling */}
         <button
           type="button"
           className={`btn text-base font-semibold min-w-[140px] ${
