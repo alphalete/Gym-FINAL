@@ -26,7 +26,18 @@ const urlsToCache = [
 ];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache)));
+  console.log('[SW] Installing Alphalete Athletics PWA Service Worker v4');
+  e.waitUntil(
+    caches.open(CACHE_NAME).then(cache => {
+      console.log('[SW] Precaching essential assets');
+      return cache.addAll(urlsToCache.map(url => new Request(url, {cache: 'reload'})));
+    }).catch(err => {
+      console.warn('[SW] Precaching failed for some assets:', err);
+      // Continue installation even if some assets fail to cache
+      return caches.open(CACHE_NAME);
+    })
+  );
+  self.skipWaiting(); // Force new SW to activate immediately
 });
 
 self.addEventListener('activate', e => {
