@@ -2496,7 +2496,7 @@ const Sidebar = () => {
         <div className={`text-xs text-gray-500 text-center transition-opacity duration-300 ${
           isExpanded ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
         }`}>
-          <div className="whitespace-nowrap">GoGym4U v2.0</div>
+          <div className="whitespace-nowrap">Alphalete Athletics v2.0</div>
         </div>
       </div>
     </nav>
