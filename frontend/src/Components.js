@@ -969,8 +969,8 @@ const Dashboard = () => {
                           <ActionIcon name="💰" className="text-success" size="sm" />
                         </div>
                         <div>
-                          <div className="font-medium text-gray-900">{formatCurrency(payment.amount)}</div>
-                          <div className="text-sm text-gray-500">{formatDate(payment.paidOn)}</div>
+                          <div className="font-medium text-gray-900">{payment.memberName || 'Unknown Member'}</div>
+                          <div className="text-sm text-gray-500">{formatCurrency(payment.amount)} • {formatDate(payment.paidOn)}</div>
                         </div>
                       </div>
                       <span className="badge badge-success">Paid</span>
