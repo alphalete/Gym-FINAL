@@ -7,11 +7,11 @@ const BottomNav = () => {
   const navigate = useNavigate();
 
   const navItems = [
-    { path: '/dashboard', icon: '📊', label: 'Dashboard' },
-    { path: '/members', icon: '👥', label: 'Members' },
-    { path: '/plans', icon: '📋', label: 'Plans' },
-    { path: '/payments', icon: '💳', label: 'Payments' },
-    { path: '/settings', icon: '⚙️', label: 'Settings' }
+    { path: '/dashboard', icon: ChartBarIcon, label: 'Dashboard' },
+    { path: '/members', icon: UserGroupIcon, label: 'Members' },
+    { path: '/plans', icon: ClipboardDocumentListIcon, label: 'Plans' },
+    { path: '/payments', icon: CreditCardIcon, label: 'Payments' },
+    { path: '/settings', icon: Cog6ToothIcon, label: 'Settings' }
   ];
 
   const isActive = (path) => location.pathname === path;
