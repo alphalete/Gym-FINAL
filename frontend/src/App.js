@@ -166,7 +166,7 @@ const AppContent = () => {
       <main className="flex-1 min-w-0 pb-20 md:pb-4 md:ml-16">
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={C.Dashboard ? <C.Dashboard /> : <div className="p-4">No Dashboard</div>} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/members" element={C.ClientManagement ? <C.ClientManagement /> : <div className="p-4">No Members</div>} />
           <Route path="/add-member" element={<AddMember />} />
           <Route path="/plans" element={C.MembershipManagement ? <C.MembershipManagement /> : <div className="p-4">No Plans</div>} />
