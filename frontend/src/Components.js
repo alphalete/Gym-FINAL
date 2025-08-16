@@ -2452,7 +2452,7 @@ const Sidebar = () => {
       <div className="p-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
           <div className={`transition-opacity duration-300 ${isExpanded ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-            <h1 className="text-lg font-bold text-indigo-600 whitespace-nowrap">GoGym4U</h1>
+            <h1 className="text-lg font-bold text-indigo-600 whitespace-nowrap">Alphalete Athletics</h1>
             <p className="text-xs text-gray-500 whitespace-nowrap">Gym Management</p>
           </div>
           <button
