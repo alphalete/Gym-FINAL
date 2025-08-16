@@ -2489,19 +2489,19 @@ input:focus, textarea:focus, select:focus {
   text-decoration: none !important;
 }
 
-/* GoGym4U Style Recreation - Exact Match */
+/* Alphalete Athletics Style - Exact Match */
 
 :root {
-  /* GoGym4U Colors from Reference */
-  --gogym-teal: #00BCD4;
-  --gogym-blue: #2196F3;
-  --gogym-green: #4CAF50;
-  --gogym-orange: #FF9800;
-  --gogym-sidebar: #FFFFFF;
-  --gogym-background: #F8F9FA;
-  --gogym-text-dark: #333333;
-  --gogym-text-light: #666666;
-  --gogym-border: #E1E5E9;
+  /* Alphalete Athletics Colors */
+  --alphalete-teal: #00BCD4;
+  --alphalete-blue: #2196F3;
+  --alphalete-green: #4CAF50;
+  --alphalete-orange: #FF9800;
+  --alphalete-sidebar: #FFFFFF;
+  --alphalete-background: #F8F9FA;
+  --alphalete-text-dark: #333333;
+  --alphalete-text-light: #666666;
+  --alphalete-border: #E1E5E9;
   
   /* Card specific colors */
   --card-blue: #4A90E2;
