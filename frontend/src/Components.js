@@ -1858,8 +1858,37 @@ const Settings = () => {
         
         // Load email templates
         const templates = await gymStorage.getAll('emailTemplates') || [];
+        
+        // Check if we need to update templates that still have GoGym4U branding
+        const updatedTemplates = templates.map(template => {
+          if (template.subject && template.subject.includes('GoGym4U')) {
+            return {
+              ...template,
+              subject: template.subject.replace(/GoGym4U/g, 'Alphalete Athletics')
+            };
+          }
+          if (template.body && template.body.includes('GoGym4U')) {
+            return {
+              ...template,
+              body: template.body.replace(/GoGym4U/g, 'Alphalete Athletics')
+            };
+          }
+          return template;
+        });
+        
+        // Save updated templates back to storage if changes were made
+        const hasChanges = updatedTemplates.some((template, index) => 
+          JSON.stringify(template) !== JSON.stringify(templates[index])
+        );
+        
+        if (hasChanges) {
+          for (const template of updatedTemplates) {
+            await gymStorage.upsert('emailTemplates', template);
+          }
+        }
+        
         // Add default payment reminder template if none exist
-        if (templates.length === 0) {
+        if (updatedTemplates.length === 0) {
           const defaultTemplate = {
             id: 'payment-reminder',
             name: 'Payment Reminder',
