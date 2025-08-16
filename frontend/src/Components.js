@@ -2041,7 +2041,7 @@ Alphalete Athletics Team`
                     </button>
                   </div>
                 </div>
-                <div className="text-sm text-gray-700 bg-gray-50 p-3 rounded border">
+                <div className="text-sm text-gray-800 bg-white p-3 rounded border-l-4 border-blue-400 border border-gray-200">
                   {template.body.substring(0, 100)}...
                 </div>
               </div>
