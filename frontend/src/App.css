@@ -3025,8 +3025,8 @@ body {
   color: #ca8a04;
 }
 
-/* Stats Cards Grid - Exactly like GoGym4U */
-.gogym-stats-grid {
+/* Stats Cards Grid - Alphalete Athletics Design */
+.alphalete-stats-grid {
   display: grid !important;
   grid-template-columns: 1fr 1fr !important;
   gap: 16px !important;
