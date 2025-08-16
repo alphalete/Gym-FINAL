@@ -3721,7 +3721,9 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
     setErrors([]);
     
     try {
-      const startDate = new Date(form.joinDate); // Use the selected join date
+      // Fix timezone issue: parse date safely to avoid UTC conversion issues  
+      const [year, month, day] = form.joinDate.split('-').map(Number);
+      const startDate = new Date(year, month - 1, day); // month is 0-indexed, creates local date
       const billingIntervalDays = 30; // Fixed: Always use 30-day billing cycle for Alphalete Athletics
       const nextDueDate = new Date(startDate);
       nextDueDate.setDate(nextDueDate.getDate() + billingIntervalDays);
