@@ -558,20 +558,20 @@ const PaymentComponent = () => {
                 {/* Invoice Email Checkbox */}
                 {selectedClient?.email && (
                   <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-start space-x-4">
                       <input
                         type="checkbox"
                         id="sendInvoiceEmailModal"
                         checked={sendInvoiceEmail}
                         onChange={(e) => setSendInvoiceEmail(e.target.checked)}
-                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                        className="w-5 h-5 mt-1 text-blue-600 bg-white border-2 border-blue-300 rounded focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 cursor-pointer"
                       />
-                      <label htmlFor="sendInvoiceEmailModal" className="flex-1">
-                        <div className="text-sm font-medium text-gray-900">
+                      <label htmlFor="sendInvoiceEmailModal" className="flex-1 cursor-pointer">
+                        <div className="text-base font-semibold text-gray-900 mb-1">
                           📧 Send Payment Receipt via Email
                         </div>
-                        <div className="text-xs text-gray-600">
-                          Send invoice receipt to {selectedClient.email}
+                        <div className="text-sm text-gray-700 font-medium">
+                          Send invoice receipt to <span className="text-blue-600 font-semibold">{selectedClient.email}</span>
                         </div>
                       </label>
                     </div>
@@ -580,7 +580,7 @@ const PaymentComponent = () => {
                 
                 {selectedClient && !selectedClient.email && (
                   <div className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
-                    <div className="text-sm text-yellow-800">
+                    <div className="text-sm text-yellow-800 font-medium">
                       ⚠️ No email address on file for this member. Invoice email cannot be sent.
                     </div>
                   </div>
