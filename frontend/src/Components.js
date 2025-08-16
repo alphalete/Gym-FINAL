@@ -147,7 +147,7 @@ const PaymentComponent = () => {
     
     await gymStorage.savePayment(payRec);
 
-    // Update member with Alphalete Club payment logic
+    // Update member with Alphalete Club payment logic including cycle restart
     const alphaleteResult = calculateAlphaleteNextDue(m, amountNum, paidOn);
     const overdueInfo = calculateAlphaleteOverdue(m);
     
@@ -155,10 +155,11 @@ const PaymentComponent = () => {
       ...m, 
       lastPayment: paidOn, 
       nextDue: alphaleteResult.nextDue,
+      start_date: alphaleteResult.newStartDate, // Update start date if cycle restarted
       status: overdueInfo.isOverdue ? 'Overdue' : 'Active',
       overdue: overdueInfo.isOverdue ? overdueInfo.overdueAmount : 0,
       cyclesCovered: alphaleteResult.cyclesCovered,
-      originalDueDate: alphaleteResult.originalDueDate
+      cycleRestarted: alphaleteResult.cycleRestarted
     };
     await gymStorage.saveMembers(updated);
 
