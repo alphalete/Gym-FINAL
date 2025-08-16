@@ -54,6 +54,7 @@ const BottomNav = () => {
                       '/members': UserGroupIconSolid,
                       '/plans': ClipboardDocumentListIconSolid,
                       '/payments': CreditCardIconSolid,
+                      '/reports': ChartPieIconSolid,
                       '/settings': Cog6ToothIconSolid
                     }[item.path] || item.icon
                   : item.icon,
