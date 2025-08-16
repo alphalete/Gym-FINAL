@@ -189,7 +189,31 @@ const PaymentComponent = () => {
     setPayments(paymentsList);
   }
 
-  // Function to send payment invoice email
+  // Function to delete a payment entry
+  const handleDeletePayment = async (paymentId, paymentDetails) => {
+    if (window.confirm(`Delete payment of ${formatCurrency(paymentDetails.amount)} for ${paymentDetails.memberName}?\n\nThis action cannot be undone.`)) {
+      try {
+        // Delete from storage
+        await gymStorage.remove('payments', paymentId);
+        
+        // Update local payments list
+        const updatedPayments = payments.filter(p => p.id !== paymentId);
+        setPayments(updatedPayments);
+        
+        // Trigger data change event
+        try {
+          window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'payments' }));
+        } catch {}
+        
+        alert('✅ Payment deleted successfully');
+        
+      } catch (error) {
+        console.error('Error deleting payment:', error);
+        alert('❌ Failed to delete payment. Please try again.');
+      }
+    }
+  };
+
   const sendPaymentInvoiceEmail = async (member, payment, nextDueDate) => {
     try {
       // Load payment receipt template
