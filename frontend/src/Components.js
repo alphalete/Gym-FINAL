@@ -581,7 +581,7 @@ const Dashboard = () => {
     };
   }, []);
 
-  // Show GoGym4U loading indicator
+  // Show Alphalete Athletics loading indicator
   if (loading) {
     return <DashboardSkeleton />;
   }
