@@ -57,6 +57,39 @@ const AppContent = () => {
     window.navigateTo = navigate;
   }, [navigate]);
 
+  // Helper function to scroll to top with comprehensive approach
+  const scrollToTop = () => {
+    // Method 1: Window scroll
+    window.scrollTo(0, 0);
+    
+    // Method 2: Document elements
+    if (document.documentElement) {
+      document.documentElement.scrollTop = 0;
+    }
+    if (document.body) {
+      document.body.scrollTop = 0;
+    }
+    
+    // Method 3: Find and scroll any scrollable containers
+    const scrollableElements = document.querySelectorAll('main, [data-scroll-container], .overflow-auto, .overflow-y-auto, .overflow-scroll, .overflow-y-scroll');
+    scrollableElements.forEach(element => {
+      if (element && element.scrollTo) {
+        element.scrollTo(0, 0);
+      } else if (element) {
+        element.scrollTop = 0;
+      }
+    });
+    
+    // Method 4: Target specific layout containers
+    const mainElement = document.querySelector('main');
+    if (mainElement) {
+      mainElement.scrollTop = 0;
+      if (mainElement.scrollTo) {
+        mainElement.scrollTo(0, 0);
+      }
+    }
+  };
+
   // Persist last selected tab whenever route changes and scroll to top
   useEffect(() => {
     const currentPath = location.pathname;
@@ -71,24 +104,23 @@ const AppContent = () => {
     
     const currentTab = tabMap[currentPath];
     if (currentTab) {
-      // Force immediate scroll to top with multiple approaches
-      window.scrollTo(0, 0);
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
+      // Immediate scroll
+      scrollToTop();
       
-      // Also set it again after a brief delay to handle async content loading
+      // Also scroll after a brief delay for async content
       setTimeout(() => {
-        window.scrollTo(0, 0);
-        document.documentElement.scrollTop = 0;
-        document.body.scrollTop = 0;
+        scrollToTop();
       }, 10);
       
-      // And one more time after component renders
+      // And again after component renders
       setTimeout(() => {
-        window.scrollTo(0, 0);
-        document.documentElement.scrollTop = 0;
-        document.body.scrollTop = 0;
+        scrollToTop();
       }, 100);
+      
+      // Final scroll after animations/transitions
+      setTimeout(() => {
+        scrollToTop();
+      }, 300);
       
       try {
         localStorage.setItem('ui:lastTab', currentTab);
