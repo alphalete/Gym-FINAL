@@ -2546,7 +2546,7 @@ body {
 .gogym-sidebar h1 {
   font-size: 28px;
   font-weight: 700;
-  color: var(--gogym-text-dark);
+  color: var(--alphalete-text-dark);
   margin-bottom: 48px;
   text-align: left;
 }
