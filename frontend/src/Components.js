@@ -324,7 +324,7 @@ const PaymentComponent = () => {
             </div>
           </div>
 
-          <div className="stat-card bg-indigo-600 text-white">
+          <div className="bg-indigo-600 text-white rounded-lg p-6 shadow-lg border border-indigo-500">
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-2xl font-bold text-white mb-1">{todayPayments.length}</div>
