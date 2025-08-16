@@ -242,6 +242,15 @@ export function getPaymentStatus(member) {
 }
 
 // Avatar/initials generator
+// Calculate total amount paid by a member
+export function calculateTotalPaid(memberId, payments = []) {
+  if (!memberId || !payments.length) return 0;
+  
+  return payments
+    .filter(payment => String(payment.memberId) === String(memberId))
+    .reduce((total, payment) => total + (Number(payment.amount) || 0), 0);
+}
+
 export function getInitials(name) {
   if (!name) return '?';
   return name
