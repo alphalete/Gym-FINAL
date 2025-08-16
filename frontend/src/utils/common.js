@@ -22,30 +22,31 @@ export function computeNextDueOptionA(prevNextDueISO, paidOnISO, cycleDays = 30)
 }
 
 // ALPHALETE CLUB PAYMENT LOGIC
-// Fixed 30-Day Billing Cycle with specific rules
+// Fixed 30-Day Billing Cycle with cycle restart logic
 
 export function calculateAlphaleteNextDue(member, paymentAmount, paymentDate) {
-  const joinDate = new Date(member.start_date || member.joinDate);
+  const currentStartDate = new Date(member.start_date || member.joinDate);
   const paymentDateObj = new Date(paymentDate);
   const memberMonthlyFee = Number(member.monthly_fee || member.fee || 0);
   
-  // Calculate the original due date (30 days from join date)
-  const originalDueDate = new Date(joinDate);
-  originalDueDate.setDate(originalDueDate.getDate() + 30);
+  // Calculate the current due date (30 days from current start date)
+  let currentDueDate = new Date(currentStartDate);
+  currentDueDate.setDate(currentDueDate.getDate() + 30);
   
-  // Find current cycle due date
-  let currentDueDate = new Date(originalDueDate);
   const today = new Date();
   
-  // Find the current billing cycle
-  while (currentDueDate < today) {
-    currentDueDate.setDate(currentDueDate.getDate() + 30);
+  // If current due date has passed, we need to start a new cycle
+  let newStartDate = new Date(currentStartDate);
+  if (currentDueDate < today) {
+    // Start date becomes the passed due date
+    newStartDate = new Date(currentDueDate);
+    currentDueDate.setDate(currentDueDate.getDate() + 30); // New due date is 30 days from new start
   }
   
   // Calculate how many cycles this payment covers
   const cyclesCovered = Math.max(1, Math.floor(paymentAmount / memberMonthlyFee));
   
-  // If this is the first payment or payment within current cycle
+  // Calculate final due date
   let nextDueDate = new Date(currentDueDate);
   
   // For multiple cycles, advance the due date by additional cycles
@@ -55,13 +56,15 @@ export function calculateAlphaleteNextDue(member, paymentAmount, paymentDate) {
   
   return {
     nextDue: nextDueDate.toISOString().slice(0, 10),
+    newStartDate: newStartDate.toISOString().slice(0, 10),
     cyclesCovered,
-    originalDueDate: originalDueDate.toISOString().slice(0, 10)
+    cycleRestarted: newStartDate.toISOString().slice(0, 10) !== currentStartDate.toISOString().slice(0, 10)
   };
 }
 
-export function calculateAlphaleteOverdue(member) {
-  if (!member.nextDue) return { isOverdue: false, daysPastDue: 0, overdueAmount: 0 };
+export function updateMemberCycleIfNeeded(member) {
+  // Check if member's due date has passed and needs cycle restart
+  if (!member.nextDue || !member.start_date) return member;
   
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -69,12 +72,46 @@ export function calculateAlphaleteOverdue(member) {
   const dueDate = new Date(member.nextDue);
   dueDate.setHours(0, 0, 0, 0);
   
+  // If due date has passed, start a new cycle
+  if (dueDate < today) {
+    const daysPassed = Math.ceil((today - dueDate) / (1000 * 60 * 60 * 24));
+    const cyclesPassed = Math.ceil(daysPassed / 30);
+    
+    // Calculate new start date and due date
+    const newStartDate = new Date(dueDate);
+    const newDueDate = new Date(newStartDate);
+    newDueDate.setDate(newDueDate.getDate() + (30 * cyclesPassed));
+    
+    return {
+      ...member,
+      start_date: newStartDate.toISOString().slice(0, 10),
+      nextDue: newDueDate.toISOString().slice(0, 10),
+      status: 'Overdue',
+      cycleRestarted: true
+    };
+  }
+  
+  return member;
+}
+
+export function calculateAlphaleteOverdue(member) {
+  // First check if we need to update the cycle
+  const updatedMember = updateMemberCycleIfNeeded(member);
+  
+  if (!updatedMember.nextDue) return { isOverdue: false, daysPastDue: 0, overdueAmount: 0, updatedMember };
+  
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const dueDate = new Date(updatedMember.nextDue);
+  dueDate.setHours(0, 0, 0, 0);
+  
   const diffTime = dueDate.getTime() - today.getTime();
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   
   if (diffDays < 0) {
     const daysPastDue = Math.abs(diffDays);
-    const monthlyFee = Number(member.monthly_fee || member.fee || 0);
+    const monthlyFee = Number(updatedMember.monthly_fee || updatedMember.fee || 0);
     
     // Calculate cycles overdue (every 30 days = 1 cycle)
     const cyclesOverdue = Math.ceil(daysPastDue / 30);
@@ -84,11 +121,12 @@ export function calculateAlphaleteOverdue(member) {
       isOverdue: true,
       daysPastDue,
       overdueAmount,
-      cyclesOverdue
+      cyclesOverdue,
+      updatedMember
     };
   }
   
-  return { isOverdue: false, daysPastDue: 0, overdueAmount: 0 };
+  return { isOverdue: false, daysPastDue: 0, overdueAmount: 0, updatedMember };
 }
 
 // Communication utilities
