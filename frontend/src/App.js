@@ -149,27 +149,15 @@ const AppContent = () => {
     }
   }, [location.pathname]);
 
-  // Restore last selected tab on app load
+  // Always start with Dashboard on app load
   useEffect(() => {
     try {
-      const lastTab = localStorage.getItem('ui:lastTab');
-      if (lastTab && location.pathname === '/') {
-        // Only navigate if we're on the root path (to avoid overriding direct navigation)
-        const routes = {
-          'dashboard': '/dashboard',
-          'members': '/members', 
-          'plans': '/plans',
-          'payments': '/payments',
-          'reports': '/reports',
-          'settings': '/settings'
-        };
-        
-        if (routes[lastTab]) {
-          navigate(routes[lastTab], { replace: true });
-        }
+      // Always navigate to dashboard when the app loads, regardless of last tab
+      if (location.pathname === '/') {
+        navigate('/dashboard', { replace: true });
       }
     } catch (e) {
-      console.warn('Could not restore last tab from localStorage:', e);
+      console.warn('Could not navigate to dashboard on load:', e);
     }
   }, []); // Run only once on mount
 
