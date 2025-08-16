@@ -1943,7 +1943,7 @@ const Settings = () => {
         
         // Add default payment reminder template if none exist
         if (updatedTemplates.length === 0) {
-          const defaultTemplate = {
+          const paymentReminderTemplate = {
             id: 'payment-reminder',
             name: 'Payment Reminder',
             subject: 'Payment Reminder - Alphalete Athletics',
@@ -1958,9 +1958,63 @@ Thank you for being a valued member of Alphalete Athletics!
 Best regards,
 Alphalete Athletics Team`
           };
-          await gymStorage.upsert('emailTemplates', defaultTemplate);
-          setEmailTemplates([defaultTemplate]);
+          
+          const paymentReceiptTemplate = {
+            id: 'payment-receipt',
+            name: 'Payment Receipt',
+            subject: 'Payment Receipt - Alphalete Athletics',
+            body: `Dear {memberName},
+
+Thank you for your payment! This email serves as your receipt for the payment made today.
+
+PAYMENT DETAILS:
+• Invoice Number: #{invoiceNumber}
+• Payment Amount: TTD {paymentAmount}
+• Payment Date: {paymentDate}
+• Membership Type: {membershipType}
+• Next Due Date: {nextDueDate}
+
+We appreciate your continued membership with Alphalete Athletics. If you have any questions about this payment or your membership, please don't hesitate to contact us.
+
+Best regards,
+Alphalete Athletics Team
+Phone: (868) 123-4567
+Email: info@alphaleteclub.com`
+          };
+          
+          await gymStorage.upsert('emailTemplates', paymentReminderTemplate);
+          await gymStorage.upsert('emailTemplates', paymentReceiptTemplate);
+          setEmailTemplates([paymentReminderTemplate, paymentReceiptTemplate]);
         } else {
+          // Check if payment receipt template exists, add if missing
+          const hasReceiptTemplate = updatedTemplates.some(t => t.id === 'payment-receipt' || t.name === 'Payment Receipt');
+          if (!hasReceiptTemplate) {
+            const paymentReceiptTemplate = {
+              id: 'payment-receipt',
+              name: 'Payment Receipt',
+              subject: 'Payment Receipt - Alphalete Athletics',
+              body: `Dear {memberName},
+
+Thank you for your payment! This email serves as your receipt for the payment made today.
+
+PAYMENT DETAILS:
+• Invoice Number: #{invoiceNumber}
+• Payment Amount: TTD {paymentAmount}
+• Payment Date: {paymentDate}
+• Membership Type: {membershipType}
+• Next Due Date: {nextDueDate}
+
+We appreciate your continued membership with Alphalete Athletics. If you have any questions about this payment or your membership, please don't hesitate to contact us.
+
+Best regards,
+Alphalete Athletics Team
+Phone: (868) 123-4567
+Email: info@alphaleteclub.com`
+            };
+            
+            await gymStorage.upsert('emailTemplates', paymentReceiptTemplate);
+            updatedTemplates.push(paymentReceiptTemplate);
+          }
           setEmailTemplates(updatedTemplates);
         }
         
