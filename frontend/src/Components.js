@@ -3763,7 +3763,8 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
           email: "", 
           phone: "", 
           membershipType: defaultPlan?.name || "",
-          monthlyFee: parseFloat(defaultPlan?.price) || 0
+          monthlyFee: parseFloat(defaultPlan?.price) || 0,
+          joinDate: new Date().toISOString().slice(0, 10) // Reset to today's date
         });
         
         // Show success message with sync status
