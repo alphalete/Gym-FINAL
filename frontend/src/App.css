@@ -2527,7 +2527,7 @@ body {
 .App {
   display: flex;
   min-height: 100vh;
-  background-color: var(--gogym-background);
+  background-color: var(--alphalete-background);
 }
 
 /* GoGym4U Sidebar Navigation */
