@@ -21,6 +21,76 @@ export function computeNextDueOptionA(prevNextDueISO, paidOnISO, cycleDays = 30)
   return nextDue.toISOString().slice(0, 10);
 }
 
+// ALPHALETE CLUB PAYMENT LOGIC
+// Fixed 30-Day Billing Cycle with specific rules
+
+export function calculateAlphaleteNextDue(member, paymentAmount, paymentDate) {
+  const joinDate = new Date(member.start_date || member.joinDate);
+  const paymentDateObj = new Date(paymentDate);
+  const memberMonthlyFee = Number(member.monthly_fee || member.fee || 0);
+  
+  // Calculate the original due date (30 days from join date)
+  const originalDueDate = new Date(joinDate);
+  originalDueDate.setDate(originalDueDate.getDate() + 30);
+  
+  // Find current cycle due date
+  let currentDueDate = new Date(originalDueDate);
+  const today = new Date();
+  
+  // Find the current billing cycle
+  while (currentDueDate < today) {
+    currentDueDate.setDate(currentDueDate.getDate() + 30);
+  }
+  
+  // Calculate how many cycles this payment covers
+  const cyclesCovered = Math.max(1, Math.floor(paymentAmount / memberMonthlyFee));
+  
+  // If this is the first payment or payment within current cycle
+  let nextDueDate = new Date(currentDueDate);
+  
+  // For multiple cycles, advance the due date by additional cycles
+  if (cyclesCovered > 1) {
+    nextDueDate.setDate(nextDueDate.getDate() + (30 * (cyclesCovered - 1)));
+  }
+  
+  return {
+    nextDue: nextDueDate.toISOString().slice(0, 10),
+    cyclesCovered,
+    originalDueDate: originalDueDate.toISOString().slice(0, 10)
+  };
+}
+
+export function calculateAlphaleteOverdue(member) {
+  if (!member.nextDue) return { isOverdue: false, daysPastDue: 0, overdueAmount: 0 };
+  
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const dueDate = new Date(member.nextDue);
+  dueDate.setHours(0, 0, 0, 0);
+  
+  const diffTime = dueDate.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  if (diffDays < 0) {
+    const daysPastDue = Math.abs(diffDays);
+    const monthlyFee = Number(member.monthly_fee || member.fee || 0);
+    
+    // Calculate cycles overdue (every 30 days = 1 cycle)
+    const cyclesOverdue = Math.ceil(daysPastDue / 30);
+    const overdueAmount = monthlyFee * cyclesOverdue;
+    
+    return {
+      isOverdue: true,
+      daysPastDue,
+      overdueAmount,
+      cyclesOverdue
+    };
+  }
+  
+  return { isOverdue: false, daysPastDue: 0, overdueAmount: 0 };
+}
+
 // Communication utilities
 export function openWhatsApp(text, phone) {
   const msg = encodeURIComponent(text || "");
