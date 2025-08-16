@@ -2618,7 +2618,7 @@ Email: info@alphaleteclub.com`
       <div className="bg-white border rounded-2xl overflow-hidden">
         <button
           onClick={() => toggleSection('configuration')}
-          className="w-full p-4 flex justify-between items-center hover:bg-gray-50 transition-colors duration-200"
+          className="w-full p-4 flex justify-between items-center hover:bg-gray-100 transition-colors duration-200 bg-gray-50"
         >
           <div className="font-medium">Current Configuration</div>
           {collapsedSections.configuration ? (
