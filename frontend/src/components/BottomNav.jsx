@@ -39,7 +39,11 @@ const BottomNav = () => {
           <button
             key={item.path}
             type="button"
-            onClick={() => navigate(item.path)}
+            onClick={() => {
+              navigate(item.path);
+              // Scroll to top when navigating
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
             className={`flex flex-col items-center justify-center flex-1 h-full px-1 py-2 transition-colors duration-200 ${
               isActive(item.path) 
                 ? 'text-indigo-600 font-semibold' 
