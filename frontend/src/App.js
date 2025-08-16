@@ -68,8 +68,25 @@ const AppContent = () => {
     
     const currentTab = tabMap[currentPath];
     if (currentTab) {
-      // Scroll to top when navigating between pages
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Force immediate scroll to top with multiple approaches
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      
+      // Also set it again after a brief delay to handle async content loading
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+      }, 10);
+      
+      // And one more time after component renders
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+      }, 100);
+      
       try {
         localStorage.setItem('ui:lastTab', currentTab);
       } catch (e) {
