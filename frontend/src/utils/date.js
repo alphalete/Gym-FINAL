@@ -12,8 +12,14 @@ export function add30DaysFrom(iso) {
 }
 
 export function daysBetween(aISO, bISO) {
-  const a = new Date(aISO);
-  const b = new Date(bISO);
+  // Fix timezone issue: parse dates safely
+  const parseDate = (iso) => {
+    const [year, month, day] = iso.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  };
+  
+  const a = parseDate(aISO);
+  const b = parseDate(bISO);
   return Math.ceil((a - b) / (1000 * 60 * 60 * 24));
 }
 
