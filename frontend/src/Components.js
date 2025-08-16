@@ -2020,28 +2020,28 @@ Alphalete Athletics Team`
         ) : (
           <div className="space-y-3">
             {emailTemplates.map((template) => (
-              <div key={template.id} className="border rounded-lg p-3 bg-gray-50">
-                <div className="flex justify-between items-start mb-2">
+              <div key={template.id} className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm">
+                <div className="flex justify-between items-start mb-3">
                   <div>
-                    <div className="font-medium text-sm">{template.name}</div>
-                    <div className="text-xs text-gray-600">Subject: {template.subject}</div>
+                    <div className="font-semibold text-base text-gray-800">{template.name}</div>
+                    <div className="text-sm text-gray-600 mt-1">Subject: {template.subject}</div>
                   </div>
                   <div className="flex gap-2">
                     <button 
-                      className="text-blue-500 hover:text-blue-600 text-xs"
+                      className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                       onClick={() => startEdit(template)}
                     >
                       Edit
                     </button>
                     <button 
-                      className="text-red-500 hover:text-red-600 text-xs"
+                      className="text-red-600 hover:text-red-700 text-sm font-medium"
                       onClick={() => deleteTemplate(template)}
                     >
                       Delete
                     </button>
                   </div>
                 </div>
-                <div className="text-xs text-gray-500 max-w-full overflow-hidden">
+                <div className="text-sm text-gray-700 bg-gray-50 p-3 rounded border">
                   {template.body.substring(0, 100)}...
                 </div>
               </div>
