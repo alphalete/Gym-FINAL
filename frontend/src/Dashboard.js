@@ -10,11 +10,6 @@ const Dashboard = () => {
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("all"); // New state for filtering
   
-  // KPI scroll tracking state
-  const kpiScrollerRef = React.useRef(null);
-  const [kpiPage, setKpiPage] = React.useState(0);
-  const kpiCount = 4; // we have 4 colorful KPI cards
-  
   const todayISO = new Date().toISOString().slice(0,10);
 
   // Load dashboard data function
