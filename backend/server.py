@@ -556,7 +556,7 @@ async def get_clients(response: Response):
                 start_date = client.get('start_date', date.today())
                 if isinstance(start_date, str):
                     start_date = datetime.fromisoformat(start_date).date()
-                client['next_payment_date'] = calculate_next_payment_date(start_date)
+                client['next_payment_date'] = calculate_due_date(start_date, 30)  # Fixed: Use 30-day calculation
         elif 'next_payment_date' not in client:
             # Handle clients without next_payment_date (legacy)
             start_date = client.get('start_date', date.today())
