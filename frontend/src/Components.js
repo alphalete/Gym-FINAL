@@ -1251,12 +1251,12 @@ Alphalete Athletics Team`
               {/* Email Template Dropdown */}
               {showEmailDropdown && (
                 <div className="absolute bottom-full left-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[180px]">
-                  <div className="p-2">
-                    <div className="text-xs font-semibold text-gray-600 mb-2 px-2">Select Template:</div>
+                  <div className="p-3">
+                    <div className="text-sm font-semibold text-gray-800 mb-3 px-1">Select Template:</div>
                     {emailTemplates.map((template) => (
                       <button
                         key={template.id}
-                        className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 rounded transition-colors"
+                        className="w-full text-left px-3 py-2 text-sm text-gray-800 bg-white hover:bg-blue-50 hover:text-blue-700 rounded border border-gray-100 mb-2 transition-colors font-medium"
                         onClick={() => handleSendEmail(template)}
                       >
                         {template.name}
