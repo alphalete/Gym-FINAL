@@ -2583,7 +2583,7 @@ body {
 }
 
 .gogym-nav-link.active {
-  background-color: var(--gogym-teal);
+  background-color: var(--alphalete-teal);
   color: white;
 }
 
