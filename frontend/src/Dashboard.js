@@ -317,168 +317,135 @@ const Dashboard = () => {
           </div>
         </div>
 
-            <div className="min-w-[72%] sm:min-w-[320px] snap-start">
-              <div className="bg-white rounded-2xl border p-4">
-                <h3 className="sr-only">Total Amount Owed</h3>
-                <div className="text-gray-500 text-sm">TOTAL AMOUNT OWED</div>
-                <div className="text-2xl font-semibold">${members.filter(m => isOverdue(m.nextDue) || isDueToday(m.nextDue)).reduce((sum,m)=> sum + Number(m.monthlyFee||m.amount||0), 0).toFixed(2)}</div>
+        {/* Filter Status Bar */}
+        {activeFilter !== "all" && (
+          <div className="mb-4">
+            <div className="bg-card rounded-xl shadow-sm p-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">Showing:</span>
+                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                  activeFilter === "active" ? "bg-indigo-600/10 text-indigo-600" :
+                  activeFilter === "due-soon" ? "bg-warning/10 text-warning" :
+                  activeFilter === "overdue" ? "bg-danger/10 text-danger" :
+                  "bg-gray-100 text-gray-700"
+                }`}>
+                  {activeFilter === "active" ? "Active Members" :
+                   activeFilter === "due-soon" ? "Due Soon" :
+                   activeFilter === "overdue" ? "Overdue Members" : "All Members"} 
+                  ({filteredMembers.length})
+                </span>
               </div>
+              <button 
+                onClick={() => setActiveFilter("all")}
+                className="text-xs text-gray-500 hover:text-gray-700"
+              >
+                Clear Filter
+              </button>
             </div>
           </div>
-        </div>
-      </div>
+        )}
 
-{/* KPI dots — mobile only */}
-<div className="flex items-center justify-center gap-3 py-4 lg:hidden">
-  {Array.from({ length: kpiCount }).map((_, i) => (
-    <button
-      key={i}
-      type="button"
-      aria-label={`Go to KPI ${i + 1}`}
-      onClick={() => snapToKpi(i)}
-      className={[
-        "kpi-dot h-4 w-4 rounded-full transition-all duration-200",
-        i === kpiPage ? "scale-125 kpi-dot-active" : "opacity-70 hover:opacity-90"
-      ].join(" ")}
-    />
-  ))}
-</div>
-
-{/* === New actionable sections start === */}
-<div className="mt-4 space-y-6">
-
-  {/* Quick Actions */}
-  <div className="flex flex-col sm:flex-row gap-2">
-    <button
-      className="rounded-xl border px-3 py-2"
-      onClick={()=> navigate('/payments')}
-    >
-      + Add Payment
-    </button>
-    <button
-      className="rounded-xl border px-3 py-2"
-      onClick={()=> navigate('/add-client')}
-    >
-      + Add Member
-    </button>
-    <button
-      className="rounded-xl border px-3 py-2"
-      onClick={()=> overdue.concat(dueToday).forEach(m=>sendReminder(m))}
-      title="Send reminders to Due Today + Overdue"
-    >
-      Send Reminders
-    </button>
-  </div>
-
-  {/* Filter Status Bar */}
-  <div className="flex items-center justify-between bg-white rounded-xl border p-3">
-    <div className="flex items-center gap-2">
-      <span className="text-sm font-medium">Showing:</span>
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-        activeFilter === "all" ? "bg-gray-100 text-gray-700" :
-        activeFilter === "active" ? "bg-blue-100 text-blue-700" :
-        activeFilter === "due-soon" ? "bg-orange-100 text-orange-700" :
-        activeFilter === "overdue" ? "bg-red-100 text-red-700" :
-        "bg-gray-100 text-gray-700"
-      }`}>
-        {activeFilter === "all" ? "All Members" :
-         activeFilter === "active" ? "Active Members" :
-         activeFilter === "due-soon" ? "Due Soon" :
-         activeFilter === "overdue" ? "Overdue" : "All Members"} 
-        ({filteredMembers.length})
-      </span>
-    </div>
-    {activeFilter !== "all" && (
-      <button 
-        onClick={() => setActiveFilter("all")}
-        className="text-xs text-gray-500 hover:text-gray-700"
-      >
-        Clear Filter
-      </button>
-    )}
-  </div>
-
-  {/* Filtered Members List */}
-  <div className="bg-white rounded-2xl border">
-    <div className="p-4 border-b">
-      <div className="font-semibold">
-        {activeFilter === "all" ? "All Members" :
-         activeFilter === "active" ? "Active Members" :
-         activeFilter === "due-soon" ? "Due Soon" :
-         activeFilter === "overdue" ? "Overdue Members" : "Members"}
-      </div>
-    </div>
-    
-    <div className="max-h-96 overflow-y-auto">
-      {filteredMembers.length === 0 ? (
-        <div className="p-4 text-sm text-gray-500 text-center">
-          {search ? `No members found matching "${search}"` : 
-           activeFilter === "active" ? "No active members." :
-           activeFilter === "due-soon" ? "No members due soon." :
-           activeFilter === "overdue" ? "No overdue members 🎉" :
-           "No members found."}
-        </div>
-      ) : (
-        filteredMembers.map(m => {
-          const dueDate = m.nextDue || m.dueDate || m.next_payment_date;
-          const isOverdueMember = isOverdue(dueDate);
-          const isDueTodayMember = isDueToday(dueDate);
-          const isDueSoonMember = isDueSoon(dueDate);
+        {/* Member List */}
+        <div className="bg-card rounded-xl shadow-sm mb-6">
+          <div className="p-4 border-b border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+              👥
+              <span className="ml-2">
+                {activeFilter === "all" ? "All Members" :
+                 activeFilter === "active" ? "Active Members" :
+                 activeFilter === "due-soon" ? "Due Soon" :
+                 activeFilter === "overdue" ? "Overdue Members" : "Members"}
+                {filteredMembers.length > 0 && ` (${filteredMembers.length})`}
+              </span>
+            </h3>
+          </div>
           
-          return (
-            <div key={m.id} className="flex items-center justify-between p-4 border-b last:border-0 hover:bg-gray-50">
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <div className="font-medium">{m.name}</div>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    (m.status || "Active") === "Active" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"
-                  }`}>
-                    {m.status || "Active"}
-                  </span>
+          <div className="p-4">
+            {filteredMembers.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="text-gray-400 text-sm">
+                  {search ? `No members found matching "${search}"` : 
+                   activeFilter === "active" ? "No active members found." :
+                   activeFilter === "due-soon" ? "No members due soon." :
+                   activeFilter === "overdue" ? "No overdue members 🎉" :
+                   "No members found."}
                 </div>
-                <div className="text-sm text-gray-500">
-                  {m.email && <span>{m.email}</span>}
-                  {m.email && m.phone && <span> • </span>}
-                  {m.phone && <span>{m.phone}</span>}
-                </div>
-                {dueDate && (
-                  <div className={`text-xs mt-1 ${
-                    isOverdueMember ? "text-red-600 font-medium" :
-                    isDueTodayMember ? "text-orange-600 font-medium" :
-                    isDueSoonMember ? "text-yellow-600" :
-                    "text-gray-500"
-                  }`}>
-                    Due: {dueDate}
-                    {isOverdueMember && " (Overdue)"}
-                    {isDueTodayMember && " (Due Today)"}
-                    {isDueSoonMember && " (Due Soon)"}
-                  </div>
-                )}
               </div>
-              <div className="flex gap-2">
-                {(isOverdueMember || isDueTodayMember || isDueSoonMember) && (
-                  <>
-                    <button 
-                      className="text-sm rounded-lg border px-2 py-1 hover:bg-gray-50" 
-                      onClick={() => goRecordPayment(m)}
-                    >
-                      Record
-                    </button>
-                    <button 
-                      className="text-sm rounded-lg border px-2 py-1 hover:bg-gray-50" 
-                      onClick={() => sendReminder(m)}
-                    >
-                      Remind
-                    </button>
-                  </>
-                )}
+            ) : (
+              <div className="space-y-3">
+                {filteredMembers.map(m => {
+                  const dueDate = m.nextDue || m.dueDate || m.next_payment_date;
+                  const isOverdueMember = isOverdue(dueDate);
+                  const isDueTodayMember = isDueToday(dueDate);
+                  const isDueSoonMember = isDueSoon(dueDate);
+                  
+                  return (
+                    <div key={m.id} className="bg-card rounded-xl shadow-sm px-3 py-2 md:p-3 flex items-center justify-between hover:shadow-md transition-shadow">
+                      <div className="flex items-center space-x-3">
+                        {/* Avatar */}
+                        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600">
+                          {(m.name || "").split(' ').map(n => n[0]).join('').toUpperCase() || "?"}
+                        </div>
+                        
+                        {/* Member Info */}
+                        <div>
+                          <div className="font-medium text-gray-900">{m.name || "(No name)"}</div>
+                          <div className="text-sm text-gray-500">
+                            {m.email && <span>{m.email}</span>}
+                            {m.email && m.phone && <span> • </span>}
+                            {m.phone && <span>{m.phone}</span>}
+                          </div>
+                          {dueDate && (
+                            <div className={`text-xs mt-1 ${
+                              isOverdueMember ? "text-danger font-semibold" :
+                              isDueTodayMember ? "text-warning font-semibold" :
+                              isDueSoonMember ? "text-warning" :
+                              "text-gray-500"
+                            }`}>
+                              Due: {dueDate}
+                              {isOverdueMember && " (Overdue)"}
+                              {isDueTodayMember && " (Due Today)"}
+                              {isDueSoonMember && " (Due Soon)"}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* Status Badge and Actions */}
+                      <div className="flex items-center space-x-2">
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                          (m.status || "Active") === "Active" ? "bg-success/10 text-success" : "bg-gray-100 text-gray-700"
+                        }`}>
+                          {m.status || "Active"}
+                        </span>
+                        {(isOverdueMember || isDueTodayMember || isDueSoonMember) && (
+                          <>
+                            <button 
+                              type="button" 
+                              className="p-2 rounded-lg hover:bg-slate-50 transition-colors" 
+                              onClick={() => goRecordPayment(m)}
+                              aria-label="Record payment"
+                            >
+                              💳
+                            </button>
+                            <button 
+                              type="button" 
+                              className="p-2 rounded-lg hover:bg-slate-50 transition-colors" 
+                              onClick={() => sendReminder(m)}
+                              aria-label="Send reminder"
+                            >
+                              📨
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            </div>
-          );
-        })
-      )}
-    </div>
-  </div>
+            )}
+          </div>
+        </div>
 
   {/* Plans snapshot + Trends */}
   <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
