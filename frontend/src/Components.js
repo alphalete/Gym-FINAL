@@ -2837,6 +2837,8 @@ export function RecordPayment(){
     method:"Cash", 
     note:"" 
   });
+  const [sendInvoiceEmail, setSendInvoiceEmail] = React.useState(false);
+  const [sendingInvoice, setSendingInvoice] = React.useState(false);
 
   // Get selected member with enhanced data
   const selectedMember = React.useMemo(() => {
