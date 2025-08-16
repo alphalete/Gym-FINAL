@@ -34,8 +34,17 @@ export function computeNextDueOptionA(prevNextDueISO, paidOnISO, cycleDays = 30)
 // Fixed 30-Day Billing Cycle with cycle restart logic
 
 export function calculateAlphaleteNextDue(member, paymentAmount, paymentDate) {
-  const currentStartDate = new Date(member.start_date || member.joinDate);
-  const paymentDateObj = new Date(paymentDate);
+  // Fix timezone issue: parse dates safely
+  const parseDateSafe = (dateStr) => {
+    if (typeof dateStr === 'string' && dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      const [year, month, day] = dateStr.split('-').map(Number);
+      return new Date(year, month - 1, day);
+    }
+    return new Date(dateStr);
+  };
+  
+  const currentStartDate = parseDateSafe(member.start_date || member.joinDate);
+  const paymentDateObj = parseDateSafe(paymentDate);
   const memberMonthlyFee = Number(member.monthly_fee || member.fee || 0);
   
   // Calculate the current due date (30 days from current start date)
