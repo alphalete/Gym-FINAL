@@ -165,7 +165,7 @@ const PaymentComponent = () => {
     if (sendInvoiceEmail && selectedClient.email) {
       setSendingInvoice(true);
       try {
-        await sendPaymentInvoiceEmail(selectedClient, payRec, nextDue);
+        await sendPaymentInvoiceEmail(selectedClient, payRec, alphaleteResult.nextDue);
         alert('💳 Payment recorded and invoice email sent successfully!');
       } catch (error) {
         console.error('Error sending invoice email:', error);
