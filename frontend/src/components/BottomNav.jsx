@@ -38,7 +38,13 @@ const BottomNav = () => {
 
   return (
     <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 h-16 bg-white/95 backdrop-blur border-t border-gray-200">
-      <div className="flex h-full">
+      <div className="flex h-full overflow-x-auto scrollbar-hide px-2" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
+        <style jsx>{`
+          .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+          }
+        `}</style>
+        
         {navItems.map((item) => (
           <button
             key={item.path}
@@ -57,7 +63,7 @@ const BottomNav = () => {
                 document.body.scrollTop = 0;
               }, 10);
             }}
-            className={`flex flex-col items-center justify-center flex-1 h-full px-1 py-2 transition-colors duration-200 ${
+            className={`flex flex-col items-center justify-center min-w-[64px] h-full px-2 py-2 transition-colors duration-200 flex-shrink-0 ${
               isActive(item.path) 
                 ? 'text-indigo-600 font-semibold' 
                 : 'text-slate-500 hover:text-slate-700'
@@ -78,21 +84,26 @@ const BottomNav = () => {
                 { className: "w-5 h-5 flex-shrink-0" }
               )}
             </div>
-            <span className="text-xs leading-none font-medium text-center">{item.label}</span>
+            <span className="text-xs leading-none font-medium text-center whitespace-nowrap">{item.label}</span>
           </button>
         ))}
+        
+        {/* Separator */}
+        <div className="flex items-center px-1">
+          <div className="w-px h-8 bg-gray-300"></div>
+        </div>
         
         {/* App Control Buttons */}
         <button
           type="button"
           onClick={() => window.location.reload()}
-          className="flex flex-col items-center justify-center px-2 py-2 text-blue-600 hover:text-blue-700 transition-colors duration-200"
+          className="flex flex-col items-center justify-center min-w-[64px] h-full px-2 py-2 text-blue-600 hover:text-blue-700 transition-colors duration-200 flex-shrink-0"
           title="Refresh App"
         >
           <div className="flex items-center justify-center mb-1">
             <ArrowPathIcon className="w-5 h-5 flex-shrink-0" />
           </div>
-          <span className="text-xs leading-none font-medium text-center">Refresh</span>
+          <span className="text-xs leading-none font-medium text-center whitespace-nowrap">Refresh</span>
         </button>
         
         <button
@@ -102,13 +113,13 @@ const BottomNav = () => {
               window.close();
             }
           }}
-          className="flex flex-col items-center justify-center px-2 py-2 text-red-600 hover:text-red-700 transition-colors duration-200"
+          className="flex flex-col items-center justify-center min-w-[64px] h-full px-2 py-2 text-red-600 hover:text-red-700 transition-colors duration-200 flex-shrink-0"
           title="Close App"
         >
           <div className="flex items-center justify-center mb-1">
             <XMarkIcon className="w-5 h-5 flex-shrink-0" />
           </div>
-          <span className="text-xs leading-none font-medium text-center">Close</span>
+          <span className="text-xs leading-none font-medium text-center whitespace-nowrap">Close</span>
         </button>
       </div>
     </nav>
