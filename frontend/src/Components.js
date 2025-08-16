@@ -1411,6 +1411,11 @@ Alphalete Athletics Team`
               </div>
               {email ? <div className="text-sm text-slate-500">{email}</div> : null}
               {phone ? <div className="text-sm text-slate-500">{phone}</div> : null}
+              {(m?.start_date || m?.joinDate || m?.createdAt) && (
+                <div className="text-sm text-slate-500">
+                  <span className="font-medium text-blue-600">Joined:</span> {formatDate(m?.start_date || m?.joinDate || m?.createdAt)}
+                </div>
+              )}
               <div className="mt-2 flex flex-wrap gap-2">
                 <span className="badge badge-warning">{String(plan)}</span>
                 {dueDateDisplay && (
