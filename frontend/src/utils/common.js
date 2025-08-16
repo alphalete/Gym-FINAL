@@ -43,41 +43,35 @@ export function calculateAlphaleteNextDue(member, paymentAmount, paymentDate) {
     return new Date(dateStr);
   };
   
-  const currentStartDate = parseDateSafe(member.start_date || member.joinDate);
+  // CRITICAL FIX: Use current due date as base, not start date
+  const currentDueDateStr = member.nextDue || member.dueDate || member.next_payment_date || member.start_date;
+  const currentDueDate = parseDateSafe(currentDueDateStr);
   const paymentDateObj = parseDateSafe(paymentDate);
   const memberMonthlyFee = Number(member.monthly_fee || member.fee || 0);
   
-  // Calculate the current due date (30 days from current start date)
-  let currentDueDate = new Date(currentStartDate);
-  currentDueDate.setDate(currentDueDate.getDate() + 30);
-  
-  const today = new Date();
-  
-  // If current due date has passed, we need to start a new cycle
-  let newStartDate = new Date(currentStartDate);
-  if (currentDueDate < today) {
-    // Start date becomes the passed due date
-    newStartDate = new Date(currentDueDate);
-    currentDueDate.setDate(currentDueDate.getDate() + 30); // New due date is 30 days from new start
-  }
+  console.log('💰 Payment calculation:', {
+    member: member.name,
+    currentDue: currentDueDateStr,
+    paymentAmount,
+    monthlyFee: memberMonthlyFee
+  });
   
   // Calculate how many cycles this payment covers
   const cyclesCovered = Math.max(1, Math.floor(paymentAmount / memberMonthlyFee));
   
-  // Calculate final due date
+  // CORRECTED LOGIC: Calculate next due date by advancing current due date by 30 days per cycle
   let nextDueDate = new Date(currentDueDate);
+  nextDueDate.setDate(nextDueDate.getDate() + (30 * cyclesCovered));
   
-  // For multiple cycles, advance the due date by additional cycles
-  if (cyclesCovered > 1) {
-    nextDueDate.setDate(nextDueDate.getDate() + (30 * (cyclesCovered - 1)));
-  }
-  
-  return {
+  const result = {
     nextDue: nextDueDate.toISOString().slice(0, 10),
-    newStartDate: newStartDate.toISOString().slice(0, 10),
+    newStartDate: currentDueDateStr, // Start date doesn't change in payment logic
     cyclesCovered,
-    cycleRestarted: newStartDate.toISOString().slice(0, 10) !== currentStartDate.toISOString().slice(0, 10)
+    cycleRestarted: false // Payment advances due date, doesn't restart cycle
   };
+  
+  console.log('✅ Payment result:', result);
+  return result;
 }
 
 export function updateMemberCycleIfNeeded(member) {
