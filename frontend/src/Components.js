@@ -4254,6 +4254,15 @@ function EditMemberForm({ member, onSave, onCancel }) {
               value={form.monthlyFee}
               onChange={e => setForm(f => ({...f, monthlyFee: parseFloat(e.target.value) || 0}))}
             />
+            <div className="flex flex-col">
+              <label className="text-sm font-medium text-gray-700 mb-1">Join Date</label>
+              <input 
+                type="date"
+                className="btn-ghost border p-2 rounded"
+                value={form.joinDate}
+                onChange={e => setForm(f => ({...f, joinDate: e.target.value}))}
+              />
+            </div>
             <select
               className="btn-ghost border p-2 rounded sm:col-span-2"
               value={form.status}
