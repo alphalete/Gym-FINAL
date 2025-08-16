@@ -2534,7 +2534,7 @@ body {
 .alphalete-sidebar {
   width: 280px;
   background: var(--alphalete-sidebar);
-  border-right: 1px solid var(--gogym-border);
+  border-right: 1px solid var(--alphalete-border);
   padding: 32px 24px;
   position: fixed;
   height: 100vh;
