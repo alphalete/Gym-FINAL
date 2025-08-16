@@ -19,7 +19,7 @@ import {
 } from './utils/common';
 // Import Icon components for consistent iconography
 import { Icon, StatIcon, ActionIcon } from './components/Icons';
-import { PencilIcon, TrashIcon, ChatBubbleLeftRightIcon, BanknotesIcon, ClockIcon, ArrowRightIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
+import { PencilIcon, TrashIcon, ChatBubbleLeftRightIcon, BanknotesIcon, ClockIcon, ArrowRightIcon, EnvelopeIcon, ChevronDownIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 // Import Skeleton Loaders
 import { DashboardSkeleton, ReportsSkeleton } from './components/SkeletonLoader';
 
