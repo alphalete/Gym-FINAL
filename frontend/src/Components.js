@@ -2406,192 +2406,238 @@ Email: info@alphaleteclub.com`
     <div className="p-4 space-y-4">
       <h1 className="text-2xl font-semibold">Settings</h1>
       
-      <div className="space-y-4 bg-white border rounded-2xl p-4">
-        <div className="font-medium">Membership Settings</div>
+      {/* Membership Settings Section */}
+      <div className="bg-white border rounded-2xl overflow-hidden">
+        <button
+          onClick={() => toggleSection('membership')}
+          className="w-full p-4 flex justify-between items-center hover:bg-gray-50 transition-colors duration-200"
+        >
+          <div className="font-medium">Membership Settings</div>
+          {collapsedSections.membership ? (
+            <ChevronRightIcon className="w-5 h-5 text-gray-400" />
+          ) : (
+            <ChevronDownIcon className="w-5 h-5 text-gray-400" />
+          )}
+        </button>
         
-        <label className="block">
-          <span className="text-sm font-medium text-gray-700">Default Membership Fee ($)</span>
-          <input 
-            className="mt-1 border rounded px-3 py-2 w-full" 
-            type="number" 
-            min="0"
-            step="0.01"
-            value={s.membershipFeeDefault} 
-            onChange={e => setS(v => ({ ...v, membershipFeeDefault: Number(e.target.value || 0) }))}
-          />
-          <span className="text-xs text-gray-500">Default amount when recording payments</span>
-        </label>
-        
-        <label className="block">
-          <span className="text-sm font-medium text-gray-700">Billing Cycle (days)</span>
-          <input 
-            className="mt-1 border rounded px-3 py-2 w-full" 
-            type="number" 
-            min="1"
-            value={s.billingCycleDays} 
-            onChange={e => setS(v => ({ ...v, billingCycleDays: Number(e.target.value || 30) }))}
-          />
-          <span className="text-xs text-gray-500">How often members are billed</span>
-        </label>
-        
-        <label className="block">
-          <span className="text-sm font-medium text-gray-700">Due Soon Threshold (days)</span>
-          <input 
-            className="mt-1 border rounded px-3 py-2 w-full" 
-            type="number" 
-            min="0"
-            value={s.dueSoonDays} 
-            onChange={e => setS(v => ({ ...v, dueSoonDays: Number(e.target.value || 3) }))}
-          />
-          <span className="text-xs text-gray-500">Show "due soon" when payment is due within this many days</span>
-        </label>
-        
-        <label className="block">
-          <span className="text-sm font-medium text-gray-700">Grace Period (days)</span>
-          <input 
-            className="mt-1 border rounded px-3 py-2 w-full" 
-            type="number" 
-            min="0"
-            value={s.graceDays} 
-            onChange={e => setS(v => ({ ...v, graceDays: Number(e.target.value || 0) }))}
-          />
-          <span className="text-xs text-gray-500">Additional days before marking as overdue</span>
-        </label>
-        
-        <div className="pt-2">
-          <button 
-            type="button" 
-            className="border rounded px-4 py-2 bg-blue-500 text-white hover:bg-blue-600" 
-            onClick={save}
-          >
-            Save Settings
-          </button>
-        </div>
+        {!collapsedSections.membership && (
+          <div className="px-4 pb-4 space-y-4 border-t border-gray-100">
+            <label className="block">
+              <span className="text-sm font-medium text-gray-700">Default Membership Fee ($)</span>
+              <input 
+                className="mt-1 border rounded px-3 py-2 w-full" 
+                type="number" 
+                min="0"
+                step="0.01"
+                value={s.membershipFeeDefault} 
+                onChange={e => setS(v => ({ ...v, membershipFeeDefault: Number(e.target.value || 0) }))}
+              />
+              <span className="text-xs text-gray-500">Default amount when recording payments</span>
+            </label>
+            
+            <label className="block">
+              <span className="text-sm font-medium text-gray-700">Billing Cycle (days)</span>
+              <input 
+                className="mt-1 border rounded px-3 py-2 w-full" 
+                type="number" 
+                min="1"
+                value={s.billingCycleDays} 
+                onChange={e => setS(v => ({ ...v, billingCycleDays: Number(e.target.value || 30) }))}
+              />
+              <span className="text-xs text-gray-500">How often members are billed</span>
+            </label>
+            
+            <label className="block">
+              <span className="text-sm font-medium text-gray-700">Due Soon Threshold (days)</span>
+              <input 
+                className="mt-1 border rounded px-3 py-2 w-full" 
+                type="number" 
+                min="0"
+                value={s.dueSoonDays} 
+                onChange={e => setS(v => ({ ...v, dueSoonDays: Number(e.target.value || 3) }))}
+              />
+              <span className="text-xs text-gray-500">Show "due soon" when payment is due within this many days</span>
+            </label>
+            
+            <label className="block">
+              <span className="text-sm font-medium text-gray-700">Grace Period (days)</span>
+              <input 
+                className="mt-1 border rounded px-3 py-2 w-full" 
+                type="number" 
+                min="0"
+                value={s.graceDays} 
+                onChange={e => setS(v => ({ ...v, graceDays: Number(e.target.value || 0) }))}
+              />
+              <span className="text-xs text-gray-500">Additional days before marking as overdue</span>
+            </label>
+            
+            <div className="pt-2">
+              <button 
+                type="button" 
+                className="border rounded px-4 py-2 bg-blue-500 text-white hover:bg-blue-600" 
+                onClick={save}
+              >
+                Save Settings
+              </button>
+            </div>
+          </div>
+        )}
       </div>
       
       {/* Email Templates Section */}
-      <div className="space-y-4 bg-white border rounded-2xl p-4">
-        <div className="flex justify-between items-center">
-          <div className="font-medium">Email Templates</div>
-          <button 
-            type="button" 
-            className="btn btn-primary text-sm px-3 py-1"
-            onClick={() => setShowCreateTemplate(true)}
-          >
-            + Add Template
-          </button>
-        </div>
+      <div className="bg-white border rounded-2xl overflow-hidden">
+        <button
+          onClick={() => toggleSection('emailTemplates')}
+          className="w-full p-4 flex justify-between items-center hover:bg-gray-50 transition-colors duration-200"
+        >
+          <div className="flex justify-between items-center w-full pr-4">
+            <div className="font-medium">Email Templates</div>
+            <button 
+              type="button" 
+              className="btn btn-primary text-sm px-3 py-1"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowCreateTemplate(true);
+              }}
+            >
+              + Add Template
+            </button>
+          </div>
+          {collapsedSections.emailTemplates ? (
+            <ChevronRightIcon className="w-5 h-5 text-gray-400 flex-shrink-0" />
+          ) : (
+            <ChevronDownIcon className="w-5 h-5 text-gray-400 flex-shrink-0" />
+          )}
+        </button>
         
-        {loadingTemplates ? (
-          <div className="text-center py-4">Loading templates...</div>
-        ) : (
-          <div className="space-y-3">
-            {emailTemplates.map((template) => (
-              <div key={template.id} className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm">
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <div className="font-semibold text-base text-gray-800">{template.name}</div>
-                    <div className="text-sm text-gray-600 mt-1">Subject: {template.subject}</div>
+        {!collapsedSections.emailTemplates && (
+          <div className="px-4 pb-4 space-y-4 border-t border-gray-100">
+            {loadingTemplates ? (
+              <div className="text-center py-4">Loading templates...</div>
+            ) : (
+              <div className="space-y-3">
+                {emailTemplates.map((template) => (
+                  <div key={template.id} className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <div className="font-semibold text-base text-gray-800">{template.name}</div>
+                        <div className="text-sm text-gray-600 mt-1">Subject: {template.subject}</div>
+                      </div>
+                      <div className="flex gap-2">
+                        <button 
+                          className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                          onClick={() => startEdit(template)}
+                        >
+                          Edit
+                        </button>
+                        <button 
+                          className="text-red-600 hover:text-red-700 text-sm font-medium"
+                          onClick={() => deleteTemplate(template)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                    <div className="text-sm text-gray-800 bg-white p-3 rounded border-l-4 border-blue-400 border border-gray-200">
+                      {template.body.substring(0, 100)}...
+                    </div>
                   </div>
+                ))}
+                {emailTemplates.length === 0 && (
+                  <div className="text-center py-4 text-gray-500">No email templates found</div>
+                )}
+              </div>
+            )}
+            
+            {/* Create/Edit Template Form */}
+            {showCreateTemplate && (
+              <div className="border-t pt-4">
+                <div className="font-medium mb-3">
+                  {editingTemplate ? 'Edit Template' : 'Create New Template'}
+                </div>
+                <div className="space-y-3">
+                  <label className="block">
+                    <span className="text-sm font-medium text-gray-700">Template Name</span>
+                    <input 
+                      className="mt-1 border rounded px-3 py-2 w-full" 
+                      type="text"
+                      value={templateForm.name}
+                      onChange={e => setTemplateForm(f => ({ ...f, name: e.target.value }))}
+                      placeholder="e.g., Payment Reminder, Welcome Email"
+                    />
+                  </label>
+                  
+                  <label className="block">
+                    <span className="text-sm font-medium text-gray-700">Subject Line</span>
+                    <input 
+                      className="mt-1 border rounded px-3 py-2 w-full" 
+                      type="text"
+                      value={templateForm.subject}
+                      onChange={e => setTemplateForm(f => ({ ...f, subject: e.target.value }))}
+                      placeholder="Email subject line"
+                    />
+                  </label>
+                  
+                  <label className="block">
+                    <span className="text-sm font-medium text-gray-700">Email Body</span>
+                    <textarea 
+                      className="mt-1 border rounded px-3 py-2 w-full h-32" 
+                      value={templateForm.body}
+                      onChange={e => setTemplateForm(f => ({ ...f, body: e.target.value }))}
+                      placeholder="Email content... Use {memberName} and {dueDate} for automatic member data insertion"
+                    />
+                    <span className="text-xs text-gray-500">
+                      Available variables: {'{memberName}'}, {'{dueDate}'} for payment reminders | {'{memberName}'}, {'{invoiceNumber}'}, {'{paymentAmount}'}, {'{paymentDate}'}, {'{membershipType}'}, {'{nextDueDate}'} for payment receipts
+                    </span>
+                  </label>
+                  
                   <div className="flex gap-2">
                     <button 
-                      className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-                      onClick={() => startEdit(template)}
+                      type="button" 
+                      className="btn btn-primary"
+                      onClick={saveTemplate}
                     >
-                      Edit
+                      {editingTemplate ? 'Update Template' : 'Save Template'}
                     </button>
                     <button 
-                      className="text-red-600 hover:text-red-700 text-sm font-medium"
-                      onClick={() => deleteTemplate(template)}
+                      type="button" 
+                      className="btn btn-secondary"
+                      onClick={cancelEdit}
                     >
-                      Delete
+                      Cancel
                     </button>
                   </div>
                 </div>
-                <div className="text-sm text-gray-800 bg-white p-3 rounded border-l-4 border-blue-400 border border-gray-200">
-                  {template.body.substring(0, 100)}...
-                </div>
               </div>
-            ))}
-            {emailTemplates.length === 0 && (
-              <div className="text-center py-4 text-gray-500">No email templates found</div>
             )}
-          </div>
-        )}
-        
-        {/* Create/Edit Template Form */}
-        {showCreateTemplate && (
-          <div className="border-t pt-4">
-            <div className="font-medium mb-3">
-              {editingTemplate ? 'Edit Template' : 'Create New Template'}
-            </div>
-            <div className="space-y-3">
-              <label className="block">
-                <span className="text-sm font-medium text-gray-700">Template Name</span>
-                <input 
-                  className="mt-1 border rounded px-3 py-2 w-full" 
-                  type="text"
-                  value={templateForm.name}
-                  onChange={e => setTemplateForm(f => ({ ...f, name: e.target.value }))}
-                  placeholder="e.g., Payment Reminder, Welcome Email"
-                />
-              </label>
-              
-              <label className="block">
-                <span className="text-sm font-medium text-gray-700">Subject Line</span>
-                <input 
-                  className="mt-1 border rounded px-3 py-2 w-full" 
-                  type="text"
-                  value={templateForm.subject}
-                  onChange={e => setTemplateForm(f => ({ ...f, subject: e.target.value }))}
-                  placeholder="Email subject line"
-                />
-              </label>
-              
-              <label className="block">
-                <span className="text-sm font-medium text-gray-700">Email Body</span>
-                <textarea 
-                  className="mt-1 border rounded px-3 py-2 w-full h-32" 
-                  value={templateForm.body}
-                  onChange={e => setTemplateForm(f => ({ ...f, body: e.target.value }))}
-                  placeholder="Email content... Use {memberName} and {dueDate} for automatic member data insertion"
-                />
-                <span className="text-xs text-gray-500">
-                  Available variables: {'{memberName}'}, {'{dueDate}'} for payment reminders | {'{memberName}'}, {'{invoiceNumber}'}, {'{paymentAmount}'}, {'{paymentDate}'}, {'{membershipType}'}, {'{nextDueDate}'} for payment receipts
-                </span>
-              </label>
-              
-              <div className="flex gap-2">
-                <button 
-                  type="button" 
-                  className="btn btn-primary"
-                  onClick={saveTemplate}
-                >
-                  {editingTemplate ? 'Update Template' : 'Save Template'}
-                </button>
-                <button 
-                  type="button" 
-                  className="btn btn-secondary"
-                  onClick={cancelEdit}
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
           </div>
         )}
       </div>
       
-      <div className="card">
-        <div className="card-body">
-          <div className="font-medium mb-2">Current Configuration</div>
-          <div className="space-y-1 text-sm text-gray-600">
-            <div>Default Fee: ${s.membershipFeeDefault?.toFixed(2) || '0.00'}</div>
-            <div>Billing Cycle: {s.billingCycleDays || 30} days</div>
-            <div>Due Soon Warning: {s.dueSoonDays || 3} days</div>
-            <div>Grace Period: {s.graceDays || 0} days</div>
+      {/* Current Configuration Section */}
+      <div className="bg-white border rounded-2xl overflow-hidden">
+        <button
+          onClick={() => toggleSection('configuration')}
+          className="w-full p-4 flex justify-between items-center hover:bg-gray-50 transition-colors duration-200"
+        >
+          <div className="font-medium">Current Configuration</div>
+          {collapsedSections.configuration ? (
+            <ChevronRightIcon className="w-5 h-5 text-gray-400" />
+          ) : (
+            <ChevronDownIcon className="w-5 h-5 text-gray-400" />
+          )}
+        </button>
+        
+        {!collapsedSections.configuration && (
+          <div className="px-4 pb-4 border-t border-gray-100">
+            <div className="space-y-1 text-sm text-gray-600">
+              <div>Default Fee: ${s.membershipFeeDefault?.toFixed(2) || '0.00'}</div>
+              <div>Billing Cycle: {s.billingCycleDays || 30} days</div>
+              <div>Due Soon Warning: {s.dueSoonDays || 3} days</div>
+              <div>Grace Period: {s.graceDays || 0} days</div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
