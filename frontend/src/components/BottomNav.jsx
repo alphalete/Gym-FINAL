@@ -41,8 +41,17 @@ const BottomNav = () => {
             type="button"
             onClick={() => {
               navigate(item.path);
-              // Scroll to top when navigating
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              // Force immediate scroll to top with multiple approaches
+              window.scrollTo(0, 0);
+              document.documentElement.scrollTop = 0;
+              document.body.scrollTop = 0;
+              
+              // Also set it again after navigation
+              setTimeout(() => {
+                window.scrollTo(0, 0);
+                document.documentElement.scrollTop = 0;
+                document.body.scrollTop = 0;
+              }, 10);
             }}
             className={`flex flex-col items-center justify-center flex-1 h-full px-1 py-2 transition-colors duration-200 ${
               isActive(item.path) 
