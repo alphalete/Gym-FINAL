@@ -3180,7 +3180,7 @@ body {
 }
 
 .gogym-filter-tab.active {
-  background: var(--gogym-teal);
+  background: var(--alphalete-teal);
   color: white;
 }
 
