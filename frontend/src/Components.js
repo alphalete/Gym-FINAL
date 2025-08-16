@@ -1429,68 +1429,114 @@ Alphalete Athletics Team`
     }
 
     return (
-      <div className="card mb-3">
-        <div className="card-body">
-          <div className="flex items-center gap-3">
-            <div className="h-12 w-12 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 mb-4 overflow-hidden">
+        {/* Header Section */}
+        <div className="p-4 border-b border-gray-100">
+          <div className="flex items-center gap-4">
+            {/* Avatar */}
+            <div className="h-14 w-14 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center font-bold text-lg shadow-md">
               {(name.split(" ").map(s => s[0]).join("").slice(0,2) || "MM")}
             </div>
+            
+            {/* Member Info */}
             <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <h3 className="text-base font-semibold">{name}</h3>
+              <div className="flex items-center gap-3 mb-1">
+                <h3 className="text-lg font-semibold text-gray-900">{name}</h3>
                 {isActive
-                  ? <span className="badge-active">ACTIVE</span>
-                  : <span className="badge-inactive">INACTIVE</span>}
+                  ? <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">ACTIVE</span>
+                  : <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs font-medium rounded-full">INACTIVE</span>}
               </div>
-              {email ? <div className="text-sm text-slate-500">{email}</div> : null}
-              {phone ? <div className="text-sm text-slate-500">{phone}</div> : null}
-              {(m?.start_date || m?.joinDate || m?.createdAt) && (
-                <div className="text-sm text-slate-500">
-                  <span className="font-medium text-blue-600">Joined:</span> {formatDate(m?.start_date || m?.joinDate || m?.createdAt)}
-                </div>
-              )}
-              {(() => {
-                const totalPaid = calculateTotalPaid(m.id, memberPayments);
-                if (totalPaid > 0) {
-                  return (
-                    <div className="text-sm text-slate-500">
-                      <span className="font-medium text-green-600">Paid Total:</span> {formatCurrency(totalPaid)}
-                    </div>
-                  );
-                }
-                return null;
-              })()}
-              <div className="mt-2 flex flex-wrap gap-2">
-                <span className="badge badge-warning">{String(plan)}</span>
+              
+              {/* Plan and Due Date - Most Important Info */}
+              <div className="flex items-center gap-3 mb-2">
+                <span className="px-3 py-1 bg-indigo-100 text-indigo-800 text-sm font-medium rounded-lg">
+                  {String(plan)}
+                </span>
                 {dueDateDisplay && (
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${dueDateBadgeClass}`}>
+                  <span className={`px-3 py-1 rounded-lg text-sm font-medium ${dueDateBadgeClass}`}>
                     📅 {dueDateDisplay}
                   </span>
                 )}
               </div>
             </div>
           </div>
+        </div>
 
-          <div className="mt-4 flex gap-2 px-2 overflow-x-auto scrollbar-hide pb-2" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
-            <style jsx>{`
-              .scrollbar-hide::-webkit-scrollbar {
-                display: none;
-              }
-            `}</style>
+        {/* Member Details Grid */}
+        <div className="p-4 bg-gray-50">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* Contact Information */}
+            <div className="space-y-2">
+              <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">Contact</div>
+              {email && (
+                <div className="flex items-center gap-2">
+                  <EnvelopeIcon className="w-4 h-4 text-gray-400" />
+                  <span className="text-sm text-gray-700">{email}</span>
+                </div>
+              )}
+              {phone && (
+                <div className="flex items-center gap-2">
+                  <ChatBubbleLeftRightIcon className="w-4 h-4 text-gray-400" />
+                  <span className="text-sm text-gray-700">{phone}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Membership Information */}
+            <div className="space-y-2">
+              <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">Membership</div>
+              {(m?.start_date || m?.joinDate || m?.createdAt) && (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 text-gray-400">📅</div>
+                  <div>
+                    <span className="text-xs text-gray-500">Joined:</span>
+                    <span className="text-sm text-gray-700 ml-1 font-medium">
+                      {formatDate(m?.start_date || m?.joinDate || m?.createdAt)}
+                    </span>
+                  </div>
+                </div>
+              )}
+              {(() => {
+                const totalPaid = calculateTotalPaid(m.id, memberPayments);
+                if (totalPaid > 0) {
+                  return (
+                    <div className="flex items-center gap-2">
+                      <BanknotesIcon className="w-4 h-4 text-green-500" />
+                      <div>
+                        <span className="text-xs text-gray-500">Total Paid:</span>
+                        <span className="text-sm text-green-600 ml-1 font-semibold">
+                          {formatCurrency(totalPaid)}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
+            </div>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="p-4 border-t border-gray-100">
+          <div className="flex flex-wrap gap-2">
+            {/* Primary Actions */}
             <button 
               type="button"
-              className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[64px] w-[64px] h-16 transition-all duration-200 flex-shrink-0"
+              className="flex items-center gap-2 px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition-colors duration-200 text-sm font-medium"
               onClick={() => setShowEditModal(true)}
             >
-              <div className="flex items-center justify-center mb-1">
-                <PencilIcon className="w-6 h-6 text-blue-500 hover:text-blue-600 transition-colors duration-200" />
-              </div>
-              <span className="text-xs font-medium text-gray-700 text-center">Edit</span>
+              <PencilIcon className="w-4 h-4" />
+              Edit
             </button>
             
             <button 
               type="button"
-              className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[64px] w-[64px] h-16 transition-all duration-200 flex-shrink-0"
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium ${
+                isActive 
+                  ? 'bg-orange-50 hover:bg-orange-100 text-orange-700' 
+                  : 'bg-green-50 hover:bg-green-100 text-green-700'
+              }`}
               onClick={async () => {
                 if (confirm(`${isActive ? 'Deactivate' : 'Activate'} ${name}?`)) {
                   try {
@@ -1524,19 +1570,37 @@ Alphalete Athletics Team`
                 }
               }}
             >
-              <div className="flex items-center justify-center mb-1">
-                {isActive ? (
-                  <ClockIcon className="w-6 h-6 text-orange-500 hover:text-orange-600 transition-colors duration-200" />
-                ) : (
-                  <ArrowRightIcon className="w-6 h-6 text-orange-500 hover:text-orange-600 transition-colors duration-200" />
-                )}
-              </div>
-              <span className="text-xs font-medium text-gray-700 text-center">{isActive ? 'Pause' : 'Activate'}</span>
+              {isActive ? (
+                <>
+                  <ClockIcon className="w-4 h-4" />
+                  Pause
+                </>
+              ) : (
+                <>
+                  <ArrowRightIcon className="w-4 h-4" />
+                  Activate
+                </>
+              )}
             </button>
-            
+
             <button 
               type="button"
-              className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[64px] w-[64px] h-16 transition-all duration-200 flex-shrink-0"
+              className="flex items-center gap-2 px-4 py-2 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg transition-colors duration-200 text-sm font-medium"
+              onClick={() => {
+                // Store pending payment member ID and where user came from
+                localStorage.setItem("pendingPaymentMemberId", String(m.id));
+                localStorage.setItem("pendingPaymentOrigin", "members");
+                window.navigateToTab?.('payments');
+              }}
+            >
+              <BanknotesIcon className="w-4 h-4" />
+              Payment
+            </button>
+
+            {/* Communication Actions */}
+            <button 
+              type="button"
+              className="flex items-center gap-2 px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg transition-colors duration-200 text-sm font-medium"
               onClick={() => {
                 // WhatsApp integration
                 if (phone) {
@@ -1549,36 +1613,30 @@ Alphalete Athletics Team`
                 }
               }}
             >
-              <div className="flex items-center justify-center mb-1">
-                <ChatBubbleLeftRightIcon className="w-6 h-6 text-green-500 hover:text-green-600 transition-colors duration-200" />
-              </div>
-              <span className="text-xs font-medium text-gray-700 text-center">WhatsApp</span>
+              <ChatBubbleLeftRightIcon className="w-4 h-4" />
+              WhatsApp
             </button>
             
             <div className="relative email-dropdown-container">
               <button 
                 type="button"
-                className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[64px] w-[64px] h-16 transition-all duration-200 flex-shrink-0"
+                className="flex items-center gap-2 px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg transition-colors duration-200 text-sm font-medium"
                 onClick={() => setShowEmailDropdown(!showEmailDropdown)}
                 disabled={sendingEmail}
               >
-                <div className="flex items-center justify-center mb-1">
-                  <EnvelopeIcon className="w-6 h-6 text-indigo-500 hover:text-indigo-600 transition-colors duration-200" />
-                </div>
-                <span className="text-xs font-medium text-gray-700 text-center">
-                  {sendingEmail ? 'Sending...' : 'Email'}
-                </span>
+                <EnvelopeIcon className="w-4 h-4" />
+                {sendingEmail ? 'Sending...' : 'Email'}
               </button>
               
               {/* Email Template Dropdown */}
               {showEmailDropdown && (
-                <div className="absolute bottom-full left-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[180px]">
+                <div className="absolute bottom-full left-0 mb-2 bg-white border border-gray-200 rounded-xl shadow-lg z-10 min-w-[200px]">
                   <div className="p-3">
-                    <div className="text-sm font-semibold text-gray-800 mb-3 px-1">Select Template:</div>
+                    <div className="text-sm font-semibold text-gray-800 mb-3">Select Template:</div>
                     {emailTemplates.map((template) => (
                       <button
                         key={template.id}
-                        className="w-full text-left px-3 py-2 text-sm text-gray-800 bg-white hover:bg-blue-50 hover:text-blue-700 rounded border border-gray-100 mb-2 transition-colors font-medium"
+                        className="w-full text-left px-3 py-2 text-sm text-gray-800 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg mb-1 transition-colors font-medium"
                         onClick={() => handleSendEmail(template)}
                       >
                         {template.name}
@@ -1591,10 +1649,11 @@ Alphalete Athletics Team`
                 </div>
               )}
             </div>
-            
+
+            {/* Danger Zone - Delete Button */}
             <button 
               type="button"
-              className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[64px] w-[64px] h-16 transition-all duration-200 flex-shrink-0"
+              className="flex items-center gap-2 px-4 py-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg transition-colors duration-200 text-sm font-medium ml-auto"
               onClick={async () => {
                 console.log('🎯 DELETE BUTTON CLICKED!', { name, id: m.id, onDeleteMember: typeof onDeleteMember });
                 
@@ -1632,26 +1691,8 @@ Alphalete Athletics Team`
                 }
               }}
             >
-              <div className="flex items-center justify-center mb-1">
-                <TrashIcon className="w-6 h-6 text-red-500 hover:text-red-600 transition-colors duration-200" />
-              </div>
-              <span className="text-xs font-medium text-gray-700 text-center">Delete</span>
-            </button>
-            
-            <button 
-              type="button"
-              className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[64px] w-[64px] h-16 transition-all duration-200 flex-shrink-0"
-              onClick={() => {
-                // Store pending payment member ID and where user came from
-                localStorage.setItem("pendingPaymentMemberId", String(m.id));
-                localStorage.setItem("pendingPaymentOrigin", "members");
-                window.navigateToTab?.('payments');
-              }}
-            >
-              <div className="flex items-center justify-center mb-1">
-                <BanknotesIcon className="w-6 h-6 text-purple-500 hover:text-purple-600 transition-colors duration-200" />
-              </div>
-              <span className="text-xs font-medium text-gray-700 text-center">Payment</span>
+              <TrashIcon className="w-4 h-4" />
+              Delete
             </button>
           </div>
         </div>
