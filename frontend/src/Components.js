@@ -1834,17 +1834,17 @@ const Settings = () => {
           const defaultTemplate = {
             id: 'payment-reminder',
             name: 'Payment Reminder',
-            subject: 'Payment Reminder - GoGym4U',
+            subject: 'Payment Reminder - Alphalete Athletics',
             body: `Dear {memberName},
 
 This is a friendly reminder that your membership payment is due on {dueDate}.
 
 Please make your payment at your earliest convenience to avoid any interruption to your membership.
 
-Thank you for being a valued member of GoGym4U!
+Thank you for being a valued member of Alphalete Athletics!
 
 Best regards,
-GoGym4U Team`
+Alphalete Athletics Team`
           };
           await gymStorage.upsert('emailTemplates', defaultTemplate);
           setEmailTemplates([defaultTemplate]);
