@@ -1877,7 +1877,7 @@ const Reports = () => {
   }).length;
   
   const overdueMembers = membersList.filter(m => {
-    const nextDue = m.nextDue || m.dueDate;
+    const nextDue = m.nextDue || m.dueDate || m.next_payment_date;
     if (!nextDue) return false;
     return new Date(nextDue) < new Date(todayISO);
   }).length;
