@@ -3008,7 +3008,43 @@ const Sidebar = () => {
       </div>
 
       {/* Footer */}
-      <div className="p-4 border-t border-gray-200">
+      <div className="p-4 border-t border-gray-200 space-y-3">
+        {/* App Control Buttons */}
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="flex items-center justify-center gap-2 flex-1 px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition-colors duration-200 text-sm font-medium"
+            title="Refresh App"
+          >
+            <span className="text-lg">🔄</span>
+            <span className={`whitespace-nowrap transition-opacity duration-300 ${
+              isExpanded ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+            }`}>
+              Refresh
+            </span>
+          </button>
+          
+          <button
+            type="button"
+            onClick={() => {
+              if (confirm('Are you sure you want to close the app?')) {
+                window.close();
+              }
+            }}
+            className="flex items-center justify-center gap-2 flex-1 px-3 py-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg transition-colors duration-200 text-sm font-medium"
+            title="Close App"
+          >
+            <span className="text-lg">✕</span>
+            <span className={`whitespace-nowrap transition-opacity duration-300 ${
+              isExpanded ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+            }`}>
+              Close
+            </span>
+          </button>
+        </div>
+        
+        {/* Version Info */}
         <div className={`text-xs text-gray-500 text-center transition-opacity duration-300 ${
           isExpanded ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
         }`}>
