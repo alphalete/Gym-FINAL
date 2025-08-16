@@ -1575,7 +1575,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Optimistic Toggle Backend Functionality Testing - COMPLETED SUCCESSFULLY"
+    - "Dashboard Clickable Filtering Functionality Testing - CRITICAL ISSUE IDENTIFIED"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
