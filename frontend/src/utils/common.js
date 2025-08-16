@@ -38,8 +38,26 @@ export function computeNextDueOptionA(prevNextDueISO, paidOnISO, cycleDays = 30)
 // Fixed 30-Day Billing Cycle with cycle restart logic
 
 export function calculateAlphaleteNextDue(member, paymentAmount, paymentDate) {
-  const currentStartDate = new Date(member.start_date || member.joinDate);
-  const paymentDateObj = new Date(paymentDate);
+  // Parse start date manually to avoid timezone issues
+  const startDateStr = member.start_date || member.joinDate;
+  let currentStartDate;
+  
+  if (typeof startDateStr === 'string' && startDateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    const [year, month, day] = startDateStr.split('-').map(Number);
+    currentStartDate = new Date(year, month - 1, day); // month is 0-indexed
+  } else {
+    currentStartDate = new Date(startDateStr);
+  }
+  
+  // Parse payment date manually too
+  let paymentDateObj;
+  if (typeof paymentDate === 'string' && paymentDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    const [year, month, day] = paymentDate.split('-').map(Number);
+    paymentDateObj = new Date(year, month - 1, day);
+  } else {
+    paymentDateObj = new Date(paymentDate);
+  }
+  
   const memberMonthlyFee = Number(member.monthly_fee || member.fee || 0);
   
   // Calculate the current due date (30 days from current start date)
@@ -67,11 +85,19 @@ export function calculateAlphaleteNextDue(member, paymentAmount, paymentDate) {
     nextDueDate.setDate(nextDueDate.getDate() + (30 * (cyclesCovered - 1)));
   }
   
+  // Return dates in YYYY-MM-DD format to avoid timezone issues
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+  
   return {
-    nextDue: nextDueDate.toISOString().slice(0, 10),
-    newStartDate: newStartDate.toISOString().slice(0, 10),
+    nextDue: formatDate(nextDueDate),
+    newStartDate: formatDate(newStartDate),
     cyclesCovered,
-    cycleRestarted: newStartDate.toISOString().slice(0, 10) !== currentStartDate.toISOString().slice(0, 10)
+    cycleRestarted: formatDate(newStartDate) !== startDateStr
   };
 }
 
