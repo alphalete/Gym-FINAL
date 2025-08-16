@@ -8,6 +8,7 @@ const Dashboard = () => {
   const [payments, setPayments] = useState([]);
   const [settings, setSettings] = useState({ billingCycleDays: 30, graceDays: 0, dueSoonDays: 3 });
   const [search, setSearch] = useState("");
+  const [activeFilter, setActiveFilter] = useState("all"); // New state for filtering
   
   // KPI scroll tracking state
   const kpiScrollerRef = React.useRef(null);
