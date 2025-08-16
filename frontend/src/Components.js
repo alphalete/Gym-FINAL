@@ -4000,7 +4000,8 @@ function EditMemberForm({ member, onSave, onCancel }) {
         phone: member.phone || "",
         membershipType: member.membershipType || member.membership_type || member.plan || member.planName || "",
         monthlyFee: parseFloat(member.monthly_fee) || 0,
-        status: member.status || "Active"
+        status: member.status || "Active",
+        joinDate: member.start_date || member.joinDate || member.createdAt?.slice(0, 10) || new Date().toISOString().slice(0, 10)
       });
     }
   }, [member]);
