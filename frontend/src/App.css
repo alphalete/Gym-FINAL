@@ -3207,7 +3207,7 @@ body {
   transition: transform 0.2s ease;
 }
 
-.gogym-payment-card:hover {
+.alphalete-payment-card:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
