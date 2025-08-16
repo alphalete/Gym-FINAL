@@ -109,8 +109,61 @@ const BottomNav = () => {
         <button
           type="button"
           onClick={() => {
-            if (confirm('Are you sure you want to close the app?')) {
-              window.close();
+            if (confirm('Close Alphalete Athletics? This will navigate away from the app.')) {
+              // Try multiple methods to close/exit the app
+              try {
+                // Method 1: Try window.close() (works for popups)
+                window.close();
+                
+                // Method 2: If window.close() doesn't work, navigate to a goodbye page
+                setTimeout(() => {
+                  // Check if window is still open (window.close() failed)
+                  if (!window.closed) {
+                    // Create a goodbye screen
+                    document.body.innerHTML = `
+                      <div style="
+                        display: flex; 
+                        flex-direction: column; 
+                        justify-content: center; 
+                        align-items: center; 
+                        height: 100vh; 
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        color: white;
+                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                        text-align: center;
+                      ">
+                        <div style="max-width: 400px; padding: 2rem;">
+                          <h1 style="font-size: 2.5rem; margin-bottom: 1rem; font-weight: bold;">
+                            👋 Goodbye!
+                          </h1>
+                          <p style="font-size: 1.2rem; margin-bottom: 2rem; opacity: 0.9;">
+                            Thank you for using Alphalete Athletics Club
+                          </p>
+                          <p style="font-size: 1rem; opacity: 0.7; margin-bottom: 2rem;">
+                            You can close this browser tab manually or click the button below to return to the app.
+                          </p>
+                          <button onclick="window.location.reload()" style="
+                            background: rgba(255,255,255,0.2);
+                            border: 2px solid rgba(255,255,255,0.3);
+                            color: white;
+                            padding: 12px 24px;
+                            border-radius: 25px;
+                            font-size: 1rem;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                          " onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                            🔄 Return to App
+                          </button>
+                        </div>
+                      </div>
+                    `;
+                  }
+                }, 100);
+                
+              } catch (error) {
+                console.log('Close methods not available - displaying goodbye message');
+                alert('Please close this browser tab manually to exit the app.');
+              }
             }
           }}
           className="flex flex-col items-center justify-center min-w-[64px] h-full px-2 py-2 text-red-600 hover:text-red-700 transition-colors duration-200 flex-shrink-0"
