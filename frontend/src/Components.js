@@ -1376,7 +1376,7 @@ Alphalete Athletics Team`
     };
     
     // Calculate due date information
-    const nextDue = m?.nextDue || m?.nextDueDate || m?.dueDate;
+    const nextDue = m?.nextDue || m?.nextDueDate || m?.dueDate || m?.next_payment_date;
     const joinedOn = m?.joinedOn || m?.createdAt;
     
     let dueDateDisplay = null;
