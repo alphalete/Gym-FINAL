@@ -152,10 +152,8 @@ const AppContent = () => {
   // Always start with Dashboard on app load
   useEffect(() => {
     try {
-      // Always navigate to dashboard when the app loads, regardless of last tab
-      if (location.pathname === '/') {
-        navigate('/dashboard', { replace: true });
-      }
+      // Always navigate to dashboard when the app loads, regardless of current path
+      navigate('/dashboard', { replace: true });
     } catch (e) {
       console.warn('Could not navigate to dashboard on load:', e);
     }
