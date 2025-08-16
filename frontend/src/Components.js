@@ -1855,38 +1855,38 @@ const Reports = () => {
           </div>
 
           {/* Active Members */}
-          <div className="stat-card bg-indigo-600 text-white">
+          <div className="bg-blue-600 text-white rounded-lg p-6 shadow-lg border border-blue-500">
             <div className="flex items-center justify-between">
               <div>
-                <div className="stat-value">{activeMembers}</div>
-                <div className="stat-label text-indigo-100">Active Members</div>
-                <div className="text-xs text-indigo-200 mt-1">of {totalMembers} total</div>
+                <div className="text-2xl font-bold text-white mb-1">{activeMembers}</div>
+                <div className="text-sm text-blue-100 font-medium">Active Members</div>
+                <div className="text-xs text-blue-200 mt-1">of {totalMembers} total</div>
               </div>
-              <Icon name="👥" size="2xl" className="text-indigo-200" />
+              <Icon name="👥" size="2xl" className="text-blue-200" />
             </div>
           </div>
 
           {/* Payment Rate */}
-          <div className="stat-card bg-warning text-white">
+          <div className="bg-orange-600 text-white rounded-lg p-6 shadow-lg border border-orange-500">
             <div className="flex items-center justify-between">
               <div>
-                <div className="stat-value">{totalMembers > 0 ? Math.round((paidMembers / totalMembers) * 100) : 0}%</div>
-                <div className="stat-label text-warning-100">Payment Rate</div>
-                <div className="text-xs text-warning-200 mt-1">{paidMembers} paid up</div>
+                <div className="text-2xl font-bold text-white mb-1">{totalMembers > 0 ? Math.round((paidMembers / totalMembers) * 100) : 0}%</div>
+                <div className="text-sm text-orange-100 font-medium">Payment Rate</div>
+                <div className="text-xs text-orange-200 mt-1">{paidMembers} paid up</div>
               </div>
-              <Icon name="✓" size="2xl" className="text-warning-200" />
+              <Icon name="✓" size="2xl" className="text-orange-200" />
             </div>
           </div>
 
-          {/* Growth Rate */}
-          <div className="stat-card bg-info text-white">
+          {/* Monthly Growth */}
+          <div className="bg-purple-600 text-white rounded-lg p-6 shadow-lg border border-purple-500">
             <div className="flex items-center justify-between">
               <div>
-                <div className="stat-value">{revenueGrowth > 0 ? '+' : ''}{revenueGrowth.toFixed(1)}%</div>
-                <div className="stat-label text-info-100">Monthly Growth</div>
-                <div className="text-xs text-info-200 mt-1">vs last month</div>
+                <div className="text-2xl font-bold text-white mb-1">{revenueGrowth > 0 ? '+' : ''}{revenueGrowth.toFixed(1)}%</div>
+                <div className="text-sm text-purple-100 font-medium">Monthly Growth</div>
+                <div className="text-xs text-purple-200 mt-1">vs last month</div>
               </div>
-              <Icon name="📈" size="2xl" className="text-info-200" />
+              <Icon name="📈" size="2xl" className="text-purple-200" />
             </div>
           </div>
         </div>
