@@ -2,9 +2,11 @@ export function toISODate(d = new Date()) {
   return new Date(d).toISOString().split('T')[0];
 }
 
-// Strict 30-day increment
+// Strict 30-day increment - fixed for timezone issues
 export function add30DaysFrom(iso) {
-  const d = new Date(iso);
+  // Fix timezone issue: parse date safely to avoid UTC conversion issues
+  const [year, month, day] = iso.split('-').map(Number);
+  const d = new Date(year, month - 1, day); // month is 0-indexed, creates local date
   d.setDate(d.getDate() + 30);
   return toISODate(d);
 }
