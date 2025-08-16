@@ -3742,6 +3742,7 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
         joinedOn: form.joinDate,   // For fallback calculations
         nextDue: nextDueDate.toISOString().slice(0, 10), // Auto-calculated due date
         dueDate: nextDueDate.toISOString().slice(0, 10), // Alternative field name
+        next_payment_date: nextDueDate.toISOString().slice(0, 10), // Backend field name - CRITICAL FIX
         payment_status: "due",
         status: "Active", 
         active: true,
