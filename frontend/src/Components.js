@@ -3457,7 +3457,7 @@ export function RecordPayment(){
                 <strong>Monthly Fee:</strong> TTD {selectedMember.monthly_fee || selectedMember.fee || 0}
               </div>
               <div>
-                <strong>Due Date:</strong> {selectedMember.nextDue || selectedMember.dueDate || 'Not set'}
+                <strong>Due Date:</strong> {selectedMember.nextDue || selectedMember.dueDate || selectedMember.next_payment_date || 'Not set'}
               </div>
               <div>
                 <strong>Status:</strong> 
