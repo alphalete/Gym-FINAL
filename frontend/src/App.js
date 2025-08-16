@@ -54,7 +54,7 @@ const AppContent = () => {
     window.navigateTo = navigate;
   }, [navigate]);
 
-  // Persist last selected tab whenever route changes
+  // Persist last selected tab whenever route changes and scroll to top
   useEffect(() => {
     const currentPath = location.pathname;
     const tabMap = {
@@ -68,6 +68,8 @@ const AppContent = () => {
     
     const currentTab = tabMap[currentPath];
     if (currentTab) {
+      // Scroll to top when navigating between pages
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       try {
         localStorage.setItem('ui:lastTab', currentTab);
       } catch (e) {
