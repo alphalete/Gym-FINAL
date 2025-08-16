@@ -81,6 +81,35 @@ const BottomNav = () => {
             <span className="text-xs leading-none font-medium text-center">{item.label}</span>
           </button>
         ))}
+        
+        {/* App Control Buttons */}
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
+          className="flex flex-col items-center justify-center px-2 py-2 text-blue-600 hover:text-blue-700 transition-colors duration-200"
+          title="Refresh App"
+        >
+          <div className="flex items-center justify-center mb-1">
+            <ArrowPathIcon className="w-5 h-5 flex-shrink-0" />
+          </div>
+          <span className="text-xs leading-none font-medium text-center">Refresh</span>
+        </button>
+        
+        <button
+          type="button"
+          onClick={() => {
+            if (confirm('Are you sure you want to close the app?')) {
+              window.close();
+            }
+          }}
+          className="flex flex-col items-center justify-center px-2 py-2 text-red-600 hover:text-red-700 transition-colors duration-200"
+          title="Close App"
+        >
+          <div className="flex items-center justify-center mb-1">
+            <XMarkIcon className="w-5 h-5 flex-shrink-0" />
+          </div>
+          <span className="text-xs leading-none font-medium text-center">Close</span>
+        </button>
       </div>
     </nav>
   );
