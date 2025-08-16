@@ -3068,9 +3068,51 @@ export function RecordPayment(){
             value={form.note} 
             onChange={e=>setForm(f=>({...f, note:e.target.value}))}
           />
+          
+          {/* Invoice Email Checkbox */}
+          {selectedMember?.email && (
+            <div className="sm:col-span-2 flex items-center space-x-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <input
+                type="checkbox"
+                id="sendInvoiceEmail"
+                checked={sendInvoiceEmail}
+                onChange={(e) => setSendInvoiceEmail(e.target.checked)}
+                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+              />
+              <label htmlFor="sendInvoiceEmail" className="flex-1">
+                <div className="text-sm font-medium text-gray-900">
+                  📧 Send Payment Receipt via Email
+                </div>
+                <div className="text-xs text-gray-600">
+                  Send invoice receipt to {selectedMember.email}
+                </div>
+              </label>
+            </div>
+          )}
+          
+          {selectedMember && !selectedMember.email && (
+            <div className="sm:col-span-2 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+              <div className="text-sm text-yellow-800">
+                ⚠️ No email address on file for this member. Invoice email cannot be sent.
+              </div>
+            </div>
+          )}
         </div>
         <div className="p-4 flex gap-3">
-          <button type="submit" className="btn-primary">Save Payment</button>
+          <button 
+            type="submit" 
+            className="btn-primary flex items-center space-x-2"
+            disabled={sendingInvoice}
+          >
+            {sendingInvoice ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                <span>Recording & Sending...</span>
+              </>
+            ) : (
+              <span>Save Payment</span>
+            )}
+          </button>
           <button type="button" className="btn-secondary" onClick={() => {
             // Go back to where user came from, default to payments if unknown
             const origin = localStorage.getItem("pendingPaymentOrigin") || "payments";
