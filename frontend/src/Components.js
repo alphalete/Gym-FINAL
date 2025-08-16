@@ -2577,7 +2577,7 @@ const InstallPrompt = () => {
     <div className="fixed bottom-4 left-4 right-4 bg-indigo-600 text-white p-4 rounded-lg shadow-lg z-50">
       <div className="flex items-center justify-between">
         <div>
-          <p className="font-medium">Install GoGym4U</p>
+          <p className="font-medium">Install Alphalete Athletics</p>
           <p className="text-sm text-indigo-100">Add to home screen for quick access</p>
         </div>
         <button
