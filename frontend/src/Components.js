@@ -3583,7 +3583,8 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
     email: "", 
     phone: "", 
     membershipType: "",
-    monthlyFee: 0
+    monthlyFee: 0,
+    joinDate: new Date().toISOString().slice(0, 10) // Default to today's date
   });
   const [saving, setSaving] = React.useState(false);
   const [errors, setErrors] = React.useState([]);
