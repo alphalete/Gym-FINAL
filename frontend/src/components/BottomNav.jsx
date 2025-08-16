@@ -26,6 +26,7 @@ const BottomNav = () => {
     { path: '/members', icon: UserGroupIcon, label: 'Members' },
     { path: '/plans', icon: ClipboardDocumentListIcon, label: 'Plans' },
     { path: '/payments', icon: CreditCardIcon, label: 'Payments' },
+    { path: '/reports', icon: ChartPieIcon, label: 'Reports' },
     { path: '/settings', icon: Cog6ToothIcon, label: 'Settings' }
   ];
 
