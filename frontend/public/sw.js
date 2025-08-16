@@ -41,7 +41,22 @@ self.addEventListener('install', e => {
 });
 
 self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(keys => Promise.all(keys.map(k => k !== CACHE_NAME && caches.delete(k)))));
+  console.log('[SW] Activating Alphalete Athletics PWA Service Worker v4');
+  e.waitUntil(
+    caches.keys().then(keys => {
+      return Promise.all(
+        keys.map(key => {
+          if (key !== CACHE_NAME) {
+            console.log('[SW] Deleting old cache:', key);
+            return caches.delete(key);
+          }
+        })
+      );
+    }).then(() => {
+      console.log('[SW] Service Worker activated and ready');
+      return self.clients.claim(); // Take control of all pages immediately
+    })
+  );
 });
 
 self.addEventListener('fetch', e => {
