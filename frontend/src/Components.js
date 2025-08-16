@@ -312,21 +312,23 @@ const PaymentComponent = () => {
       <div className="px-6 py-6">
         {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-          <div className="stat-card bg-success text-white">
+          <div className="stat-card bg-green-600 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <div className="stat-value">{formatCurrency(monthlyRevenue)}</div>
-                <div className="stat-label text-success-100">This Month</div>
+                <div className="text-2xl font-bold text-white mb-1">{formatCurrency(monthlyRevenue)}</div>
+                <div className="text-sm text-green-100 font-medium">This Month</div>
               </div>
-              <StatIcon name="💰" color="success" />
+              <div className="text-green-200 text-3xl">
+                <Icon name="💰" size="2xl" />
+              </div>
             </div>
           </div>
 
           <div className="stat-card bg-indigo-600 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <div className="stat-value">{todayPayments.length}</div>
-                <div className="stat-label text-indigo-100">Today</div>
+                <div className="text-2xl font-bold text-white mb-1">{todayPayments.length}</div>
+                <div className="text-sm text-indigo-100 font-medium">Today</div>
               </div>
               <div className="text-indigo-200 text-3xl">
                 <Icon name="📅" size="2xl" />
@@ -334,25 +336,25 @@ const PaymentComponent = () => {
             </div>
           </div>
 
-          <div className="stat-card bg-info text-white">
+          <div className="stat-card bg-blue-600 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <div className="stat-value">{payments.length}</div>
-                <div className="stat-label text-info-100">Total Payments</div>
+                <div className="text-2xl font-bold text-white mb-1">{payments.length}</div>
+                <div className="text-sm text-blue-100 font-medium">Total Payments</div>
               </div>
-              <div className="text-info-200 text-3xl">
+              <div className="text-blue-200 text-3xl">
                 <Icon name="📊" size="2xl" />
               </div>
             </div>
           </div>
 
-          <div className="stat-card bg-warning text-white">
+          <div className="stat-card bg-orange-600 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <div className="stat-value">{formatCurrency(totalRevenue)}</div>
-                <div className="stat-label text-warning-100">All Time</div>
+                <div className="text-2xl font-bold text-white mb-1">{formatCurrency(totalRevenue)}</div>
+                <div className="text-sm text-orange-100 font-medium">All Time</div>
               </div>
-              <div className="text-warning-200 text-3xl">
+              <div className="text-orange-200 text-3xl">
                 <Icon name="💎" size="2xl" />
               </div>
             </div>
