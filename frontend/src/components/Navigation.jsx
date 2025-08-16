@@ -95,7 +95,7 @@ export const DesktopSidebarNavigation = ({ activeTab, onNavigate }) => {
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center justify-between">
           {shouldShowLabels && (
-            <h1 className="text-xl font-bold text-primary">GoGym4U</h1>
+            <h1 className="text-xl font-bold text-primary">Alphalete Athletics</h1>
           )}
           <button
             type="button"
