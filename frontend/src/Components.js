@@ -4172,6 +4172,9 @@ function EditMemberForm({ member, onSave, onCancel }) {
               <strong>Due Date:</strong> {member?.nextDue || member?.dueDate || 'Not set'}
             </div>
             <div>
+              <strong>Join Date:</strong> {member?.start_date || member?.joinDate || member?.createdAt?.slice(0, 10) || 'Not set'}
+            </div>
+            <div>
               <strong>Status:</strong> 
               <span className={`ml-1 px-2 py-1 rounded-full text-xs ${
                 member?.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
