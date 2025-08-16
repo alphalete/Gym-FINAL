@@ -447,23 +447,43 @@ const Dashboard = () => {
           </div>
         </div>
 
-  {/* Plans snapshot + Trends */}
-  <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-    <div className="bg-white rounded-2xl border p-4 lg:col-span-2">
-      <div className="flex items-center justify-between mb-2">
-        <div className="font-semibold">Collections (last 8 weeks)</div>
-        <button className="text-xs text-gray-500" onClick={()=> navigate('/reports')}>View Reports</button>
+        {/* Recent Activity */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Revenue Chart */}
+          <div className="bg-card rounded-xl shadow-sm">
+            <div className="p-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                📊
+                <span className="ml-2">Collections (last 8 weeks)</span>
+              </h3>
+            </div>
+            <div className="p-4">
+              <div className="flex items-center justify-center text-gray-400 h-20">
+                {spark()}
+              </div>
+              <button 
+                className="text-xs text-indigo-600 hover:text-indigo-800 mt-2" 
+                onClick={() => navigate('/reports')}
+              >
+                View Reports →
+              </button>
+            </div>
+          </div>
+          
+          {/* Plans Snapshot */}
+          <div className="bg-card rounded-xl shadow-sm">
+            <div className="p-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                📋
+                <span className="ml-2">Plans Snapshot</span>
+              </h3>
+            </div>
+            <div className="p-4">
+              <PlansMini />
+            </div>
+          </div>
+        </div>
       </div>
-      <div className="text-gray-400">{spark()}</div>
-    </div>
-    <div className="bg-white rounded-2xl border p-4">
-      <div className="font-semibold mb-2">Plans snapshot</div>
-      <PlansMini />
-    </div>
-  </div>
-</div>
-{/* === New actionable sections end === */}
-
     </div>
   );
 };
