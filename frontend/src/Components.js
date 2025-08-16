@@ -4152,7 +4152,7 @@ function EditMemberForm({ member, onSave, onCancel }) {
         const dueMonth = String(calculatedDue.getMonth() + 1).padStart(2, '0');
         const dueDay = String(calculatedDue.getDate()).padStart(2, '0');
         nextDueDate = `${dueYear}-${dueMonth}-${dueDay}`;
-        console.log('📅 Recalculated due date for member:', nextDueDate);
+        console.log('📅 Recalculated due date for member using timezone-safe logic:', nextDueDate);
       }
       
       const updatedMember = {
