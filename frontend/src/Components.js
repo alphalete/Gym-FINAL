@@ -1977,14 +1977,14 @@ const Reports = () => {
             {recentPayments.length > 0 ? (
               <div className="space-y-3">
                 {recentPayments.map((payment, index) => (
-                  <div key={payment.id || index} className="flex items-center justify-between p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
+                  <div key={payment.id || index} className="flex items-center justify-between p-4 border-2 border-blue-100 rounded-lg bg-white hover:bg-blue-50 transition-colors shadow-sm">
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center border-2 border-green-200">
                         <BanknotesIcon className="w-5 h-5 text-green-600" />
                       </div>
                       <div>
-                        <div className="font-medium text-gray-900">{payment.memberName || 'Unknown Member'}</div>
-                        <div className="text-sm text-gray-500 flex items-center space-x-2">
+                        <div className="font-semibold text-gray-900">{payment.memberName || 'Unknown Member'}</div>
+                        <div className="text-sm text-gray-700 font-medium flex items-center space-x-2">
                           <span>{formatDate(payment.paidOn)}</span>
                           {payment.planName && (
                             <>
@@ -1996,8 +1996,8 @@ const Reports = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-lg font-semibold text-green-600">{formatCurrency(payment.amount)}</div>
-                      <span className="badge badge-success text-xs">Paid</span>
+                      <div className="font-bold text-green-600">{formatCurrency(payment.amount)}</div>
+                      <div className="text-xs text-green-700 font-medium">Payment</div>
                     </div>
                   </div>
                 ))}
