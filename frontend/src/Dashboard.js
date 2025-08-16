@@ -96,27 +96,57 @@ const Dashboard = () => {
     const revenueMTD = payments
       .filter(p => p.paidOn && p.paidOn.slice(0,7) === todayISO.slice(0,7))
       .reduce((sum,p)=> sum + Number(p.amount||0), 0);
-    const overdueCount = members.filter(m => isOverdue(m.nextDue)).length;
-    return { activeCount, newMTD, revenueMTD, overdueCount };
+    const overdueCount = members.filter(m => isOverdue(m.nextDue || m.dueDate || m.next_payment_date)).length;
+    const dueSoonCount = members.filter(m => isDueSoon(m.nextDue || m.dueDate || m.next_payment_date)).length;
+    const dueTodayCount = members.filter(m => isDueToday(m.nextDue || m.dueDate || m.next_payment_date)).length;
+    
+    return { activeCount, newMTD, revenueMTD, overdueCount, dueSoonCount, dueTodayCount };
   }, [members, payments, todayISO]);
 
   const dueToday = useMemo(() =>
-    members.filter(m => isDueToday(m.nextDue))
+    members.filter(m => isDueToday(m.nextDue || m.dueDate || m.next_payment_date))
            .sort((a,b)=> (a.name||"").localeCompare(b.name||""))
            .slice(0,5), [members, todayISO]);
 
   const overdue = useMemo(() =>
-    members.filter(m => isOverdue(m.nextDue))
-           .sort((a,b)=> (new Date(a.nextDue) - new Date(b.nextDue)))
+    members.filter(m => isOverdue(m.nextDue || m.dueDate || m.next_payment_date))
+           .sort((a,b)=> (new Date(a.nextDue || a.dueDate || a.next_payment_date) - new Date(b.nextDue || b.dueDate || b.next_payment_date)))
            .slice(0,5), [members, todayISO]);
 
+  const dueSoon = useMemo(() =>
+    members.filter(m => isDueSoon(m.nextDue || m.dueDate || m.next_payment_date))
+           .sort((a,b)=> (new Date(a.nextDue || a.dueDate || a.next_payment_date) - new Date(b.nextDue || b.dueDate || b.next_payment_date)))
+           .slice(0,5), [members, todayISO]);
+
+  const activeMembers = useMemo(() =>
+    members.filter(m => (m.status || "Active") === "Active")
+           .sort((a,b)=> (a.name||"").localeCompare(b.name||""))
+           .slice(0,10), [members]);
+
+  // Get filtered members based on active filter
+  const getFilteredMembers = () => {
+    switch(activeFilter) {
+      case "active":
+        return members.filter(m => (m.status || "Active") === "Active");
+      case "due-today":
+        return members.filter(m => isDueToday(m.nextDue || m.dueDate || m.next_payment_date));
+      case "due-soon":
+        return members.filter(m => isDueSoon(m.nextDue || m.dueDate || m.next_payment_date));
+      case "overdue":
+        return members.filter(m => isOverdue(m.nextDue || m.dueDate || m.next_payment_date));
+      default:
+        return members;
+    }
+  };
+
   const filteredMembers = useMemo(() => {
+    let baseMembers = getFilteredMembers();
     const q = search.trim().toLowerCase();
-    if (!q) return members;
-    return members.filter(m =>
+    if (!q) return baseMembers;
+    return baseMembers.filter(m =>
       [m.name, m.email, m.phone].some(v => (v||"").toLowerCase().includes(q))
     );
-  }, [members, search]);
+  }, [members, search, activeFilter]);
 
   // Bridge to Payments tab → open "Record Payment" for member
   const goRecordPayment = (member) => {
