@@ -2596,7 +2596,7 @@ body {
 .gogym-main {
   flex: 1;
   margin-left: 280px;
-  background-color: var(--gogym-background);
+  background-color: var(--alphalete-background);
   min-height: 100vh;
 }
 
