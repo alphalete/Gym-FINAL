@@ -1107,7 +1107,7 @@ async def send_bulk_payment_reminders():
                     start_date = client_data.get('start_date', date.today())
                     if isinstance(start_date, str):
                         start_date = datetime.fromisoformat(start_date).date()
-                    client_data['next_payment_date'] = calculate_next_payment_date(start_date)
+                    client_data['next_payment_date'] = calculate_due_date(start_date, 30)  # Fixed: Use 30-day calculation
             elif 'next_payment_date' not in client_data:
                 # Handle clients without next_payment_date (legacy)
                 start_date = client_data.get('start_date', date.today())
