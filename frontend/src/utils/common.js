@@ -13,8 +13,15 @@ export function addDaysISO(iso, days) {
 // Option A payment logic - maintain existing cadence by rolling forward in whole cycles
 export function computeNextDueOptionA(prevNextDueISO, paidOnISO, cycleDays = 30) {
   const cycle = Number(cycleDays || 30);
-  const paid = new Date(paidOnISO);
-  let nextDue = new Date(prevNextDueISO);
+  
+  // Fix timezone issue: parse dates safely
+  const parseDateSafe = (iso) => {
+    const [year, month, day] = iso.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  };
+  
+  const paid = parseDateSafe(paidOnISO);
+  let nextDue = parseDateSafe(prevNextDueISO);
   
   // Roll forward by whole cycles until nextDue > paidOn
   while (nextDue <= paid) {
