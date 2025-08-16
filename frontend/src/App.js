@@ -57,35 +57,44 @@ const AppContent = () => {
 
   // Helper function to scroll to top with comprehensive approach
   const scrollToTop = () => {
-    // Method 1: Window scroll
-    window.scrollTo(0, 0);
-    
-    // Method 2: Document elements
-    if (document.documentElement) {
-      document.documentElement.scrollTop = 0;
-    }
-    if (document.body) {
-      document.body.scrollTop = 0;
-    }
-    
-    // Method 3: Find and scroll any scrollable containers
-    const scrollableElements = document.querySelectorAll('main, [data-scroll-container], .overflow-auto, .overflow-y-auto, .overflow-scroll, .overflow-y-scroll');
-    scrollableElements.forEach(element => {
-      if (element && element.scrollTo) {
-        element.scrollTo(0, 0);
-      } else if (element) {
-        element.scrollTop = 0;
+    // Method 1: Scroll the main content area to ensure the page header is visible
+    requestAnimationFrame(() => {
+      // Try to find and scroll to the main page header
+      const pageHeader = document.querySelector('main h1, h1');
+      if (pageHeader) {
+        pageHeader.scrollIntoView({ behavior: 'instant', block: 'start' });
+      }
+      
+      // Method 2: Window scroll
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      
+      // Method 3: Document elements
+      if (document.documentElement) {
+        document.documentElement.scrollTop = 0;
+      }
+      if (document.body) {
+        document.body.scrollTop = 0;
+      }
+      
+      // Method 4: Find and scroll any scrollable containers
+      const scrollableElements = document.querySelectorAll('main, [data-scroll-container], .overflow-auto, .overflow-y-auto, .overflow-scroll, .overflow-y-scroll');
+      scrollableElements.forEach(element => {
+        if (element && element.scrollTo) {
+          element.scrollTo({ top: 0, behavior: 'instant' });
+        } else if (element) {
+          element.scrollTop = 0;
+        }
+      });
+      
+      // Method 5: Target specific layout containers
+      const mainElement = document.querySelector('main');
+      if (mainElement) {
+        mainElement.scrollTop = 0;
+        if (mainElement.scrollTo) {
+          mainElement.scrollTo({ top: 0, behavior: 'instant' });
+        }
       }
     });
-    
-    // Method 4: Target specific layout containers
-    const mainElement = document.querySelector('main');
-    if (mainElement) {
-      mainElement.scrollTop = 0;
-      if (mainElement.scrollTo) {
-        mainElement.scrollTo(0, 0);
-      }
-    }
   };
 
   // Persist last selected tab whenever route changes and scroll to top
