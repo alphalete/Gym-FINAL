@@ -3978,7 +3978,8 @@ function EditMemberForm({ member, onSave, onCancel }) {
     phone: "",
     membershipType: "",
     monthlyFee: 0,
-    status: "Active"
+    status: "Active",
+    joinDate: ""
   });
   const [saving, setSaving] = React.useState(false);
   const [errors, setErrors] = React.useState([]);
