@@ -673,7 +673,7 @@ const Dashboard = () => {
       </div>
 
       <div className="container px-4 sm:px-6 py-4 sm:py-6">
-        {/* KPI Cards Grid - Polished GoGym4U Style */}
+        {/* KPI Cards Grid - Polished Alphalete Athletics Style */}
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4 mb-6">
           {/* Active Members */}
           <div className="bg-card rounded-xl shadow-sm p-3 md:p-4 flex items-center gap-3">
