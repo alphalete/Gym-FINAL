@@ -4150,6 +4150,7 @@ function EditMemberForm({ member, onSave, onCancel }) {
         active: form.status === "Active",
         nextDue: nextDueDate, // Ensure due date is set
         dueDate: nextDueDate, // Alternative field name
+        next_payment_date: nextDueDate, // Backend field name - CRITICAL FIX
         start_date: form.joinDate, // Primary join date field
         joinDate: form.joinDate,   // Alternative field name
         joinedOn: form.joinDate    // Fallback field name
