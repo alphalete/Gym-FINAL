@@ -2407,12 +2407,13 @@ Email: info@alphaleteclub.com`
       <h1 className="text-2xl font-semibold">Settings</h1>
       
       {/* Membership Settings Section */}
-      <div className="bg-white border rounded-2xl overflow-hidden">
+      <div className="bg-white border rounded-2xl overflow-hidden shadow-sm">
         <button
           onClick={() => toggleSection('membership')}
-          className="w-full p-4 flex justify-between items-center hover:bg-gray-50 transition-colors duration-200 bg-gray-50"
+          className="w-full p-4 flex justify-between items-center transition-colors duration-200"
+          style={{backgroundColor: '#f9fafb', borderRadius: '0'}}
         >
-          <div className="font-medium">Membership Settings</div>
+          <div className="font-medium text-gray-700">Membership Settings</div>
           {collapsedSections.membership ? (
             <ChevronRightIcon className="w-5 h-5 text-gray-400" />
           ) : (
