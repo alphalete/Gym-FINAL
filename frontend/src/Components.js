@@ -4110,28 +4110,13 @@ function EditMemberForm({ member, onSave, onCancel }) {
       
       // If no due date exists or if this is a plan change, calculate new due date
       if (!nextDueDate || form.membershipType !== member.membership_type) {
-        // Use timezone-safe date parsing
-        let startDate;
-        const joinDateStr = form.joinDate || member.start_date;
-        
-        if (typeof joinDateStr === 'string' && joinDateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
-          // Parse manually to avoid timezone issues
-          const [year, month, day] = joinDateStr.split('-').map(Number);
-          startDate = new Date(year, month - 1, day); // month is 0-indexed
-        } else {
-          startDate = joinDateStr ? new Date(joinDateStr) : new Date();
-        }
-        
+        const startDate = form.joinDate ? new Date(form.joinDate) : (member.start_date ? new Date(member.start_date) : new Date());
         const billingIntervalDays = member.billing_interval_days || 30;
         const calculatedDue = new Date(startDate);
         calculatedDue.setDate(calculatedDue.getDate() + billingIntervalDays);
+        nextDueDate = calculatedDue.toISOString().slice(0, 10);
         
-        // Format due date manually to avoid timezone issues
-        const dueYear = calculatedDue.getFullYear();
-        const dueMonth = String(calculatedDue.getMonth() + 1).padStart(2, '0');
-        const dueDay = String(calculatedDue.getDate()).padStart(2, '0');
-        nextDueDate = `${dueYear}-${dueMonth}-${dueDay}`;
-        console.log('📅 Recalculated due date for member using timezone-safe logic:', nextDueDate);
+        console.log('📅 Recalculated due date for member:', nextDueDate);
       }
       
       const updatedMember = {
