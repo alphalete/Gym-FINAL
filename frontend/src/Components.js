@@ -3721,10 +3721,31 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
     setErrors([]);
     
     try {
-      const startDate = new Date(form.joinDate); // Use the selected join date
-      const billingIntervalDays = 30; // Default 30-day billing cycle
-      const nextDueDate = new Date(startDate);
-      nextDueDate.setDate(nextDueDate.getDate() + billingIntervalDays);
+      // Use timezone-safe date calculation
+      const billingIntervalDays = 30;
+      let nextDueDate;
+      
+      if (typeof form.joinDate === 'string' && form.joinDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        // Parse join date manually to avoid timezone issues
+        const [year, month, day] = form.joinDate.split('-').map(Number);
+        const startDate = new Date(year, month - 1, day); // month is 0-indexed
+        nextDueDate = new Date(startDate);
+        nextDueDate.setDate(nextDueDate.getDate() + billingIntervalDays);
+        
+        // Format due date manually to avoid timezone issues
+        const dueYear = nextDueDate.getFullYear();
+        const dueMonth = String(nextDueDate.getMonth() + 1).padStart(2, '0');
+        const dueDay = String(nextDueDate.getDate()).padStart(2, '0');
+        const dueDateStr = `${dueYear}-${dueMonth}-${dueDay}`;
+        
+        nextDueDate = dueDateStr;
+      } else {
+        // Fallback for other date formats
+        const startDate = new Date(form.joinDate);
+        const dueDateObj = new Date(startDate);
+        dueDateObj.setDate(dueDateObj.getDate() + billingIntervalDays);
+        nextDueDate = dueDateObj.toISOString().slice(0, 10);
+      }
       
       const member = { 
         name: `${form.firstName} ${form.lastName}`.trim() || form.firstName,
@@ -3735,8 +3756,8 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
         start_date: form.joinDate, // Use the selected join date
         joinDate: form.joinDate,   // Alternative field name
         joinedOn: form.joinDate,   // For fallback calculations
-        nextDue: nextDueDate.toISOString().slice(0, 10), // Auto-calculated due date
-        dueDate: nextDueDate.toISOString().slice(0, 10), // Alternative field name
+        nextDue: nextDueDate, // Timezone-safe calculated due date
+        dueDate: nextDueDate, // Alternative field name
         payment_status: "due",
         status: "Active", 
         active: true,
