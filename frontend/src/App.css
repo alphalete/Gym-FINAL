@@ -2533,7 +2533,7 @@ body {
 /* Alphalete Athletics Sidebar Navigation */
 .alphalete-sidebar {
   width: 280px;
-  background: var(--gogym-sidebar);
+  background: var(--alphalete-sidebar);
   border-right: 1px solid var(--gogym-border);
   padding: 32px 24px;
   position: fixed;
