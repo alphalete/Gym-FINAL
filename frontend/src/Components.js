@@ -646,6 +646,11 @@ const PaymentComponent = () => {
                                 This payment covers {result.cyclesCovered} billing cycles
                               </div>
                             )}
+                            {result.cycleRestarted && (
+                              <div className="mt-1 text-xs text-blue-600 font-medium">
+                                🔄 Billing cycle will restart - new start date: {formatDate(result.newStartDate)}
+                              </div>
+                            )}
                           </div>
                         );
                       })()}
