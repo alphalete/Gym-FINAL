@@ -8,6 +8,8 @@ import gymStorageMain, * as storageNamed from "./storage";
 import { advanceNextDueByCycles } from './utils/date';
 import { 
   computeNextDueOptionA, 
+  calculateAlphaleteNextDue,
+  calculateAlphaleteOverdue,
   formatCurrency,
   formatDate,
   getPaymentStatus,
