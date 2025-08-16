@@ -3186,7 +3186,7 @@ body {
 
 .gogym-filter-tab:hover:not(.active) {
   background: #F8F9FA;
-  color: var(--gogym-text-dark);
+  color: var(--alphalete-text-dark);
 }
 
 /* Payment Cards - Alphalete Athletics Design */
