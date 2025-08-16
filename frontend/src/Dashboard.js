@@ -212,83 +212,110 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="p-4 lg:p-6 space-y-6">
-      {/* Search & Quick Actions */}
-      <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-        <input
-          value={search}
-          onChange={(e)=>setSearch(e.target.value)}
-          placeholder="Search members by name, phone, email..."
-          className="rounded-xl border px-3 py-2 w-full sm:w-96"
-        />
-        <div className="flex gap-2">
-          <button className="rounded-xl px-3 py-2 border" onClick={()=> navigate('/add-client')}>+ Add Member</button>
-          <button className="rounded-xl px-3 py-2 border" onClick={()=> navigate('/payments')}>+ Add Payment</button>
-          <button
-            className="rounded-xl px-3 py-2 border"
-            onClick={()=> overdue.concat(dueToday).forEach(m=>sendReminder(m))}
-            title="Send reminders to Due Today + Overdue"
-          >
-            Send Reminders
-          </button>
+    <div className="min-h-screen bg-slate-50">
+      {/* Header Section */}
+      <div className="bg-card shadow-sm border-b">
+        <div className="container px-4 sm:px-6 py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-gray-900" id="dashboard-header">Dashboard</h1>
+              <p className="text-sm md:text-base text-gray-500 leading-6">Welcome back! Here's what's happening at your gym today.</p>
+            </div>
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+              <button 
+                type="button" 
+                className="btn btn-primary w-full md:w-auto"
+                onClick={() => navigate('/payments')}
+              >
+                + Record Payment
+              </button>
+              <button 
+                type="button" 
+                className="btn btn-secondary w-full md:w-auto"
+                onClick={() => navigate('/add-member')}
+              >
+                + Add Member
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* KPI cards — swipeable on mobile, grid on larger screens */}
-      <div className="relative">
-        {/* Optional scroll cues (fade edges on mobile) */}
-        <div className="pointer-events-none absolute left-0 top-0 h-full w-6 bg-gradient-to-r from-white to-transparent lg:hidden z-10" />
-        <div className="pointer-events-none absolute right-0 top-0 h-full w-6 bg-gradient-to-l from-white to-transparent lg:hidden z-10" />
-        
-        <div className="lg:grid lg:grid-cols-4 lg:gap-3">
-          {/* Mobile: horizontal scroll with snap */}
-          <div 
-            ref={kpiScrollerRef}
-            role="region" 
-            aria-label="Key performance indicators"
-            className="flex lg:block gap-3 overflow-x-auto lg:overflow-visible snap-x snap-mandatory px-1 -mx-1 pb-2 hide-scrollbar"
+      <div className="container px-4 sm:px-6 py-4 sm:py-6">
+        {/* Search Bar */}
+        <div className="mb-6">
+          <input
+            value={search}
+            onChange={(e)=>setSearch(e.target.value)}
+            placeholder="Search members by name, phone, email..."
+            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+          />
+        </div>
+
+        {/* Clickable KPI Cards Grid */}
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4 mb-6">
+          {/* Active Members */}
+          <button 
+            onClick={() => setActiveFilter(activeFilter === "active" ? "all" : "active")}
+            className={`bg-card rounded-xl shadow-sm p-3 md:p-4 flex items-center gap-3 transition-all hover:shadow-md text-left w-full ${
+              activeFilter === "active" ? "ring-2 ring-indigo-500 bg-indigo-50" : ""
+            }`}
           >
-            <div className="min-w-[72%] sm:min-w-[320px] snap-start">
-              <button 
-                onClick={() => setActiveFilter(activeFilter === "active" ? "all" : "active")}
-                className={`w-full text-left bg-white rounded-2xl border p-4 transition-all hover:shadow-md ${
-                  activeFilter === "active" ? "ring-2 ring-blue-500 bg-blue-50" : ""
-                }`}
-              >
-                <h3 className="sr-only">Active Members</h3>
-                <div className="text-gray-500 text-sm">ACTIVE MEMBERS</div>
-                <div className="text-2xl font-semibold">{kpis.activeCount}</div>
-                {activeFilter === "active" && <div className="text-xs text-blue-600 mt-1">Filter active</div>}
-              </button>
+            <div className="w-10 h-10 rounded-full flex items-center justify-center bg-indigo-600/10 text-indigo-600">
+              👥
             </div>
+            <div>
+              <div className="text-xl md:text-2xl font-bold text-gray-900">{kpis.activeCount}</div>
+              <div className="text-[11px] md:text-xs uppercase tracking-wide text-gray-500">Active</div>
+              {activeFilter === "active" && <div className="text-xs text-indigo-600 mt-1">Filter active</div>}
+            </div>
+          </button>
 
-            <div className="min-w-[72%] sm:min-w-[320px] snap-start">
-              <button 
-                onClick={() => setActiveFilter(activeFilter === "due-soon" ? "all" : "due-soon")}
-                className={`w-full text-left bg-white rounded-2xl border p-4 transition-all hover:shadow-md ${
-                  activeFilter === "due-soon" ? "ring-2 ring-orange-500 bg-orange-50" : ""
-                }`}
-              >
-                <h3 className="sr-only">Due Soon</h3>
-                <div className="text-gray-500 text-sm">DUE SOON</div>
-                <div className="text-2xl font-semibold">{kpis.dueSoonCount}</div>
-                {activeFilter === "due-soon" && <div className="text-xs text-orange-600 mt-1">Filter active</div>}
-              </button>
+          {/* Due Soon */}
+          <button 
+            onClick={() => setActiveFilter(activeFilter === "due-soon" ? "all" : "due-soon")}
+            className={`bg-card rounded-xl shadow-sm p-3 md:p-4 flex items-center gap-3 transition-all hover:shadow-md text-left w-full ${
+              activeFilter === "due-soon" ? "ring-2 ring-warning bg-warning/10" : ""
+            }`}
+          >
+            <div className="w-10 h-10 rounded-full flex items-center justify-center bg-warning/10 text-warning">
+              🕐
             </div>
+            <div>
+              <div className="text-xl md:text-2xl font-bold text-gray-900">{kpis.dueSoonCount}</div>
+              <div className="text-[11px] md:text-xs uppercase tracking-wide text-gray-500">Due Soon</div>
+              {activeFilter === "due-soon" && <div className="text-xs text-warning mt-1">Filter active</div>}
+            </div>
+          </button>
 
-            <div className="min-w-[72%] sm:min-w-[320px] snap-start">
-              <button 
-                onClick={() => setActiveFilter(activeFilter === "overdue" ? "all" : "overdue")}
-                className={`w-full text-left bg-white rounded-2xl border p-4 transition-all hover:shadow-md ${
-                  activeFilter === "overdue" ? "ring-2 ring-red-500 bg-red-50" : ""
-                }`}
-              >
-                <h3 className="sr-only">Overdue Accounts</h3>
-                <div className="text-gray-500 text-sm">OVERDUE ACCOUNTS</div>
-                <div className="text-2xl font-semibold">{kpis.overdueCount}</div>
-                {activeFilter === "overdue" && <div className="text-xs text-red-600 mt-1">Filter active</div>}
-              </button>
+          {/* Overdue */}
+          <button 
+            onClick={() => setActiveFilter(activeFilter === "overdue" ? "all" : "overdue")}
+            className={`bg-card rounded-xl shadow-sm p-3 md:p-4 flex items-center gap-3 transition-all hover:shadow-md text-left w-full ${
+              activeFilter === "overdue" ? "ring-2 ring-danger bg-danger/10" : ""
+            }`}
+          >
+            <div className="w-10 h-10 rounded-full flex items-center justify-center bg-danger/10 text-danger">
+              ⚠️
             </div>
+            <div>
+              <div className="text-xl md:text-2xl font-bold text-gray-900">{kpis.overdueCount}</div>
+              <div className="text-[11px] md:text-xs uppercase tracking-wide text-gray-500">Overdue</div>
+              {activeFilter === "overdue" && <div className="text-xs text-danger mt-1">Filter active</div>}
+            </div>
+          </button>
+
+          {/* Total Amount Owed */}
+          <div className="bg-card rounded-xl shadow-sm p-3 md:p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full flex items-center justify-center bg-success/10 text-success">
+              💰
+            </div>
+            <div>
+              <div className="text-xl md:text-2xl font-bold text-gray-900">${members.filter(m => isOverdue(m.nextDue || m.dueDate || m.next_payment_date) || isDueToday(m.nextDue || m.dueDate || m.next_payment_date)).reduce((sum,m)=> sum + Number(m.monthly_fee||m.amount||0), 0).toFixed(2)}</div>
+              <div className="text-[11px] md:text-xs uppercase tracking-wide text-gray-500">Amount Owed</div>
+            </div>
+          </div>
+        </div>
 
             <div className="min-w-[72%] sm:min-w-[320px] snap-start">
               <div className="bg-white rounded-2xl border p-4">
