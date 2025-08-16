@@ -238,7 +238,7 @@ async def create_billing_cycle_for_member(member_id: str, member_data: dict) -> 
         due_date=calculate_due_date(
             member_data['start_date'] if isinstance(member_data['start_date'], date) 
             else datetime.fromisoformat(member_data['start_date']).date(),
-            member_data.get('billing_interval_days', 30)
+            30  # Fixed: Always use 30 days for Alphalete Athletics billing cycle
         ),
         amount_due=member_data['monthly_fee'],
         status="Unpaid"
