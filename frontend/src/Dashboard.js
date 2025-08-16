@@ -343,42 +343,114 @@ const Dashboard = () => {
     </button>
   </div>
 
-  {/* Due Today list */}
-  <div className="bg-white rounded-2xl border p-4">
-    <div className="font-semibold mb-2">Due Today</div>
-    {dueToday.length === 0 ? (
-      <div className="text-sm text-gray-500">No members due today.</div>
-    ) : dueToday.map(m => (
-      <div key={m.id} className="flex items-center justify-between py-2 border-b last:border-0">
-        <div>
-          <div className="font-medium">{m.name}</div>
-          <div className="text-xs text-gray-500">{m.nextDue}</div>
-        </div>
-        <div className="flex gap-2">
-          <button className="text-sm rounded-lg border px-2 py-1" onClick={()=> goRecordPayment(m)}>Record</button>
-          <button className="text-sm rounded-lg border px-2 py-1" onClick={()=> sendReminder(m)}>Remind</button>
-        </div>
-      </div>
-    ))}
+  {/* Filter Status Bar */}
+  <div className="flex items-center justify-between bg-white rounded-xl border p-3">
+    <div className="flex items-center gap-2">
+      <span className="text-sm font-medium">Showing:</span>
+      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+        activeFilter === "all" ? "bg-gray-100 text-gray-700" :
+        activeFilter === "active" ? "bg-blue-100 text-blue-700" :
+        activeFilter === "due-soon" ? "bg-orange-100 text-orange-700" :
+        activeFilter === "overdue" ? "bg-red-100 text-red-700" :
+        "bg-gray-100 text-gray-700"
+      }`}>
+        {activeFilter === "all" ? "All Members" :
+         activeFilter === "active" ? "Active Members" :
+         activeFilter === "due-soon" ? "Due Soon" :
+         activeFilter === "overdue" ? "Overdue" : "All Members"} 
+        ({filteredMembers.length})
+      </span>
+    </div>
+    {activeFilter !== "all" && (
+      <button 
+        onClick={() => setActiveFilter("all")}
+        className="text-xs text-gray-500 hover:text-gray-700"
+      >
+        Clear Filter
+      </button>
+    )}
   </div>
 
-  {/* Overdue list */}
-  <div className="bg-white rounded-2xl border p-4">
-    <div className="font-semibold mb-2">Overdue</div>
-    {overdue.length === 0 ? (
-      <div className="text-sm text-gray-500">No overdue members 🎉</div>
-    ) : overdue.map(m => (
-      <div key={m.id} className="flex items-center justify-between py-2 border-b last:border-0">
-        <div>
-          <div className="font-medium">{m.name}</div>
-          <div className="text-xs text-red-600">{m.nextDue}</div>
-        </div>
-        <div className="flex gap-2">
-          <button className="text-sm rounded-lg border px-2 py-1" onClick={()=> goRecordPayment(m)}>Record</button>
-          <button className="text-sm rounded-lg border px-2 py-1" onClick={()=> sendReminder(m)}>Remind</button>
-        </div>
+  {/* Filtered Members List */}
+  <div className="bg-white rounded-2xl border">
+    <div className="p-4 border-b">
+      <div className="font-semibold">
+        {activeFilter === "all" ? "All Members" :
+         activeFilter === "active" ? "Active Members" :
+         activeFilter === "due-soon" ? "Due Soon" :
+         activeFilter === "overdue" ? "Overdue Members" : "Members"}
       </div>
-    ))}
+    </div>
+    
+    <div className="max-h-96 overflow-y-auto">
+      {filteredMembers.length === 0 ? (
+        <div className="p-4 text-sm text-gray-500 text-center">
+          {search ? `No members found matching "${search}"` : 
+           activeFilter === "active" ? "No active members." :
+           activeFilter === "due-soon" ? "No members due soon." :
+           activeFilter === "overdue" ? "No overdue members 🎉" :
+           "No members found."}
+        </div>
+      ) : (
+        filteredMembers.map(m => {
+          const dueDate = m.nextDue || m.dueDate || m.next_payment_date;
+          const isOverdueMember = isOverdue(dueDate);
+          const isDueTodayMember = isDueToday(dueDate);
+          const isDueSoonMember = isDueSoon(dueDate);
+          
+          return (
+            <div key={m.id} className="flex items-center justify-between p-4 border-b last:border-0 hover:bg-gray-50">
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <div className="font-medium">{m.name}</div>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    (m.status || "Active") === "Active" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"
+                  }`}>
+                    {m.status || "Active"}
+                  </span>
+                </div>
+                <div className="text-sm text-gray-500">
+                  {m.email && <span>{m.email}</span>}
+                  {m.email && m.phone && <span> • </span>}
+                  {m.phone && <span>{m.phone}</span>}
+                </div>
+                {dueDate && (
+                  <div className={`text-xs mt-1 ${
+                    isOverdueMember ? "text-red-600 font-medium" :
+                    isDueTodayMember ? "text-orange-600 font-medium" :
+                    isDueSoonMember ? "text-yellow-600" :
+                    "text-gray-500"
+                  }`}>
+                    Due: {dueDate}
+                    {isOverdueMember && " (Overdue)"}
+                    {isDueTodayMember && " (Due Today)"}
+                    {isDueSoonMember && " (Due Soon)"}
+                  </div>
+                )}
+              </div>
+              <div className="flex gap-2">
+                {(isOverdueMember || isDueTodayMember || isDueSoonMember) && (
+                  <>
+                    <button 
+                      className="text-sm rounded-lg border px-2 py-1 hover:bg-gray-50" 
+                      onClick={() => goRecordPayment(m)}
+                    >
+                      Record
+                    </button>
+                    <button 
+                      className="text-sm rounded-lg border px-2 py-1 hover:bg-gray-50" 
+                      onClick={() => sendReminder(m)}
+                    >
+                      Remind
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          );
+        })
+      )}
+    </div>
   </div>
 
   {/* Plans snapshot + Trends */}
