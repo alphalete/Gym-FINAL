@@ -4108,7 +4108,9 @@ function EditMemberForm({ member, onSave, onCancel }) {
         active: form.status === "Active",
         nextDue: nextDueDate, // Ensure due date is set
         dueDate: nextDueDate, // Alternative field name
-        joinedOn: member.joinedOn || member.start_date || new Date().toISOString().slice(0, 10)
+        start_date: form.joinDate, // Primary join date field
+        joinDate: form.joinDate,   // Alternative field name
+        joinedOn: form.joinDate    // Fallback field name
       };
       
       console.log('📝 Updating member with due date:', {
