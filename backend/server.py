@@ -295,7 +295,7 @@ async def advance_billing_cycle(billing_cycle_id: str):
     
     # Create next billing cycle
     next_start_date = datetime.fromisoformat(current_cycle['due_date']).date()
-    next_due_date = calculate_due_date(next_start_date, member.get('billing_interval_days', 30))
+    next_due_date = calculate_due_date(next_start_date, 30)  # Fixed: Always use 30 days
     
     next_cycle = BillingCycle(
         member_id=current_cycle['member_id'],
