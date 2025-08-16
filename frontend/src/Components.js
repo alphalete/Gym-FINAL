@@ -2256,7 +2256,7 @@ Email: info@alphaleteclub.com`
                   placeholder="Email content... Use {memberName} and {dueDate} for automatic member data insertion"
                 />
                 <span className="text-xs text-gray-500">
-                  Available variables: {'{memberName}'} and {'{dueDate}'}
+                  Available variables: {'{memberName}'}, {'{dueDate}'} for payment reminders | {'{memberName}'}, {'{invoiceNumber}'}, {'{paymentAmount}'}, {'{paymentDate}'}, {'{membershipType}'}, {'{nextDueDate}'} for payment receipts
                 </span>
               </label>
               
