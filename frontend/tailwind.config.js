@@ -13,7 +13,7 @@ module.exports = {
           200: '#c7d2fe',
           300: '#a5b4fc',
           400: '#818cf8',
-          500: '#6366f1',   // GoGym4U-ish indigo
+          500: '#6366f1',   // Alphalete Athletics indigo
           600: '#4f46e5',
           700: '#4338ca',
           800: '#3730a3',
