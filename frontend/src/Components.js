@@ -1907,7 +1907,7 @@ Alphalete Athletics Team`
           await gymStorage.upsert('emailTemplates', defaultTemplate);
           setEmailTemplates([defaultTemplate]);
         } else {
-          setEmailTemplates(templates);
+          setEmailTemplates(updatedTemplates);
         }
         
         // Optionally get storage stats if available
