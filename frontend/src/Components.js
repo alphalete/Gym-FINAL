@@ -2486,13 +2486,14 @@ Email: info@alphaleteclub.com`
       </div>
       
       {/* Email Templates Section */}
-      <div className="bg-white border rounded-2xl overflow-hidden">
+      <div className="bg-white border rounded-2xl overflow-hidden shadow-sm">
         <button
           onClick={() => toggleSection('emailTemplates')}
-          className="w-full p-4 flex justify-between items-center hover:bg-gray-100 transition-colors duration-200 bg-gray-50"
+          className="w-full p-4 flex justify-between items-center transition-colors duration-200"
+          style={{backgroundColor: '#f9fafb', borderRadius: '0'}}
         >
           <div className="flex justify-between items-center w-full pr-4">
-            <div className="font-medium">Email Templates</div>
+            <div className="font-medium text-gray-700">Email Templates</div>
             <button 
               type="button" 
               className="btn btn-primary text-sm px-3 py-1"
