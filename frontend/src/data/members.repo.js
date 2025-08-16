@@ -76,23 +76,36 @@ const validateMember = (member, isCreation = true) => {
   return errors;
 };
 
-// Utility function to ensure member has proper due date
+// CRITICAL FIX: Map backend next_payment_date to frontend nextDue field
 const ensureMemberDueDate = (member) => {
   if (!member) return member;
   
-  // If member already has a due date, keep it
+  // PRIORITY 1: Use backend next_payment_date field (most reliable)
+  if (member.next_payment_date) {
+    console.log(`✅ Using backend due date for ${member.name}:`, member.next_payment_date);
+    return {
+      ...member,
+      nextDue: member.next_payment_date,        // Map backend field to frontend field
+      dueDate: member.next_payment_date,        // Alternative field name
+      nextDueDate: member.next_payment_date,    // Another alternative
+      joinedOn: member.joinedOn || member.start_date || new Date().toISOString().slice(0, 10)
+    };
+  }
+  
+  // PRIORITY 2: If member already has frontend due date fields, keep them
   if (member.nextDue || member.dueDate || member.nextDueDate) {
+    console.log(`✅ Using existing due date for ${member.name}:`, member.nextDue || member.dueDate || member.nextDueDate);
     return member;
   }
   
-  // Calculate due date based on start_date and billing interval
+  // PRIORITY 3: Calculate due date based on start_date (fallback only)
   try {
     const startDate = member.start_date ? new Date(member.start_date) : new Date();
     const billingInterval = member.billing_interval_days || 30;
     const dueDate = new Date(startDate);
     dueDate.setDate(dueDate.getDate() + billingInterval);
     
-    console.log(`📅 Auto-calculated due date for ${member.name}:`, dueDate.toISOString().slice(0, 10));
+    console.log(`📅 Fallback calculated due date for ${member.name}:`, dueDate.toISOString().slice(0, 10));
     
     return {
       ...member,
