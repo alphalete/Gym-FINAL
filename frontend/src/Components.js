@@ -2617,12 +2617,13 @@ Email: info@alphaleteclub.com`
       </div>
       
       {/* Current Configuration Section */}
-      <div className="bg-white border rounded-2xl overflow-hidden">
+      <div className="bg-white border rounded-2xl overflow-hidden shadow-sm">
         <button
           onClick={() => toggleSection('configuration')}
-          className="w-full p-4 flex justify-between items-center hover:bg-gray-100 transition-colors duration-200 bg-gray-50"
+          className="w-full p-4 flex justify-between items-center transition-colors duration-200"
+          style={{backgroundColor: '#f9fafb', borderRadius: '0'}}
         >
-          <div className="font-medium">Current Configuration</div>
+          <div className="font-medium text-gray-700">Current Configuration</div>
           {collapsedSections.configuration ? (
             <ChevronRightIcon className="w-5 h-5 text-gray-400" />
           ) : (
