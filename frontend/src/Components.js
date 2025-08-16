@@ -324,13 +324,13 @@ const PaymentComponent = () => {
             </div>
           </div>
 
-          <div className="bg-indigo-600 text-white rounded-lg p-6 shadow-lg border border-indigo-500">
+          <div className="bg-blue-600 text-white rounded-lg p-6 shadow-lg border border-blue-500">
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-2xl font-bold text-white mb-1">{todayPayments.length}</div>
-                <div className="text-sm text-indigo-100 font-medium">Today</div>
+                <div className="text-sm text-blue-100 font-medium">Today</div>
               </div>
-              <div className="text-indigo-200 text-3xl">
+              <div className="text-blue-200 text-3xl">
                 <Icon name="📅" size="2xl" />
               </div>
             </div>
