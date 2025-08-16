@@ -3745,9 +3745,10 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
         amount_owed: parseFloat(form.monthlyFee) // Set initial amount owed
       };
       
-      console.log('📝 Creating member with auto-calculated due date:', {
+      console.log('📝 Creating member with selected join date and auto-calculated due date:', {
         name: member.name,
         plan: form.membershipType,
+        joinDate: form.joinDate,
         startDate: member.start_date,
         nextDue: member.nextDue,
         billingInterval: billingIntervalDays
