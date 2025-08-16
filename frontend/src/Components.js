@@ -1019,7 +1019,7 @@ Alphalete Athletics Team`
             await gymStorage.upsert('emailTemplates', defaultTemplate);
             setEmailTemplates([defaultTemplate]);
           } else {
-            setEmailTemplates(templates);
+            setEmailTemplates(updatedTemplates);
           }
         } catch (error) {
           console.error('Error loading email templates:', error);
