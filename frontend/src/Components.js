@@ -3485,7 +3485,7 @@ export function RecordPayment(){
               const name = m.name || `${m.firstName??""} ${m.lastName??""}`.trim() || "Member";
               const plan = m.membership_type || "No Plan";
               const fee = m.monthly_fee || m.fee || 0;
-              const nextDue = m.nextDue || m.dueDate || "No due date";
+              const nextDue = m.nextDue || m.dueDate || m.next_payment_date || "No due date";
               return <option key={id} value={id}>{name} - {plan} (TTD {fee}) - Due: {nextDue}</option>;
             })}
           </select>
