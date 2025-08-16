@@ -2530,8 +2530,8 @@ body {
   background-color: var(--alphalete-background);
 }
 
-/* GoGym4U Sidebar Navigation */
-.gogym-sidebar {
+/* Alphalete Athletics Sidebar Navigation */
+.alphalete-sidebar {
   width: 280px;
   background: var(--gogym-sidebar);
   border-right: 1px solid var(--gogym-border);
