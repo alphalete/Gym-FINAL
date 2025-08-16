@@ -16,7 +16,9 @@ import {
   ClipboardDocumentListIcon as ClipboardDocumentListIconSolid,
   CreditCardIcon as CreditCardIconSolid,
   Cog6ToothIcon as Cog6ToothIconSolid,
-  ChartPieIcon as ChartPieIconSolid
+  ChartPieIcon as ChartPieIconSolid,
+  ArrowPathIcon as ArrowPathIconSolid,
+  XMarkIcon as XMarkIconSolid
 } from '@heroicons/react/24/solid';
 
 const BottomNav = () => {
