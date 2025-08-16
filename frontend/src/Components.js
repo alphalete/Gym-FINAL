@@ -3722,9 +3722,12 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
     
     try {
       const startDate = new Date(form.joinDate); // Use the selected join date
-      const billingIntervalDays = 30; // Default 30-day billing cycle
+      const billingIntervalDays = 30; // Fixed: Always use 30-day billing cycle for Alphalete Athletics
       const nextDueDate = new Date(startDate);
       nextDueDate.setDate(nextDueDate.getDate() + billingIntervalDays);
+      
+      // Debug log to verify calculation
+      console.log('📅 AddMember - Join Date:', form.joinDate, 'Due Date:', nextDueDate.toISOString().slice(0, 10), 'Days Added:', billingIntervalDays);
       
       const member = { 
         name: `${form.firstName} ${form.lastName}`.trim() || form.firstName,
