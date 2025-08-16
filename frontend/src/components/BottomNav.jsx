@@ -6,7 +6,9 @@ import {
   ClipboardDocumentListIcon,
   CreditCardIcon,
   Cog6ToothIcon,
-  ChartPieIcon
+  ChartPieIcon,
+  ArrowPathIcon,
+  XMarkIcon
 } from '@heroicons/react/24/outline';
 import { 
   ChartBarIcon as ChartBarIconSolid,
