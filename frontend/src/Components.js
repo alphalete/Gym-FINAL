@@ -555,6 +555,37 @@ const PaymentComponent = () => {
                   </div>
                 </div>
 
+                {/* Invoice Email Checkbox */}
+                {selectedClient?.email && (
+                  <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                    <div className="flex items-center space-x-3">
+                      <input
+                        type="checkbox"
+                        id="sendInvoiceEmailModal"
+                        checked={sendInvoiceEmail}
+                        onChange={(e) => setSendInvoiceEmail(e.target.checked)}
+                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                      />
+                      <label htmlFor="sendInvoiceEmailModal" className="flex-1">
+                        <div className="text-sm font-medium text-gray-900">
+                          📧 Send Payment Receipt via Email
+                        </div>
+                        <div className="text-xs text-gray-600">
+                          Send invoice receipt to {selectedClient.email}
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                )}
+                
+                {selectedClient && !selectedClient.email && (
+                  <div className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
+                    <div className="text-sm text-yellow-800">
+                      ⚠️ No email address on file for this member. Invoice email cannot be sent.
+                    </div>
+                  </div>
+                )}
+
                 {/* Payment Preview */}
                 {selectedClient && paymentAmount && (
                   <div className="bg-success-50 rounded-lg p-4">
