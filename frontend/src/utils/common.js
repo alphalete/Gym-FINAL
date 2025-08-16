@@ -3,7 +3,9 @@
 
 // Date utilities
 export function addDaysISO(iso, days) {
-  const d = new Date(iso); 
+  // Fix timezone issue: parse date safely to avoid UTC conversion issues
+  const [year, month, day] = iso.split('-').map(Number);
+  const d = new Date(year, month - 1, day); // month is 0-indexed, creates local date
   d.setDate(d.getDate() + Number(days || 0)); 
   return d.toISOString().slice(0, 10);
 }
