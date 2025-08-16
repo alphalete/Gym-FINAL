@@ -11,6 +11,7 @@ import {
   calculateAlphaleteNextDue,
   calculateAlphaleteOverdue,
   updateMemberCycleIfNeeded,
+  calculateTotalPaid,
   formatCurrency,
   formatDate,
   getPaymentStatus,
