@@ -1157,6 +1157,31 @@ function ClientManagement() {
     const [showEmailDropdown, setShowEmailDropdown] = React.useState(false);
     const [emailTemplates, setEmailTemplates] = React.useState([]);
     const [sendingEmail, setSendingEmail] = React.useState(false);
+    const [memberPayments, setMemberPayments] = React.useState([]);
+    
+    // Load payments for this member to calculate total paid
+    React.useEffect(() => {
+      const loadMemberPayments = async () => {
+        try {
+          const allPayments = await gymStorage.getAllPayments() || [];
+          setMemberPayments(allPayments);
+        } catch (error) {
+          console.error('Error loading member payments:', error);
+        }
+      };
+      
+      loadMemberPayments();
+      
+      // Listen for payment changes
+      const handleDataChange = (event) => {
+        if (event.detail === 'payments') {
+          loadMemberPayments();
+        }
+      };
+      
+      window.addEventListener('DATA_CHANGED', handleDataChange);
+      return () => window.removeEventListener('DATA_CHANGED', handleDataChange);
+    }, []);
     
     // Load email templates on component mount
     React.useEffect(() => {
