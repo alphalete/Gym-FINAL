@@ -312,7 +312,7 @@ const PaymentComponent = () => {
       <div className="px-6 py-6">
         {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-          <div className="stat-card bg-green-600 text-white">
+          <div className="bg-green-600 text-white rounded-lg p-6 shadow-lg border border-green-500">
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-2xl font-bold text-white mb-1">{formatCurrency(monthlyRevenue)}</div>
@@ -336,7 +336,7 @@ const PaymentComponent = () => {
             </div>
           </div>
 
-          <div className="stat-card bg-blue-600 text-white">
+          <div className="bg-blue-600 text-white rounded-lg p-6 shadow-lg border border-blue-500">
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-2xl font-bold text-white mb-1">{payments.length}</div>
@@ -348,7 +348,7 @@ const PaymentComponent = () => {
             </div>
           </div>
 
-          <div className="stat-card bg-orange-600 text-white">
+          <div className="bg-orange-600 text-white rounded-lg p-6 shadow-lg border border-orange-500">
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-2xl font-bold text-white mb-1">{formatCurrency(totalRevenue)}</div>
