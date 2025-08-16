@@ -463,9 +463,9 @@ async def create_client(client_data: ClientCreate):
     try:
         client_dict = client_data.dict()
         
-        # Handle next payment date logic - always calculate one month ahead for consistency
-        # This ensures proper monthly billing cycles regardless of payment status
-        next_payment_date = calculate_next_payment_date(client_data.start_date)
+        # Handle next payment date logic - always use 30 days for Alphalete Athletics billing cycle
+        # This ensures consistent 30-day billing cycles regardless of payment status
+        next_payment_date = calculate_due_date(client_data.start_date, 30)
         client_dict['next_payment_date'] = next_payment_date
         
         # Handle amount owed based on payment status
