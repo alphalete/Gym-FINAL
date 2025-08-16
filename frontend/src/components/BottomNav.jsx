@@ -24,16 +24,16 @@ const BottomNav = () => {
             key={item.path}
             type="button"
             onClick={() => navigate(item.path)}
-            className={`flex flex-col items-center justify-center text-xs flex-1 h-16 transition-colors duration-200 ${
+            className={`flex flex-col items-center justify-center text-xs flex-1 h-16 px-1 transition-colors duration-200 ${
               isActive(item.path) 
                 ? 'text-indigo-600 font-semibold' 
                 : 'text-slate-500 hover:text-slate-700'
             }`}
           >
-            <div className="mb-1">
+            <div className="flex items-center justify-center w-6 h-6 mb-1">
               <NavigationIcon name={item.icon} isActive={isActive(item.path)} size="lg" />
             </div>
-            <span className="font-medium text-xs leading-tight">{item.label}</span>
+            <span className="font-medium text-xs leading-tight text-center">{item.label}</span>
           </button>
         ))}
       </div>
