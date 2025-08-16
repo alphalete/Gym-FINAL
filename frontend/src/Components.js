@@ -392,33 +392,29 @@ const PaymentComponent = () => {
                 {filteredPayments
                   .sort((a, b) => new Date(b.paidOn || 0) - new Date(a.paidOn || 0))
                   .map(payment => (
-                    <div key={payment.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div key={payment.id} className="flex items-center justify-between p-4 border-2 border-blue-200 rounded-lg bg-white hover:bg-blue-50 transition-colors shadow-sm">
                       {/* Payment Info */}
                       <div className="flex items-center space-x-4">
                         {/* Amount Badge */}
-                        <div className="w-12 h-12 bg-success-100 rounded-full flex items-center justify-center">
-                          <ActionIcon name="💰" className="text-success-600" />
+                        <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center border-2 border-green-200">
+                          <ActionIcon name="💰" className="text-green-600" />
                         </div>
                         
                         {/* Details */}
                         <div>
-                          <div className="font-medium text-gray-900">
-                            {payment.memberName || 'Unknown Member'}
-                          </div>
-                          <div className="text-sm text-gray-500 flex items-center space-x-2">
-                            <span>{payment.planName || 'No Plan'}</span>
-                            <span>•</span>
-                            <span>{formatDate(payment.paidOn)}</span>
+                          <div className="font-semibold text-gray-900 text-base">{payment.memberName || 'Unknown Member'}</div>
+                          <div className="text-sm text-gray-700 font-medium">
+                            {payment.planName || 'No Plan'} • {formatDate(payment.paidOn)}
                           </div>
                         </div>
                       </div>
                       
-                      {/* Amount and Status */}
+                      {/* Payment Amount & Status */}
                       <div className="text-right">
-                        <div className="text-lg font-semibold text-success-600">
-                          {formatCurrency(payment.amount)}
+                        <div className="text-lg font-bold text-green-600">{formatCurrency(payment.amount)}</div>
+                        <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 border border-green-200">
+                          ✅ PAID
                         </div>
-                        <span className="badge badge-success">Paid</span>
                       </div>
                     </div>
                   ))
