@@ -2773,7 +2773,7 @@ function MembershipManagement() {
   return (
     <div className="p-4">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-semibold">Membership Plans</h1>
+        <h1 className="text-xl font-semibold" id="plans-header">Membership Plans</h1>
         <button 
           type="button"
           className="btn btn-primary"
