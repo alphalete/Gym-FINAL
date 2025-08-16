@@ -3504,7 +3504,7 @@ body {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--gogym-teal), #26C6DA);
+  background: linear-gradient(135deg, var(--alphalete-teal), #26C6DA);
   border: none;
   border-radius: 12px;
   color: white;
