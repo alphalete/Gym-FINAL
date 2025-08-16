@@ -4114,12 +4114,13 @@ function EditMemberForm({ member, onSave, onCancel }) {
       // If no due date exists or if this is a plan change, calculate new due date
       if (!nextDueDate || form.membershipType !== member.membership_type) {
         const startDate = form.joinDate ? new Date(form.joinDate) : (member.start_date ? new Date(member.start_date) : new Date());
-        const billingIntervalDays = member.billing_interval_days || 30;
+        const billingIntervalDays = 30; // Fixed: Always use 30 days instead of member.billing_interval_days
         const calculatedDue = new Date(startDate);
         calculatedDue.setDate(calculatedDue.getDate() + billingIntervalDays);
         nextDueDate = calculatedDue.toISOString().slice(0, 10);
         
-        console.log('📅 Recalculated due date for member:', nextDueDate);
+        // Debug log to verify calculation  
+        console.log('📅 EditMember - Start Date:', startDate.toISOString().slice(0, 10), 'Due Date:', nextDueDate, 'Days Added:', billingIntervalDays);
       }
       
       const updatedMember = {
