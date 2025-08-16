@@ -1449,6 +1449,17 @@ Alphalete Athletics Team`
                   <span className="font-medium text-blue-600">Joined:</span> {formatDate(m?.start_date || m?.joinDate || m?.createdAt)}
                 </div>
               )}
+              {(() => {
+                const totalPaid = calculateTotalPaid(m.id, memberPayments);
+                if (totalPaid > 0) {
+                  return (
+                    <div className="text-sm text-slate-500">
+                      <span className="font-medium text-green-600">Paid Total:</span> {formatCurrency(totalPaid)}
+                    </div>
+                  );
+                }
+                return null;
+              })()}
               <div className="mt-2 flex flex-wrap gap-2">
                 <span className="badge badge-warning">{String(plan)}</span>
                 {dueDateDisplay && (
