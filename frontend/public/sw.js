@@ -60,7 +60,53 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+  // Skip cross-origin requests and chrome-extension requests
+  if (!e.request.url.startsWith(self.location.origin) || e.request.url.includes('chrome-extension')) {
+    return;
+  }
+
   e.respondWith(
-    caches.match(e.request).then(resp => resp || fetch(e.request).catch(() => caches.match('/index.html')))
+    caches.match(e.request).then(cachedResponse => {
+      if (cachedResponse) {
+        console.log('[SW] Cache hit for:', e.request.url);
+        return cachedResponse;
+      }
+      
+      // Network first for API calls to ensure fresh data
+      if (e.request.url.includes('/api/')) {
+        return fetch(e.request).then(response => {
+          if (response.ok) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then(cache => {
+              cache.put(e.request, responseClone);
+            });
+          }
+          return response;
+        }).catch(() => {
+          // Fallback to cached version if network fails
+          return caches.match(e.request);
+        });
+      }
+      
+      // Cache first for static assets
+      return fetch(e.request).then(response => {
+        if (response.ok && response.status === 200) {
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(e.request, responseClone);
+          });
+        }
+        return response;
+      }).catch(() => {
+        // Fallback to main app shell for navigation requests
+        if (e.request.mode === 'navigate') {
+          return caches.match('/index.html');
+        }
+        return new Response('Offline - Content not available', {
+          status: 503,
+          statusText: 'Service Unavailable'
+        });
+      });
+    })
   );
 });
