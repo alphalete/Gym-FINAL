@@ -249,27 +249,45 @@ const Dashboard = () => {
             className="flex lg:block gap-3 overflow-x-auto lg:overflow-visible snap-x snap-mandatory px-1 -mx-1 pb-2 hide-scrollbar"
           >
             <div className="min-w-[72%] sm:min-w-[320px] snap-start">
-              <div className="bg-white rounded-2xl border p-4">
+              <button 
+                onClick={() => setActiveFilter(activeFilter === "active" ? "all" : "active")}
+                className={`w-full text-left bg-white rounded-2xl border p-4 transition-all hover:shadow-md ${
+                  activeFilter === "active" ? "ring-2 ring-blue-500 bg-blue-50" : ""
+                }`}
+              >
                 <h3 className="sr-only">Active Members</h3>
                 <div className="text-gray-500 text-sm">ACTIVE MEMBERS</div>
                 <div className="text-2xl font-semibold">{kpis.activeCount}</div>
-              </div>
+                {activeFilter === "active" && <div className="text-xs text-blue-600 mt-1">Filter active</div>}
+              </button>
             </div>
 
             <div className="min-w-[72%] sm:min-w-[320px] snap-start">
-              <div className="bg-white rounded-2xl border p-4">
-                <h3 className="sr-only">Payments Due Today</h3>
-                <div className="text-gray-500 text-sm">PAYMENTS DUE TODAY</div>
-                <div className="text-2xl font-semibold">{dueToday.length}</div>
-              </div>
+              <button 
+                onClick={() => setActiveFilter(activeFilter === "due-soon" ? "all" : "due-soon")}
+                className={`w-full text-left bg-white rounded-2xl border p-4 transition-all hover:shadow-md ${
+                  activeFilter === "due-soon" ? "ring-2 ring-orange-500 bg-orange-50" : ""
+                }`}
+              >
+                <h3 className="sr-only">Due Soon</h3>
+                <div className="text-gray-500 text-sm">DUE SOON</div>
+                <div className="text-2xl font-semibold">{kpis.dueSoonCount}</div>
+                {activeFilter === "due-soon" && <div className="text-xs text-orange-600 mt-1">Filter active</div>}
+              </button>
             </div>
 
             <div className="min-w-[72%] sm:min-w-[320px] snap-start">
-              <div className="bg-white rounded-2xl border p-4">
+              <button 
+                onClick={() => setActiveFilter(activeFilter === "overdue" ? "all" : "overdue")}
+                className={`w-full text-left bg-white rounded-2xl border p-4 transition-all hover:shadow-md ${
+                  activeFilter === "overdue" ? "ring-2 ring-red-500 bg-red-50" : ""
+                }`}
+              >
                 <h3 className="sr-only">Overdue Accounts</h3>
                 <div className="text-gray-500 text-sm">OVERDUE ACCOUNTS</div>
                 <div className="text-2xl font-semibold">{kpis.overdueCount}</div>
-              </div>
+                {activeFilter === "overdue" && <div className="text-xs text-red-600 mt-1">Filter active</div>}
+              </button>
             </div>
 
             <div className="min-w-[72%] sm:min-w-[320px] snap-start">
