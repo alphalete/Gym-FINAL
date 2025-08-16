@@ -3209,28 +3209,28 @@ export function RecordPayment(){
           
           {/* Invoice Email Checkbox */}
           {selectedMember?.email && (
-            <div className="sm:col-span-2 flex items-center space-x-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="sm:col-span-2 flex items-start space-x-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
               <input
                 type="checkbox"
                 id="sendInvoiceEmail"
                 checked={sendInvoiceEmail}
                 onChange={(e) => setSendInvoiceEmail(e.target.checked)}
-                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                className="w-5 h-5 mt-1 text-blue-600 bg-white border-2 border-blue-300 rounded focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 cursor-pointer"
               />
-              <label htmlFor="sendInvoiceEmail" className="flex-1">
-                <div className="text-sm font-medium text-gray-900">
+              <label htmlFor="sendInvoiceEmail" className="flex-1 cursor-pointer">
+                <div className="text-base font-semibold text-gray-900 mb-1">
                   📧 Send Payment Receipt via Email
                 </div>
-                <div className="text-xs text-gray-600">
-                  Send invoice receipt to {selectedMember.email}
+                <div className="text-sm text-gray-700 font-medium">
+                  Send invoice receipt to <span className="text-blue-600 font-semibold">{selectedMember.email}</span>
                 </div>
               </label>
             </div>
           )}
           
           {selectedMember && !selectedMember.email && (
-            <div className="sm:col-span-2 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-              <div className="text-sm text-yellow-800">
+            <div className="sm:col-span-2 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+              <div className="text-sm text-yellow-800 font-medium">
                 ⚠️ No email address on file for this member. Invoice email cannot be sent.
               </div>
             </div>
