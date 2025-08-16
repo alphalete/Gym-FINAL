@@ -38,8 +38,11 @@ const AppContent = () => {
       };
       if (routes[tab]) {
         navigate(routes[tab]);
-        // Scroll to top of the page
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Force immediate scroll to top
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+        
         // Save the last selected tab
         try {
           localStorage.setItem('ui:lastTab', tab);
