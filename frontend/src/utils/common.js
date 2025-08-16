@@ -69,14 +69,7 @@ export function updateMemberCycleIfNeeded(member) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
-  // Parse due date manually to avoid timezone issues
-  let dueDate;
-  if (typeof member.nextDue === 'string' && member.nextDue.match(/^\d{4}-\d{2}-\d{2}$/)) {
-    const [year, month, day] = member.nextDue.split('-').map(Number);
-    dueDate = new Date(year, month - 1, day);
-  } else {
-    dueDate = new Date(member.nextDue);
-  }
+  const dueDate = new Date(member.nextDue);
   dueDate.setHours(0, 0, 0, 0);
   
   if (dueDate >= today) return member;
@@ -91,18 +84,10 @@ export function updateMemberCycleIfNeeded(member) {
     const newDueDate = new Date(newStartDate);
     newDueDate.setDate(newDueDate.getDate() + (30 * cyclesPassed));
     
-    // Format dates to avoid timezone issues
-    const formatDate = (date) => {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    };
-    
     return {
       ...member,
-      start_date: formatDate(newStartDate),
-      nextDue: formatDate(newDueDate),
+      start_date: newStartDate.toISOString().slice(0, 10),
+      nextDue: newDueDate.toISOString().slice(0, 10),
       status: 'Overdue',
       cycleRestarted: true
     };
