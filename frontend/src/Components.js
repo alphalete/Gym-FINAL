@@ -1871,7 +1871,7 @@ const Reports = () => {
   
   // Payment status breakdown
   const paidMembers = membersList.filter(m => {
-    const nextDue = m.nextDue || m.dueDate;
+    const nextDue = m.nextDue || m.dueDate || m.next_payment_date;
     if (!nextDue) return false;
     return new Date(nextDue) > new Date(todayISO);
   }).length;
