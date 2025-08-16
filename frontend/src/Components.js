@@ -2403,8 +2403,8 @@ Email: info@alphaleteclub.com`
   };
   
   return (
-    <div className="p-4 space-y-4">
-      <h1 className="text-2xl font-semibold">Settings</h1>
+    <div className="p-4 space-y-4" id="settings-page">
+      <h1 className="text-2xl font-semibold" id="settings-header">Settings</h1>
       
       {/* Membership Settings Section */}
       <div className="bg-white border rounded-2xl overflow-hidden shadow-sm">
