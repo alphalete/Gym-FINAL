@@ -138,7 +138,7 @@ const PaymentComponent = () => {
       memberName: m.name || 'Unknown',
       amount: amountNum, 
       paidOn,
-      planName: m.planName || 'No Plan',
+      planName: m.membership_type || m.planName || m.plan || 'No Plan',
       createdAt: new Date().toISOString()
     };
     
