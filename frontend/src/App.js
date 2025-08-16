@@ -38,10 +38,8 @@ const AppContent = () => {
       };
       if (routes[tab]) {
         navigate(routes[tab]);
-        // Force immediate scroll to top
-        window.scrollTo(0, 0);
-        document.documentElement.scrollTop = 0;
-        document.body.scrollTop = 0;
+        // Use comprehensive scroll function
+        scrollToTop();
         
         // Save the last selected tab
         try {
