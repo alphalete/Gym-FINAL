@@ -5,14 +5,16 @@ import {
   UserGroupIcon, 
   ClipboardDocumentListIcon,
   CreditCardIcon,
-  Cog6ToothIcon
+  Cog6ToothIcon,
+  ChartPieIcon
 } from '@heroicons/react/24/outline';
 import { 
   ChartBarIcon as ChartBarIconSolid,
   UserGroupIcon as UserGroupIconSolid,
   ClipboardDocumentListIcon as ClipboardDocumentListIconSolid,
   CreditCardIcon as CreditCardIconSolid,
-  Cog6ToothIcon as Cog6ToothIconSolid
+  Cog6ToothIcon as Cog6ToothIconSolid,
+  ChartPieIcon as ChartPieIconSolid
 } from '@heroicons/react/24/solid';
 
 const BottomNav = () => {
