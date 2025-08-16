@@ -1927,7 +1927,7 @@ const Reports = () => {
         <div className="px-6 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 flex items-center">
+              <h1 className="text-3xl font-bold text-gray-900 flex items-center" id="reports-header">
                 <ActionIcon name="📊" className="text-indigo-600 mr-3" size="xl" />
                 Reports & Analytics
               </h1>
