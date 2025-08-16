@@ -4112,7 +4112,7 @@ function EditMemberForm({ member, onSave, onCancel }) {
     
     try {
       // Calculate due date if it doesn't exist or if plan/billing changed
-      let nextDueDate = member.nextDue || member.dueDate;
+      let nextDueDate = member.nextDue || member.dueDate || member.next_payment_date;
       
       // If no due date exists or if this is a plan change, calculate new due date
       if (!nextDueDate || form.membershipType !== member.membership_type) {
