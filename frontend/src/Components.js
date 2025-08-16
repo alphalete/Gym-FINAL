@@ -4280,6 +4280,25 @@ function EditMemberForm({ member, onSave, onCancel }) {
             </select>
           </div>
         </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Join Date *</label>
+            <input 
+              type="date"
+              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              value={form.joinDate}
+              onChange={e => setForm(f => ({...f, joinDate: e.target.value}))}
+              required
+            />
+            <div className="text-xs text-gray-500 mt-1">
+              When the member joined the gym
+            </div>
+          </div>
+          <div>
+            {/* Empty space for symmetry */}
+          </div>
+        </div>
         <div className="p-4 flex gap-3">
           <button 
             type="button"
