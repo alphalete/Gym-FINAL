@@ -632,10 +632,21 @@ const PaymentComponent = () => {
                   <div className="bg-success-50 rounded-lg p-4">
                     <div className="text-sm font-medium text-success-800 mb-2">Payment Preview:</div>
                     <div className="text-sm text-success-700">
-                      After this payment, {selectedClient.name}'s next due date will be:{' '}
-                      <span className="font-medium">
-                        {formatDate(computeNextDueOptionA(selectedClient.nextDue, paidOnDate, selectedClient.cycleDays || 30))}
-                      </span>
+                      {(() => {
+                        const result = calculateAlphaleteNextDue(selectedClient, Number(paymentAmount), paidOnDate);
+                        return (
+                          <div>
+                            <div>After this payment, {selectedClient.name}'s next due date will be:{' '}
+                              <span className="font-medium">{formatDate(result.nextDue)}</span>
+                            </div>
+                            {result.cyclesCovered > 1 && (
+                              <div className="mt-1 text-xs text-success-600">
+                                This payment covers {result.cyclesCovered} billing cycles
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
                   </div>
                 )}
