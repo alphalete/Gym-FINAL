@@ -3721,7 +3721,7 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
     setErrors([]);
     
     try {
-      const startDate = new Date();
+      const startDate = new Date(form.joinDate); // Use the selected join date
       const billingIntervalDays = 30; // Default 30-day billing cycle
       const nextDueDate = new Date(startDate);
       nextDueDate.setDate(nextDueDate.getDate() + billingIntervalDays);
@@ -3732,10 +3732,11 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
         phone: form.phone.trim() || '',
         membership_type: form.membershipType,
         monthly_fee: parseFloat(form.monthlyFee),
-        start_date: startDate.toISOString().slice(0, 10),
+        start_date: form.joinDate, // Use the selected join date
+        joinDate: form.joinDate,   // Alternative field name
+        joinedOn: form.joinDate,   // For fallback calculations
         nextDue: nextDueDate.toISOString().slice(0, 10), // Auto-calculated due date
         dueDate: nextDueDate.toISOString().slice(0, 10), // Alternative field name
-        joinedOn: startDate.toISOString().slice(0, 10), // For fallback calculations
         payment_status: "due",
         status: "Active", 
         active: true,
