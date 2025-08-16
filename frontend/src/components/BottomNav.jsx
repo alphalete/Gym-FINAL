@@ -1,6 +1,19 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { NavigationIcon } from './Icons';
+import { 
+  ChartBarIcon,
+  UserGroupIcon, 
+  ClipboardDocumentListIcon,
+  CreditCardIcon,
+  Cog6ToothIcon
+} from '@heroicons/react/24/outline';
+import { 
+  ChartBarIcon as ChartBarIconSolid,
+  UserGroupIcon as UserGroupIconSolid,
+  ClipboardDocumentListIcon as ClipboardDocumentListIconSolid,
+  CreditCardIcon as CreditCardIconSolid,
+  Cog6ToothIcon as Cog6ToothIconSolid
+} from '@heroicons/react/24/solid';
 
 const BottomNav = () => {
   const location = useLocation();
