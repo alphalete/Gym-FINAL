@@ -60,7 +60,7 @@ const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_AP
 
 ### **API Endpoint Verification:**
 ```bash
-✅ Backend URL: https://fitness-tracker-app.preview.emergentagent.com
+✅ Backend URL: https://gym-billing-system.preview.emergentagent.com
 ✅ API accessible: Yes (200 OK)
 ✅ Add client works: Yes (tested)
 ✅ All endpoints: Functional

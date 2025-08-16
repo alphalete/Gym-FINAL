@@ -10,7 +10,7 @@ import json
 from datetime import datetime
 
 # Configuration
-BACKEND_URL = "https://fitness-tracker-app.preview.emergentagent.com"
+BACKEND_URL = "https://gym-billing-system.preview.emergentagent.com"
 
 class DataVerifier:
     def __init__(self):
