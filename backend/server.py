@@ -591,9 +591,9 @@ async def update_client(client_id: str, client_update: ClientUpdate):
     # Update fields
     update_data = {k: v for k, v in client_update.dict().items() if v is not None}
     
-    # If start_date is updated, recalculate next_payment_date
+    # If start_date is updated, recalculate next_payment_date using 30-day calculation
     if 'start_date' in update_data:
-        update_data['next_payment_date'] = calculate_next_payment_date(update_data['start_date']).isoformat()
+        update_data['next_payment_date'] = calculate_due_date(update_data['start_date'], 30).isoformat()
         update_data['start_date'] = update_data['start_date'].isoformat()
     
     update_data["updated_at"] = datetime.utcnow()
