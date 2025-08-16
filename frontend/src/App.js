@@ -57,15 +57,37 @@ const AppContent = () => {
 
   // Helper function to scroll to top with comprehensive approach
   const scrollToTop = () => {
-    // Method 1: Scroll the main content area to ensure the page header is visible
+    // Method 1: Scroll to specific page element if available
     requestAnimationFrame(() => {
-      // Try to find and scroll to the main page header
-      const pageHeader = document.querySelector('main h1, h1');
-      if (pageHeader) {
-        pageHeader.scrollIntoView({ behavior: 'instant', block: 'start' });
+      // Try to find the current page header by ID first
+      const pageHeaders = [
+        '#settings-header',
+        '#members-header', 
+        '#dashboard-header',
+        '#reports-header',
+        '#payments-header',
+        '#plans-header'
+      ];
+      
+      let headerFound = false;
+      for (const headerSelector of pageHeaders) {
+        const header = document.querySelector(headerSelector);
+        if (header) {
+          header.scrollIntoView({ behavior: 'instant', block: 'start', inline: 'nearest' });
+          headerFound = true;
+          break;
+        }
       }
       
-      // Method 2: Window scroll
+      // Fallback: Try to find any main page header
+      if (!headerFound) {
+        const anyHeader = document.querySelector('main h1, h1, [class*="text-2xl"]');
+        if (anyHeader) {
+          anyHeader.scrollIntoView({ behavior: 'instant', block: 'start', inline: 'nearest' });
+        }
+      }
+      
+      // Method 2: Window scroll (always do this too)
       window.scrollTo({ top: 0, behavior: 'instant' });
       
       // Method 3: Document elements
@@ -76,17 +98,7 @@ const AppContent = () => {
         document.body.scrollTop = 0;
       }
       
-      // Method 4: Find and scroll any scrollable containers
-      const scrollableElements = document.querySelectorAll('main, [data-scroll-container], .overflow-auto, .overflow-y-auto, .overflow-scroll, .overflow-y-scroll');
-      scrollableElements.forEach(element => {
-        if (element && element.scrollTo) {
-          element.scrollTo({ top: 0, behavior: 'instant' });
-        } else if (element) {
-          element.scrollTop = 0;
-        }
-      });
-      
-      // Method 5: Target specific layout containers
+      // Method 4: Scroll main container
       const mainElement = document.querySelector('main');
       if (mainElement) {
         mainElement.scrollTop = 0;
