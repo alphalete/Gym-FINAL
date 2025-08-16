@@ -2189,6 +2189,20 @@ const Settings = () => {
     body: ''
   });
   
+  // Collapsible sections state
+  const [collapsedSections, setCollapsedSections] = useState({
+    membership: false,
+    emailTemplates: false,
+    configuration: false
+  });
+  
+  const toggleSection = (section) => {
+    setCollapsedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+  
   useEffect(() => { 
     (async () => {
       try {
