@@ -1,4 +1,4 @@
-// GoGym4U Common Utilities - Consolidated from Components.js and other files
+// Alphalete Athletics Common Utilities - Consolidated from Components.js and other files
 // Fixing duplicate function declarations as per requirement Phase D
 
 // Date utilities
