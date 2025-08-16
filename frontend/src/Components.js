@@ -435,12 +435,25 @@ const PaymentComponent = () => {
                         </div>
                       </div>
                       
-                      {/* Payment Amount & Status */}
-                      <div className="text-right">
-                        <div className="text-lg font-bold text-green-600">{formatCurrency(payment.amount)}</div>
-                        <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 border border-green-200">
-                          ✅ PAID
+                      {/* Payment Amount, Status & Actions */}
+                      <div className="flex items-center space-x-4">
+                        {/* Payment Amount & Status */}
+                        <div className="text-right">
+                          <div className="text-lg font-bold text-green-600">{formatCurrency(payment.amount)}</div>
+                          <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 border border-green-200">
+                            ✅ PAID
+                          </div>
                         </div>
+                        
+                        {/* Delete Button */}
+                        <button
+                          type="button"
+                          onClick={() => handleDeletePayment(payment.id, payment)}
+                          className="w-8 h-8 bg-red-100 hover:bg-red-200 border border-red-200 rounded-full flex items-center justify-center transition-colors duration-200 group"
+                          title="Delete Payment"
+                        >
+                          <Icon name="🗑️" size="sm" className="text-red-600 group-hover:text-red-700" />
+                        </button>
                       </div>
                     </div>
                   ))
