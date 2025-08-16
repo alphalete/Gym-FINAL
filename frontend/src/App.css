@@ -2579,7 +2579,7 @@ body {
 
 .gogym-nav-link:hover {
   background-color: #F8F9FA;
-  color: var(--gogym-teal);
+  color: var(--alphalete-teal);
 }
 
 .gogym-nav-link.active {
