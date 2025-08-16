@@ -224,8 +224,8 @@
 
 ## frontend:
   - task: "Record Payment Modal - Wrong Next Due Date Calculation Fix"
-    implemented: false
-    working: false
+    implemented: true
+    working: true
     file: "/app/frontend/src/utils/common.js"
     stuck_count: 0
     priority: "critical"
@@ -234,6 +234,9 @@
         - working: false
         - agent: "testing"
         - comment: "🚨 CRITICAL BUG CONFIRMED: Record Payment Modal 'Wrong Next Due Date' Issue - Payment calculation logic error identified in calculateAlphaleteNextDue function. SPECIFIC ISSUE: Function calculates next due date from member.start_date (lines 50-52) instead of member.nextDue/next_payment_date, causing payment preview to show SAME date as current due date instead of advancing by 30 days. TESTING RESULTS: July 30 Test - Current due 2025-08-29 → Preview shows 'Aug 29, 2025' (WRONG - should be 2025-09-28), Johns Smith - Current due 2025-09-14 → Preview shows 'Sep 14, 2025' (WRONG - should be 2025-10-14). ROOT CAUSE: Lines 50-52 use 'let currentDueDate = new Date(currentStartDate); currentDueDate.setDate(currentDueDate.getDate() + 30);' which recalculates from start_date instead of using existing nextDue field. IMPACT: Payment calculations fundamentally wrong, billing cycles not advancing properly, payment preview misleads users. REQUIRED FIX: Update calculateAlphaleteNextDue function to use member.nextDue || member.next_payment_date as base date and advance by 30 days instead of recalculating from start_date. This is the exact user-reported issue."
+        - working: true
+        - agent: "testing"
+        - comment: "🎉 CRITICAL BUG SUCCESSFULLY RESOLVED! ✅ COMPREHENSIVE VERIFICATION COMPLETED: The 'wrong next due date' issue in the Record Payment Modal has been COMPLETELY FIXED. The calculateAlphaleteNextDue function now correctly uses the current due date as the base for calculations instead of the start date. VERIFICATION RESULTS: July 30 Test - Current due: 2025-08-29 → Payment preview correctly shows: 'Sep 28, 2025' (exactly 30 days later) ✅, Johns Smith - Current due: 2025-09-14 → Payment preview correctly shows: 'Oct 14, 2025' (exactly 30 days later) ✅. CONSOLE DEBUG OUTPUT CONFIRMED: Function logs show correct calculation: 'Payment calculation: {member: July 30 Test, currentDue: 2025-08-29, paymentAmount: 55, monthlyFee: 55}' and 'Payment result: {nextDue: 2025-09-28, newStartDate: 2025-08-29, cyclesCovered: 1, cycleRestarted: false}'. CRITICAL FIXES VERIFIED: 1) Function now uses member.nextDue || member.dueDate || member.next_payment_date as base date (line 47), 2) Calculation correctly advances current due date by 30 days per cycle (lines 63-64), 3) Payment preview accurately reflects 30-day billing cycle advancement, 4) No more showing same date as current due date, 5) Billing cycles advance properly with each payment. EXPECTED RESULTS ACHIEVED: All payment calculations now advance current due date by exactly 30 days ✅, July 30 Test: 2025-08-29 → 2025-09-28 ✅, Johns Smith: 2025-09-14 → 2025-10-14 ✅, Payment modal shows consistent due dates with member details ✅, Debug output confirms correct calculation logic ✅. CONCLUSION: The user-reported 'wrong next due date' issue has been COMPLETELY RESOLVED. Payment calculations are now accurate and the billing cycle advancement works correctly."
 
 ## frontend:
   - task: "Frontend due date display fix verification - ensure next_payment_date field mapping works correctly"
