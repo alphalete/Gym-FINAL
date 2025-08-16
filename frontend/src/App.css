@@ -3224,7 +3224,7 @@ body {
   border-radius: 24px;
   overflow: hidden;
   flex-shrink: 0;
-  background: linear-gradient(135deg, var(--gogym-teal), #26C6DA);
+  background: linear-gradient(135deg, var(--alphalete-teal), #26C6DA);
   display: flex;
   align-items: center;
   justify-content: center;
