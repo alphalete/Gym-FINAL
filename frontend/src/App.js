@@ -114,20 +114,20 @@ const AppContent = () => {
       // Immediate scroll
       scrollToTop();
       
-      // Also scroll after a brief delay for async content
+      // Also scroll after DOM updates
       setTimeout(() => {
         scrollToTop();
-      }, 10);
+      }, 50);
       
-      // And again after component renders
+      // And again after component renders and content loads
       setTimeout(() => {
         scrollToTop();
-      }, 100);
+      }, 200);
       
-      // Final scroll after animations/transitions
+      // Final scroll to ensure we're at the top
       setTimeout(() => {
         scrollToTop();
-      }, 300);
+      }, 500);
       
       try {
         localStorage.setItem('ui:lastTab', currentTab);
