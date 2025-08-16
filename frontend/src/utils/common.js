@@ -176,7 +176,18 @@ export function formatCurrency(amount, currency = 'TTD') {
 export function formatDate(dateString, includeYear = true) {
   if (!dateString) return 'Not set';
   try {
-    const date = new Date(dateString);
+    // Fix timezone issue: parse date string manually to avoid UTC conversion
+    // For ISO date strings like "2025-08-06", split and create date in local timezone
+    let date;
+    if (typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      // Parse YYYY-MM-DD format manually to avoid timezone issues
+      const [year, month, day] = dateString.split('-').map(Number);
+      date = new Date(year, month - 1, day); // month is 0-indexed
+    } else {
+      // Fallback to regular Date parsing for other formats
+      date = new Date(dateString);
+    }
+    
     const options = { 
       month: 'short', 
       day: 'numeric',
