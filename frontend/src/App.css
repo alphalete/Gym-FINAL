@@ -3189,8 +3189,8 @@ body {
   color: var(--gogym-text-dark);
 }
 
-/* Payment Cards - Exactly like GoGym4U */
-.gogym-payment-cards {
+/* Payment Cards - Alphalete Athletics Design */
+.alphalete-payment-cards {
   display: flex;
   flex-direction: column;
   gap: 12px;
