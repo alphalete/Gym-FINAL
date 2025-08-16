@@ -1,24 +1,11 @@
 // Alphalete Athletics Common Utilities - Consolidated from Components.js and other files
 // Fixing duplicate function declarations as per requirement Phase D
 
-// Date utilities - Fixed timezone handling
+// Date utilities
 export function addDaysISO(iso, days) {
-  // Parse ISO date manually to avoid timezone issues
-  if (typeof iso === 'string' && iso.match(/^\d{4}-\d{2}-\d{2}$/)) {
-    const [year, month, day] = iso.split('-').map(Number);
-    const d = new Date(year, month - 1, day); // month is 0-indexed
-    d.setDate(d.getDate() + Number(days || 0)); 
-    // Return in YYYY-MM-DD format
-    const resultYear = d.getFullYear();
-    const resultMonth = String(d.getMonth() + 1).padStart(2, '0');
-    const resultDay = String(d.getDate()).padStart(2, '0');
-    return `${resultYear}-${resultMonth}-${resultDay}`;
-  } else {
-    // Fallback for other formats
-    const d = new Date(iso); 
-    d.setDate(d.getDate() + Number(days || 0)); 
-    return d.toISOString().slice(0, 10);
-  }
+  const d = new Date(iso); 
+  d.setDate(d.getDate() + Number(days || 0)); 
+  return d.toISOString().slice(0, 10);
 }
 
 // Option A payment logic - maintain existing cadence by rolling forward in whole cycles
