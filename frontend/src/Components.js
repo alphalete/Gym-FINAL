@@ -1463,7 +1463,7 @@ Alphalete Athletics Team`
         </div>
 
         {/* Member Details Grid */}
-        <div className="p-4 bg-gray-50">
+        <div className="p-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* Contact Information */}
             <div className="space-y-2">
@@ -1517,26 +1517,28 @@ Alphalete Athletics Team`
           </div>
         </div>
 
-        {/* Action Buttons */}
+        {/* Action Buttons - Back to Original Compact Layout */}
         <div className="p-4 border-t border-gray-100">
-          <div className="flex flex-wrap gap-2">
-            {/* Primary Actions */}
+          <div className="flex gap-2 px-2 overflow-x-auto scrollbar-hide pb-2" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
+            <style jsx>{`
+              .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+              }
+            `}</style>
             <button 
               type="button"
-              className="flex items-center gap-2 px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition-colors duration-200 text-sm font-medium"
+              className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[64px] w-[64px] h-16 transition-all duration-200 flex-shrink-0"
               onClick={() => setShowEditModal(true)}
             >
-              <PencilIcon className="w-4 h-4" />
-              Edit
+              <div className="flex items-center justify-center mb-1">
+                <PencilIcon className="w-6 h-6 text-blue-500 hover:text-blue-600 transition-colors duration-200" />
+              </div>
+              <span className="text-xs font-medium text-gray-700 text-center">Edit</span>
             </button>
             
             <button 
               type="button"
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium ${
-                isActive 
-                  ? 'bg-orange-50 hover:bg-orange-100 text-orange-700' 
-                  : 'bg-green-50 hover:bg-green-100 text-green-700'
-              }`}
+              className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[64px] w-[64px] h-16 transition-all duration-200 flex-shrink-0"
               onClick={async () => {
                 if (confirm(`${isActive ? 'Deactivate' : 'Activate'} ${name}?`)) {
                   try {
@@ -1570,37 +1572,19 @@ Alphalete Athletics Team`
                 }
               }}
             >
-              {isActive ? (
-                <>
-                  <ClockIcon className="w-4 h-4" />
-                  Pause
-                </>
-              ) : (
-                <>
-                  <ArrowRightIcon className="w-4 h-4" />
-                  Activate
-                </>
-              )}
+              <div className="flex items-center justify-center mb-1">
+                {isActive ? (
+                  <ClockIcon className="w-6 h-6 text-orange-500 hover:text-orange-600 transition-colors duration-200" />
+                ) : (
+                  <ArrowRightIcon className="w-6 h-6 text-orange-500 hover:text-orange-600 transition-colors duration-200" />
+                )}
+              </div>
+              <span className="text-xs font-medium text-gray-700 text-center">{isActive ? 'Pause' : 'Activate'}</span>
             </button>
-
+            
             <button 
               type="button"
-              className="flex items-center gap-2 px-4 py-2 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg transition-colors duration-200 text-sm font-medium"
-              onClick={() => {
-                // Store pending payment member ID and where user came from
-                localStorage.setItem("pendingPaymentMemberId", String(m.id));
-                localStorage.setItem("pendingPaymentOrigin", "members");
-                window.navigateToTab?.('payments');
-              }}
-            >
-              <BanknotesIcon className="w-4 h-4" />
-              Payment
-            </button>
-
-            {/* Communication Actions */}
-            <button 
-              type="button"
-              className="flex items-center gap-2 px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg transition-colors duration-200 text-sm font-medium"
+              className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[64px] w-[64px] h-16 transition-all duration-200 flex-shrink-0"
               onClick={() => {
                 // WhatsApp integration
                 if (phone) {
@@ -1613,19 +1597,25 @@ Alphalete Athletics Team`
                 }
               }}
             >
-              <ChatBubbleLeftRightIcon className="w-4 h-4" />
-              WhatsApp
+              <div className="flex items-center justify-center mb-1">
+                <ChatBubbleLeftRightIcon className="w-6 h-6 text-green-500 hover:text-green-600 transition-colors duration-200" />
+              </div>
+              <span className="text-xs font-medium text-gray-700 text-center">WhatsApp</span>
             </button>
             
             <div className="relative email-dropdown-container">
               <button 
                 type="button"
-                className="flex items-center gap-2 px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg transition-colors duration-200 text-sm font-medium"
+                className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[64px] w-[64px] h-16 transition-all duration-200 flex-shrink-0"
                 onClick={() => setShowEmailDropdown(!showEmailDropdown)}
                 disabled={sendingEmail}
               >
-                <EnvelopeIcon className="w-4 h-4" />
-                {sendingEmail ? 'Sending...' : 'Email'}
+                <div className="flex items-center justify-center mb-1">
+                  <EnvelopeIcon className="w-6 h-6 text-indigo-500 hover:text-indigo-600 transition-colors duration-200" />
+                </div>
+                <span className="text-xs font-medium text-gray-700 text-center">
+                  {sendingEmail ? 'Sending...' : 'Email'}
+                </span>
               </button>
               
               {/* Email Template Dropdown */}
@@ -1649,11 +1639,10 @@ Alphalete Athletics Team`
                 </div>
               )}
             </div>
-
-            {/* Danger Zone - Delete Button */}
+            
             <button 
               type="button"
-              className="flex items-center gap-2 px-4 py-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg transition-colors duration-200 text-sm font-medium ml-auto"
+              className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[64px] w-[64px] h-16 transition-all duration-200 flex-shrink-0"
               onClick={async () => {
                 console.log('🎯 DELETE BUTTON CLICKED!', { name, id: m.id, onDeleteMember: typeof onDeleteMember });
                 
@@ -1691,8 +1680,26 @@ Alphalete Athletics Team`
                 }
               }}
             >
-              <TrashIcon className="w-4 h-4" />
-              Delete
+              <div className="flex items-center justify-center mb-1">
+                <TrashIcon className="w-6 h-6 text-red-500 hover:text-red-600 transition-colors duration-200" />
+              </div>
+              <span className="text-xs font-medium text-gray-700 text-center">Delete</span>
+            </button>
+            
+            <button 
+              type="button"
+              className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[64px] w-[64px] h-16 transition-all duration-200 flex-shrink-0"
+              onClick={() => {
+                // Store pending payment member ID and where user came from
+                localStorage.setItem("pendingPaymentMemberId", String(m.id));
+                localStorage.setItem("pendingPaymentOrigin", "members");
+                window.navigateToTab?.('payments');
+              }}
+            >
+              <div className="flex items-center justify-center mb-1">
+                <BanknotesIcon className="w-6 h-6 text-purple-500 hover:text-purple-600 transition-colors duration-200" />
+              </div>
+              <span className="text-xs font-medium text-gray-700 text-center">Payment</span>
             </button>
           </div>
         </div>
