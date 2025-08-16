@@ -1370,7 +1370,12 @@ Alphalete Athletics Team`
             </div>
           </div>
 
-          <div className="mt-4 flex gap-1 justify-between px-2">
+          <div className="mt-4 flex gap-2 px-2 overflow-x-auto scrollbar-hide pb-2" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
+            <style jsx>{`
+              .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+              }
+            `}</style>
             <button 
               type="button"
               className="rounded-xl px-1 py-2 flex flex-col items-center justify-center w-[58px] h-16 transition-all duration-200"
