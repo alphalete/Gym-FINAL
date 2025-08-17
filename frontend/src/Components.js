@@ -3065,7 +3065,8 @@ const Sidebar = () => {
                     // Check if window is still open (window.close() failed)
                     if (!window.closed) {
                       // Create a goodbye screen
-                      document.body.innerHTML = `
+                      const goodbyeHTML = createGoodbyeScreen();
+                      document.body.innerHTML = goodbyeHTML;
                         <div style="
                           display: flex; 
                           flex-direction: column; 
