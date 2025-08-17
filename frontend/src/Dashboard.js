@@ -173,7 +173,8 @@ const Dashboard = () => {
       console.log(`🗑️ Deleting member: ${member.name} (ID: ${member.id})`);
       
       // Call backend API to delete member
-      const response = await fetch(`${import.meta.env.REACT_APP_BACKEND_URL}/clients/${member.id}`, {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const response = await fetch(`${backendUrl}/api/clients/${member.id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
