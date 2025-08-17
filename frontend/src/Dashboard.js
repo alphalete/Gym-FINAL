@@ -155,21 +155,24 @@ const Dashboard = () => {
       if (response.ok) {
         alert(`✅ Email reminder sent to ${client.name} successfully!`);
       } else {
-        // Fallback to basic email/WhatsApp if backend fails
+        // Fallback to basic email if backend fails - prioritize EMAIL since this is the EMAIL button
         const due = client?.next_payment_date || client?.dueDate || "soon";
         const subject = `Membership Payment Due - Alphalete Athletics`;
         const body = `Hi ${client?.name || 'member'},\n\nThis is a friendly reminder that your Alphalete Athletics membership payment is due on ${due}.\n\nAmount: $${client.monthlyFee || 'N/A'}\n\nPlease make your payment at your earliest convenience.\n\nThank you!\nAlphalete Athletics Team`;
         
-        const hasPhone = client?.phone && client.phone.replace(/\D/g, '').length >= 7;
-        if (hasPhone) { 
-          window.open(`https://wa.me/${client.phone.replace(/\D/g, '')}?text=${encodeURIComponent(body)}`, '_blank'); 
-          return; 
-        }
+        // For EMAIL button, check email FIRST, then fallback to WhatsApp
         if (client?.email) {
           window.location.href = `mailto:${encodeURIComponent(client.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+          alert(`✅ Email client opened for ${client.name} (${client.email})`);
           return;
         }
-        alert('❌ No phone or email on file for this member.');
+        const hasPhone = client?.phone && client.phone.replace(/\D/g, '').length >= 7;
+        if (hasPhone) { 
+          window.open(`https://wa.me/${client.phone.replace(/\D/g, '')}?text=${encodeURIComponent(body)}`, '_blank');
+          alert(`⚠️ No email found - sent WhatsApp message instead to ${client.name}`);
+          return; 
+        }
+        alert('❌ No email or phone number on file for this member.');
       }
     } catch (error) {
       console.error('Error sending reminder:', error);
