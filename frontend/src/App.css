@@ -778,6 +778,7 @@ input:focus, textarea:focus, select:focus {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
 }
 
+/* Commented out - was causing action buttons to have colored backgrounds instead of clean transparent backgrounds
 .action-btn.email {
   background: linear-gradient(135deg, #2196F3 0%, #21CBF3 100%) !important;
   color: white !important;
@@ -802,6 +803,7 @@ input:focus, textarea:focus, select:focus {
   background: linear-gradient(135deg, #F44336 0%, #E91E63 100%) !important;
   color: white !important;
 }
+*/
 
 /* Empty State */
 .members-empty-state {
