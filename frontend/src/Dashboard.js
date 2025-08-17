@@ -19,6 +19,8 @@ const Dashboard = () => {
   const [settings, setSettings] = useState({ billingCycleDays: 30, graceDays: 0, dueSoonDays: 3 });
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("all"); // New state for filtering
+  const [showEditModal, setShowEditModal] = useState(false); // Add edit modal state
+  const [selectedMember, setSelectedMember] = useState(null); // Add selected member state
   
   const todayISO = new Date().toISOString().slice(0,10);
 
