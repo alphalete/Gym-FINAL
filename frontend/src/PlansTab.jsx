@@ -15,7 +15,7 @@ export default function PlansTab(){
 
   async function load(){
     const list = await (gymStorage.getAll?.('plans') ?? []);
-    setPlans((list || []).filter(p => !p._deleted).sort((a,b)=> (a.name||"").localeCompare(b.name||"")));
+    setPlans((list || []).sort((a,b)=> (a.name||"").localeCompare(b.name||"")));
   }
   React.useEffect(()=>{ load(); },[]);
   React.useEffect(()=>{ const onC=()=>load(); window.addEventListener('DATA_CHANGED', onC); return ()=>window.removeEventListener('DATA_CHANGED', onC); },[]);
