@@ -451,9 +451,15 @@ const Dashboard = () => {
                         </div>
                       </div>
 
-                      {/* Action Buttons Section - Match Members Page Layout */}
+                      {/* Action Buttons Section - Exact Match with Members Page */}
                       <div className="p-4 bg-gray-50 border-t border-gray-100">
-                        <div className="flex gap-1 overflow-x-auto scrollbar-hide">
+                        <div className="flex gap-2 px-2 overflow-x-auto scrollbar-hide pb-2" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
+                          <style jsx>{`
+                            .scrollbar-hide::-webkit-scrollbar {
+                              display: none;
+                            }
+                          `}</style>
+                          
                           {/* Pause/Activate Button */}
                           <button 
                             type="button"
