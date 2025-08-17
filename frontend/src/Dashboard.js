@@ -469,8 +469,8 @@ const Dashboard = () => {
                             type="button"
                             className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[64px] w-[64px] h-16 transition-all duration-200 flex-shrink-0"
                             onClick={() => {
-                              // Navigate to edit member functionality
-                              navigate(`/members`); // Navigate to members page where edit functionality exists
+                              setSelectedMember(m);
+                              setShowEditModal(true);
                             }}
                             title="Edit Member"
                           >
