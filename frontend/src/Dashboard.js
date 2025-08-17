@@ -611,6 +611,32 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+      
+      {/* Edit Member Modal */}
+      {showEditModal && selectedMember && (
+        <EditMemberForm
+          member={selectedMember}
+          onSave={async (updatedMember) => {
+            try {
+              // Use the repository system to update member
+              const updatedMembers = members.map(m => 
+                m.id === updatedMember.id ? updatedMember : m
+              );
+              setMembers(updatedMembers);
+              setShowEditModal(false);
+              setSelectedMember(null);
+              await refresh(); // Refresh to get latest data
+            } catch (error) {
+              console.error('Error updating member:', error);
+              alert('Failed to update member. Please try again.');
+            }
+          }}
+          onCancel={() => {
+            setShowEditModal(false);
+            setSelectedMember(null);
+          }}
+        />
+      )}
     </div>
   );
 };
