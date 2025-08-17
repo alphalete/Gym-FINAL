@@ -2923,7 +2923,7 @@ function MembershipManagement() {
                         onClick={() => handleEdit(plan)}
                         title="Edit plan"
                       >
-                        <ActionIcon name="✏️" size="sm" />
+                        ✏️
                       </button>
                       <button
                         type="button"
@@ -2931,7 +2931,7 @@ function MembershipManagement() {
                         onClick={() => handleDelete(plan)}
                         title="Delete plan"
                       >
-                        <ActionIcon name="🗑️" size="sm" />
+                        🗑️
                       </button>
                     </div>
                   </div>
