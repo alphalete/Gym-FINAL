@@ -196,11 +196,12 @@ export default function App(){
     // CONSERVATIVE: Clear only specific storage items that might cache member data
     const clearMemberCache = () => {
       try {
-        // Clear specific localStorage keys related to members
+        // Clear specific localStorage keys related to members (but preserve plans)
         const keysToRemove = [];
         for (let i = 0; i < localStorage.length; i++) {
           const key = localStorage.key(i);
-          if (key && (key.includes('member') || key.includes('client') || key.includes('gym'))) {
+          if (key && (key.includes('member') || key.includes('client'))) {
+            // Only clear member/client related keys, NOT gym or plan keys
             keysToRemove.push(key);
           }
         }
