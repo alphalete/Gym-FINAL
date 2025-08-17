@@ -147,6 +147,52 @@ const Dashboard = () => {
     }
   };
 
+  const deleteMember = async (member) => {
+    if (!member || !member.id) {
+      console.error('❌ Invalid member data for deletion');
+      return;
+    }
+
+    // Show confirmation dialog
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete "${member.name}"?\n\nThis action cannot be undone and will permanently remove:\n• Member profile\n• Payment history\n• All associated data`
+    );
+
+    if (!confirmDelete) {
+      console.log('🚫 Member deletion cancelled by user');
+      return;
+    }
+
+    try {
+      console.log(`🗑️ Deleting member: ${member.name} (ID: ${member.id})`);
+      
+      // Call backend API to delete member
+      const response = await fetch(`${import.meta.env.REACT_APP_BACKEND_URL}/clients/${member.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        console.log(`✅ Successfully deleted member: ${member.name}`);
+        
+        // Update local state by removing the deleted member
+        setMembers(prevMembers => prevMembers.filter(m => m.id !== member.id));
+        
+        // Show success message
+        alert(`✅ "${member.name}" has been successfully deleted.`);
+      } else {
+        const errorData = await response.text();
+        console.error(`❌ Failed to delete member: HTTP ${response.status}`, errorData);
+        alert(`❌ Failed to delete "${member.name}". Please try again.\n\nError: ${response.status} ${response.statusText}`);
+      }
+    } catch (error) {
+      console.error('❌ Error during member deletion:', error);
+      alert(`❌ An error occurred while deleting "${member.name}". Please check your connection and try again.\n\nError: ${error.message}`);
+    }
+  };
+
   // Tiny revenue sparkline (last 8 weeks)
   const revenuePoints = useMemo(() => {
     const byWeek = new Map();
