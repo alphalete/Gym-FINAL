@@ -1,6 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import useMembersRepo from "./hooks/useMembersRepo";
+import {
+  ClockIcon,
+  ArrowRightIcon,
+  ChatBubbleLeftRightIcon,
+  EnvelopeIcon,
+  TrashIcon,
+  BanknotesIcon
+} from '@heroicons/react/24/outline';
 
 const Dashboard = () => {
   const navigate = useNavigate();
