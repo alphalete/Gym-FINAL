@@ -4404,7 +4404,8 @@ export {
   Settings,
   Sidebar,
   LoginForm,
-  InstallPrompt
+  InstallPrompt,
+  EditMemberForm
 };
 
 // Default export object for App.js
