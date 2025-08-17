@@ -441,48 +441,79 @@ const Dashboard = () => {
                         </div>
                       </div>
                       
-                      {/* Status Badge and Actions */}
-                      <div className="flex items-center space-x-2">
+                      {/* Member Action Buttons - Same style as Members page */}
+                      <div className="flex items-center justify-between mt-3">
                         <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
                           (m.status || "Active") === "Active" ? "bg-success/10 text-success" : "bg-gray-100 text-gray-700"
                         }`}>
                           {m.status || "Active"}
                         </span>
                         
-                        {/* Action Buttons */}
-                        <div className="flex items-center space-x-1">
+                        {/* Action Buttons Row - Match Members Page Style */}
+                        <div className="flex gap-1 overflow-x-auto scrollbar-hide">
+                          {/* Payment Button - Show for overdue/due soon/due today members */}
                           {(isOverdueMember || isDueTodayMember || isDueSoonMember) && (
-                            <>
-                              <button 
-                                type="button" 
-                                className="p-2 rounded-lg hover:bg-slate-50 transition-colors" 
-                                onClick={() => goRecordPayment(m)}
-                                aria-label="Record payment"
-                                title="Record Payment"
-                              >
-                                💳
-                              </button>
-                              <button 
-                                type="button" 
-                                className="p-2 rounded-lg hover:bg-slate-50 transition-colors" 
-                                onClick={() => sendReminder(m)}
-                                aria-label="Send reminder"
-                                title="Send Reminder"
-                              >
-                                📨
-                              </button>
-                            </>
+                            <button 
+                              type="button"
+                              className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[64px] w-[64px] h-16 transition-all duration-200 flex-shrink-0"
+                              onClick={() => goRecordPayment(m)}
+                              title="Record Payment"
+                            >
+                              <div className="flex items-center justify-center mb-1">
+                                <BanknotesIcon className="w-6 h-6 text-purple-500 hover:text-purple-600 transition-colors duration-200" />
+                              </div>
+                              <span className="text-xs font-medium text-gray-700 text-center">Payment</span>
+                            </button>
                           )}
                           
-                          {/* Delete Button - Always visible */}
+                          {/* WhatsApp Button */}
                           <button 
-                            type="button" 
-                            className="p-2 rounded-lg hover:bg-red-50 transition-colors text-red-600 hover:text-red-700" 
+                            type="button"
+                            className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[64px] w-[64px] h-16 transition-all duration-200 flex-shrink-0"
+                            onClick={() => {
+                              if (m.phone) {
+                                const phoneNumber = m.phone.replace(/\D/g, '');
+                                const message = `Hi ${m.name}, this is a message from Alphalete Athletics regarding your ${m.membershipType || 'membership'}.`;
+                                const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+                                window.open(whatsappUrl, '_blank');
+                              } else {
+                                alert('❌ No phone number available for this member');
+                              }
+                            }}
+                            title="Send WhatsApp Message"
+                          >
+                            <div className="flex items-center justify-center mb-1">
+                              <ChatBubbleLeftRightIcon className="w-6 h-6 text-green-500 hover:text-green-600 transition-colors duration-200" />
+                            </div>
+                            <span className="text-xs font-medium text-gray-700 text-center">WhatsApp</span>
+                          </button>
+                          
+                          {/* Email Button - Show for overdue/due soon/due today members */}
+                          {(isOverdueMember || isDueTodayMember || isDueSoonMember) && (
+                            <button 
+                              type="button"
+                              className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[64px] w-[64px] h-16 transition-all duration-200 flex-shrink-0"
+                              onClick={() => sendReminder(m)}
+                              title="Send Email Reminder"
+                            >
+                              <div className="flex items-center justify-center mb-1">
+                                <EnvelopeIcon className="w-6 h-6 text-indigo-500 hover:text-indigo-600 transition-colors duration-200" />
+                              </div>
+                              <span className="text-xs font-medium text-gray-700 text-center">Email</span>
+                            </button>
+                          )}
+                          
+                          {/* Delete Button */}
+                          <button 
+                            type="button"
+                            className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[64px] w-[64px] h-16 transition-all duration-200 flex-shrink-0"
                             onClick={() => deleteMember(m)}
-                            aria-label="Delete member"
                             title="Delete Member"
                           >
-                            🗑️
+                            <div className="flex items-center justify-center mb-1">
+                              <TrashIcon className="w-6 h-6 text-red-500 hover:text-red-600 transition-colors duration-200" />
+                            </div>
+                            <span className="text-xs font-medium text-gray-700 text-center">Delete</span>
                           </button>
                         </div>
                       </div>
