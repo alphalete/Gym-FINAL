@@ -125,11 +125,10 @@ const Dashboard = () => {
   // Lightweight reminder (WA/email) without depending on PaymentTracking internals
   const sendReminder = async (client) => {
     try {
-      const s = await (gymStorage.getSetting?.('gymSettings', {}) ?? {});
+      // Use default settings since gymStorage is not available
       const due = client?.nextDue || "soon";
       const subject = `Membership due ${due}`;
-      const amountTxt = s?.membershipFeeDefault ? ` Amount: ${s.membershipFeeDefault}.` : '';
-      const body = `Hi ${client?.name || 'member'}, your membership is due on ${due}.${amountTxt}\n\nThank you!`;
+      const body = `Hi ${client?.name || 'member'}, your membership is due on ${due}.\n\nThank you!`;
       const hasPhone = client?.phone && client.phone.replace(/\D/g, '').length >= 7;
       if (hasPhone) { window.open(`https://wa.me/?text=${encodeURIComponent(body)}`, '_blank'); return; }
       if (client?.email) {
