@@ -457,12 +457,7 @@ const Dashboard = () => {
 
                       {/* Action Buttons Section - Match Members Page Layout */}
                       <div className="p-4 bg-white border-t border-gray-200">
-                        <div className="flex gap-2 px-2 overflow-x-auto scrollbar-hide pb-2"
-                          <style jsx>{`
-                            .scrollbar-hide::-webkit-scrollbar {
-                              display: none;
-                            }
-                          `}</style>
+                        <div className="flex gap-2 px-2 overflow-x-auto scrollbar-hide pb-2">
                           
                           {/* Edit Button */}
                           <button 
