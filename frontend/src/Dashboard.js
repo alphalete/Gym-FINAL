@@ -141,7 +141,7 @@ Alphalete Athletics Team`
         const personalizedSubject = template.subject.replace('{memberName}', member.name).replace('{dueDate}', dueDate);
         const personalizedBody = template.body.replace('{memberName}', member.name).replace('{dueDate}', dueDate);
         
-        const mailtoUrl = `mailto:${encodeURIComponent(member.email)}?subject=${encodeURIParameter(personalizedSubject)}&body=${encodeURIComponent(personalizedBody)}`;
+        const mailtoUrl = `mailto:${encodeURIComponent(member.email)}?subject=${encodeURIComponent(personalizedSubject)}&body=${encodeURIComponent(personalizedBody)}`;
         window.location.href = mailtoUrl;
         alert(`✅ Email client opened for ${member.name} (${member.email})`);
       } catch (mailtoError) {
