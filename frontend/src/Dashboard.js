@@ -461,28 +461,6 @@ const Dashboard = () => {
                             }
                           `}</style>
                           
-                          {/* Pause/Activate Button */}
-                          <button 
-                            type="button"
-                            className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[64px] w-[64px] h-16 transition-all duration-200 flex-shrink-0"
-                            onClick={() => {
-                              // Toggle member status functionality
-                              alert(`Toggle ${m.name} status (Active/Inactive)`);
-                            }}
-                            title={`${(m.status || "Active") === "Active" ? 'Pause' : 'Activate'} Member`}
-                          >
-                            <div className="flex items-center justify-center mb-1">
-                              {(m.status || "Active") === "Active" ? (
-                                <ClockIcon className="w-6 h-6 text-orange-500 hover:text-orange-600 transition-colors duration-200" />
-                              ) : (
-                                <ArrowRightIcon className="w-6 h-6 text-orange-500 hover:text-orange-600 transition-colors duration-200" />
-                              )}
-                            </div>
-                            <span className="text-xs font-medium text-gray-700 text-center">
-                              {(m.status || "Active") === "Active" ? 'Pause' : 'Activate'}
-                            </span>
-                          </button>
-                          
                           {/* WhatsApp Button */}
                           <button 
                             type="button"
