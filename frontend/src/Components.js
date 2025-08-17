@@ -2721,27 +2721,29 @@ function MembershipManagement() {
         updatedAt: new Date().toISOString()
       };
 
-      // Direct storage access instead of facade
-      const storage = storageNamed || gymStorageMain;
-      if (storage.savePlan) {
-        await storage.savePlan(planData);
-      } else if (storage.saveData) {
-        await storage.saveData("plans", planData);
+      // Use the imported gymStorage instance for saving
+      if (gymStorage.saveData) {
+        await gymStorage.saveData("plans", planData);
+        console.log('💾 Saved plan:', planData);
+      } else if (gymStorage.savePlan) {
+        await gymStorage.savePlan(planData);
+        console.log('💾 Saved plan:', planData);
       }
       
-      // Refresh plans using direct storage
+      // Refresh plans using the same storage instance
       let updatedPlans = [];
-      if (storage.getPlans) {
-        updatedPlans = await storage.getPlans();
-      } else if (storage.getAll) {
-        updatedPlans = await storage.getAll("plans");
+      if (gymStorage.getAll) {
+        updatedPlans = await gymStorage.getAll("plans");
+      } else if (gymStorage.getPlans) {
+        updatedPlans = await gymStorage.getPlans();
       }
       setPlans(Array.isArray(updatedPlans) ? updatedPlans : []);
       
       resetForm();
+      alert(`✅ Plan "${planData.name}" has been successfully ${editingPlan ? 'updated' : 'created'}.`);
     } catch (error) {
-      console.error('Error saving plan:', error);
-      alert('Error saving plan. Please try again.');
+      console.error('❌ Error saving plan:', error);
+      alert('❌ Error saving plan. Please try again.');
     }
   };
 
