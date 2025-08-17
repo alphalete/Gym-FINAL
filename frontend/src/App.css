@@ -3712,8 +3712,9 @@ select:focus {
 }
 
 /* Modern Action Buttons - Enhanced for consistent icon sizing */
+/* Commented out - was causing action buttons to appear as small colored squares instead of proper buttons with text labels
 button[title*="Email"],
-button[title*="Edit"],
+button[title*="Edit"], 
 button[title*="Delete"],
 button[title*="Record Payment"],
 button[title*="WhatsApp"],
@@ -3725,7 +3726,7 @@ button[title*="WhatsApp"],
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px !important; /* Increased from 16px for better visibility */
+  font-size: 18px !important;
   transition: all 0.2s ease;
   box-shadow: var(--shadow-card);
   border: none;
@@ -3742,6 +3743,7 @@ button[title*="WhatsApp"]:hover,
   transform: scale(1.1);
   box-shadow: var(--shadow-elevated);
 }
+*/
 
 /* Specific Action Button Classes */
 .action-btn.primary {
