@@ -4,7 +4,7 @@ import useMembersRepo from "./hooks/useMembersRepo";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [members, setMembers] = useState([]);
+  const { members, setMembers, loading, error, refresh } = useMembersRepo();
   const [payments, setPayments] = useState([]);
   const [settings, setSettings] = useState({ billingCycleDays: 30, graceDays: 0, dueSoonDays: 3 });
   const [search, setSearch] = useState("");
