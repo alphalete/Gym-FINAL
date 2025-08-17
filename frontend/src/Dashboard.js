@@ -401,70 +401,80 @@ const Dashboard = () => {
                   const isDueSoonMember = isDueSoon(dueDate);
                   
                   return (
-                    <div key={m.id} className="bg-card rounded-xl shadow-sm px-3 py-2 md:p-3 flex items-center justify-between hover:shadow-md transition-shadow">
-                      <div className="flex items-center space-x-3">
-                        {/* Avatar */}
-                        <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 text-sm font-bold border">
-                          {(() => {
-                            const name = m.name || "";
-                            if (!name.trim()) return "?";
-                            
-                            const words = name.trim().split(/\s+/);
-                            if (words.length === 1) {
-                              return words[0].charAt(0).toUpperCase();
-                            }
-                            return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
-                          })()}
-                        </div>
-                        
-                        {/* Member Info */}
-                        <div>
-                          <div className="font-medium text-gray-900">{m.name || "(No name)"}</div>
-                          <div className="text-sm text-gray-500">
-                            {m.email && <span>{m.email}</span>}
-                            {m.email && m.phone && <span> • </span>}
-                            {m.phone && <span>{m.phone}</span>}
+                    <div key={m.id} className="bg-card rounded-xl shadow-sm mb-4 overflow-hidden">
+                      {/* Header Section */}
+                      <div className="p-4 border-b border-gray-100">
+                        <div className="flex items-center space-x-3">
+                          {/* Avatar */}
+                          <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 text-sm font-bold border">
+                            {(() => {
+                              const name = m.name || "";
+                              if (!name.trim()) return "?";
+                              
+                              const words = name.trim().split(/\s+/);
+                              if (words.length === 1) {
+                                return words[0].charAt(0).toUpperCase();
+                              }
+                              return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
+                            })()}
                           </div>
-                          {dueDate && (
-                            <div className={`text-xs mt-1 ${
-                              isOverdueMember ? "text-danger font-semibold" :
-                              isDueTodayMember ? "text-warning font-semibold" :
-                              isDueSoonMember ? "text-warning" :
-                              "text-gray-500"
-                            }`}>
-                              Due: {dueDate}
-                              {isOverdueMember && " (Overdue)"}
-                              {isDueTodayMember && " (Due Today)"}
-                              {isDueSoonMember && " (Due Soon)"}
+                          
+                          {/* Member Info */}
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <div className="font-medium text-gray-900">{m.name || "(No name)"}</div>
+                              <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                                (m.status || "Active") === "Active" ? "bg-success/10 text-success" : "bg-gray-100 text-gray-700"
+                              }`}>
+                                {m.status || "Active"}
+                              </span>
                             </div>
-                          )}
+                            <div className="text-sm text-gray-500">
+                              {m.email && <span>{m.email}</span>}
+                              {m.email && m.phone && <span> • </span>}
+                              {m.phone && <span>{m.phone}</span>}
+                            </div>
+                            {dueDate && (
+                              <div className={`text-xs mt-1 ${
+                                isOverdueMember ? "text-danger font-semibold" :
+                                isDueTodayMember ? "text-warning font-semibold" :
+                                isDueSoonMember ? "text-warning" :
+                                "text-gray-500"
+                              }`}>
+                                Due: {dueDate}
+                                {isOverdueMember && " (Overdue)"}
+                                {isDueTodayMember && " (Due Today)"}
+                                {isDueSoonMember && " (Due Soon)"}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
-                      
-                      {/* Member Action Buttons - Same style as Members page */}
-                      <div className="flex items-center justify-between mt-3">
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                          (m.status || "Active") === "Active" ? "bg-success/10 text-success" : "bg-gray-100 text-gray-700"
-                        }`}>
-                          {m.status || "Active"}
-                        </span>
-                        
-                        {/* Action Buttons Row - Match Members Page Style */}
+
+                      {/* Action Buttons Section - Match Members Page Layout */}
+                      <div className="p-4 bg-gray-50 border-t border-gray-100">
                         <div className="flex gap-1 overflow-x-auto scrollbar-hide">
-                          {/* Payment Button - Show for overdue/due soon/due today members */}
-                          {(isOverdueMember || isDueTodayMember || isDueSoonMember) && (
-                            <button 
-                              type="button"
-                              className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[64px] w-[64px] h-16 transition-all duration-200 flex-shrink-0"
-                              onClick={() => goRecordPayment(m)}
-                              title="Record Payment"
-                            >
-                              <div className="flex items-center justify-center mb-1">
-                                <BanknotesIcon className="w-6 h-6 text-purple-500 hover:text-purple-600 transition-colors duration-200" />
-                              </div>
-                              <span className="text-xs font-medium text-gray-700 text-center">Payment</span>
-                            </button>
-                          )}
+                          {/* Pause/Activate Button */}
+                          <button 
+                            type="button"
+                            className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[64px] w-[64px] h-16 transition-all duration-200 flex-shrink-0"
+                            onClick={() => {
+                              // Toggle member status functionality
+                              alert(`Toggle ${m.name} status (Active/Inactive)`);
+                            }}
+                            title={`${(m.status || "Active") === "Active" ? 'Pause' : 'Activate'} Member`}
+                          >
+                            <div className="flex items-center justify-center mb-1">
+                              {(m.status || "Active") === "Active" ? (
+                                <ClockIcon className="w-6 h-6 text-orange-500 hover:text-orange-600 transition-colors duration-200" />
+                              ) : (
+                                <ArrowRightIcon className="w-6 h-6 text-orange-500 hover:text-orange-600 transition-colors duration-200" />
+                              )}
+                            </div>
+                            <span className="text-xs font-medium text-gray-700 text-center">
+                              {(m.status || "Active") === "Active" ? 'Pause' : 'Activate'}
+                            </span>
+                          </button>
                           
                           {/* WhatsApp Button */}
                           <button 
@@ -488,20 +498,18 @@ const Dashboard = () => {
                             <span className="text-xs font-medium text-gray-700 text-center">WhatsApp</span>
                           </button>
                           
-                          {/* Email Button - Show for overdue/due soon/due today members */}
-                          {(isOverdueMember || isDueTodayMember || isDueSoonMember) && (
-                            <button 
-                              type="button"
-                              className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[64px] w-[64px] h-16 transition-all duration-200 flex-shrink-0"
-                              onClick={() => sendReminder(m)}
-                              title="Send Email Reminder"
-                            >
-                              <div className="flex items-center justify-center mb-1">
-                                <EnvelopeIcon className="w-6 h-6 text-indigo-500 hover:text-indigo-600 transition-colors duration-200" />
-                              </div>
-                              <span className="text-xs font-medium text-gray-700 text-center">Email</span>
-                            </button>
-                          )}
+                          {/* Email Button */}
+                          <button 
+                            type="button"
+                            className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[64px] w-[64px] h-16 transition-all duration-200 flex-shrink-0"
+                            onClick={() => sendReminder(m)}
+                            title="Send Email Reminder"
+                          >
+                            <div className="flex items-center justify-center mb-1">
+                              <EnvelopeIcon className="w-6 h-6 text-indigo-500 hover:text-indigo-600 transition-colors duration-200" />
+                            </div>
+                            <span className="text-xs font-medium text-gray-700 text-center">Email</span>
+                          </button>
                           
                           {/* Delete Button */}
                           <button 
@@ -514,6 +522,19 @@ const Dashboard = () => {
                               <TrashIcon className="w-6 h-6 text-red-500 hover:text-red-600 transition-colors duration-200" />
                             </div>
                             <span className="text-xs font-medium text-gray-700 text-center">Delete</span>
+                          </button>
+                          
+                          {/* Payment Button */}
+                          <button 
+                            type="button"
+                            className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[64px] w-[64px] h-16 transition-all duration-200 flex-shrink-0"
+                            onClick={() => goRecordPayment(m)}
+                            title="Record Payment"
+                          >
+                            <div className="flex items-center justify-center mb-1">
+                              <BanknotesIcon className="w-6 h-6 text-purple-500 hover:text-purple-600 transition-colors duration-200" />
+                            </div>
+                            <span className="text-xs font-medium text-gray-700 text-center">Payment</span>
                           </button>
                         </div>
                       </div>
