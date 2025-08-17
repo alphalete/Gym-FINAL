@@ -30,9 +30,23 @@ export default function PlansTab(){
     setEdit(null); load();
   }
   async function remove(p){
-    await gymStorage.saveData('plans', { ...p, _deleted:true });
-    window.dispatchEvent?.(new CustomEvent('DATA_CHANGED', { detail:'plans' }));
-    load();
+    if (!confirm(`Are you sure you want to delete the plan "${p.name}"?`)) return;
+    
+    try {
+      console.log(`🗑️ Deleting plan: ${p.name} (ID: ${p.id})`);
+      
+      // Use hard deletion like Components.js MembershipManagement
+      await gymStorage.remove('plans', p.id);
+      console.log(`✅ Plan "${p.name}" deleted from storage`);
+      
+      // Refresh the plan list
+      await load();
+      
+      alert(`✅ Plan "${p.name}" has been successfully deleted.`);
+    } catch (error) {
+      console.error('❌ Error deleting plan:', error);
+      alert(`❌ Error deleting plan "${p.name}". Please try again.`);
+    }
   }
 
   const visible = plans.filter(p => filter === 'all' ? true : p.cycleDays === Number(filter));
