@@ -1518,7 +1518,7 @@ Alphalete Athletics Team`
         </div>
 
         {/* Action Buttons - Back to Original Compact Layout */}
-        <div className="p-4 bg-gray-50 border-t border-gray-100">
+        <div className="p-4 bg-white border-t border-gray-200">
           <div className="flex gap-2 px-2 overflow-x-auto scrollbar-hide pb-2" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
             <style jsx>{`
               .scrollbar-hide::-webkit-scrollbar {
