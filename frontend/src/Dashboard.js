@@ -437,26 +437,43 @@ const Dashboard = () => {
                         }`}>
                           {m.status || "Active"}
                         </span>
-                        {(isOverdueMember || isDueTodayMember || isDueSoonMember) && (
-                          <>
-                            <button 
-                              type="button" 
-                              className="p-2 rounded-lg hover:bg-slate-50 transition-colors" 
-                              onClick={() => goRecordPayment(m)}
-                              aria-label="Record payment"
-                            >
-                              💳
-                            </button>
-                            <button 
-                              type="button" 
-                              className="p-2 rounded-lg hover:bg-slate-50 transition-colors" 
-                              onClick={() => sendReminder(m)}
-                              aria-label="Send reminder"
-                            >
-                              📨
-                            </button>
-                          </>
-                        )}
+                        
+                        {/* Action Buttons */}
+                        <div className="flex items-center space-x-1">
+                          {(isOverdueMember || isDueTodayMember || isDueSoonMember) && (
+                            <>
+                              <button 
+                                type="button" 
+                                className="p-2 rounded-lg hover:bg-slate-50 transition-colors" 
+                                onClick={() => goRecordPayment(m)}
+                                aria-label="Record payment"
+                                title="Record Payment"
+                              >
+                                💳
+                              </button>
+                              <button 
+                                type="button" 
+                                className="p-2 rounded-lg hover:bg-slate-50 transition-colors" 
+                                onClick={() => sendReminder(m)}
+                                aria-label="Send reminder"
+                                title="Send Reminder"
+                              >
+                                📨
+                              </button>
+                            </>
+                          )}
+                          
+                          {/* Delete Button - Always visible */}
+                          <button 
+                            type="button" 
+                            className="p-2 rounded-lg hover:bg-red-50 transition-colors text-red-600 hover:text-red-700" 
+                            onClick={() => deleteMember(m)}
+                            aria-label="Delete member"
+                            title="Delete Member"
+                          >
+                            🗑️
+                          </button>
+                        </div>
                       </div>
                     </div>
                   );
