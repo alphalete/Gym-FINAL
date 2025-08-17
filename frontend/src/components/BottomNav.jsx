@@ -38,12 +38,7 @@ const BottomNav = () => {
 
   return (
     <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 h-16 bg-white/95 backdrop-blur border-t border-gray-200">
-      <div className="flex h-full overflow-x-auto scrollbar-hide px-2" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
-        <style jsx>{`
-          .scrollbar-hide::-webkit-scrollbar {
-            display: none;
-          }
-        `}</style>
+      <div className="flex h-full overflow-x-auto scrollbar-hide px-2">
         
         {navItems.map((item) => (
           <button
