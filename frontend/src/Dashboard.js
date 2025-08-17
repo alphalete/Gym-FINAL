@@ -614,28 +614,32 @@ const Dashboard = () => {
       
       {/* Edit Member Modal */}
       {showEditModal && selectedMember && (
-        <EditMemberForm
-          member={selectedMember}
-          onSave={async (updatedMember) => {
-            try {
-              // Use the repository system to update member
-              const updatedMembers = members.map(m => 
-                m.id === updatedMember.id ? updatedMember : m
-              );
-              setMembers(updatedMembers);
-              setShowEditModal(false);
-              setSelectedMember(null);
-              await refresh(); // Refresh to get latest data
-            } catch (error) {
-              console.error('Error updating member:', error);
-              alert('Failed to update member. Please try again.');
-            }
-          }}
-          onCancel={() => {
-            setShowEditModal(false);
-            setSelectedMember(null);
-          }}
-        />
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <EditMemberForm
+              member={selectedMember}
+              onSave={async (updatedMember) => {
+                try {
+                  // Use the repository system to update member
+                  const updatedMembers = members.map(m => 
+                    m.id === updatedMember.id ? updatedMember : m
+                  );
+                  setMembers(updatedMembers);
+                  setShowEditModal(false);
+                  setSelectedMember(null);
+                  await refresh(); // Refresh to get latest data
+                } catch (error) {
+                  console.error('Error updating member:', error);
+                  alert('Failed to update member. Please try again.');
+                }
+              }}
+              onCancel={() => {
+                setShowEditModal(false);
+                setSelectedMember(null);
+              }}
+            />
+          </div>
+        </div>
       )}
     </div>
   );
