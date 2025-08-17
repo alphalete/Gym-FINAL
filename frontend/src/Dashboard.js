@@ -200,22 +200,82 @@ const Dashboard = () => {
     navigate("/payments");
   };
 
-  // Lightweight reminder (WA/email) without depending on PaymentTracking internals
+  // Enhanced reminder function with backend integration
   const sendReminder = async (client) => {
     try {
-      // Use default settings since gymStorage is not available
-      const due = client?.nextDue || "soon";
-      const subject = `Membership due ${due}`;
-      const body = `Hi ${client?.name || 'member'}, your membership is due on ${due}.\n\nThank you!`;
-      const hasPhone = client?.phone && client.phone.replace(/\D/g, '').length >= 7;
-      if (hasPhone) { window.open(`https://wa.me/?text=${encodeURIComponent(body)}`, '_blank'); return; }
-      if (client?.email) {
-        window.location.href = `mailto:${encodeURIComponent(client.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        return;
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const response = await fetch(`${backendUrl}/api/send-reminder`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          member_id: client.id || client._id,
+          member_name: client.name,
+          member_email: client.email,
+          due_amount: client.monthlyFee || 0,
+          due_date: client.next_payment_date || client.dueDate
+        }),
+      });
+
+      if (response.ok) {
+        alert(`✅ Email reminder sent to ${client.name} successfully!`);
+      } else {
+        // Fallback to basic email/WhatsApp if backend fails
+        const due = client?.next_payment_date || client?.dueDate || "soon";
+        const subject = `Membership Payment Due - Alphalete Athletics`;
+        const body = `Hi ${client?.name || 'member'},\n\nThis is a friendly reminder that your Alphalete Athletics membership payment is due on ${due}.\n\nAmount: $${client.monthlyFee || 'N/A'}\n\nPlease make your payment at your earliest convenience.\n\nThank you!\nAlphalete Athletics Team`;
+        
+        const hasPhone = client?.phone && client.phone.replace(/\D/g, '').length >= 7;
+        if (hasPhone) { 
+          window.open(`https://wa.me/${client.phone.replace(/\D/g, '')}?text=${encodeURIComponent(body)}`, '_blank'); 
+          return; 
+        }
+        if (client?.email) {
+          window.location.href = `mailto:${encodeURIComponent(client.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+          return;
+        }
+        alert('❌ No phone or email on file for this member.');
       }
-      alert('No phone or email on file.');
-    } catch {
-      alert('Could not open your email/WhatsApp app.');
+    } catch (error) {
+      console.error('Error sending reminder:', error);
+      alert(`❌ Error sending reminder: ${error.message}`);
+    }
+  };
+
+  // Member status toggle functionality
+  const toggleMemberStatus = async (member) => {
+    try {
+      const currentStatus = member.status || "Active";
+      const newStatus = currentStatus === "Active" ? "Inactive" : "Active";
+      
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const response = await fetch(`${backendUrl}/api/clients/${member.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...member,
+          status: newStatus
+        }),
+      });
+
+      if (response.ok) {
+        // Update local state
+        const updatedMembers = members.map(m => 
+          m.id === member.id ? { ...m, status: newStatus } : m
+        );
+        setMembers(updatedMembers);
+        alert(`✅ ${member.name} ${newStatus === "Active" ? 'activated' : 'paused'} successfully!`);
+        await refresh(); // Refresh to get latest data
+      } else {
+        const error = await response.text();
+        alert(`❌ Failed to update member status: ${error}`);
+      }
+    } catch (error) {
+      console.error('Error updating member status:', error);
+      alert(`❌ Error updating member status: ${error.message}`);
     }
   };
 
