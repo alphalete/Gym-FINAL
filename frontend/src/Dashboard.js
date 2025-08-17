@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import useMembersRepo from "./hooks/useMembersRepo";
 import { EditMemberForm } from "./Components"; // Import EditMemberForm
+import gymStorage from "./storage"; // Import gymStorage for email templates
 import {
   ClockIcon,
   ArrowRightIcon,
