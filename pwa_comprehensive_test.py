@@ -23,7 +23,7 @@ import time
 import subprocess
 
 # Get backend URL from environment
-BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://fitness-club-app-2.preview.emergentagent.com')
+BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://fitness-tracker-pwa.preview.emergentagent.com')
 FRONTEND_URL = BACKEND_URL.replace('/api', '') if BACKEND_URL.endswith('/api') else BACKEND_URL
 
 if not BACKEND_URL.endswith('/api'):

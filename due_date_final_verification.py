@@ -7,7 +7,7 @@ from datetime import datetime, date, timedelta
 import time
 
 # Get backend URL from environment
-BACKEND_URL = "https://fitness-club-app-2.preview.emergentagent.com/api"
+BACKEND_URL = "https://fitness-tracker-pwa.preview.emergentagent.com/api"
 
 def test_due_date_final_verification():
     """
