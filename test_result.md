@@ -22,6 +22,19 @@
   - "/app/frontend/src/App.css" # Updated CSS variables and class names from GoGym4U to Alphalete Athletics
 ## next_steps: "All pending tasks completed. Alphalete Club PWA is production-ready with total paid amount feature working, comprehensive PWA caching, consistent branding, real WhatsApp/Email integration, and robust settings management."
 
+## frontend:
+  - task: "Dashboard vs Members Action Button Styling Comparison - Investigate green square background and missing text labels"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/Dashboard.js, /app/frontend/src/Components.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: false
+        - agent: "testing"
+        - comment: "🔍 CRITICAL STYLING ISSUE IDENTIFIED: Dashboard vs Members Action Button Inconsistency. COMPREHENSIVE TESTING COMPLETED with detailed visual inspection and HTML/CSS analysis. FINDINGS: 1) DASHBOARD PAGE ISSUES: WhatsApp button has solid green background (rgb(37, 211, 102)) instead of transparent, ALL action buttons show as colored squares without visible text labels underneath icons, button structure identical to Members page but rendering differently. 2) MEMBERS PAGE CORRECT: WhatsApp button has transparent background (rgba(0, 0, 0, 0)), ALL action buttons display properly with visible text labels ('WhatsApp', 'Email', 'Delete', 'Payment') underneath icons, clean professional appearance as expected. 3) TECHNICAL ANALYSIS: Both pages use identical CSS classes (rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[64px] w-[64px] h-16), identical HTML structure with same icon and text span elements, text spans are technically visible (display: inline, visibility: visible, opacity: 1) on both pages, but Dashboard buttons render as solid colored squares obscuring text labels. 4) ROOT CAUSE: Dashboard page has additional CSS styling or inheritance causing button backgrounds to fill with solid colors, preventing text labels from being visible underneath the colored background. SCREENSHOTS CAPTURED: Dashboard shows green WhatsApp squares, blue email squares, red delete squares, purple payment squares. Members page shows clean transparent buttons with visible text labels. RECOMMENDATION: Investigate Dashboard-specific CSS rules or component styling that's adding solid background colors to action buttons, preventing proper text label visibility."
+
 ## backend:
   - task: "Complete CRUD operations verification for clients API endpoints"
     implemented: true
