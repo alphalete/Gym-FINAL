@@ -3760,15 +3760,16 @@ button[title*="WhatsApp"]:hover,
 }
 
 /* Commented out - was causing WhatsApp button to have solid green background instead of clean transparent background
-/* WhatsApp-specific button styling */
+WhatsApp-specific button styling:
 button[title*="WhatsApp"] {
-  background: #25D366 !important; /* WhatsApp green */
+  background: #25D366 !important; (WhatsApp green)
   color: white !important;
 }
 
 button[title*="WhatsApp"]:hover {
-  background: #128C7E !important; /* Darker WhatsApp green */
+  background: #128C7E !important; (Darker WhatsApp green)
 }
+*/
 */
 
 .action-btn.warning {
