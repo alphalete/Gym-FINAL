@@ -30,6 +30,56 @@ const Dashboard = () => {
 
   const todayISO = new Date().toISOString().slice(0,10);
 
+  // Load email templates function
+  const loadEmailTemplates = async () => {
+    try {
+      const templates = await gymStorage.getAll('emailTemplates') || [];
+      
+      if (templates.length === 0) {
+        // Create default templates if none exist
+        const paymentReminderTemplate = {
+          id: 'payment-reminder',
+          name: 'Payment Reminder',
+          subject: 'Payment Due - {memberName}',
+          body: `Hi {memberName},
+
+Your membership payment is due on {dueDate}.
+
+Please make your payment at your earliest convenience.
+
+Thank you!
+Alphalete Athletics Team`
+        };
+        
+        const paymentReceiptTemplate = {
+          id: 'payment-receipt',
+          name: 'Payment Receipt',
+          subject: 'Payment Received - {memberName}',
+          body: `Hi {memberName},
+
+We have received your payment due on {dueDate}.
+
+Thank you for your payment!
+Alphalete Athletics Team`
+        };
+        
+        await gymStorage.upsert('emailTemplates', paymentReminderTemplate);
+        await gymStorage.upsert('emailTemplates', paymentReceiptTemplate);
+        setEmailTemplates([paymentReminderTemplate, paymentReceiptTemplate]);
+      } else {
+        setEmailTemplates(templates);
+      }
+    } catch (error) {
+      console.error('Error loading email templates:', error);
+      setEmailTemplates([{
+        id: 'default',
+        name: 'Default Reminder',
+        subject: 'Payment Reminder - {memberName}',
+        body: 'Hi {memberName}, your payment is due on {dueDate}. Thank you!'
+      }]);
+    }
+  };
+
   // Load dashboard data function (members are handled by useMembersRepo hook)
   const loadDashboardData = async () => {
     try {
