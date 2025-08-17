@@ -522,12 +522,7 @@ const PlansMini = () => {
   const navigate = useNavigate();
   const [members, setMembers] = useState([]);
 
-  useEffect(() => {
-    (async () => {
-      const m = (await gymStorage.getAllMembers?.()) || [];
-      setMembers(Array.isArray(m)? m : []);
-    })();
-  }, []);
+  // Members are already loaded by useMembersRepo hook - no need for additional loading
 
   const plans = useMemo(() => {
     const planCounts = {};
