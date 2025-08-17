@@ -542,7 +542,7 @@ const Dashboard = () => {
                             className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[64px] w-[64px] h-16 transition-all duration-200 flex-shrink-0"
                             onClick={() => {
                               // Toggle member status functionality
-                              alert(`Toggle ${m.name} status (Active/Inactive)`);
+                              toggleMemberStatus(m);
                             }}
                             title={`${(m.status || "Active") === "Active" ? 'Pause' : 'Activate'} Member`}
                           >
