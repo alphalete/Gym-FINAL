@@ -91,7 +91,83 @@ Alphalete Athletics Team`
     }
   };
 
+  // Handle email template selection and sending
+  const handleSendEmail = async (member, template) => {
+    if (!member.email) {
+      alert('❌ No email address available for this member');
+      return;
+    }
+    
+    setSendingEmail(prev => ({ ...prev, [member.id]: true }));
+    setShowEmailDropdown(prev => ({ ...prev, [member.id]: false }));
+    
+    try {
+      // Replace template variables with member data
+      const dueDate = member.next_payment_date || member.dueDate || member.nextDue || 'Not set';
+      const personalizedSubject = template.subject.replace('{memberName}', member.name).replace('{dueDate}', dueDate);
+      const personalizedBody = template.body.replace('{memberName}', member.name).replace('{dueDate}', dueDate);
+      
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      if (backendUrl) {
+        const response = await fetch(`${backendUrl}/api/email/send`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: member.email,
+            subject: personalizedSubject,
+            body: personalizedBody,
+            memberName: member.name,
+            templateName: template.name
+          })
+        });
+        
+        if (response.ok) {
+          alert(`✅ Email sent successfully to ${member.name}!`);
+        } else {
+          throw new Error('Failed to send email via backend');
+        }
+      } else {
+        // Fallback to mailto link if backend not available
+        const mailtoUrl = `mailto:${encodeURIComponent(member.email)}?subject=${encodeURIComponent(personalizedSubject)}&body=${encodeURIComponent(personalizedBody)}`;
+        window.location.href = mailtoUrl;
+        alert(`✅ Email client opened for ${member.name} (${member.email})`);
+      }
+    } catch (error) {
+      console.error('Error sending email:', error);
+      
+      // Fallback to mailto link
+      try {
+        const dueDate = member.next_payment_date || member.dueDate || member.nextDue || 'Not set';
+        const personalizedSubject = template.subject.replace('{memberName}', member.name).replace('{dueDate}', dueDate);
+        const personalizedBody = template.body.replace('{memberName}', member.name).replace('{dueDate}', dueDate);
+        
+        const mailtoUrl = `mailto:${encodeURIComponent(member.email)}?subject=${encodeURIParameter(personalizedSubject)}&body=${encodeURIComponent(personalizedBody)}`;
+        window.location.href = mailtoUrl;
+        alert(`✅ Email client opened for ${member.name} (${member.email})`);
+      } catch (mailtoError) {
+        alert('❌ Failed to send email. Please try again.');
+      }
+    } finally {
+      setSendingEmail(prev => ({ ...prev, [member.id]: false }));
+    }
+  };
+
   // Load data on mount
+  useEffect(() => {
+    // Load email templates when component mounts
+    loadEmailTemplates();
+    
+    // Close email dropdowns when clicking outside
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.email-dropdown-container')) {
+        setShowEmailDropdown({});
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   useEffect(() => {
     loadDashboardData();
   }, []);
