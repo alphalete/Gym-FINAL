@@ -2752,15 +2752,41 @@ function MembershipManagement() {
     if (!confirm(`Are you sure you want to delete the plan "${plan.name}"?`)) return;
 
     try {
-      // Note: Implement actual delete functionality in storage.js if needed
+      console.log(`🗑️ Deleting plan: ${plan.name} (ID: ${plan.id})`);
+      
+      // Delete from backend storage using the remove method
+      const storage = storageNamed || gymStorageMain;
+      if (storage.remove) {
+        await storage.remove('plans', plan.id);
+        console.log(`✅ Plan "${plan.name}" deleted from storage`);
+      } else {
+        console.warn('⚠️ Storage.remove method not available');
+      }
+      
+      // Update local state to reflect the deletion immediately
       const updatedPlans = plans.filter(p => p.id !== plan.id);
       setPlans(updatedPlans);
       
-      // If you have a deletePlan function in storage, use it here
-      // await storageFacade.deletePlan(plan.id);
+      // Show success message
+      alert(`✅ Plan "${plan.name}" has been successfully deleted.`);
+      
     } catch (error) {
-      console.error('Error deleting plan:', error);
-      alert('Error deleting plan. Please try again.');
+      console.error('❌ Error deleting plan:', error);
+      alert(`❌ Error deleting plan "${plan.name}". Please try again.\n\nError: ${error.message}`);
+      
+      // Refresh plans from storage to ensure consistency
+      try {
+        let refreshedPlans = [];
+        const storage = storageNamed || gymStorageMain;
+        if (storage.getPlans) {
+          refreshedPlans = await storage.getPlans();
+        } else if (storage.getAll) {
+          refreshedPlans = await storage.getAll("plans");
+        }
+        setPlans(Array.isArray(refreshedPlans) ? refreshedPlans : []);
+      } catch (refreshError) {
+        console.error('Error refreshing plans after delete failure:', refreshError);
+      }
     }
   };
 
