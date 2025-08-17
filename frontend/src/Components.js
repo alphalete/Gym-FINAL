@@ -2663,17 +2663,22 @@ function MembershipManagement() {
 
   React.useEffect(() => { let live = true; (async () => {
     try {
-      // Direct storage access instead of facade
-      const storage = storageNamed || gymStorageMain;
-      if (storage.getPlans) {
-        const p = await storage.getPlans();
-        if (live) setPlans(Array.isArray(p) ? p : []);
-      } else if (storage.getAll) {
-        const p = await storage.getAll("plans");
-        if (live) setPlans(Array.isArray(p) ? p : []);
+      // Use the imported gymStorage instance
+      let plansData = [];
+      
+      if (gymStorage.getAll) {
+        plansData = await gymStorage.getAll("plans");
+      } else if (gymStorage.getPlans) {
+        plansData = await gymStorage.getPlans();
+      }
+      
+      if (live) {
+        setPlans(Array.isArray(plansData) ? plansData : []);
+        console.log('📋 Loaded plans:', plansData);
       }
     } catch (error) {
-      console.error('Error loading plans:', error);
+      console.error('❌ Error loading plans:', error);
+      if (live) setPlans([]);
     } finally { 
       if (live) setLoadingPlans(false); 
     }
