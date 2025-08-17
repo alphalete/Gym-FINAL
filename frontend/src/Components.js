@@ -4368,6 +4368,11 @@ function EditMemberForm({ member, onSave, onCancel }) {
   );
 };
 
+function BottomNav() {
+  // BottomNav function implementation would go here
+  return null;
+}
+
 // Explicit component exports
 export {
   Dashboard,
@@ -4379,7 +4384,8 @@ export {
   Sidebar,
   LoginForm,
   InstallPrompt,
-  EditMemberForm
+  EditMemberForm,
+  BottomNav
 };
 
 // Default export object for App.js
