@@ -521,18 +521,20 @@ const Dashboard = () => {
                             <span className="text-xs font-medium text-gray-700 text-center">WhatsApp</span>
                           </button>
                           
-                          {/* Email Button */}
-                          <button 
-                            type="button"
-                            className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[64px] w-[64px] h-16 transition-all duration-200 flex-shrink-0"
-                            onClick={() => sendReminder(m)}
-                            title="Send Email Reminder"
-                          >
-                            <div className="flex items-center justify-center mb-1">
-                              <EnvelopeIcon className="w-6 h-6 text-indigo-500 hover:text-indigo-600 transition-colors duration-200" />
-                            </div>
-                            <span className="text-xs font-medium text-gray-700 text-center">Email</span>
-                          </button>
+                          {/* Email Button with Dropdown */}
+                          <div className="relative email-dropdown-container">
+                            <button 
+                              type="button"
+                              className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[64px] w-[64px] h-16 transition-all duration-200 flex-shrink-0"
+                              onClick={() => sendReminder(m)}
+                              title="Send Email Reminder"
+                            >
+                              <div className="flex items-center justify-center mb-1">
+                                <EnvelopeIcon className="w-6 h-6 text-indigo-500 hover:text-indigo-600 transition-colors duration-200" />
+                              </div>
+                              <span className="text-xs font-medium text-gray-700 text-center">Email</span>
+                            </button>
+                          </div>
                           
                           {/* Delete Button */}
                           <button 
