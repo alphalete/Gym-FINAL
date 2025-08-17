@@ -396,8 +396,8 @@ const Dashboard = () => {
                     <div key={m.id} className="bg-card rounded-xl shadow-sm px-3 py-2 md:p-3 flex items-center justify-between hover:shadow-md transition-shadow">
                       <div className="flex items-center space-x-3">
                         {/* Avatar */}
-                        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600">
-                          {(m.name || "").split(' ').map(n => n[0]).join('').toUpperCase() || "?"}
+                        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-sm font-semibold">
+                          {(m.name || "").split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || "?"}
                         </div>
                         
                         {/* Member Info */}
