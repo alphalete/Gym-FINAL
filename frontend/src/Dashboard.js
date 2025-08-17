@@ -12,17 +12,12 @@ const Dashboard = () => {
   
   const todayISO = new Date().toISOString().slice(0,10);
 
-  // Load dashboard data function
+  // Load dashboard data function (members are handled by useMembersRepo hook)
   const loadDashboardData = async () => {
     try {
-      const [m, p, s] = await Promise.all([
-        gymStorage.getAllMembers?.() ?? [],
-        gymStorage.getAllPayments?.() ?? [],
-        gymStorage.getSetting?.('gymSettings', {}) ?? {}
-      ]);
-      setMembers(Array.isArray(m) ? m : []);
-      setPayments(Array.isArray(p) ? p : []);
-      setSettings(prev => ({ ...prev, ...(s || {}) }));
+      // Load payments and settings (members are managed by useMembersRepo hook)
+      setPayments([]); // TODO: Load payments from API/storage
+      setSettings(prev => ({ ...prev, billingCycleDays: 30, graceDays: 0, dueSoonDays: 3 }));
     } catch (error) {
       console.error('Dashboard: Error loading data:', error);
     }
