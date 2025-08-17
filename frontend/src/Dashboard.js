@@ -720,14 +720,38 @@ Alphalete Athletics Team`
                             <button 
                               type="button"
                               className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[64px] w-[64px] h-16 transition-all duration-200 flex-shrink-0"
-                              onClick={() => sendReminder(m)}
+                              onClick={() => setShowEmailDropdown(prev => ({ ...prev, [m.id]: !prev[m.id] }))}
+                              disabled={sendingEmail[m.id]}
                               title="Send Email Reminder"
                             >
                               <div className="flex items-center justify-center mb-1">
                                 <EnvelopeIcon className="w-6 h-6 text-indigo-500 hover:text-indigo-600 transition-colors duration-200" />
                               </div>
-                              <span className="text-xs font-medium text-gray-700 text-center">Email</span>
+                              <span className="text-xs font-medium text-gray-700 text-center">
+                                {sendingEmail[m.id] ? 'Sending...' : 'Email'}
+                              </span>
                             </button>
+                            
+                            {/* Email Template Dropdown */}
+                            {showEmailDropdown[m.id] && (
+                              <div className="absolute bottom-full left-0 mb-2 bg-white border border-gray-200 rounded-xl shadow-lg z-10 min-w-[200px]">
+                                <div className="p-3">
+                                  <div className="text-sm font-semibold text-gray-800 mb-3">Select Template:</div>
+                                  {emailTemplates.map((template) => (
+                                    <button
+                                      key={template.id}
+                                      className="w-full text-left px-3 py-2 text-sm text-gray-800 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg mb-1 transition-colors font-medium"
+                                      onClick={() => handleSendEmail(m, template)}
+                                    >
+                                      {template.name}
+                                    </button>
+                                  ))}
+                                  {emailTemplates.length === 0 && (
+                                    <div className="px-3 py-2 text-sm text-gray-500">Loading templates...</div>
+                                  )}
+                                </div>
+                              </div>
+                            )}
                           </div>
                           
                           {/* Delete Button */}
