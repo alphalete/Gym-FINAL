@@ -1600,7 +1600,9 @@ metadata:
 test_plan:
   current_focus:
     - "Dashboard Clickable Filtering Functionality Testing - CRITICAL ISSUE IDENTIFIED"
-  stuck_tasks: []
+    - "Complete Plan Deletion Functionality Testing After Persistence Fix"
+  stuck_tasks: 
+    - "Complete Plan Deletion Functionality Testing After Persistence Fix"
   test_all: false
   test_priority: "high_first"
   completed_testing:
