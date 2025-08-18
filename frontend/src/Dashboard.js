@@ -33,9 +33,12 @@ const Dashboard = () => {
   // Load email templates function
   const loadEmailTemplates = async () => {
     try {
+      console.log('🔄 Loading email templates...');
       const templates = await gymStorage.getAll('emailTemplates') || [];
+      console.log('📧 Found templates:', templates);
       
       if (templates.length === 0) {
+        console.log('📧 Creating default templates...');
         // Create default templates if none exist
         const paymentReminderTemplate = {
           id: 'payment-reminder',
@@ -65,12 +68,14 @@ Alphalete Athletics Team`
         
         await gymStorage.upsert('emailTemplates', paymentReminderTemplate);
         await gymStorage.upsert('emailTemplates', paymentReceiptTemplate);
+        console.log('✅ Default templates created');
         setEmailTemplates([paymentReminderTemplate, paymentReceiptTemplate]);
       } else {
+        console.log('✅ Using existing templates:', templates.length);
         setEmailTemplates(templates);
       }
     } catch (error) {
-      console.error('Error loading email templates:', error);
+      console.error('❌ Error loading email templates:', error);
       setEmailTemplates([{
         id: 'default',
         name: 'Default Reminder',
