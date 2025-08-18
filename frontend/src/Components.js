@@ -1643,54 +1643,9 @@ Alphalete Athletics Team`
                   {sendingEmail ? 'Sending...' : 'Email'}
                 </span>
               </button>
-              
-              {/* Email Template Dropdown */}
-              {showEmailDropdown && (
-                <div 
-                  className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] min-w-[200px]"
-                  onClick={(e) => {
-                    // Prevent dropdown from closing when clicking inside
-                    e.stopPropagation();
-                  }}
-                >
-                  <div className="p-3">
-                    <div className="text-sm font-semibold text-gray-800 mb-3 border-b border-gray-100 pb-2">Select Template:</div>
-                    {emailTemplates.map((template) => (
-                      <button
-                        key={template.id}
-                        type="button"
-                        className="w-full text-left px-3 py-2 text-sm text-gray-800 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg mb-1 transition-colors font-medium cursor-pointer border border-transparent hover:border-indigo-200"
-                        onMouseDown={(e) => {
-                          // Prevent any parent handlers from interfering
-                          e.preventDefault();
-                          e.stopPropagation();
-                        }}
-                        onClick={(e) => {
-                          console.log('🚨 Members Template Button Clicked:', template.name);
-                          e.preventDefault();
-                          e.stopPropagation();
-                          
-                          // Close dropdown immediately
-                          setShowEmailDropdown(false);
-                          
-                          // Call email function with slight delay to ensure state updates
-                          setTimeout(() => {
-                            handleSendEmail(template);
-                          }, 100);
-                        }}
-                      >
-                        {template.name}
-                      </button>
-                    ))}
-                    {emailTemplates.length === 0 && (
-                      <div className="px-3 py-2 text-sm text-gray-500">No templates available</div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-            
-            <button 
+          </div>
+          
+          {/* Delete Button */} 
               type="button"
               className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[64px] w-[64px] h-16 transition-all duration-200 flex-shrink-0"
               onClick={async () => {
