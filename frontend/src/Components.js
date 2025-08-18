@@ -1645,8 +1645,9 @@ Alphalete Athletics Team`
               </button>
           </div>
           
-          {/* Delete Button */} 
-              type="button"
+          {/* Delete Button */}
+          <button 
+            type="button"
               className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[64px] w-[64px] h-16 transition-all duration-200 flex-shrink-0"
               onClick={async () => {
                 console.log('🎯 DELETE BUTTON CLICKED!', { name, id: m.id, onDeleteMember: typeof onDeleteMember });
