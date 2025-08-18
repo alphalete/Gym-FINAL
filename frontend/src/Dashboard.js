@@ -98,6 +98,8 @@ Alphalete Athletics Team`
 
   // Handle email template selection and sending
   const handleSendEmail = async (member, template) => {
+    console.log('🚨 handleSendEmail called with:', { member: member.name, template: template.name });
+    
     if (!member.email) {
       alert('❌ No email address available for this member');
       return;
@@ -107,13 +109,17 @@ Alphalete Athletics Team`
     setShowEmailDropdown(prev => ({ ...prev, [member.id]: false }));
     
     try {
+      console.log('📧 Sending email to:', member.email);
       // Replace template variables with member data
       const dueDate = member.next_payment_date || member.dueDate || member.nextDue || 'Not set';
       const personalizedSubject = template.subject.replace('{memberName}', member.name).replace('{dueDate}', dueDate);
       const personalizedBody = template.body.replace('{memberName}', member.name).replace('{dueDate}', dueDate);
       
+      console.log('📧 Email content:', { subject: personalizedSubject, to: member.email });
+      
       const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
       if (backendUrl) {
+        console.log('🌐 Making API call to:', `${backendUrl}/api/email/send`);
         const response = await fetch(`${backendUrl}/api/email/send`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -127,8 +133,10 @@ Alphalete Athletics Team`
         });
         
         if (response.ok) {
+          console.log('✅ Backend email API success');
           alert(`✅ Email sent successfully to ${member.name}!`);
         } else {
+          console.error('❌ Backend email API failed:', response.status);
           throw new Error('Failed to send email via backend');
         }
       } else {
