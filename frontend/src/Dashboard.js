@@ -169,16 +169,6 @@ Alphalete Athletics Team`
   useEffect(() => {
     // Load email templates when component mounts
     loadEmailTemplates();
-    
-    // Close email dropdowns when clicking outside
-    const handleClickOutside = (event) => {
-      if (!event.target.closest('.email-dropdown-container')) {
-        setShowEmailDropdown({});
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   useEffect(() => {
