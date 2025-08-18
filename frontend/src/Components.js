@@ -1173,6 +1173,21 @@ function ClientManagement() {
     const [sendingEmail, setSendingEmail] = React.useState(false);
     const [memberPayments, setMemberPayments] = React.useState([]);
     
+    // Close dropdown when clicking outside
+    React.useEffect(() => {
+      const handleClickOutside = (event) => {
+        const emailContainer = event.target.closest('.email-dropdown-container');
+        if (!emailContainer && showEmailDropdown) {
+          setShowEmailDropdown(false);
+        }
+      };
+      
+      if (showEmailDropdown) {
+        document.addEventListener('click', handleClickOutside);
+        return () => document.removeEventListener('click', handleClickOutside);
+      }
+    }, [showEmailDropdown]);
+    
     // Load payments for this member to calculate total paid
     React.useEffect(() => {
       const loadMemberPayments = async () => {
