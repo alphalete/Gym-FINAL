@@ -729,16 +729,14 @@ Alphalete Athletics Team`
                             <span className="text-xs font-medium text-gray-700 text-center">WhatsApp</span>
                           </button>
                           
-                          {/* Email Button with Dropdown */}
+                          {/* Email Button - Opens Modal */}
                           <div className="relative email-dropdown-container">
                             <button 
                               type="button"
                               className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[64px] w-[64px] h-16 transition-all duration-200 flex-shrink-0"
                               onClick={() => {
                                 console.log('📧 Email button clicked for member:', m.id);
-                                console.log('📧 Current dropdown state:', showEmailDropdown[m.id]);
-                                console.log('📧 Available templates:', emailTemplates.length);
-                                setShowEmailDropdown(prev => ({ ...prev, [m.id]: !prev[m.id] }));
+                                setShowEmailModal(prev => ({ ...prev, [m.id]: true }));
                               }}
                               disabled={sendingEmail[m.id]}
                               title="Send Email Reminder"
