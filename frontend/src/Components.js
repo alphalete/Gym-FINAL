@@ -1773,8 +1773,14 @@ Alphalete Athletics Team`
             member={m}
             onSave={async (updatedMember) => {
               try {
+                console.log(`🔄 Saving member changes for ${updatedMember.name}`);
                 if (onAddOrUpdateMember) {
-                  await onAddOrUpdateMember(updatedMember);
+                  const result = await onAddOrUpdateMember(updatedMember);
+                  if (result) {
+                    console.log(`✅ Member ${updatedMember.name} updated successfully`);
+                    // Trigger data refresh
+                    window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'member_updated' }));
+                  }
                 } else {
                   // Fallback to direct backend call if no repository handler
                   const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
@@ -1799,6 +1805,96 @@ Alphalete Athletics Team`
             }}
             onCancel={() => setShowEditModal(false)}
           />
+        )}
+
+        {/* Email Template Selection Modal */}
+        {showEmailModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-semibold text-gray-900">Send Email to {name}</h2>
+                  <button
+                    onClick={() => setShowEmailModal(false)}
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="mb-4">
+                  <div className="text-sm text-gray-600 mb-4">
+                    Email: <span className="font-medium text-gray-900">{email || 'No email address'}</span>
+                  </div>
+                  <div className="text-sm text-gray-600 mb-6">
+                    Due Date: <span className="font-medium text-gray-900">{m.nextDue || m.dueDate || m.next_payment_date || 'Not set'}</span>
+                  </div>
+                </div>
+
+                {!email ? (
+                  <div className="text-center py-8">
+                    <div className="text-gray-500">No email address available for this member.</div>
+                    <button
+                      onClick={() => setShowEmailModal(false)}
+                      className="mt-4 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                    >
+                      Close
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">Choose Email Template:</h3>
+                    {emailTemplates.map((template) => (
+                      <button
+                        key={template.id}
+                        type="button"
+                        className="w-full text-left p-4 border border-gray-200 rounded-xl hover:border-indigo-300 hover:bg-indigo-50 transition-all duration-200 group"
+                        onClick={async () => {
+                          console.log('🚨 Modal Template Button Clicked:', template.name);
+                          setShowEmailModal(false);
+                          await handleSendEmail(template);
+                        }}
+                        disabled={sendingEmail}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h4 className="font-medium text-gray-900 group-hover:text-indigo-700">
+                              {template.name}
+                            </h4>
+                            <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                              {template.subject}
+                            </p>
+                          </div>
+                          <div className="ml-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                    
+                    {emailTemplates.length === 0 && (
+                      <div className="text-center py-8 text-gray-500">
+                        Loading email templates...
+                      </div>
+                    )}
+
+                    <div className="pt-4 border-t border-gray-100">
+                      <button
+                        onClick={() => setShowEmailModal(false)}
+                        className="w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         )}
       </div>
     );
