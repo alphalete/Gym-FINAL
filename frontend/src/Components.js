@@ -1331,18 +1331,6 @@ Alphalete Athletics Team`
       loadEmailTemplates();
     }, []);
     
-    // Close email dropdown when clicking outside
-    React.useEffect(() => {
-      const handleClickOutside = (event) => {
-        if (showEmailDropdown && !event.target.closest('.email-dropdown-container')) {
-          setShowEmailDropdown(false);
-        }
-      };
-      
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [showEmailDropdown]);
-    
     // Handle email sending
     const handleSendEmail = async (template) => {
       console.log('🚨 Members handleSendEmail called with:', { member: name, template: template.name });
@@ -1353,7 +1341,6 @@ Alphalete Athletics Team`
       }
       
       setSendingEmail(true);
-      setShowEmailDropdown(false);
       
       try {
         console.log('📧 Members sending email to:', email);
