@@ -42,7 +42,7 @@ import json
 import concurrent.futures
 
 # Configuration
-BACKEND_URL = "https://fitness-tracker-pwa.preview.emergentagent.com"
+BACKEND_URL = "https://fitness-club-admin.preview.emergentagent.com"
 MONGO_URL = "mongodb://localhost:27017"
 DB_NAME = "test_database"
 
@@ -582,7 +582,7 @@ class HeroiconReportsBackendTester:
             
             # Test with Origin header (simulating frontend request)
             headers = {
-                'Origin': 'https://fitness-tracker-pwa.preview.emergentagent.com',
+                'Origin': 'https://fitness-club-admin.preview.emergentagent.com',
                 'Content-Type': 'application/json'
             }
             

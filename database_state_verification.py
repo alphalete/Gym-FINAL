@@ -21,7 +21,7 @@ from datetime import datetime, date
 import json
 
 # Configuration
-BACKEND_URL = "https://fitness-tracker-pwa.preview.emergentagent.com"
+BACKEND_URL = "https://fitness-club-admin.preview.emergentagent.com"
 MONGO_URL = "mongodb://localhost:27017"
 DB_NAME = "test_database"
 

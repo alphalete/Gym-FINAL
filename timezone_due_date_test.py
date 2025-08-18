@@ -8,7 +8,7 @@ import time
 import uuid
 
 # Get backend URL from environment
-BACKEND_URL = "https://fitness-tracker-pwa.preview.emergentagent.com/api"
+BACKEND_URL = "https://fitness-club-admin.preview.emergentagent.com/api"
 
 def test_timezone_due_date_calculation():
     """
