@@ -1166,27 +1166,12 @@ function ClientManagement() {
     const plan = m?.membershipType || m?.membership_type || m?.plan || m?.planName || "Unassigned";
     const isActive = m?.status === "Active" || !!m?.active;
     
-    // State for edit modal and email dropdown
+    // State for edit modal and email modal
     const [showEditModal, setShowEditModal] = React.useState(false);
-    const [showEmailDropdown, setShowEmailDropdown] = React.useState(false);
+    const [showEmailModal, setShowEmailModal] = React.useState(false);
     const [emailTemplates, setEmailTemplates] = React.useState([]);
     const [sendingEmail, setSendingEmail] = React.useState(false);
     const [memberPayments, setMemberPayments] = React.useState([]);
-    
-    // Close dropdown when clicking outside
-    React.useEffect(() => {
-      const handleClickOutside = (event) => {
-        const emailContainer = event.target.closest('.email-dropdown-container');
-        if (!emailContainer && showEmailDropdown) {
-          setShowEmailDropdown(false);
-        }
-      };
-      
-      if (showEmailDropdown) {
-        document.addEventListener('click', handleClickOutside);
-        return () => document.removeEventListener('click', handleClickOutside);
-      }
-    }, [showEmailDropdown]);
     
     // Load payments for this member to calculate total paid
     React.useEffect(() => {
