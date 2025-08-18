@@ -744,14 +744,19 @@ Alphalete Athletics Team`
                             
                             {/* Email Template Dropdown */}
                             {showEmailDropdown[m.id] && (
-                              <div className="absolute bottom-full left-0 mb-2 bg-white border border-gray-200 rounded-xl shadow-lg z-10 min-w-[200px]">
+                              <div className="absolute bottom-full left-0 mb-2 bg-white border border-gray-200 rounded-xl shadow-lg z-50 min-w-[200px]">
                                 <div className="p-3">
                                   <div className="text-sm font-semibold text-gray-800 mb-3">Select Template:</div>
                                   {emailTemplates.map((template) => (
                                     <button
                                       key={template.id}
-                                      className="w-full text-left px-3 py-2 text-sm text-gray-800 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg mb-1 transition-colors font-medium"
-                                      onClick={() => handleSendEmail(m, template)}
+                                      type="button"
+                                      className="w-full text-left px-3 py-2 text-sm text-gray-800 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg mb-1 transition-colors font-medium cursor-pointer"
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        handleSendEmail(m, template);
+                                      }}
                                     >
                                       {template.name}
                                     </button>
