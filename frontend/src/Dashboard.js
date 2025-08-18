@@ -725,7 +725,12 @@ Alphalete Athletics Team`
                             <button 
                               type="button"
                               className="rounded-xl px-2 py-2 flex flex-col items-center justify-center min-w-[64px] w-[64px] h-16 transition-all duration-200 flex-shrink-0"
-                              onClick={() => setShowEmailDropdown(prev => ({ ...prev, [m.id]: !prev[m.id] }))}
+                              onClick={() => {
+                                console.log('📧 Email button clicked for member:', m.id);
+                                console.log('📧 Current dropdown state:', showEmailDropdown[m.id]);
+                                console.log('📧 Available templates:', emailTemplates.length);
+                                setShowEmailDropdown(prev => ({ ...prev, [m.id]: !prev[m.id] }));
+                              }}
                               disabled={sendingEmail[m.id]}
                               title="Send Email Reminder"
                             >
