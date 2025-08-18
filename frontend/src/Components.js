@@ -1364,6 +1364,7 @@ Alphalete Athletics Team`
         
         console.log('📧 Members email content:', { subject: personalizedSubject, to: email });
         
+        // Try backend API first since testing confirmed it works
         const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
         if (backendUrl) {
           console.log('🌐 Members making API call to:', `${backendUrl}/api/email/send`);
@@ -1380,18 +1381,34 @@ Alphalete Athletics Team`
           });
           
           if (response.ok) {
-            console.log('✅ Members backend email API success');
+            const result = await response.json();
+            console.log('✅ Members backend email API success:', result);
             alert(`✅ Email sent successfully to ${name}!`);
+            return;
           } else {
             console.error('❌ Members backend email API failed:', response.status);
-            throw new Error('Failed to send email');
+            throw new Error(`Backend API failed: ${response.status}`);
           }
         } else {
           throw new Error('Backend URL not configured');
         }
       } catch (error) {
-        console.error('Error sending email:', error);
-        alert('❌ Failed to send email. Please try again.');
+        console.error('❌ Error with backend email API:', error);
+        console.log('🔄 Members falling back to mailto...');
+        
+        // Fallback to mailto
+        try {
+          const dueDate = m.nextDue || m.dueDate || m.next_payment_date || 'Not set';
+          const personalizedSubject = template.subject.replace('{memberName}', name).replace('{dueDate}', dueDate);
+          const personalizedBody = template.body.replace('{memberName}', name).replace('{dueDate}', dueDate);
+          
+          const mailtoUrl = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(personalizedSubject)}&body=${encodeURIComponent(personalizedBody)}`;
+          window.location.href = mailtoUrl;
+          alert(`✅ Email client opened for ${name} (${email})`);
+        } catch (mailtoError) {
+          console.error('❌ Members mailto fallback also failed:', mailtoError);
+          alert(`❌ Error sending email: ${error.message}`);
+        }
       } finally {
         setSendingEmail(false);
       }
