@@ -24,7 +24,6 @@ const Dashboard = () => {
   const [selectedMember, setSelectedMember] = useState(null); // Add selected member state
   
   // Email template functionality
-  const [showEmailDropdown, setShowEmailDropdown] = useState({});
   const [showEmailModal, setShowEmailModal] = useState({});
   const [emailTemplates, setEmailTemplates] = useState([]);
   const [sendingEmail, setSendingEmail] = useState({});
