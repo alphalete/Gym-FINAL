@@ -96,9 +96,9 @@ Alphalete Athletics Team`
     }
   };
 
-  // Handle email template selection and sending - SIMPLIFIED
+  // Handle email template selection and sending - FIXED FOR PRODUCTION
   const handleSendEmail = async (member, template) => {
-    console.log('🚨 handleSendEmail called - simplified version');
+    console.log('🚨 handleSendEmail called with:', { member: member.name, template: template.name });
     
     if (!member.email) {
       alert('❌ No email address available for this member');
@@ -114,14 +114,53 @@ Alphalete Athletics Team`
       const personalizedSubject = template.subject.replace('{memberName}', member.name).replace('{dueDate}', dueDate);
       const personalizedBody = template.body.replace('{memberName}', member.name).replace('{dueDate}', dueDate);
       
-      // Skip backend API and go directly to mailto since backend doesn't have email endpoint
-      const mailtoUrl = `mailto:${encodeURIComponent(member.email)}?subject=${encodeURIComponent(personalizedSubject)}&body=${encodeURIComponent(personalizedBody)}`;
-      window.location.href = mailtoUrl;
-      alert(`✅ Email client opened for ${member.name} (${member.email})`);
+      console.log('📧 Sending email API request...');
+      
+      // Try backend API first since testing confirmed it works
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      if (backendUrl) {
+        console.log('🌐 Making API call to:', `${backendUrl}/api/email/send`);
+        const response = await fetch(`${backendUrl}/api/email/send`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: member.email,
+            subject: personalizedSubject,
+            body: personalizedBody,
+            memberName: member.name,
+            templateName: template.name
+          })
+        });
         
+        if (response.ok) {
+          const result = await response.json();
+          console.log('✅ Backend email API success:', result);
+          alert(`✅ Email sent successfully to ${member.name}!`);
+          return;
+        } else {
+          console.error('❌ Backend email API failed:', response.status);
+          throw new Error(`Backend API failed: ${response.status}`);
+        }
+      } else {
+        throw new Error('Backend URL not configured');
+      }
     } catch (error) {
-      console.error('❌ Error with email functionality:', error);
-      alert(`❌ Error sending email: ${error.message}`);
+      console.error('❌ Error with backend email API:', error);
+      console.log('🔄 Falling back to mailto...');
+      
+      // Fallback to mailto since backend doesn't work
+      try {
+        const dueDate = member.next_payment_date || member.dueDate || member.nextDue || 'Not set';
+        const personalizedSubject = template.subject.replace('{memberName}', member.name).replace('{dueDate}', dueDate);
+        const personalizedBody = template.body.replace('{memberName}', member.name).replace('{dueDate}', dueDate);
+        
+        const mailtoUrl = `mailto:${encodeURIComponent(member.email)}?subject=${encodeURIComponent(personalizedSubject)}&body=${encodeURIComponent(personalizedBody)}`;
+        window.location.href = mailtoUrl;
+        alert(`✅ Email client opened for ${member.name} (${member.email})`);
+      } catch (mailtoError) {
+        console.error('❌ Mailto fallback also failed:', mailtoError);
+        alert(`❌ Error sending email: ${error.message}`);
+      }
     } finally {
       setSendingEmail(prev => ({ ...prev, [member.id]: false }));
     }
