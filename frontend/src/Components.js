@@ -1631,7 +1631,7 @@ Alphalete Athletics Team`
                 onClick={(e) => {
                   e.stopPropagation();
                   console.log('📧 Email button clicked - Members page');
-                  setShowEmailDropdown(!showEmailDropdown);
+                  setShowEmailModal(true);
                 }}
                 disabled={sendingEmail}
                 title="Send Email Reminder"
