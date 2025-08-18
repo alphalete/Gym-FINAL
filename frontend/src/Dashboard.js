@@ -106,7 +106,6 @@ Alphalete Athletics Team`
     }
     
     setSendingEmail(prev => ({ ...prev, [member.id]: true }));
-    setShowEmailDropdown(prev => ({ ...prev, [member.id]: false }));
     
     try {
       // Replace template variables with member data
