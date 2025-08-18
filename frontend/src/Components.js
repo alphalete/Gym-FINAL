@@ -1169,6 +1169,7 @@ function ClientManagement() {
     // State for edit modal and email modal
     const [showEditModal, setShowEditModal] = React.useState(false);
     const [showEmailModal, setShowEmailModal] = React.useState(false);
+    const [showEmailDropdown, setShowEmailDropdown] = React.useState(false);
     const [emailTemplates, setEmailTemplates] = React.useState([]);
     const [sendingEmail, setSendingEmail] = React.useState(false);
     const [memberPayments, setMemberPayments] = React.useState([]);
