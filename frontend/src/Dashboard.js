@@ -761,9 +761,12 @@ Alphalete Athletics Team`
                                       type="button"
                                       className="w-full text-left px-3 py-2 text-sm text-gray-800 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg mb-1 transition-colors font-medium cursor-pointer"
                                       onClick={(e) => {
+                                        console.log('🚨 TEMPLATE BUTTON CLICKED:', template.name);
                                         e.preventDefault();
                                         e.stopPropagation();
+                                        console.log('🚨 About to call handleSendEmail with:', m.name, template.name);
                                         handleSendEmail(m, template);
+                                        console.log('🚨 handleSendEmail call completed');
                                       }}
                                     >
                                       {template.name}
