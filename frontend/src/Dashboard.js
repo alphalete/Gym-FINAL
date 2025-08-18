@@ -126,30 +126,6 @@ Alphalete Athletics Team`
       setSendingEmail(prev => ({ ...prev, [member.id]: false }));
     }
   };
-        // Fallback to mailto link if backend not available
-        const mailtoUrl = `mailto:${encodeURIComponent(member.email)}?subject=${encodeURIComponent(personalizedSubject)}&body=${encodeURIComponent(personalizedBody)}`;
-        window.location.href = mailtoUrl;
-        alert(`✅ Email client opened for ${member.name} (${member.email})`);
-      }
-    } catch (error) {
-      console.error('Error sending email:', error);
-      
-      // Fallback to mailto link
-      try {
-        const dueDate = member.next_payment_date || member.dueDate || member.nextDue || 'Not set';
-        const personalizedSubject = template.subject.replace('{memberName}', member.name).replace('{dueDate}', dueDate);
-        const personalizedBody = template.body.replace('{memberName}', member.name).replace('{dueDate}', dueDate);
-        
-        const mailtoUrl = `mailto:${encodeURIComponent(member.email)}?subject=${encodeURIComponent(personalizedSubject)}&body=${encodeURIComponent(personalizedBody)}`;
-        window.location.href = mailtoUrl;
-        alert(`✅ Email client opened for ${member.name} (${member.email})`);
-      } catch (mailtoError) {
-        alert('❌ Failed to send email. Please try again.');
-      }
-    } finally {
-      setSendingEmail(prev => ({ ...prev, [member.id]: false }));
-    }
-  };
 
   // Load data on mount
   useEffect(() => {
