@@ -737,48 +737,6 @@ Alphalete Athletics Team`
                                 {sendingEmail[m.id] ? 'Sending...' : 'Email'}
                               </span>
                             </button>
-                            
-                            {/* Email Template Dropdown */}
-                            {showEmailDropdown[m.id] && (
-                              <div 
-                                className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] min-w-[200px]"
-                                onClick={(e) => {
-                                  // Prevent dropdown from closing when clicking inside
-                                  e.stopPropagation();
-                                }}
-                              >
-                                <div className="p-3">
-                                  <div className="text-sm font-semibold text-gray-800 mb-3 border-b border-gray-100 pb-2">Select Template:</div>
-                                  {emailTemplates.map((template) => (
-                                    <button
-                                      key={template.id}
-                                      type="button"
-                                      className="w-full text-left px-3 py-2 text-sm text-gray-800 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg mb-1 transition-colors font-medium cursor-pointer border border-transparent hover:border-indigo-200"
-                                      onMouseDown={(e) => {
-                                        // Prevent any parent handlers from interfering
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                      }}
-                                      onClick={(event) => {
-                                        console.log('🚨 Dashboard Template Button Clicked:', template.name, m.name);
-                                        event.preventDefault();
-                                        event.stopPropagation();
-                                        
-                                        // Call email function with slight delay to ensure state updates
-                                        setTimeout(() => {
-                                          handleSendEmail(m, template);
-                                        }, 100);
-                                      }}
-                                    >
-                                      {template.name}
-                                    </button>
-                                  ))}
-                                  {emailTemplates.length === 0 && (
-                                    <div className="px-3 py-2 text-sm text-gray-500">Loading templates...</div>
-                                  )}
-                                </div>
-                              </div>
-                            )}
                           </div>
                           
                           {/* Delete Button */}
