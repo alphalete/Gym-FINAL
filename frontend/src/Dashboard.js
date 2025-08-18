@@ -722,32 +722,14 @@ Alphalete Athletics Team`
                                       key={template.id}
                                       type="button"
                                       className="w-full text-left px-3 py-2 text-sm text-gray-800 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg mb-1 transition-colors font-medium cursor-pointer"
-                                      onClick={() => {
-                                        // Direct inline implementation for production compatibility
-                                        console.log('🚨 DIRECT TEMPLATE CLICK:', template.name, m.name);
+                                      onClick={(event) => {
+                                        event.preventDefault();
+                                        event.stopPropagation();
                                         
-                                        if (!m.email) {
-                                          alert('❌ No email address available for this member');
-                                          return;
-                                        }
+                                        console.log('🚨 Dashboard Template Button Clicked:', template.name, m.name);
                                         
-                                        // Close dropdown
-                                        setShowEmailDropdown(prev => ({ ...prev, [m.id]: false }));
-                                        
-                                        // Create personalized email content  
-                                        const dueDate = m.next_payment_date || m.dueDate || m.nextDue || 'Not set';
-                                        const personalizedSubject = template.subject.replace('{memberName}', m.name).replace('{dueDate}', dueDate);
-                                        const personalizedBody = template.body.replace('{memberName}', m.name).replace('{dueDate}', dueDate);
-                                        
-                                        console.log('📧 Opening email for:', m.email, personalizedSubject);
-                                        
-                                        // Direct mailto link
-                                        const mailtoUrl = `mailto:${encodeURIComponent(m.email)}?subject=${encodeURIComponent(personalizedSubject)}&body=${encodeURIComponent(personalizedBody)}`;
-                                        window.location.href = mailtoUrl;
-                                        
-                                        setTimeout(() => {
-                                          alert(`✅ Email client opened for ${m.name} (${m.email})`);
-                                        }, 500);
+                                        // Call the handleSendEmail function properly
+                                        handleSendEmail(m, template);
                                       }}
                                     >
                                       {template.name}
