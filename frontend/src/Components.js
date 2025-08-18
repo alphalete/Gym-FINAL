@@ -1655,7 +1655,7 @@ Alphalete Athletics Team`
               
               {/* Email Template Dropdown */}
               {showEmailDropdown && (
-                <div className="absolute bottom-full left-0 mb-2 bg-white border border-gray-200 rounded-xl shadow-lg z-50 min-w-[200px]">
+                <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-[999] min-w-[200px]">
                   <div className="p-3">
                     <div className="text-sm font-semibold text-gray-800 mb-3">Select Template:</div>
                     {emailTemplates.map((template) => (
