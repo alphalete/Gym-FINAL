@@ -764,9 +764,6 @@ Alphalete Athletics Team`
                                         event.preventDefault();
                                         event.stopPropagation();
                                         
-                                        // Close dropdown immediately
-                                        setShowEmailDropdown(prev => ({ ...prev, [m.id]: false }));
-                                        
                                         // Call email function with slight delay to ensure state updates
                                         setTimeout(() => {
                                           handleSendEmail(m, template);
