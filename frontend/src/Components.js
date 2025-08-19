@@ -3806,7 +3806,9 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
 
   // Form submit handler
   const onSubmit = (e) => {
+    console.log('🚨 FORM onSubmit called in AddMemberForm');
     e.preventDefault();
+    console.log('🚨 About to call handleSubmit function');
     handleSubmit();
   };
 
