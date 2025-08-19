@@ -4361,7 +4361,7 @@ function EditMemberForm({ member, onSave, onCancel }) {
           </button>
         </div>
       </div>
-    </div>
+    </form>
   );
 };
 
