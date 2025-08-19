@@ -1620,22 +1620,17 @@ Alphalete Athletics Team`
                 console.log('🎯 Delete confirmed, proceeding...');
                 try {
                   // Use repository pattern for deletion
-                  try {
-                    const repo = useMembersRepo();
-                    if (repo && repo.repo && repo.repo.deleteMember) {
-                      await repo.repo.deleteMember(m.id || m.localId);
-                      console.log(`✅ Member ${name} deleted successfully`);
-                      window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'member_deleted' }));
-                      alert(`✅ ${name} has been deleted`);
-                    } else {
-                      throw new Error('Repository not available for deletion');
-                    }
-                  } catch (error) {
-                    console.error('❌ Error deleting member:', error);
-                    alert('❌ Error deleting member. Please try again.');
+                  const repo = useMembersRepo();
+                  if (repo && repo.repo && repo.repo.deleteMember) {
+                    await repo.repo.deleteMember(m.id || m.localId);
+                    console.log(`✅ Member ${name} deleted successfully`);
+                    window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'member_deleted' }));
+                    alert(`✅ ${name} has been deleted`);
+                  } else {
+                    throw new Error('Repository not available for deletion');
                   }
                 } catch (error) {
-                  console.error('Error deleting member:', error);
+                  console.error('❌ Error deleting member:', error);
                   alert('❌ Error deleting member. Please try again.');
                 }
               }}
