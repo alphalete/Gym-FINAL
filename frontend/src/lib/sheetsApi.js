@@ -14,7 +14,8 @@ async function apiRequest(entity, op, body = {}) {
   const res = await fetch(API_URL, {
     method: 'POST',
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(requestBody)
+    body: JSON.stringify(requestBody),
+    redirect: 'follow' // Important: Follow redirects
   });
   
   console.log(`📡 [SheetsApi] Response status: ${res.status}`);
@@ -42,7 +43,10 @@ async function apiList(entity, params = {}) {
   const url = `${API_URL}?${queryParams.toString()}`;
   console.log(`📡 [SheetsApi] GET request URL:`, url);
   
-  const res = await fetch(url, { method: 'GET' });
+  const res = await fetch(url, { 
+    method: 'GET',
+    redirect: 'follow' // Important: Follow redirects
+  });
   console.log(`📡 [SheetsApi] Response status: ${res.status}`);
   
   const data = await res.json();
