@@ -1,53 +1,54 @@
 import storageDefault, * as storageNamed from "../storage";
+import { SheetsApi } from "../lib/sheetsApi";
+import { computeNextDueDate, countPaymentsInCycle } from "../lib/billing";
 
 const s = storageDefault || storageNamed || {};
 
-// Sync queue management for offline operations
-const getPendingSync = async () => {
+// Enhanced data loading: Sheets API first with local fallback
+const getAllMembers = async () => {
   try {
-    return (await s.getSetting?.('pendingSync', [])) ?? [];
-  } catch (e) {
-    console.warn('Failed to get pending sync:', e);
-    return [];
+    console.log('🔄 [members.repo] getAllMembers called - loading fresh data');
+    
+    // TRY SHEETS API FIRST for fresh data
+    try {
+      if (navigator.onLine) {
+        console.log('🌐 [members.repo] Fetching from Google Sheets API');
+        const sheetsMembers = await SheetsApi.listMembers();
+        console.log(`✅ [members.repo] Loaded ${sheetsMembers.length} members from Sheets API`);
+        
+        if (Array.isArray(sheetsMembers)) {
+          // Ensure all members have proper due dates
+          const membersWithDueDates = sheetsMembers.map(ensureMemberDueDate);
+          
+          // Save enhanced data to local storage for offline use
+          await saveAllMembers(membersWithDueDates);
+          console.log(`💾 [members.repo] Saved ${membersWithDueDates.length} members with due dates to local storage`);
+          return membersWithDueDates;
+        }
+      }
+    } catch (sheetsError) {
+      console.warn('⚠️ [members.repo] Sheets API connection failed:', sheetsError.message);
+    }
+    
+    // Fallback to local storage if Sheets API fails
+    console.log('📱 [members.repo] Falling back to local storage...');
+    let localMembers = [];
+    try {
+      localMembers = (await s.getAllMembers?.()) ?? (await s.getAll?.("members")) ?? [];
+      console.log(`📱 [members.repo] Loaded ${localMembers.length} members from local storage`);
+      
+      // Ensure local members also have proper due dates
+      localMembers = localMembers.map(ensureMemberDueDate);
+    } catch (localError) {
+      console.warn('⚠️ [members.repo] Local storage failed:', localError.message);
+    }
+    
+    return Array.isArray(localMembers) ? localMembers : [];
+  } catch (e) { 
+    console.error("[members.repo] getAllMembers error:", e); 
+    return []; 
   }
 };
-
-const addPendingSync = async (operation) => {
-  try {
-    const pending = await getPendingSync();
-    const syncItem = {
-      id: crypto?.randomUUID?.() || String(Date.now()),
-      timestamp: Date.now(),
-      ...operation
-    };
-    pending.push(syncItem);
-    await s.saveSetting?.('pendingSync', pending);
-    console.log('📤 Added to sync queue:', syncItem.type, syncItem.data?.id || syncItem.memberId);
-  } catch (e) {
-    console.warn('Failed to add pending sync:', e);
-  }
-};
-
-const removePendingSync = async (syncId) => {
-  try {
-    const pending = await getPendingSync();
-    const filtered = pending.filter(item => item.id !== syncId);
-    await s.saveSetting?.('pendingSync', filtered);
-  } catch (e) {
-    console.warn('Failed to remove pending sync:', e);
-  }
-};
-
-// Client-side validation functions (only for new member creation)
-const validateMember = (member, isCreation = true) => {
-  const errors = [];
-  
-  // Only validate for new member creation, not for existing member updates
-  if (!isCreation) {
-    return errors; // Skip validation for updates/existing members
-  }
-  
-  // Required fields for new members only
   if (!member.name || !member.name.trim()) {
     errors.push('Name is required');
   }
