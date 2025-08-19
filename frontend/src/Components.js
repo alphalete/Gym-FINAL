@@ -3961,7 +3961,6 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
           {/* Empty space for symmetry */}
         </div>
       </div>
-      </form>
       
       <div className="flex gap-3 pt-4">
         {/* Enhanced submit button with proper Alphalete Athletics styling */}
