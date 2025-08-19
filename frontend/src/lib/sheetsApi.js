@@ -1,23 +1,60 @@
 const API_URL = process.env.REACT_APP_SHEETS_API_URL;
 const API_KEY = process.env.REACT_APP_SHEETS_API_KEY;
 
-async function apiRequest(entity, op, body = {}) {
-  const res = await fetch(API_URL, {
+async function apiRequest(entity, operation, data = {}) {
+  console.log(`📡 [SheetsApi] Making ${operation} request for ${entity}:`, data);
+  
+  const requestBody = {
+    operation,
+    entity,
+    data
+  };
+
+  const res = await fetch(`${API_URL}?api_key=${API_KEY}`, {
     method: 'POST',
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ entity, op, key: API_KEY, ...body })
+    body: JSON.stringify(requestBody)
   });
-  const data = await res.json();
-  if (!data.ok) throw new Error(data.error || 'Sheets API error');
-  return data.data;
+  
+  console.log(`📡 [SheetsApi] Response status: ${res.status}`);
+  const responseData = await res.json();
+  console.log(`📡 [SheetsApi] Response data:`, responseData);
+  
+  if (!responseData.success) {
+    const errorMessage = responseData.error?.message || responseData.error || 'Sheets API error';
+    console.error(`❌ [SheetsApi] Error:`, errorMessage);
+    throw new Error(errorMessage);
+  }
+  
+  return responseData.data;
 }
 
-async function apiList(entity, params = {}) {
-  const qs = new URLSearchParams({ entity, key: API_KEY, ...params }).toString();
-  const res = await fetch(`${API_URL}?${qs}`, { method: 'GET' });
-  const data = await res.json();
-  if (!data.ok) throw new Error(data.error || 'Sheets API error');
-  return data.data || [];
+async function apiList(entity, operation, params = {}) {
+  console.log(`📡 [SheetsApi] Making ${operation} request for ${entity}:`, params);
+  
+  const queryParams = new URLSearchParams({
+    entity,
+    operation,
+    api_key: API_KEY,
+    ...params
+  });
+  
+  const url = `${API_URL}?${queryParams.toString()}`;
+  console.log(`📡 [SheetsApi] GET request URL:`, url);
+  
+  const res = await fetch(url, { method: 'GET' });
+  console.log(`📡 [SheetsApi] Response status: ${res.status}`);
+  
+  const responseData = await res.json();
+  console.log(`📡 [SheetsApi] Response data:`, responseData);
+  
+  if (!responseData.success) {
+    const errorMessage = responseData.error?.message || responseData.error || 'Sheets API error';
+    console.error(`❌ [SheetsApi] Error:`, errorMessage);
+    throw new Error(errorMessage);
+  }
+  
+  return responseData.data || [];
 }
 
 export const SheetsApi = {
