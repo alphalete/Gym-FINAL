@@ -24,8 +24,22 @@ async function apiList(entity, params = {}) {
   console.log(`📡 [SheetsApi] GET request URL:`, url);
   
   try {
-    console.log(`📡 [SheetsApi] Starting fetch request...`);
-    const r = await fetch(url, { method: 'GET', credentials: 'omit' });
+    console.log(`📡 [SheetsApi] Starting fetch request with 10s timeout...`);
+    
+    // Use shorter timeout and AbortController for debugging
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      console.error(`❌ [SheetsApi] TIMEOUT after 10 seconds - aborting request`);
+      controller.abort();
+    }, 10000);
+    
+    const r = await fetch(url, { 
+      method: 'GET', 
+      credentials: 'omit',
+      signal: controller.signal 
+    });
+    
+    clearTimeout(timeoutId);
     console.log(`📡 [SheetsApi] Response received - status: ${r.status}`);
     
     if (!r.ok) {
@@ -47,10 +61,15 @@ async function apiList(entity, params = {}) {
     return j.data || [];
     
   } catch (error) {
-    console.error(`❌ [SheetsApi] Request failed:`, error);
-    console.error(`❌ [SheetsApi] Error name:`, error.name);
-    console.error(`❌ [SheetsApi] Error message:`, error.message);
-    throw new Error(`Network error: ${error.message}`);
+    if (error.name === 'AbortError') {
+      console.error(`❌ [SheetsApi] Request was aborted due to timeout`);
+      throw new Error('Request timeout - Google Apps Script not responding');
+    } else {
+      console.error(`❌ [SheetsApi] Request failed:`, error);
+      console.error(`❌ [SheetsApi] Error name:`, error.name);
+      console.error(`❌ [SheetsApi] Error message:`, error.message);
+      throw new Error(`Network error: ${error.message}`);
+    }
   }
 }
 
