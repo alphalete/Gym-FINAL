@@ -8,7 +8,7 @@ import time
 import uuid
 
 # Get backend URL from environment
-BACKEND_URL = "https://fitness-club-admin.preview.emergentagent.com/api"
+BACKEND_URL = "https://alphalete-pwa.preview.emergentagent.com/api"
 
 def test_field_name_mapping_fix():
     """

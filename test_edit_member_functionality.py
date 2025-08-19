@@ -10,7 +10,7 @@ import json
 from datetime import datetime, date
 
 # Configuration
-BACKEND_URL = "https://fitness-club-admin.preview.emergentagent.com"
+BACKEND_URL = "https://alphalete-pwa.preview.emergentagent.com"
 
 class EditMemberTester:
     def __init__(self):

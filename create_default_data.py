@@ -24,7 +24,7 @@ from datetime import datetime, date
 import json
 
 # Configuration
-BACKEND_URL = "https://fitness-club-admin.preview.emergentagent.com"
+BACKEND_URL = "https://alphalete-pwa.preview.emergentagent.com"
 
 class DefaultDataCreator:
     def __init__(self):
