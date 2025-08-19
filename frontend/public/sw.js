@@ -60,8 +60,19 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  // Skip cross-origin requests and chrome-extension requests
-  if (!e.request.url.startsWith(self.location.origin) || e.request.url.includes('chrome-extension')) {
+  // Skip chrome-extension requests but allow Google Apps Script requests
+  if (e.request.url.includes('chrome-extension')) {
+    return;
+  }
+  
+  // Allow Google Apps Script requests to pass through without interception
+  if (e.request.url.includes('script.google.com') || e.request.url.includes('script.googleusercontent.com')) {
+    console.log('[SW] Allowing Google Apps Script request:', e.request.url);
+    return; // Let the browser handle it directly
+  }
+  
+  // Skip other cross-origin requests (but not Google Apps Script)
+  if (!e.request.url.startsWith(self.location.origin)) {
     return;
   }
 
