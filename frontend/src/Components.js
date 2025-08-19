@@ -1664,30 +1664,18 @@ Alphalete Athletics Team`
           <EditMemberForm
             member={m}
             onSave={async (updatedMember) => {
+              // Use repository pattern for member updates
               try {
                 console.log(`🔄 Saving member changes for ${updatedMember.name}`);
-                if (onAddOrUpdateMember) {
-                  const result = await onAddOrUpdateMember(updatedMember);
+                const repo = useMembersRepo();
+                if (repo && repo.repo && repo.repo.updateMember) {
+                  const result = await repo.repo.updateMember(updatedMember);
                   if (result) {
                     console.log(`✅ Member ${updatedMember.name} updated successfully`);
-                    // Trigger data refresh
                     window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'member_updated' }));
                   }
                 } else {
-                  // Fallback to direct backend call if no repository handler
-                  const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-                  if (backendUrl) {
-                    const response = await fetch(`${backendUrl}/api/clients/${updatedMember.id}`, {
-                      method: 'PUT',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify(updatedMember)
-                    });
-                    if (!response.ok) {
-                      throw new Error('Backend update failed');
-                    }
-                    // Trigger data refresh
-                    window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'member_updated' }));
-                  }
+                  throw new Error('Repository not available for updates');
                 }
                 setShowEditModal(false);
               } catch (error) {
