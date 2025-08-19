@@ -1,5 +1,5 @@
-const API_URL = import.meta.env.VITE_SHEETS_API_URL;
-const API_KEY = import.meta.env.VITE_SHEETS_API_KEY;
+const API_URL = process.env.REACT_APP_SHEETS_API_URL;
+const API_KEY = process.env.REACT_APP_SHEETS_API_KEY;
 
 async function apiList(entity, params = {}) {
   console.log(`📡 [SheetsApi] Making list request for ${entity}:`, params);
