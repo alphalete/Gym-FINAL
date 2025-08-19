@@ -154,19 +154,41 @@ const createMember = async (memberData) => {
 
     // Generate local ID and set up member data
     const localId = crypto?.randomUUID?.() || `member_${Date.now()}`;
-    const joinDate = memberData.start_date || memberData.join_date || new Date().toISOString().slice(0, 10);
+    const joinDate = memberData.start_date || memberData.join_date || memberData.joinDate || new Date().toISOString().slice(0, 10);
     const initialDueDate = computeNextDueDate({ joinDate, currentDueDate: null, paymentsInCycle: 0 });
     
+    // Map to Google Sheets API format: firstName, lastName, email, phone, joinDate, plan, status, dueDate
+    const sheetsApiMember = {
+      firstName: memberData.firstName || memberData.name?.split(' ')[0] || memberData.name || '',
+      lastName: memberData.lastName || memberData.name?.split(' ').slice(1).join(' ') || '',
+      email: memberData.email || '',
+      phone: memberData.phone || memberData.phoneNumber || '',
+      joinDate: joinDate,
+      plan: memberData.plan || memberData.membershipType || memberData.membership_type || 'Basic',
+      status: (memberData.status || 'Active').toLowerCase(),
+      dueDate: initialDueDate
+    };
+    
+    // Keep local format for storage
     const newMember = {
       ...memberData,
       localId,
       id: null, // Will be set by server
+      name: sheetsApiMember.firstName + (sheetsApiMember.lastName ? ' ' + sheetsApiMember.lastName : ''),
+      firstName: sheetsApiMember.firstName,
+      lastName: sheetsApiMember.lastName,
+      email: sheetsApiMember.email,
+      phone: sheetsApiMember.phone,
+      joinDate: sheetsApiMember.joinDate,
       join_date: joinDate,
       start_date: joinDate,
+      plan: sheetsApiMember.plan,
+      membershipType: sheetsApiMember.plan,
+      membership_type: sheetsApiMember.plan,
+      status: memberData.status || 'Active',
       next_payment_date: initialDueDate,
       nextDue: initialDueDate,
       dueDate: initialDueDate,
-      status: memberData.status || 'Active',
       pending: 1, // Mark as pending sync
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -179,9 +201,17 @@ const createMember = async (memberData) => {
     // Try to sync to Sheets API if online
     if (navigator.onLine) {
       try {
-        const serverMember = await SheetsApi.createMember(newMember);
-        // Update local record with server ID
-        const syncedMember = { ...newMember, ...serverMember, pending: 0 };
+        console.log('📤 [members.repo] Syncing to Sheets API:', sheetsApiMember);
+        const serverMember = await SheetsApi.createMember(sheetsApiMember);
+        console.log('📥 [members.repo] Sheets API response:', serverMember);
+        
+        // Update local record with server data
+        const syncedMember = { 
+          ...newMember, 
+          ...serverMember, 
+          id: serverMember.id,
+          pending: 0 
+        };
         delete syncedMember.localId;
         await s.upsert?.("members", syncedMember);
         console.log('✅ [members.repo] Synced member to Sheets API:', syncedMember.name);
