@@ -237,6 +237,10 @@ export default function App(){
       window.dismissLoadingScreen();
     }
 
+    // Initialize Google Sheets sync
+    console.log('🔄 Initializing Google Sheets sync...');
+    setupAutoSync();
+
     setReady(true);
   }, []);
 
