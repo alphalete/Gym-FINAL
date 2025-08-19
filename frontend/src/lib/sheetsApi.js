@@ -23,19 +23,35 @@ async function apiList(entity, params = {}) {
   const url = `${API_URL}?${qs}`;
   console.log(`📡 [SheetsApi] GET request URL:`, url);
   
-  const r = await fetch(url, { method: 'GET', credentials: 'omit' });
-  console.log(`📡 [SheetsApi] Response status: ${r.status}`);
-  
-  const j = await r.json();
-  console.log(`📡 [SheetsApi] Response data:`, j);
-  
-  if (!j.ok) {
-    const errorMessage = j.error || 'Sheets API error';
-    console.error(`❌ [SheetsApi] Error:`, errorMessage);
-    throw new Error(errorMessage);
+  try {
+    console.log(`📡 [SheetsApi] Starting fetch request...`);
+    const r = await fetch(url, { method: 'GET', credentials: 'omit' });
+    console.log(`📡 [SheetsApi] Response received - status: ${r.status}`);
+    
+    if (!r.ok) {
+      console.error(`📡 [SheetsApi] HTTP Error: ${r.status} ${r.statusText}`);
+      throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+    }
+    
+    console.log(`📡 [SheetsApi] Parsing JSON response...`);
+    const j = await r.json();
+    console.log(`📡 [SheetsApi] Response data:`, j);
+    
+    if (!j.ok) {
+      const errorMessage = j.error || 'Sheets API error';
+      console.error(`❌ [SheetsApi] Error:`, errorMessage);
+      throw new Error(errorMessage);
+    }
+    
+    console.log(`📡 [SheetsApi] Returning ${j.data?.length || 0} items`);
+    return j.data || [];
+    
+  } catch (error) {
+    console.error(`❌ [SheetsApi] Request failed:`, error);
+    console.error(`❌ [SheetsApi] Error name:`, error.name);
+    console.error(`❌ [SheetsApi] Error message:`, error.message);
+    throw new Error(`Network error: ${error.message}`);
   }
-  
-  return j.data || [];
 }
 
 async function apiWrite(entity, op, body = {}) {
