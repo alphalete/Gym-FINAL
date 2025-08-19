@@ -41,7 +41,7 @@ self.addEventListener('install', e => {
 });
 
 self.addEventListener('activate', e => {
-  console.log('[SW] Activating Alphalete Athletics PWA Service Worker v4');
+  console.log('[SW] Activating Alphalete Athletics PWA Service Worker v5');
   e.waitUntil(
     caches.keys().then(keys => {
       return Promise.all(
