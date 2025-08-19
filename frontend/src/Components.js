@@ -3407,32 +3407,13 @@ export function RecordPayment(){
         .replace(/{membershipType}/g, member.membership_type || 'Standard')
         .replace(/{nextDueDate}/g, nextDueDateString);
       
-      // Send email via backend API
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-      if (backendUrl) {
-        const response = await fetch(`${backendUrl}/api/email/send`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            to: member.email,
-            subject: personalizedSubject,
-            body: personalizedBody,
-            memberName: memberName,
-            templateName: receiptTemplate.name
-          })
-        });
-        
-        const result = await response.json();
-        if (!result.success) {
-          throw new Error(result.message || 'Failed to send email');
-        }
-        
-        console.log('📧 Invoice email sent successfully:', result);
-      } else {
-        throw new Error('Backend URL not configured');
-      }
+      // Use mailto to send payment receipt email
+      const mailtoUrl = `mailto:${encodeURIComponent(member.email)}?subject=${encodeURIComponent(personalizedSubject)}&body=${encodeURIComponent(personalizedBody)}`;
+      window.location.href = mailtoUrl;
+      
+      console.log('📧 Payment receipt email client opened for:', member.email);
     } catch (error) {
-      console.error('Error sending invoice email:', error);
+      console.error('Error preparing payment receipt email:', error);
       throw error;
     }
   };
