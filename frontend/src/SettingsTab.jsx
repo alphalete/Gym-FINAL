@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { loadSettings, setSetting, getSetting } from "./settingsStore";
 import { hasPin, setNewPin } from "./pinlock";
+import { syncNow } from "./lib/sync";
 
 function Row({ label, hint, control }){ return (
   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center py-3">
