@@ -3959,7 +3959,7 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
       <div className="flex gap-3 pt-4">
         {/* Enhanced submit button with proper Alphalete Athletics styling */}
         <button
-          type="button"
+          type="submit"
           className={`btn text-base font-semibold min-w-[140px] ${
             saving 
               ? 'btn-secondary opacity-70 cursor-not-allowed' 
@@ -3967,7 +3967,6 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
                 ? 'btn-danger opacity-70 cursor-not-allowed'
                 : 'btn-primary hover:shadow-lg'
           }`}
-          onClick={saving || availablePlans.length === 0 ? undefined : handleSubmit}
           disabled={saving || availablePlans.length === 0}
         >
           {saving 
