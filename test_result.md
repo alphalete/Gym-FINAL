@@ -2234,10 +2234,12 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Dashboard action buttons section styling verification - exact Members page match with scrolling"
-  stuck_tasks: []
+    - "Google Sheets API integration testing for Alphalete Club PWA migration"
+    - "FastAPI backend functionality verification during Google Sheets migration"
+  stuck_tasks:
+    - "Google Sheets API integration testing for Alphalete Club PWA migration"
   test_all: false
-  test_priority: "high_first"
+  test_priority: "critical_first"
 
 agent_communication:
     -agent: "testing"
