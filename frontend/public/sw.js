@@ -1,4 +1,4 @@
-const CACHE_NAME = 'alphalete-gym-v4';
+const CACHE_NAME = 'alphalete-gym-v5'; // Increment version to force update
 const urlsToCache = [
   '/',
   '/index.html',
