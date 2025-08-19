@@ -730,19 +730,19 @@ const Dashboard = () => {
       setLoading(true);
       console.log('[Dashboard] Starting data load...');
       
-      // Load from backend first, fallback to local storage
+      // Load from repository (offline-first with Sheets API integration)
       let m = [];
       try {
-        const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-        if (backendUrl) {
-          const response = await fetch(`${backendUrl}/api/clients`);
-          if (response.ok) {
-            m = await response.json();
-            console.log(`[Dashboard] ✅ Loaded ${m.length} members from backend`);
-          }
+        const repo = useMembersRepo();
+        if (repo && repo.repo && repo.repo.listMembers) {
+          m = await repo.repo.listMembers();
+          console.log(`[Dashboard] ✅ Loaded ${m.length} members from repository`);
+        } else {
+          console.warn('[Dashboard] ⚠️ Repository not available, using local storage fallback');
+          m = await (gymStorage.getAllMembers?.() ?? []);
         }
-      } catch (backendError) {
-        console.warn('[Dashboard] ⚠️ Backend failed, using local storage:', backendError.message);
+      } catch (error) {
+        console.warn('[Dashboard] ⚠️ Repository failed, using local storage:', error.message);
         m = await (gymStorage.getAllMembers?.() ?? []);
       }
       
