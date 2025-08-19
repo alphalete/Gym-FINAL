@@ -371,7 +371,16 @@ const membersRepo = {
   getAllMembers,
   createMember,
   updateMember: updateMember,
-  upsertMember: updateMember, // Alias for compatibility
+  upsertMember: async (memberData) => {
+    // Check if it's an update (has ID) or create (no ID)
+    if (memberData.id || memberData._id) {
+      console.log('📝 [members.repo] Upserting existing member:', memberData.name);
+      return await updateMember(memberData);
+    } else {
+      console.log('➕ [members.repo] Upserting new member:', memberData.name || 'Unknown');
+      return await createMember(memberData);
+    }
+  },
   deleteMember,
   addPayment,
   getAllPayments,
