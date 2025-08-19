@@ -46,37 +46,49 @@ const validateMember = (member, isCreation = true) => {
 const ensureMemberDueDate = (member) => {
   if (!member) return member;
   
-  // Use next_payment_date from Sheets API or existing due date fields
-  const dueDate = member.next_payment_date || member.nextDue || member.dueDate || member.nextDueDate;
+  // Map Google Sheets API fields to frontend format
+  const memberName = member.name || (member.firstName && member.lastName ? `${member.firstName} ${member.lastName}` : member.firstName || '');
+  
+  // Use dueDate from Sheets API or existing due date fields
+  const dueDate = member.dueDate || member.next_payment_date || member.nextDue || member.nextDueDate;
   
   if (dueDate) {
-    console.log(`✅ Using due date for ${member.name}:`, dueDate);
-    return {
+    console.log(`✅ Using due date for ${memberName}:`, dueDate);
+    const mappedMember = {
       ...member,
+      name: memberName,
       nextDue: dueDate,
       dueDate: dueDate,
       nextDueDate: dueDate,
-      joinedOn: member.joinedOn || member.start_date || member.join_date || new Date().toISOString().slice(0, 10)
+      joinedOn: member.joinDate || member.joinedOn || member.start_date || member.join_date || new Date().toISOString().slice(0, 10)
     };
+    console.log(`📋 [members.repo] Mapped member:`, mappedMember);
+    return mappedMember;
   }
   
   // Calculate due date based on join date if missing
   try {
-    const joinDate = member.start_date || member.join_date || member.joinedOn || new Date().toISOString().slice(0, 10);
+    const joinDate = member.joinDate || member.start_date || member.join_date || member.joinedOn || new Date().toISOString().slice(0, 10);
     const calculatedDueDate = computeNextDueDate({ joinDate, currentDueDate: null, paymentsInCycle: 0 });
     
-    console.log(`📅 Calculated due date for ${member.name}:`, calculatedDueDate);
+    console.log(`📅 Calculated due date for ${memberName}:`, calculatedDueDate);
     
-    return {
+    const mappedMember = {
       ...member,
+      name: memberName,
       nextDue: calculatedDueDate,
       dueDate: calculatedDueDate,
       nextDueDate: calculatedDueDate,
       joinedOn: joinDate
     };
+    console.log(`📋 [members.repo] Mapped member with calculated due date:`, mappedMember);
+    return mappedMember;
   } catch (error) {
-    console.warn('Failed to calculate due date for member:', member.name, error);
-    return member;
+    console.warn('Failed to calculate due date for member:', memberName, error);
+    return {
+      ...member,
+      name: memberName
+    };
   }
 };
 
