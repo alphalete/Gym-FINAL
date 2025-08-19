@@ -67,8 +67,8 @@ self.addEventListener('fetch', e => {
   
   // Allow Google Apps Script requests to pass through without interception
   if (e.request.url.includes('script.google.com') || e.request.url.includes('script.googleusercontent.com')) {
-    console.log('[SW] Allowing Google Apps Script request:', e.request.url);
-    return; // Let the browser handle it directly
+    console.log('[SW] ✅ Allowing Google Apps Script request to pass through:', e.request.url);
+    return; // Let the browser handle it directly - DO NOT INTERCEPT
   }
   
   // Skip other cross-origin requests (but not Google Apps Script)
