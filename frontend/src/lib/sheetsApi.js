@@ -4,11 +4,18 @@ const API_KEY = process.env.REACT_APP_SHEETS_API_KEY;
 async function apiList(entity, params = {}) {
   console.log(`📡 [SheetsApi] Making list request for ${entity}:`, params);
   
-  // Filter out undefined/null values from params
+  // Filter out undefined/null values and properly serialize objects
   const cleanParams = {};
   Object.keys(params).forEach(key => {
     if (params[key] !== undefined && params[key] !== null) {
-      cleanParams[key] = params[key];
+      // Convert Date objects and other objects to strings
+      if (params[key] instanceof Date) {
+        cleanParams[key] = params[key].toISOString();
+      } else if (typeof params[key] === 'object') {
+        cleanParams[key] = JSON.stringify(params[key]);
+      } else {
+        cleanParams[key] = params[key];
+      }
     }
   });
   
