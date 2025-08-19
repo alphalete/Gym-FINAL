@@ -3804,8 +3804,14 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
     }
   };
 
+  // Form submit handler
+  const onSubmit = (e) => {
+    e.preventDefault();
+    handleSubmit();
+  };
+
   return (
-    <div className="space-y-4">
+    <form onSubmit={onSubmit} className="space-y-4">
       {/* Online/Offline Status */}
       <div className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
         <div className="flex items-center space-x-2">
