@@ -232,48 +232,27 @@ Alphalete Athletics Team`
     navigate("/payments");
   };
 
-  // Enhanced reminder function with backend integration
+  // Send reminder using WhatsApp (no backend needed)
   const sendReminder = async (client) => {
     try {
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-      const response = await fetch(`${backendUrl}/api/send-reminder`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          member_id: client.id || client._id,
-          member_name: client.name,
-          member_email: client.email,
-          due_amount: client.monthlyFee || 0,
-          due_date: client.next_payment_date || client.dueDate
-        }),
-      });
-
-      if (response.ok) {
-        alert(`✅ Email reminder sent to ${client.name} successfully!`);
-      } else {
-        // Fallback to basic email if backend fails - prioritize EMAIL since this is the EMAIL button
-        const due = client?.next_payment_date || client?.dueDate || "soon";
-        const subject = `Membership Payment Due - Alphalete Athletics`;
-        const body = `Hi ${client?.name || 'member'},\n\nThis is a friendly reminder that your Alphalete Athletics membership payment is due on ${due}.\n\nAmount: $${client.monthlyFee || 'N/A'}\n\nPlease make your payment at your earliest convenience.\n\nThank you!\nAlphalete Athletics Team`;
-        
-        // For EMAIL button, check email FIRST, then fallback to WhatsApp
-        if (client?.email) {
-          window.location.href = `mailto:${encodeURIComponent(client.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-          alert(`✅ Email client opened for ${client.name} (${client.email})`);
-          return;
-        }
-        const hasPhone = client?.phone && client.phone.replace(/\D/g, '').length >= 7;
-        if (hasPhone) { 
-          window.open(`https://wa.me/${client.phone.replace(/\D/g, '')}?text=${encodeURIComponent(body)}`, '_blank');
-          alert(`⚠️ No email found - sent WhatsApp message instead to ${client.name}`);
-          return; 
-        }
-        alert('❌ No email or phone number on file for this member.');
+      console.log('📱 Opening WhatsApp for:', client);
+      
+      if (!client.phone) {
+        alert('❌ No phone number available for this member');
+        return;
       }
+      
+      // Format phone number and create WhatsApp URL
+      const phoneNumber = client.phone.replace(/[^\d]/g, '');
+      const dueDate = client.next_payment_date || client.dueDate || client.nextDue || 'Not set';
+      const message = `Hi ${client.name}, this is a friendly reminder that your gym membership payment of TT$${client.monthly_fee || 'N/A'} is due on ${dueDate}. Thank you!`;
+      
+      const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+      
+      alert(`✅ WhatsApp opened for ${client.name}`);
     } catch (error) {
-      console.error('Error sending reminder:', error);
+      console.error('❌ Error sending WhatsApp reminder:', error);
       alert(`❌ Error sending reminder: ${error.message}`);
     }
   };
