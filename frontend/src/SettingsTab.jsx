@@ -120,5 +120,57 @@ export default function SettingsTab(){
         </div>
       </Row>
     </Section>
+
+    <Section title="Google Sheets Integration">
+      <Row 
+        label="Sheets API URL" 
+        hint="Google Apps Script Web App URL"
+        control={
+          <div className="text-sm text-gray-700 font-mono bg-gray-50 px-3 py-2 rounded-lg">
+            {process.env.REACT_APP_SHEETS_API_URL || 'Not configured'}
+          </div>
+        } 
+      />
+      <Row 
+        label="API Key" 
+        hint="Authentication key for Google Sheets"
+        control={
+          <div className="text-sm text-gray-700 font-mono bg-gray-50 px-3 py-2 rounded-lg">
+            {maskApiKey(process.env.REACT_APP_SHEETS_API_KEY) || 'Not configured'}
+          </div>
+        } 
+      />
+      <Row 
+        label="Last Sync" 
+        hint="When data was last synchronized"
+        control={
+          <div className="text-sm text-gray-600">
+            {lastSync ? new Date(lastSync).toLocaleString() : 'Never'}
+          </div>
+        } 
+      />
+      <Row 
+        label="Sync Data" 
+        hint="Manually sync with Google Sheets"
+        control={
+          <button 
+            onClick={handleSyncNow}
+            disabled={syncing || !navigator.onLine}
+            className={`px-4 py-2 rounded-lg font-medium ${
+              syncing || !navigator.onLine 
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                : 'bg-indigo-600 text-white hover:bg-indigo-700'
+            } transition-colors`}
+          >
+            {syncing ? '🔄 Syncing...' : '🔄 Sync Now'}
+          </button>
+        } 
+      />
+      {!navigator.onLine && (
+        <div className="text-sm text-amber-600 bg-amber-50 px-3 py-2 rounded-lg mt-2">
+          ⚠️ Currently offline - sync will happen automatically when back online
+        </div>
+      )}
+    </Section>
   </div>);
 }
