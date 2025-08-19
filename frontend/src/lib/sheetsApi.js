@@ -59,13 +59,13 @@ async function apiList(entity, operation, params = {}) {
 
 export const SheetsApi = {
   // members
-  listMembers: (q, since) => apiList('members', { q, since }),
+  listMembers: (q, since) => apiList('members', 'read_all', { q, since }),
   createMember: (m) => apiRequest('members', 'create', stamp(m)),
   updateMember: (m) => apiRequest('members', 'update', stamp(m)),
   deleteMember: (id) => apiRequest('members', 'delete', { id }),
 
   // payments
-  listPayments: (q, since) => apiList('payments', { q, since }),
+  listPayments: (q, since) => apiList('payments', 'read_all', { q, since }),
   addPayment: (p) => apiRequest('payments', 'create', stamp(p)),
 };
 
