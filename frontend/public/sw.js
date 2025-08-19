@@ -26,7 +26,7 @@ const urlsToCache = [
 ];
 
 self.addEventListener('install', e => {
-  console.log('[SW] Installing Alphalete Athletics PWA Service Worker v4');
+  console.log('[SW] Installing Alphalete Athletics PWA Service Worker v5');
   e.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
       console.log('[SW] Precaching essential assets');
