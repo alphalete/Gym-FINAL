@@ -34,10 +34,18 @@ async function apiRequest(entity, op, body = {}) {
 async function apiList(entity, params = {}) {
   console.log(`📡 [SheetsApi] Making list request for ${entity}:`, params);
   
+  // Filter out undefined values to prevent "undefined" strings in query params
+  const cleanParams = {};
+  Object.keys(params).forEach(key => {
+    if (params[key] !== undefined && params[key] !== null) {
+      cleanParams[key] = params[key];
+    }
+  });
+  
   const queryParams = new URLSearchParams({
     entity,
     key: API_KEY,
-    ...params
+    ...cleanParams
   });
   
   const url = `${API_URL}?${queryParams.toString()}`;
