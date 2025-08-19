@@ -257,38 +257,35 @@ Alphalete Athletics Team`
     }
   };
 
-  // Member status toggle functionality
+  // Toggle member status (offline-first)
   const toggleMemberStatus = async (member) => {
     try {
+      console.log('🔄 Toggling member status for:', member);
+      
       const currentStatus = member.status || "Active";
       const newStatus = currentStatus === "Active" ? "Inactive" : "Active";
       
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-      const response = await fetch(`${backendUrl}/api/clients/${member.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...member,
-          status: newStatus
-        }),
-      });
+      const updatedMember = {
+        ...member,
+        status: newStatus,
+        updatedAt: new Date().toISOString()
+      };
 
-      if (response.ok) {
-        // Update local state
-        const updatedMembers = members.map(m => 
-          m.id === member.id ? { ...m, status: newStatus } : m
-        );
-        setMembers(updatedMembers);
-        alert(`✅ ${member.name} ${newStatus === "Active" ? 'activated' : 'paused'} successfully!`);
-        await refresh(); // Refresh to get latest data
+      // Update member using the repository (offline-first)
+      const repo = useMembersRepo().repo;
+      if (repo && repo.updateMember) {
+        await repo.updateMember(updatedMember);
+        console.log(`✅ Member ${member.name} status changed to ${newStatus}`);
+        
+        // Trigger data refresh
+        window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'member_status_updated' }));
+        
+        alert(`✅ ${member.name} is now ${newStatus}`);
       } else {
-        const error = await response.text();
-        alert(`❌ Failed to update member status: ${error}`);
+        throw new Error('Repository not available');
       }
     } catch (error) {
-      console.error('Error updating member status:', error);
+      console.error('❌ Error toggling member status:', error);
       alert(`❌ Error updating member status: ${error.message}`);
     }
   };
