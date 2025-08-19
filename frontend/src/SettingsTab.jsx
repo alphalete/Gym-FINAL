@@ -18,17 +18,48 @@ function Section({ title, children, defaultOpen=true }){ const [open,setOpen]=us
 );}
 
 export default function SettingsTab(){
-  const [s,setS]=useState(null); const [pinSet,setPinSet]=useState(false);
+  const [s,setS]=useState(null); 
+  const [pinSet,setPinSet]=useState(false);
+  const [syncing, setSyncing] = useState(false);
+  const [lastSync, setLastSync] = useState(null);
+  
   useEffect(()=>{ 
     (async () => {
       const s = await loadSettings().catch(()=>({}));
       setS(prev => ({ ...prev, ...s }));
+      
+      // Get last sync time
+      const lastSyncTime = await getSetting('lastSyncAt');
+      setLastSync(lastSyncTime);
     })();
     (async()=>setPinSet(await hasPin()))(); 
   },[]);
+  
   if(!s) return <div className="p-6 text-gray-500">Loading settings…</div>;
+  
   const update=(k)=>(async v=>{ const val=(k.endsWith("Days")||k.endsWith("Minutes")||k==="billingCycleDays")?Math.max(0,Number(v||0)):v;
     await setSetting(k,val); setS(p=>({...p,[k]:val})); });
+
+  const handleSyncNow = async () => {
+    setSyncing(true);
+    try {
+      await syncNow();
+      const newLastSync = await getSetting('lastSyncAt');
+      setLastSync(newLastSync);
+      alert('✅ Sync completed successfully!');
+    } catch (error) {
+      console.error('Sync failed:', error);
+      alert('❌ Sync failed: ' + error.message);
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  // Helper to mask API keys
+  const maskApiKey = (key) => {
+    if (!key || key.includes('<PASTE YOUR')) return key;
+    return key.slice(0, 8) + '•••••••••••';
+  };
 
   return (<div className="p-6 max-w-3xl mx-auto space-y-4">
     <h1 className="text-2xl font-semibold text-gray-900">Settings</h1>
