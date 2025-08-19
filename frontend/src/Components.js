@@ -1528,26 +1528,22 @@ Alphalete Athletics Team`
                   try {
                     const updatedMember = { ...m, status: isActive ? 'Inactive' : 'Active', active: !isActive };
                     
-                    // Use repository system for consistent offline-first behavior
-                    if (onAddOrUpdateMember) {
-                      await onAddOrUpdateMember(updatedMember);
-                      alert(`✅ Member ${isActive ? 'deactivated' : 'activated'} successfully`);
-                    } else {
-                      // Fallback to direct backend call if no repository handler
-                      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-                      if (backendUrl) {
-                        const response = await fetch(`${backendUrl}/api/clients/${m.id}`, {
-                          method: 'PUT',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify(updatedMember)
-                        });
-                        if (!response.ok) {
-                          throw new Error('Backend update failed');
-                        }
-                        alert(`✅ Member ${isActive ? 'deactivated' : 'activated'} successfully`);
-                        // Trigger data refresh without full page reload
+                    // Use repository pattern for pause/activate
+                    try {
+                      const repo = useMembersRepo();
+                      if (repo && repo.repo && repo.repo.updateMember) {
+                        const newStatus = isActive ? "Inactive" : "Active";
+                        const updatedMember = { ...m, status: newStatus, updatedAt: new Date().toISOString() };
+                        await repo.repo.updateMember(updatedMember);
+                        console.log(`✅ Member ${name} status changed to ${newStatus}`);
                         window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'member_status_updated' }));
+                        alert(`✅ ${name} is now ${newStatus}`);
+                      } else {
+                        throw new Error('Repository not available for status update');
                       }
+                    } catch (error) {
+                      console.error('❌ Error updating member status:', error);
+                      alert('❌ Error updating member status. Please try again.');
                     }
                   } catch (error) {
                     console.error('Error updating member status:', error);
