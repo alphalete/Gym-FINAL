@@ -3993,7 +3993,7 @@ function AddMemberForm({ onAddOrUpdateMember, onCancel, onSuccess }) {
           Cancel
         </button>
       </div>
-    </div>
+    </form>
   );
 }
 
