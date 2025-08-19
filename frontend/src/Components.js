@@ -4344,6 +4344,7 @@ function EditMemberForm({ member, onSave, onCancel }) {
             {/* Empty space for symmetry */}
           </div>
         </div>
+        </form>
         <div className="p-4 flex gap-3">
           <button 
             type="button"
