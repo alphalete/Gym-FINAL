@@ -290,50 +290,32 @@ Alphalete Athletics Team`
     }
   };
 
+  // Delete member (offline-first)
   const deleteMember = async (member) => {
-    if (!member || !member.id) {
-      console.error('❌ Invalid member data for deletion');
-      return;
-    }
-
-    // Show confirmation dialog
-    const confirmDelete = window.confirm(
-      `Are you sure you want to delete "${member.name}"?\n\nThis action cannot be undone and will permanently remove:\n• Member profile\n• Payment history\n• All associated data`
-    );
-
-    if (!confirmDelete) {
-      console.log('🚫 Member deletion cancelled by user');
-      return;
-    }
-
     try {
-      console.log(`🗑️ Deleting member: ${member.name} (ID: ${member.id})`);
+      console.log('🗑️ Deleting member:', member);
       
-      // Call backend API to delete member
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
-      const response = await fetch(`${backendUrl}/api/clients/${member.id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        console.log(`✅ Successfully deleted member: ${member.name}`);
+      if (!confirm(`Are you sure you want to DELETE ${member.name}? This action cannot be undone.`)) {
+        console.log('❌ Delete cancelled by user');
+        return;
+      }
+      
+      // Delete member using the repository (offline-first)
+      const repo = useMembersRepo().repo;
+      if (repo && repo.deleteMember) {
+        await repo.deleteMember(member.id || member.localId);
+        console.log(`✅ Member ${member.name} deleted successfully`);
         
-        // Update local state by removing the deleted member
-        setMembers(prevMembers => prevMembers.filter(m => m.id !== member.id));
+        // Trigger data refresh
+        window.dispatchEvent(new CustomEvent('DATA_CHANGED', { detail: 'member_deleted' }));
         
-        // Show success message
-        alert(`✅ "${member.name}" has been successfully deleted.`);
+        alert(`✅ ${member.name} has been deleted`);
       } else {
-        const errorData = await response.text();
-        console.error(`❌ Failed to delete member: HTTP ${response.status}`, errorData);
-        alert(`❌ Failed to delete "${member.name}". Please try again.\n\nError: ${response.status} ${response.statusText}`);
+        throw new Error('Repository not available');
       }
     } catch (error) {
-      console.error('❌ Error during member deletion:', error);
-      alert(`❌ An error occurred while deleting "${member.name}". Please check your connection and try again.\n\nError: ${error.message}`);
+      console.error('❌ Error deleting member:', error);
+      alert(`❌ Error deleting member: ${error.message}`);
     }
   };
 
