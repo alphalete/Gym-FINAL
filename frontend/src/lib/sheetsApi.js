@@ -1,127 +1,107 @@
-// frontend/src/lib/sheetsApi.js
-// CRA env vars (set in Netlify): REACT_APP_SHEETS_API_URL / REACT_APP_SHEETS_API_KEY
+// frontend/src/api/sheetsApi.js
+
 const API_URL = process.env.REACT_APP_SHEETS_API_URL;
 const API_KEY = process.env.REACT_APP_SHEETS_API_KEY;
 
-// --- tiny helpers ------------------------------------------------------------
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-
-async function fetchWithTimeout(input, init = {}, { timeoutMs = 25000 } = {}) {
+function withTimeout(promise, ms, label = 'request') {
   const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const res = await fetch(input, { ...init, signal: controller.signal, redirect: 'follow', cache: 'no-store' });
-    return res;
-  } finally {
-    clearTimeout(id);
-  }
+  const t = setTimeout(() => {
+    console.error(`❌ [SheetsApi] TIMEOUT after ${ms}ms on ${label}`);
+    controller.abort();
+  }, ms);
+  return {
+    signal: controller.signal,
+    done: (p) =>
+      p.finally(() => clearTimeout(t))
+  };
 }
 
-// Retry on transient failures (timeouts / network)
-async function withRetries(fn, { tries = 3, baseDelay = 600 } = {}) {
-  let lastErr;
-  for (let i = 0; i < tries; i++) {
-    try {
-      return await fn();
-    } catch (err) {
-      lastErr = err;
-      const name = err?.name || '';
-      const msg  = err?.message || '';
-      // Only retry on AbortError / network-ish issues
-      const transient = name === 'AbortError' || /timeout|network|Failed to fetch|TypeError/i.test(msg);
-      if (!transient || i === tries - 1) throw err;
-      const delay = baseDelay * Math.pow(2, i); // 600ms, 1200ms, 2400ms
-      console.warn(`⏳ transient error (${msg}). retrying in ${delay}ms...`);
-      await sleep(delay);
-    }
-  }
-  throw lastErr;
+function toCleanParams(params = {}) {
+  const out = {};
+  Object.keys(params).forEach((k) => {
+    const v = params[k];
+    if (v === undefined || v === null) return;
+    if (v instanceof Date) out[k] = v.toISOString();
+    else if (typeof v === 'object') out[k] = JSON.stringify(v);
+    else out[k] = v;
+  });
+  return out;
 }
 
-// --- GET ---------------------------------------------------------------------
+/** -------------------------
+ * GET: list endpoints
+ * ------------------------*/
 async function apiList(entity, params = {}) {
   console.log(`📡 [SheetsApi] Making list request for ${entity}:`, params);
+  const clean = toCleanParams(params);
+  const qs = new URLSearchParams({ entity, key: API_KEY, ...clean }).toString();
+  const url = `${API_URL}?${qs}`;
+  console.log('📡 [SheetsApi] GET request URL:', url);
 
-  // Sanitize params: stringify Date/objects, drop nullish
-  const cleanParams = {};
-  for (const [k, v] of Object.entries(params)) {
-    if (v === undefined || v === null) continue;
-    cleanParams[k] =
-      v instanceof Date ? v.toISOString()
-      : typeof v === 'object' ? JSON.stringify(v)
-      : v;
+  const t = withTimeout(null, 15000, `GET ${entity}`);
+  const res = await fetch(url, { method: 'GET', credentials: 'omit', signal: t.signal }).finally(() => {});
+  console.log('📡 [SheetsApi] Response received - status:', res.status);
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    console.error('❌ [SheetsApi] GET error body:', text);
+    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
   }
 
-  const url = new URL(API_URL);
-  url.searchParams.set('entity', entity);
-  url.searchParams.set('key', API_KEY);
-  for (const [k, v] of Object.entries(cleanParams)) url.searchParams.set(k, v);
+  const json = await res.json();
+  console.log('📡 [SheetsApi] Response data:', json);
+  if (!json.ok) throw new Error(json.error || 'Sheets API error');
 
-  console.log(`📡 [SheetsApi] GET request URL:`, url.toString());
-
-  try {
-    const r = await withRetries(
-      () => fetchWithTimeout(url.toString(), { method: 'GET', credentials: 'omit', mode: 'cors' }, { timeoutMs: 25000 }),
-      { tries: 3, baseDelay: 700 }
-    );
-
-    console.log(`📡 [SheetsApi] Response received - status: ${r.status}`);
-    if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
-
-    const j = await r.json();
-    console.log(`📡 [SheetsApi] Response data:`, j);
-
-    if (!j.ok) throw new Error(j.error || 'Sheets API error');
-    console.log(`📡 [SheetsApi] Returning ${j.data?.length || 0} items`);
-    return j.data || [];
-  } catch (error) {
-    if (error.name === 'AbortError') {
-      console.error(`❌ [SheetsApi] Request timed out`);
-      throw new Error('Request timeout - Google Apps Script not responding');
-    }
-    console.error(`❌ [SheetsApi] Request failed:`, error.message || error);
-    throw error;
-  }
+  const n = Array.isArray(json.data) ? json.data.length : 0;
+  console.log(`📡 [SheetsApi] Returning ${n} items`);
+  return json.data || [];
 }
 
-// --- POST --------------------------------------------------------------------
+/** -------------------------
+ * POST: create/update/delete
+ * IMPORTANT: also include entity/op/key in the URL
+ * ------------------------*/
 async function apiWrite(entity, op, body = {}) {
   console.log(`📡 [SheetsApi] Making ${op} request for ${entity}:`, body);
 
-  // Keep key+entity in URL for maximum GAS compatibility (old/new deployments)
-  const url = new URL(API_URL);
-  url.searchParams.set('key', API_KEY);
-  url.searchParams.set('entity', entity);
+  // Put params in URL (Apps Script likes this) AND keep JSON body
+  const url = `${API_URL}?${new URLSearchParams({
+    entity,
+    op,
+    key: API_KEY,
+  }).toString()}`;
 
+  // Minimal headers to avoid CORS preflight
   const payload = JSON.stringify({ entity, op, key: API_KEY, ...body });
-  console.log(`📡 [SheetsApi] POST URL:`, url.toString());
-  console.log(`📡 [SheetsApi] POST payload:`, payload);
+  console.log('📡 [SheetsApi] POST url:', url);
+  console.log('📡 [SheetsApi] POST payload:', payload);
 
-  const r = await withRetries(
-    () =>
-      fetchWithTimeout(
-        url.toString(),
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
-          credentials: 'omit',
-          mode: 'cors',
-          body: payload,
-        },
-        { timeoutMs: 25000 }
-      ),
-    { tries: 3, baseDelay: 700 }
-  );
+  // 20s timeout — creating can be slower than listing
+  const t = withTimeout(null, 20000, `POST ${entity}/${op}`);
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+    credentials: 'omit',
+    body: payload,
+    signal: t.signal,
+  }).finally(() => {});
 
-  console.log(`📡 [SheetsApi] Response status: ${r.status}`);
-  const j = await r.json().catch(() => ({}));
-  console.log(`📡 [SheetsApi] Response data:`, j);
+  console.log('📡 [SheetsApi] Response status:', res.status);
 
-  if (!r.ok || j.ok === false) {
-    const errorMessage = j?.error || r.statusText || 'Sheets API error';
-    throw new Error(errorMessage);
+  // Sometimes errors come back as text/html via redirect. Try text first if JSON fails.
+  let json;
+  try {
+    json = await res.json();
+  } catch (e) {
+    const text = await res.text().catch(() => '');
+    console.error('❌ [SheetsApi] Non-JSON response:', text);
+    throw new Error(`Unexpected response (${res.status})`);
   }
-  return j.data;
+
+  console.log('📡 [SheetsApi] Response data:', json);
+  if (!json.ok) throw new Error(json.error || 'Sheets API error');
+
+  return json.data;
 }
 
 function stamp(o) {
@@ -129,10 +109,10 @@ function stamp(o) {
 }
 
 export const SheetsApi = {
-  listMembers:  (q, since) => apiList('members',  { q, since }),
-  createMember: (m)        => apiWrite('members',  'create', stamp(m)),
-  updateMember: (m)        => apiWrite('members',  'update', stamp(m)),
-  deleteMember: (id)       => apiWrite('members',  'delete', { id }),
+  listMembers: (q, since) => apiList('members', { q, since }),
+  createMember: (m) => apiWrite('members', 'create', stamp(m)),
+  updateMember: (m) => apiWrite('members', 'update', stamp(m)),
+  deleteMember: (id) => apiWrite('members', 'delete', { id }),
   listPayments: (q, since) => apiList('payments', { q, since }),
-  addPayment:   (p)        => apiWrite('payments', 'create', stamp(p)),
+  addPayment: (p) => apiWrite('payments', 'create', stamp(p)),
 };
