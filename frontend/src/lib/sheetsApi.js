@@ -1,73 +1,68 @@
+// frontend/src/lib/sheetsApi.js
+// CRA env vars (must be set in Netlify as REACT_APP_SHEETS_API_URL / REACT_APP_SHEETS_API_KEY)
 const API_URL = process.env.REACT_APP_SHEETS_API_URL;
 const API_KEY = process.env.REACT_APP_SHEETS_API_KEY;
 
 async function apiList(entity, params = {}) {
   console.log(`📡 [SheetsApi] Making list request for ${entity}:`, params);
-  
-  // Filter out undefined/null values and properly serialize objects
+
+  // Filter out undefined/null + serialize objects/dates
   const cleanParams = {};
-  Object.keys(params).forEach(key => {
-    if (params[key] !== undefined && params[key] !== null) {
-      // Convert Date objects and other objects to strings
-      if (params[key] instanceof Date) {
-        cleanParams[key] = params[key].toISOString();
-      } else if (typeof params[key] === 'object') {
-        cleanParams[key] = JSON.stringify(params[key]);
-      } else {
-        cleanParams[key] = params[key];
-      }
-    }
+  Object.keys(params).forEach((k) => {
+    const v = params[k];
+    if (v === undefined || v === null) return;
+    cleanParams[k] =
+      v instanceof Date ? v.toISOString()
+      : typeof v === 'object' ? JSON.stringify(v)
+      : v;
   });
-  
-  const qs = new URLSearchParams({ entity, key: API_KEY, ...cleanParams }).toString();
-  const url = `${API_URL}?${qs}`;
-  console.log(`📡 [SheetsApi] GET request URL:`, url);
-  
+
+  // Build URL safely
+  const url = new URL(API_URL);
+  url.searchParams.set('entity', entity);
+  url.searchParams.set('key', API_KEY);
+  for (const [k, v] of Object.entries(cleanParams)) url.searchParams.set(k, v);
+
+  console.log(`📡 [SheetsApi] GET request URL:`, url.toString());
+
   try {
-    console.log(`📡 [SheetsApi] Starting fetch request with 10s timeout...`);
-    
-    // Use shorter timeout and AbortController for debugging
     const controller = new AbortController();
     const timeoutId = setTimeout(() => {
       console.error(`❌ [SheetsApi] TIMEOUT after 10 seconds - aborting request`);
       controller.abort();
     }, 10000);
-    
-    const r = await fetch(url, { 
-      method: 'GET', 
+
+    const r = await fetch(url.toString(), {
+      method: 'GET',
       credentials: 'omit',
-      signal: controller.signal 
+      signal: controller.signal,
     });
-    
+
     clearTimeout(timeoutId);
     console.log(`📡 [SheetsApi] Response received - status: ${r.status}`);
-    
+
     if (!r.ok) {
       console.error(`📡 [SheetsApi] HTTP Error: ${r.status} ${r.statusText}`);
       throw new Error(`HTTP ${r.status}: ${r.statusText}`);
     }
-    
-    console.log(`📡 [SheetsApi] Parsing JSON response...`);
+
     const j = await r.json();
     console.log(`📡 [SheetsApi] Response data:`, j);
-    
+
     if (!j.ok) {
       const errorMessage = j.error || 'Sheets API error';
       console.error(`❌ [SheetsApi] Error:`, errorMessage);
       throw new Error(errorMessage);
     }
-    
+
     console.log(`📡 [SheetsApi] Returning ${j.data?.length || 0} items`);
     return j.data || [];
-    
   } catch (error) {
     if (error.name === 'AbortError') {
       console.error(`❌ [SheetsApi] Request was aborted due to timeout`);
       throw new Error('Request timeout - Google Apps Script not responding');
     } else {
       console.error(`❌ [SheetsApi] Request failed:`, error);
-      console.error(`❌ [SheetsApi] Error name:`, error.name);
-      console.error(`❌ [SheetsApi] Error message:`, error.message);
       throw new Error(`Network error: ${error.message}`);
     }
   }
@@ -75,33 +70,39 @@ async function apiList(entity, params = {}) {
 
 async function apiWrite(entity, op, body = {}) {
   console.log(`📡 [SheetsApi] Making ${op} request for ${entity}:`, body);
-  
+
+  // Build URL with key+entity to satisfy any GAS deployment (old/new)
+  const url = new URL(API_URL);
+  url.searchParams.set('key', API_KEY);
+  url.searchParams.set('entity', entity);
+
   const payload = JSON.stringify({ entity, op, key: API_KEY, ...body });
+  console.log(`📡 [SheetsApi] POST URL:`, url.toString());
   console.log(`📡 [SheetsApi] POST payload:`, payload);
-  
-  const r = await fetch(API_URL, {
+
+  const r = await fetch(url.toString(), {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
     credentials: 'omit',
     body: payload,
   });
-  
+
   console.log(`📡 [SheetsApi] Response status: ${r.status}`);
-  
-  const j = await r.json();
+
+  const j = await r.json().catch(() => ({}));
   console.log(`📡 [SheetsApi] Response data:`, j);
-  
-  if (!j.ok) {
-    const errorMessage = j.error || 'Sheets API error';
+
+  if (!r.ok || j.ok === false) {
+    const errorMessage = j?.error || r.statusText || 'Sheets API error';
     console.error(`❌ [SheetsApi] Error:`, errorMessage);
     throw new Error(errorMessage);
   }
-  
+
   return j.data;
 }
 
-function stamp(o) { 
-  return { updatedAt: new Date().toISOString(), ...o }; 
+function stamp(o) {
+  return { updatedAt: new Date().toISOString(), ...o };
 }
 
 export const SheetsApi = {
